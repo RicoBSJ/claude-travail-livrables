@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Palette principale du projet */
+  --primary: #1B3A6B;
+  --primary-light: #2a5298;
+  --primary-dark: #112347;
+  --accent: #00C896;
+  --accent-light: #00e6ad;
+
+  /* Neutres */
+  --background: #f9fafb;
+  --foreground: #111827;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --muted: #6b7280;
+
+  /* Catégories */
+  --color-quiz: #3b82f6;
+  --color-infographies: #8b5cf6;
+  --color-lecons: #10b981;
+  --color-veilles: #f97316;
+  --color-projets: #ef4444;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--border);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
