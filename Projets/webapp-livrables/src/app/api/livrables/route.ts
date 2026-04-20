@@ -89,34 +89,73 @@ function scanDirectory(
   return results;
 }
 
-export async function GET(): Promise<NextResponse<LivrablesResponse>> {
+/** Filtre une liste de livrables selon les critères de la requête */
+function applyFilters(
+  items: Livrable[],
+  opts: { category?: string; ext?: string; days?: number; q?: string }
+): Livrable[] {
+  let result = items;
+
+  // Filtre catégorie
+  if (opts.category) {
+    result = result.filter((l) => l.category === opts.category);
+  }
+
+  // Filtre extension (ex: .pptx, .docx)
+  if (opts.ext) {
+    const ext = opts.ext.startsWith(".") ? opts.ext : `.${opts.ext}`;
+    result = result.filter((l) => l.extension === ext.toLowerCase());
+  }
+
+  // Filtre temporel (N derniers jours)
+  if (opts.days && opts.days > 0) {
+    const cutoff = Date.now() - opts.days * 24 * 60 * 60 * 1000;
+    result = result.filter((l) => new Date(l.date).getTime() >= cutoff);
+  }
+
+  // Recherche textuelle sur le nom de fichier
+  if (opts.q) {
+    const query = opts.q.toLowerCase();
+    result = result.filter((l) => l.name.toLowerCase().includes(query));
+  }
+
+  return result;
+}
+
+export async function GET(request: Request): Promise<NextResponse<LivrablesResponse>> {
   try {
-    const quiz = scanDirectory(
-      path.join(LIVRABLES_ROOT, "Quiz"),
-      "quiz"
+    // Paramètres de filtrage depuis l'URL
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get("category") ?? undefined;
+    const ext      = searchParams.get("ext") ?? undefined;
+    const days     = searchParams.get("days") ? Number(searchParams.get("days")) : undefined;
+    const q        = searchParams.get("q") ?? undefined;
+
+    const filters = { category, ext, days, q };
+
+    const quiz = applyFilters(
+      scanDirectory(path.join(LIVRABLES_ROOT, "Quiz"), "quiz"),
+      filters
     );
 
-    const infographies = scanDirectory(
-      path.join(LIVRABLES_ROOT, "Infographies"),
-      "infographies"
+    const infographies = applyFilters(
+      scanDirectory(path.join(LIVRABLES_ROOT, "Infographies"), "infographies"),
+      filters
     );
 
-    const lecons = scanDirectory(
-      path.join(LIVRABLES_ROOT, "Leçons"),
-      "lecons"
+    const lecons = applyFilters(
+      scanDirectory(path.join(LIVRABLES_ROOT, "Leçons"), "lecons"),
+      filters
     );
 
-    // Les veilles sont dans Sources/Veille/, pas dans Livrables/
-    const veilles = scanDirectory(
-      VEILLE_ROOT,
-      "veilles"
+    const veilles = applyFilters(
+      scanDirectory(VEILLE_ROOT, "veilles"),
+      filters
     );
 
-    // Les projets sont dans Livrables/Projets/ (arborescence récursive)
-    const projets = scanDirectory(
-      path.join(LIVRABLES_ROOT, "Projets"),
-      "projets",
-      true  // récursif pour webb-livrables/, claude-agents/, mcp-integrations/
+    const projets = applyFilters(
+      scanDirectory(path.join(LIVRABLES_ROOT, "Projets"), "projets", true),
+      filters
     );
 
     const total = quiz.length + infographies.length + lecons.length + veilles.length + projets.length;
