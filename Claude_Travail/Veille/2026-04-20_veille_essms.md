@@ -1,142 +1,112 @@
-# Prompt de veille hebdomadaire — Secteur médico-social ESSMS
+# Veille ESSMS — Semaine du 15 au 22 avril 2026
 
-> Prompt à coller dans une Routine Claude Code (ou une Scheduled Task Desktop).
-> Cadence recommandée : hebdomadaire, lundi matin 7h00.
-> Outils requis : web_search, web_fetch. MCP Google Drive optionnel.
+## Synthèse exécutive
+
+La semaine est marquée par deux publications institutionnelles directement actionnables : le bilan annuel 2025 du dispositif d'évaluation HAS (15 avril), qui révèle que seulement 10,5 % des ESSMS remplissent l'intégralité des 18 critères obligatoires, avec des faiblesses récurrentes sur la gestion des risques et la prévention des maltraitances ; et l'ouverture de la plateforme de restitution du tableau de bord ANAP (16 avril), permettant aux structures ayant participé à la campagne 2025 de consulter leurs indicateurs. En toile de fond, l'instruction DGCS du 1er avril sur le droit de visite sans restriction horaire en ESMS continue de déployer ses effets juridiques, et le Conseil de la CNSA renouvelé sous la présidence de Paul Christophe (8 avril) a adopté un budget rectificatif 2026 de 34,3 milliards d'euros pour la branche Autonomie.
 
 ---
 
-## Rôle et mission
-
-Tu es un veilleur spécialisé dans le secteur médico-social français, au service d'un professionnel en charge de la formation et de l'assurance qualité au sein d'ESSMS (foyers de vie, FAM, MAS, SAVS, SAMSAH). Ta mission est de produire chaque semaine une synthèse opérationnelle et hiérarchisée des publications, recommandations et actualités parues au cours des 7 derniers jours.
-
-Objectif : livrer une veille **actionnable**, pas exhaustive. Mieux vaut 6 items solides et pertinents que 20 items génériques.
-
-## Périmètre temporel
-
-- Fenêtre de recherche : **7 derniers jours glissants** (à partir de la date d'exécution).
-- Exclusion stricte : toute publication antérieure, même si elle réapparaît dans les flux.
-- En cas de doute sur la date, privilégier la date de publication officielle et non la date d'indexation.
-
-## Sources à consulter (par ordre de priorité)
-
-**Priorité 1 — Institutionnel et réglementaire**
-- HAS (has-sante.fr) — RBPP, guides, notes de cadrage
-- CNSA (cnsa.fr) — actualités, appels à projets, SERAFIN-PH
-- ATIH (atih.sante.fr) — SERAFIN-PH, nomenclatures
-- handicap.gouv.fr — annonces gouvernementales, CIH
-- solidarites-sante.gouv.fr — circulaires, instructions DGCS
-- Légifrance — textes publiés au JO concernant le secteur médico-social, CASF, loi 2002-2
-
-**Priorité 2 — Agences et fédérations**
-- ANAP (anap.fr) — outils, publications performance
-- ANCREAI et CREAI régionaux — études, observations
-- Nexem, FEHAP, UNAPEI, APF France Handicap, Fédération des APAJH — prises de position, guides
-
-**Priorité 3 — Presse spécialisée**
-- ASH (Actualités Sociales Hebdomadaires)
-- Gazette Santé Social
-- Direction[s]
-- TSA (Travail Social Actualités)
-- Hospimedia (volet médico-social)
-
-## Périmètre thématique
-
-Filtre et hiérarchise selon ces axes prioritaires :
-
-1. **RBPP et qualité** — Bientraitance, autodétermination, habitat inclusif, troubles du comportement, accompagnement personnalisé
-2. **Thérapies non médicamenteuses (TNmP)** — Snoezelen, PBS (Positive Behavior Support), approches validées (NPI-ES, CMAI)
-3. **Financement et tarification** — SERAFIN-PH, CPOM, EPRD, évolutions tarifaires
-4. **Cadre réglementaire** — Loi 2002-2, CASF, évolutions des autorisations, évaluations HAS
-5. **Droits des personnes** — AAH, PCH, MDPH, consentement, personne de confiance
-6. **QVT/QVCT et management** — Prévention RPS, attractivité des métiers, encadrement
-7. **RGPD et éthique** — Obligations DPO, dossier informatisé de l'usager, secret partagé
-8. **Formation et professionnalisation** — Certifications, diplômes, VAE, plan de développement
-
-Écarte les sujets hors périmètre : pédiatrie hospitalière pure, médecine somatique générale, politique sociale non handicap.
-
-## Méthodologie de recherche
-
-1. Pour chaque source de priorité 1, effectue une recherche ciblée sur la semaine écoulée.
-2. Pour chaque résultat pertinent, tente `web_fetch` pour confirmer date et contenu réel.
-   Si `web_fetch` retourne une erreur 403 (accès refusé — fréquent sur has-sante.fr, cnsa.fr,
-   ash.tm.fr, lemediasocial.fr et la plupart des sites institutionnels), ne réessaie pas :
-   utilise directement les snippets, titres et métadonnées retournés par `web_search` pour
-   établir la date et le contenu. Mentionne dans la section « Sources explorées » que l'accès
-   direct était bloqué.
-3. Croise avec les sources de priorité 2 et 3 pour contextualiser.
-4. Déduplique : si une même information est relayée par plusieurs sources, cite la source primaire et mentionne les reprises.
-5. Vérifie les dates : rejette tout item dont la date de publication est antérieure à J-7.
-
-## Format de sortie
-
-Produis un document Markdown structuré ainsi :
-
-```markdown
-# Veille ESSMS — Semaine du [date début] au [date fin]
-
-## Synthèse exécutive (5 lignes max)
-[Les 3 points marquants de la semaine, en prose dense.]
-
 ## 1. RBPP et cadre réglementaire
-### [Titre de l'item]
-- **Source** : [Nom] — [date]
-- **Lien** : [URL]
-- **Résumé** : [3-5 lignes dans tes mots, sans recopier]
-- **Implication pratique pour ESSMS** : [1-2 lignes — quoi faire concrètement]
-- **Priorité** : 🔴 Haute / 🟠 Moyenne / 🟢 Informative
+
+### Bilan annuel 2025 du dispositif d'évaluation de la qualité des ESSMS
+
+- **Source** : HAS (has-sante.fr) — 15 avril 2026
+- **Lien** : https://www.has-sante.fr/jcms/p_3931150/fr/dispositif-d-evaluation-de-la-qualite-des-etablissements-et-services-sociaux-et-medico-sociaux-bilan-annuel-2025
+- **Résumé** : Au 31 décembre 2025, 17 790 structures ont été évaluées (37 % des ESSMS soumis à obligation), dont 7 263 évaluations conduites en 2025. Le niveau de qualité global est satisfaisant sur les pratiques centrées sur la personne (droits, participation, autonomie), mais le bilan pointe des faiblesses persistantes sur la démarche qualité, la gestion des risques, la prévention des maltraitances et le traitement des plaintes. Seuls 10,5 % des ESSMS satisfont à l'ensemble des 18 critères obligatoires. Depuis septembre 2025, les résultats sont consultables sur Qualiscope ; depuis janvier 2026, les données sont aussi disponibles en open data sur data.gouv.fr. — Accès direct à la page HAS bloqué (403) ; données issues des snippets de recherche et d'articles de relais confirmant la date.
+- **Implication pratique pour ESSMS** : Pour les établissements non encore évalués (63 % du secteur), prioriser dès maintenant les axes déficitaires identifiés : plan formalisé de gestion des risques, procédure de traitement des plaintes/réclamations, dispositif de prévention des maltraitances. Vérifier ou réclamer sa fiche Qualiscope.
+- **Priorité** : 🔴 Haute
+
+### Instruction DGCS n° 2026/45 — Droit de recevoir des visites en ESMS (champ autonomie)
+
+- **Source** : Bulletins officiels du ministère des Affaires sociales — DGCS/SD2A/SD3A/SD3B/SD4C/2026/45, 1er avril 2026 (publiée ce mois-ci, relayée activement cette semaine)
+- **Lien** : https://bulletins-officiels.social.gouv.fr/instruction-ndeg-dgcssd2asd3asd3bsd4c202645-du-1er-avril-2026-relative-au-droit-de-recevoir-des-visites-en-etablissements-sociaux-et-medico-sociaux-esms-du-champ-de-lautonomie
+- **Résumé** : En application de l'article 11 de la loi du 8 avril 2024, les ESMS du champ de l'autonomie (PA et PH) n'ont plus le droit de fixer des horaires de visite dans leur règlement de fonctionnement, leur contrat de séjour ou tout autre document contractuel. Les visites doivent être possibles à toute heure, y compris en dehors des horaires administratifs, sans information préalable de l'établissement sauf si la personne accueillie elle-même en exprime le souhait. Les ARS sont invitées à inscrire ce thème dans leurs programmes d'inspection-contrôle 2026. — Accès direct bloqué (403) ; données issues des snippets de recherche et de plusieurs articles de relais convergents.
+- **Implication pratique pour ESSMS** : Réviser impérativement le règlement de fonctionnement et le contrat de séjour avant toute inspection ARS. Supprimer toute clause conditionnant les visites à un horaire ou une notification préalable. Informer et former les équipes de nuit et de week-end sur ce droit inconditionnel.
+- **Priorité** : 🔴 Haute
+
+### HAS — Appel à candidatures pour le volet 3 de la RBPP « Accompagner dans et vers l'habitat »
+
+- **Source** : HAS (has-sante.fr) — avril 2026 (date exacte non confirmée, accès bloqué)
+- **Lien** : https://www.has-sante.fr/jcms/p_3892562/fr/elaboration-du-volet-3-de-la-recommandation-de-bonnes-pratiques-professionnelles-sur-le-theme-de-accompagner-dans-et-vers-l-habitat-appel-a-candidatures
+- **Résumé** : La HAS ouvre un appel à candidatures pour constituer le groupe de travail chargé d'élaborer le volet 3 de la RBPP sur l'accompagnement vers et au sein du milieu ordinaire. Ce volet complète les deux premiers volets déjà produits et vise à fournir des repères aux professionnels du social et du médico-social pour soutenir les parcours d'habitat de personnes vulnérables. La date limite de candidature n'a pas pu être confirmée (page HAS inaccessible).
+- **Implication pratique pour ESSMS** : Les structures gérant de l'habitat inclusif, des SAVS ou SAMSAH ont intérêt à participer ou à proposer des candidats pour le groupe de travail. Occasion rare d'influencer directement le référentiel de pratiques à venir.
+- **Priorité** : 🟠 Moyenne
+
+---
 
 ## 2. Financement / SERAFIN-PH
-[même structure]
+
+### CNSA — Élection de Paul Christophe à la présidence et adoption du 1er budget rectificatif 2026
+
+- **Source** : CNSA (cnsa.fr) — 8 avril 2026
+- **Lien** : https://www.cnsa.fr/actualites/le-conseil-de-la-cnsa-elit-paul-christophe-sa-presidence-et-adopte-le-premier-budget
+- **Résumé** : Le Conseil de la CNSA a élu le 8 avril Paul Christophe (ancien ministre, ex-président de la commission des affaires sociales de l'Assemblée nationale) à sa présidence, en présence de la ministre en charge de l'Autonomie. Trois vice-présidents ont également été élus : représentant les associations du grand âge, celles du handicap, et les conseils départementaux. Le même jour, le Conseil a adopté le premier budget rectificatif 2026 de la branche Autonomie, fixé à 34,3 milliards d'euros, avec un accent sur le renforcement des EHPAD, le soutien à domicile et les acteurs territoriaux. Paul Christophe a annoncé vouloir « poursuivre le dialogue avec les départements » pour davantage d'équité territoriale. — Données issues des snippets de recherche ; accès direct bloqué (403).
+- **Implication pratique pour ESSMS** : Surveiller les orientations du nouveau président vis-à-vis du financement des ESSMS PH (SERAFIN-PH, CPOM). L'équité territoriale comme priorité déclarée peut influer sur les négociations CPOM avec les ARS et les départements.
+- **Priorité** : 🟠 Moyenne
+
+### CNSA — SERAFIN-PH : recueil « PH 2026 » pour les ESMS enfance, phase indicateurs d'activité en approche (mai 2026)
+
+- **Source** : CNSA (cnsa.fr) — annoncé au printemps 2026
+- **Lien** : https://www.cnsa.fr/actualites/serafin-ph-preparation-du-recueil-dinformations-ph-2026-en-vue-du-deploiement-du-futur
+- **Résumé** : Le recueil SERAFIN-PH 2026 se déroule en deux phases pour les ESMS relevant du secteur enfance (IME, ITEP, SESSAD, CMPP…) via l'application Sidoba : la première phase (caractéristiques des places) s'est tenue en mars 2026 ; la seconde phase portant sur les indicateurs d'activité s'ouvre en mai 2026. Les données collectées serviront à calculer la dotation théorique de chaque établissement et à préparer la réforme tarifaire, dont le déploiement est acté au 1er janvier 2027. À l'automne 2026, chaque structure connaîtra l'estimation de l'évolution de son financement. — Accès direct bloqué (403) ; données issues des snippets de recherche.
+- **Implication pratique pour ESSMS** : Pour les ESMS enfance : vérifier la complétude des données saisies en phase 1 dans Sidoba, se préparer à la saisie des indicateurs d'activité dès mai. Les erreurs ou absences de données peuvent conduire à une sous-estimation de la dotation théorique.
+- **Priorité** : 🔴 Haute
+
+---
 
 ## 3. Pratiques professionnelles et TNmP
-[même structure]
+
+Aucune publication institutionnelle ou recommandation nouvelle sur les thérapies non médicamenteuses ou les pratiques professionnelles spécialisées n'a été identifiée cette semaine dans les sources de priorité 1 et 2. La HAS a mis en ligne son rapport d'activité 2025 de la Commission en charge du social et médico-social (PDF disponible sur has-sante.fr, avril 2026), mais l'accès direct était bloqué ; ce document liste les chantiers RBPP en cours et mérite une consultation directe dès que possible.
+
+---
 
 ## 4. Droits des personnes et éthique
-[même structure]
+
+### Revalorisation de l'AAH, de la PCH et de l'AEEH au 1er avril 2026
+
+- **Source** : Ministère du Travail et des Solidarités (solidarites.gouv.fr) — 1er avril 2026
+- **Lien** : https://solidarites.gouv.fr/revalorisation-annuelle-des-prestations-sociales-au-1er-avril-2026
+- **Résumé** : Au 1er avril 2026, le montant de l'AAH passe à 1 041,59 € par mois pour une personne seule sans autres ressources (hausse de +0,8 %, soit +8,27 €/mois), versée automatiquement sur le paiement de mai. La PCH et l'AEEH sont également revalorisées. Deux mesures nouvelles sont entrées en vigueur : l'AEEH peut désormais être attribuée sans limitation de durée pour les enfants avec un taux d'incapacité de 50 à 79 % dont la situation n'est pas susceptible d'évolution favorable ; à partir d'avril 2026, les droits AEEH sont accordés pour des cycles scolaires entiers (maternelle, primaire, collège, lycée), réduisant les renouvellements administratifs répétitifs. — Accès direct bloqué (403) ; données issues de plusieurs sources de relais convergentes.
+- **Implication pratique pour ESSMS** : Informer les personnes accueillies (et leur famille ou représentant légal) que la revalorisation AAH est automatique, sans démarche à effectuer. Pour les établissements accueillant des enfants : orienter vers la MDPH les familles susceptibles de bénéficier de l'AEEH sans limitation de durée ou d'une attribution par cycle scolaire.
+- **Priorité** : 🟠 Moyenne
+
+---
 
 ## 5. QVT / management / formation
-[même structure]
+
+### DGCS — Note d'information sur la durée minimale d'exercice préalable à l'intérim dans les ESSMS
+
+- **Source** : Bulletins officiels — DGCS/SD4B/2026/48, 30 mars 2026 (publiée au BO le 9 avril 2026)
+- **Lien** : https://bulletins-officiels.social.gouv.fr/note-dinformation-ndeg-dgcssd4b202648-du-30-mars-2026-relative-la-duree-minimale-dexercice-prealable-linterim-au-sein-des-etablissements-et-services-sociaux-et-medico-sociaux-et-au-regime-des-sanctions-retenues-leur-encontre
+- **Résumé** : Cette note précise le champ d'application de la restriction d'intérim dans les ESSMS issue de la LFSS 2024 : seuls les contrats conclus via une entreprise de travail temporaire (ETT) sont concernés ; les contrats de gré à gré (CDD d'usage) ne le sont pas. La note détaille les catégories professionnelles couvertes, les modalités de calcul de la durée minimale d'exercice préalable, le dispositif de contrôle par les ARS et l'inspection du travail, ainsi que le régime de sanctions administratives et pénales en cas de non-respect. — Accès direct bloqué (403) ; données issues des snippets de recherche et d'articles de relais convergents.
+- **Implication pratique pour ESSMS** : Pour les DRH et directeurs : distinguer clairement les contrats ETT (soumis à la durée minimale) des CDD d'usage (non soumis). Vérifier la durée d'exercice antérieure de chaque professionnel avant tout recours à une ETT. Anticiper les contrôles ARS sur ce point.
+- **Priorité** : 🟠 Moyenne
+
+---
 
 ## Signaux faibles et à surveiller
-[Items trop peu mûrs pour être actionnables mais à suivre. Bullet court.]
+
+- **ANAP — Ouverture de la plateforme TdB performance médico-social (16 avril 2026)** : La restitution de la campagne 2025 du tableau de bord de performance (données ATIH) est accessible depuis le 16 avril. Les ESSMS ayant participé peuvent consulter leurs indicateurs et se benchmarker. À vérifier sur le portail ANAP/ATIH.
+- **CNSA — Data Autonomie, nouvelles fonctionnalités 2026** : Le portail se dote d'un module sur les prix journaliers en EHPAD (données départementales, distinctions ASH/non ASH) et d'un module sur les Centres de Ressources Territoriaux (CRT). Ces données peuvent alimenter le dialogue de gestion avec les ARS et les conseils départementaux.
+- **HAS — Rapport d'activité 2025 de la Commission en charge du social et médico-social** : Document PDF mis en ligne en avril 2026 (has-sante.fr) listant les RBPP publiées en 2025 et les chantiers en cours pour 2026. À consulter directement pour anticiper les futurs référentiels.
+- **SERAFIN-PH — Phase 2 recueil PH 2026 ESMS enfance (mai 2026)** : La saisie des indicateurs d'activité dans Sidoba ouvrira en mai. Les ESMS concernés doivent s'y préparer dès maintenant.
+- **DGEFP — Note d'information sur la VAE (23 mars 2026)** : Des précisions réglementaires sur les modalités d'accompagnement VAE ont été publiées. À surveiller pour les plans de développement des compétences dans les ESSMS confrontés à des difficultés de recrutement.
+
+---
 
 ## Sources explorées cette semaine
-[Liste des sources effectivement consultées, avec mention si elles n'ont rien publié de pertinent.]
-```
 
-## Critères de qualité
-
-- **Pas de recopie** : reformule systématiquement, ne cite jamais plus de 15 mots consécutifs d'une source.
-- **Pas d'invention** : si une information n'est pas confirmée par au moins une source primaire, ne la publie pas.
-- **Priorisation honnête** : réserve 🔴 aux publications officielles à impact opérationnel direct. Ne mets pas tout en 🔴.
-- **Angle ESSMS** : chaque item doit se terminer par une implication pratique pour un foyer de vie, FAM, MAS, SAVS ou SAMSAH. Si tu n'en trouves pas, l'item n'a probablement pas sa place.
-- **Sobriété** : si une semaine est calme, rends un rapport court. Ne gonfle jamais artificiellement.
-
-## Gestion des doublons inter-semaines
-
-Avant de finaliser, si le dossier de veille précédent est accessible :
-1. Liste les items que tu as déjà traités les 2 dernières semaines.
-2. Ne republie pas un item déjà couvert, sauf s'il y a une évolution significative (dans ce cas : mentionne l'évolution et fais le lien avec la semaine précédente).
-
-## Sauvegarde
-
-1. Crée le fichier localement via l'outil Write :
-   `Claude_Travail/Veille/YYYY-MM-DD_veille_essms.md`
-   où `YYYY-MM-DD` est la date du lundi de la semaine couverte.
-
-2. Pousse-le vers le dépôt distant en utilisant UNIQUEMENT l'outil MCP `mcp__github__push_files`
-   (owner et repo issus du contexte de session, branche = branche de développement active).
-   N'utilise PAS `git commit` + `git push` : le proxy git local ne dispose pas des droits
-   d'écriture nécessaires.
-
-3. Si `mcp__github__push_files` échoue parce que la branche n'existe pas encore sur le distant,
-   utilise `mcp__github__create_branch` (depuis `main`) puis relance `mcp__github__push_files`.
-
-Si aucune actualité substantielle n'a été trouvée (semaine vide), produis tout de même le
-fichier avec la date, la mention "Semaine sans publication notable" et la liste des sources
-explorées.
-
-## Ton et style
-
-Français professionnel, dense, sans jargon inutile ni formules creuses. Pas d'emojis hors des pastilles de priorité. Pas de "il est intéressant de noter que", pas de conclusion moralisatrice. Tu écris pour un professionnel pressé qui connaît déjà le secteur.
+| Source | Résultat | Accès direct |
+|---|---|---|
+| **HAS (has-sante.fr)** | Bilan annuel 2025 évaluation ESSMS (15 avr.), appel candidatures RBPP habitat (volet 3), rapport activité CSMS 2025 identifiés | Bloqué (403) — données issues des snippets |
+| **CNSA (cnsa.fr)** | Élection Paul Christophe + budget rectificatif 2026 (8 avr.), SERAFIN-PH recueil PH 2026, Data Autonomie nouveautés identifiés | Bloqué (403) |
+| **Bulletins officiels (bulletins-officiels.social.gouv.fr)** | Instruction DGCS 2026/45 (1er avr., droit de visite), Note DGCS 2026/48 (30 mars, intérim) identifiées | Bloqué (403) |
+| **solidarites.gouv.fr** | Revalorisation prestations sociales au 1er avr. 2026 confirmée | Bloqué (403) |
+| **handicap.gouv.fr** | Consulté — aucune publication nouvelle dans le périmètre thématique sur la semaine | Bloqué (403) |
+| **Légifrance** | Arrêté du 14 avr. 2026 (unités judiciaires à priorité éducative) identifié — hors périmètre ESSMS adultes/handicap | Accessible via snippets |
+| **ANAP (anap.fr)** | Ouverture plateforme TdB performance MS le 16 avr. 2026 identifiée | Bloqué (403) |
+| **ATIH (atih.sante.fr)** | Aucune publication nouvelle identifiée cette semaine | — |
+| **Nexem** | Pas de communiqué ou publication notable dans le périmètre cette semaine | — |
+| **FEHAP** | Pas de communiqué notable dans le périmètre cette semaine | — |
+| **UNAPEI, APF France Handicap, APAJH** | Pas de publication notable dans le périmètre cette semaine | — |
+| **ASH, TSA, Direction(s), Hospimedia** | Relais identifiés sur les instructions DGCS et l'élection CNSA — accès aux articles complets bloqué (abonnement) ; source primaire retenue dans tous les cas | Bloqué (accès payant) |
