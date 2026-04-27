@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Outil d'Anonymisation Email — RGPD</title>
+<style>
+  :root {
+    --navy: #1B3A6B;
+    --navy-light: #2d5694;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --border: #d8dde6;
+    --text: #1a2332;
+    --muted: #6b7785;
+    --success: #2d7a4f;
+    --warning: #c47000;
+    --danger: #b22b2b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 24px;
+    line-height: 1.5;
+  }
+
+  header {
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    padding: 16px 24px;
+    background: var(--navy);
+    color: white;
+    border-radius: 8px;
+  }
+
+  header h1 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 14px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .card h2 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    color: var(--navy);
+    font-weight: 600;
+    border-bottom: 2px solid var(--navy);
+    padding-bottom: 8px;
+  }
+
+  .card h3 {
+    margin: 16px 0 8px;
+    font-size: 14px;
+    color: var(--navy);
+    font-weight: 600;
+  }
+
+  /* Liste des noms */
+  .name-list {
+    max-height: 280px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fafbfc;
+  }
+
+  .name-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .name-item:last-child { border-bottom: none; }
+
+  .name-item .name {
+    font-weight: 500;
+  }
+
+  .name-item .arrow {
+    color: var(--muted);
+    margin: 0 8px;
+  }
+
+  .name-item .initials {
+    font-family: 'Consolas', monospace;
+    background: #e8efff;
+    color: var(--navy);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .name-item .delete {
+    background: transparent;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+    margin-left: 8px;
+  }
+
+  .name-item .delete:hover {
+    background: #ffe5e5;
+    border-radius: 4px;
+  }
+
+  .empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  /* Forms */
+  .form-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  input[type="text"], textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    background: white;
+  }
+
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--navy);
+    box-shadow: 0 0 0 2px rgba(27, 58, 107, 0.1);
+  }
+
+  textarea {
+    min-height: 200px;
+    resize: vertical;
+    line-height: 1.5;
+    font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+  }
+
+  /* Buttons */
+  button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--navy);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--navy-light);
+  }
+
+  .btn-secondary {
+    background: white;
+    color: var(--navy);
+    border: 1px solid var(--navy);
+  }
+
+  .btn-secondary:hover {
+    background: var(--navy);
+    color: white;
+  }
+
+  .btn-danger {
+    background: white;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+  }
+
+  .btn-danger:hover {
+    background: var(--danger);
+    color: white;
+  }
+
+  .btn-success {
+    background: var(--success);
+    color: white;
+  }
+
+  .btn-success:hover {
+    background: #1f5a3a;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  /* Right panel */
+  .panels {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .panel-header h2 {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .badge {
+    background: var(--navy);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .stats {
+    background: #e8efff;
+    color: var(--navy);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-top: 8px;
+    display: none;
+  }
+
+  .stats.visible { display: block; }
+
+  .footer {
+    max-width: 1200px;
+    margin: 24px auto 0;
+    padding: 16px 24px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .footer strong { color: var(--warning); }
+
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔒 Outil d'Anonymisation Email</h1>
+  <p>Remplacement automatique nom → initiales · 100% local · Aucune donnée envoyée à l'extérieur</p>
+</header>
+
+<div class="container">
+
+  <!-- COLONNE GAUCHE : Carnet d'usagers -->
+  <div class="card">
+    <h2>📇 Carnet d'usagers</h2>
+
+    <div id="nameList" class="name-list">
+      <div class="empty">Aucun usager enregistré.<br>Ajoute un nom ci-dessous.</div>
+    </div>
+
+    <h3>Ajouter un usager</h3>
+    <div class="form-row">
+      <input type="text" id="firstName" placeholder="Prénom" />
+      <input type="text" id="lastName" placeholder="Nom" />
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="addName()">+ Ajouter</button>
+      <button class="btn-danger" onclick="clearAll()">Tout effacer</button>
+    </div>
+
+    <h3>Import / Export</h3>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="exportData()">📥 Export</button>
+      <button class="btn-secondary" onclick="document.getElementById('importFile').click()">📤 Import</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)" />
+    </div>
+  </div>
+
+  <!-- COLONNE DROITE : Anonymisation -->
+  <div class="panels">
+
+    <!-- Texte source -->
+    <div class="card">
+      <div class="panel-header">
+        <h2>📝 Texte original</h2>
+        <span class="badge" id="charCount">0 caractères</span>
+      </div>
+      <textarea id="sourceText" placeholder="Colle ici le texte de l'email à anonymiser..." oninput="updateCharCount()"></textarea>
+      <div class="btn-row">
+        <button class="btn-success" onclick="anonymize()">🔒 Anonymiser →</button>
+        <button class="btn-secondary" onclick="clearSource()">Effacer</button>
+      </div>
+    </div>
+
+    <!-- Résultat -->
+    <div class="card">
+      <div class="panel-header">
+        <h2>✅ Texte anonymisé</h2>
+        <span class="badge" id="replaceCount" style="background: var(--success); display:none">0 remplacements</span>
+      </div>
+      <textarea id="resultText" placeholder="Le résultat apparaîtra ici..." readonly></textarea>
+      <div class="stats" id="stats"></div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="copyResult()">📋 Copier</button>
+        <button class="btn-secondary" onclick="copyForClaude()">🤖 Copier + prompt Claude</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  <strong>⚠️ Vérification manuelle obligatoire</strong> — Cet outil remplace les noms enregistrés dans le carnet, mais il ne détecte pas les noms inconnus, ni les pathologies, ni les éléments médicaux. <strong>Relis toujours</strong> le texte anonymisé avant de le coller dans Claude.
+</div>
+
+<script>
+  // === STORAGE ===
+  const STORAGE_KEY = 'email_anonymizer_names_v1';
+
+  function loadNames() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveNames(names) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(names));
+  }
+
+  // === RENDER ===
+  function renderList() {
+    const names = loadNames();
+    const list = document.getElementById('nameList');
+
+    if (names.length === 0) {
+      list.innerHTML = '<div class="empty">Aucun usager enregistré.<br>Ajoute un nom ci-dessous.</div>';
+      return;
+    }
+
+    list.innerHTML = names.map((n, i) => `
+      <div class="name-item">
+        <span class="name">${escapeHtml(n.firstName)} ${escapeHtml(n.lastName)}</span>
+        <span class="arrow">→</span>
+        <span class="initials">${escapeHtml(n.initials)}</span>
+        <button class="delete" onclick="removeName(${i})" title="Supprimer">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // === CRUD ===
+  function getInitials(firstName, lastName) {
+    const f = (firstName || '').trim()[0] || '';
+    const l = (lastName || '').trim()[0] || '';
+    return (f + l).toUpperCase() + '.';
+  }
+
+  function addName() {
+    const fInput = document.getElementById('firstName');
+    const lInput = document.getElementById('lastName');
+    const firstName = fInput.value.trim();
+    const lastName = lInput.value.trim();
+
+    if (!firstName && !lastName) {
+      alert('Renseigne au moins un prénom ou un nom.');
+      return;
+    }
+
+    const names = loadNames();
+    names.push({
+      firstName,
+      lastName,
+      initials: getInitials(firstName, lastName)
+    });
+    saveNames(names);
+    renderList();
+
+    fInput.value = '';
+    lInput.value = '';
+    fInput.focus();
+  }
+
+  function removeName(index) {
+    const names = loadNames();
+    names.splice(index, 1);
+    saveNames(names);
+    renderList();
+  }
+
+  function clearAll() {
+    if (!confirm('Effacer toute la liste ? Cette action est irréversible.')) return;
+    saveNames([]);
+    renderList();
+  }
+
+  // === ANONYMISATION ===
+  function escapeRegex(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function anonymize() {
+    const text = document.getElementById('sourceText').value;
+    if (!text.trim()) {
+      alert('Aucun texte à anonymiser.');
+      return;
+    }
+
+    const names = loadNames();
+    let result = text;
+    let replacements = 0;
+    const replacedNames = new Set();
+
+    // Trie par longueur décroissante (pour traiter "Jean-Paul Dupont" avant "Jean")
+    const sortedNames = [...names].sort((a, b) =>
+      (b.firstName.length + b.lastName.length) - (a.firstName.length + a.lastName.length)
+    );
+
+    sortedNames.forEach(n => {
+      const variants = [];
+
+      if (n.firstName && n.lastName) {
+        variants.push(`${n.firstName} ${n.lastName}`);
+        variants.push(`${n.lastName} ${n.firstName}`);
+        variants.push(`${n.lastName.toUpperCase()} ${n.firstName}`);
+        variants.push(`${n.firstName} ${n.lastName.toUpperCase()}`);
+      }
+
+      if (n.lastName) variants.push(n.lastName);
+      if (n.firstName) variants.push(n.firstName);
+
+      variants.forEach(v => {
+        if (!v) return;
+        const re = new RegExp(`\\b${escapeRegex(v)}\\b`, 'gi');
+        const matches = result.match(re);
+        if (matches) {
+          replacements += matches.length;
+          replacedNames.add(`${n.firstName} ${n.lastName}`.trim());
+          result = result.replace(re, n.initials);
+        }
+      });
+    });
+
+    document.getElementById('resultText').value = result;
+
+    // Badge
+    const badge = document.getElementById('replaceCount');
+    badge.textContent = `${replacements} remplacement${replacements > 1 ? 's' : ''}`;
+    badge.style.display = 'inline-block';
+
+    // Stats
+    const stats = document.getElementById('stats');
+    if (replacedNames.size > 0) {
+      stats.innerHTML = `<strong>Noms anonymisés :</strong> ${[...replacedNames].join(', ')}`;
+      stats.classList.add('visible');
+    } else {
+      stats.innerHTML = '<strong>Aucun nom du carnet n\'a été détecté</strong> — vérifie manuellement le texte.';
+      stats.classList.add('visible');
+    }
+  }
+
+  // === ACTIONS ===
+  function clearSource() {
+    document.getElementById('sourceText').value = '';
+    document.getElementById('resultText').value = '';
+    document.getElementById('replaceCount').style.display = 'none';
+    document.getElementById('stats').classList.remove('visible');
+    updateCharCount();
+  }
+
+  function copyResult() {
+    const text = document.getElementById('resultText').value;
+    if (!text) {
+      alert('Rien à copier — anonymise d\'abord ton texte.');
+      return;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+      flashButton(event.target, '✓ Copié !');
+    });
+  }
+
+  function copyForClaude() {
+    const text = document.getElementById('resultText').value;
+    if (!text) {
+      alert('Rien à copier — anonymise d\'abord ton texte.');
+      return;
+    }
+    const prompt = `Voici un email anonymisé (les noms d'usagers sont remplacés par leurs initiales). Aide-moi à le traiter selon les règles définies dans mon CLAUDE.md Email. Pense à me proposer Anne Texier en copie si le sujet est sensible.\n\n---\n\n${text}`;
+    navigator.clipboard.writeText(prompt).then(() => {
+      flashButton(event.target, '✓ Copié pour Claude !');
+    });
+  }
+
+  function flashButton(btn, message) {
+    const original = btn.textContent;
+    btn.textContent = message;
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }
+
+  function updateCharCount() {
+    const len = document.getElementById('sourceText').value.length;
+    document.getElementById('charCount').textContent = `${len} caractère${len > 1 ? 's' : ''}`;
+  }
+
+  // === IMPORT / EXPORT ===
+  function exportData() {
+    const names = loadNames();
+    const blob = new Blob([JSON.stringify(names, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `carnet-usagers-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!Array.isArray(data)) throw new Error('Format invalide');
+        if (confirm(`Importer ${data.length} entrée(s) ? Cela écrasera la liste actuelle.`)) {
+          saveNames(data);
+          renderList();
+        }
+      } catch (err) {
+        alert('Fichier invalide : ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  // === KEYBOARD ===
+  document.getElementById('lastName').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') addName();
+  });
+  document.getElementById('firstName').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') addName();
+  });
+
+  // === INIT ===
+  renderList();
+  updateCharCount();
+</script>
+</body>
+</html>
