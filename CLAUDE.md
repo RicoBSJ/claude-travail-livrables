@@ -35,6 +35,13 @@ Claude_Travail/
 │   ├── Infographies/       ← convention : infographie_[type]_[slug]_YYYY-MM-DD.pptx
 │   ├── Leçons/             ← leçons Word hebdomadaires (NO-CODE+IA)
 │   └── Documents/          ← documents Word divers
+├── NotebookLM/             ← notebooks thématiques (RBPP, HAS, SERAFIN-PH, Formation, CPOM)
+│   ├── README.md           ← architecture, workflow, limites NotebookLM
+│   ├── RBPP/               ← Sources_PDF/ + Prompts/notebook_guide_RBPP.md
+│   ├── Evaluation_HAS/     ← Sources_PDF/ + Prompts/notebook_guide_Evaluation_HAS.md
+│   ├── SERAFIN-PH/         ← Sources_PDF/ + Prompts/notebook_guide_SERAFIN-PH.md
+│   ├── Formation_Equipe/   ← Sources_PDF/ + Prompts/notebook_guide_Formation_Equipe.md
+│   └── CPOM/               ← Sources_PDF/ + Prompts/notebook_guide_CPOM.md
 ├── Ressources/             ← documentation de référence externe (MCP, outils, guides)
 └── Prompt/
     ├── session_YYYY-MM-DD_prompts.txt  ← logs de sessions actives
@@ -161,6 +168,25 @@ console.log("✅ Quiz généré avec succès.");
 - Nom du fichier : `YYYY-MM-DD_lecon-nocode-ia_NN_[slug].docx`
 - Livrable → `Livrables/Leçons/`
 - Note : openai.com/news retourne 403 → utiliser openai.com/blog/rss.xml
+
+---
+
+## NotebookLM
+
+5 notebooks thématiques, chacun avec un Notebook Guide dédié à coller dans l'interface.
+
+| Notebook | Usage principal |
+|---|---|
+| **RBPP** | Interrogation recommandations · Auto-diagnostic écart · Livrables formation |
+| **Evaluation_HAS** | Préparation évaluation externe · Grilles · Argumentaires preuves |
+| **SERAFIN-PH** | Anticipation bascule 2027 · Veille réglementaire CNSA |
+| **Formation_Equipe** | Formation AES/ME/ES · Onboarding · Cas pratiques |
+| **CPOM** | Préparation contractuelle · Suivi indicateurs · Bilans ARS |
+
+- Sources acceptées : **PDF uniquement** (convertir DOCX/PPTX via Office 365 → Exporter → PDF)
+- Guides : `NotebookLM/[nom]/Prompts/notebook_guide_[nom].md`
+- Dépôt des PDFs : `NotebookLM/[nom]/Sources_PDF/`
+- Workflow complet : voir `NotebookLM/README.md`
 
 ---
 
