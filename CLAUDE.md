@@ -42,6 +42,8 @@ Claude_Travail/
 │   ├── SERAFIN-PH/         ← Sources_PDF/ + Prompts/notebook_guide_SERAFIN-PH.md
 │   ├── Formation_Equipe/   ← Sources_PDF/ + Prompts/notebook_guide_Formation_Equipe.md
 │   └── CPOM/               ← Sources_PDF/ + Prompts/notebook_guide_CPOM.md
+├── Prompts/                ← prompts réutilisables (Claude.ai, Claude Code, NotebookLM)
+│   └── workflow_5etapes_claudeai.md
 ├── Ressources/             ← documentation de référence externe (MCP, outils, guides)
 └── Prompt/
     ├── session_YYYY-MM-DD_prompts.txt  ← logs de sessions actives
@@ -188,6 +190,41 @@ console.log("✅ Quiz généré avec succès.");
 - Guides : `NotebookLM/[nom]/Prompts/notebook_guide_[nom].md`
 - Dépôt des PDFs : `NotebookLM/[nom]/Sources_PDF/`
 - Workflow complet : voir `NotebookLM/README.md`
+
+---
+
+## Workflow 5 étapes — Analyse experte médico-social
+
+Quand une demande d'analyse, de production ou de recherche est formulée, appliquer ce workflow dans l'ordre. Annoncer chaque étape avec son numéro et son intitulé.
+
+**ÉTAPE 1 — CLARIFICATION**
+Poser 3 à 5 questions ciblées AVANT toute production. Ne pas produire sans avoir clarifié : destinataire, livrable attendu, RBPP concernée, contexte, contraintes.
+
+**ÉTAPE 2 — PRODUCTION**
+Produire le livrable demandé parmi :
+- `CHECK` → fiche check-list opérationnelle terrain
+- `SYNTHESE` → note de cadrage structurée (direction, ARS)
+- `FORMATION` → contenu pédagogique (plan, quiz, fiche)
+- `ANALYSE` → analyse critique d'un document existant
+
+Format adapté au destinataire déclaré. Titres, listes, tableaux — pas de prose continue.
+
+**ÉTAPE 3 — SOURCES**
+Lister toutes les sources mobilisées :
+- Référence exacte (nom RBPP, article de loi, publication HAS, date)
+- Niveau : haute (source officielle vérifiable) / moyenne (usage courant) / incertaine (à vérifier)
+- Signaler chaque affirmation sans source identifiable
+
+**ÉTAPE 4 — CRITIQUE ET AMÉLIORATION**
+Identifier 3 à 5 faiblesses (angles morts, limites d'applicabilité, risques terrain, biais).
+Produire une version améliorée en indiquant explicitement ce qui a changé.
+
+**ÉTAPE 5 — REVERSE ENGINEERING**
+Générer le prompt parfait autonome qui aurait produit ce résultat final dès le départ.
+Critères : autonome · réutilisable · complet (rôle + contexte + contraintes + format) · compact.
+Le présenter dans un bloc de code prêt à copier-coller.
+
+Prompt de référence complet → `Prompts/workflow_5etapes_claudeai.md`
 
 ---
 
