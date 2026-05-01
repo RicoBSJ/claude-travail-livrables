@@ -34,15 +34,7 @@ Claude_Travail/
 │   ├── Quiz/               ← convention : quiz_[type]_[slug]_YYYY-MM-DD.pptx
 │   ├── Infographies/       ← convention : infographie_[type]_[slug]_YYYY-MM-DD.pptx
 │   ├── Leçons/             ← leçons Word hebdomadaires (NO-CODE+IA)
-│   ├── Documents/          ← documents Word divers
-│   └── Projets/
-│       ├── webapp-livrables/   ← guides de session Next.js
-│       ├── claude-agents/      ← guides de session Agents Claude
-│       └── mcp-integrations/   ← guides de session MCP
-├── Projets/
-│   ├── webapp-livrables/   ← code Next.js du portail de consultation (10 sessions)
-│   ├── claude-agents/      ← scripts agents Claude API + SDK (10 sessions)
-│   └── mcp-integrations/   ← serveurs MCP personnalisés (10 sessions)
+│   └── Documents/          ← documents Word divers
 ├── Ressources/             ← documentation de référence externe (MCP, outils, guides)
 └── Prompt/
     ├── session_YYYY-MM-DD_prompts.txt  ← logs de sessions actives
@@ -57,9 +49,6 @@ Claude_Travail/
 | Quiz | `quiz_[type]_[slug]_YYYY-MM-DD.pptx` | `quiz_rbpp_projet-personnalise_2026-04-06.pptx` |
 | Infographie | `infographie_[type]_[slug]_YYYY-MM-DD.pptx` | `infographie_rbpp_tsa-enfant-adolescent_2026-02-12.pptx` |
 | Leçon NO-CODE+IA | `YYYY-MM-DD_lecon-nocode-ia_NN_[slug].docx` | `2026-04-10_lecon-nocode-ia_01_ia-agentique-production.docx` |
-| Session Web App | `YYYY-MM-DD_webapp_NN_[slug].docx` | `2026-04-11_webapp_01_init-nextjs.docx` |
-| Session Agents Claude | `YYYY-MM-DD_agents_NN_[slug].docx` | `2026-04-11_agents_01_hello-claude-api.docx` |
-| Session MCP | `YYYY-MM-DD_mcp_NN_[slug].docx` | `2026-04-11_mcp_01_premier-serveur-stdio.docx` |
 
 ---
 
@@ -164,28 +153,6 @@ console.log("✅ Quiz généré avec succès.");
 - Résumé d'une page max : titre, date, public cible, points clés
 - Nom du fichier : `YYYY-MM-DD_veille_HAS.md`
 - Livrable → `Sources/Veille/`
-
-## Projets progressifs (vendredi matin)
-
-### Projet 1 — Web App Livrables Next.js (vendredi 8h20)
-- Portail de consultation des livrables en ligne (Next.js + TypeScript + Tailwind)
-- 10 sessions progressives : init → layout → API → catalogue → visionneuses → recherche → déploiement → polish
-- Code : `Projets/webapp-livrables/` · Guides : `Livrables/Projets/webapp-livrables/`
-- Déclenchement : `/lancer-job webapp`
-
-### Projet 2 — Agents Claude autonomes (vendredi 8h35)
-- Agents capables de produire des livrables, effectuer des veilles, orchestrer des tâches
-- 10 sessions : hello API → tool use → agent basique → veille → multi-agents → RAG → générateur → mémoire → monitoring → déploiement
-- Code : `Projets/claude-agents/` · Guides : `Livrables/Projets/claude-agents/`
-- Déclenchement : `/lancer-job agents`
-
-### Projet 3 — Intégrations MCP (vendredi 8h50)
-- Serveurs MCP personnalisés connectant Claude Code aux ressources du projet
-- 10 sessions : stdio → resources → prompts → HTTP → serveur livrables → HAS → SQLite → tests → publication → intégration complète
-- Code : `Projets/mcp-integrations/` · Guides : `Livrables/Projets/mcp-integrations/`
-- Déclenchement : `/lancer-job mcp`
-
----
 
 ## Veille NO-CODE + IA (hebdomadaire, vendredi 8h03)
 
