@@ -163,11 +163,12 @@ console.log("✅ Quiz généré avec succès.");
 
 ## Veille NO-CODE + IA (hebdomadaire, vendredi 8h03)
 
-- Sources : the-decoder.com, huggingface.co/blog, simonwillison.net, openai.com/blog/rss.xml, make.com/en/blog, blog.n8n.io, zapier.com/blog, webflow.com/blog
+- Sources : the-decoder.com, huggingface.co/blog/feed.xml, simonwillison.net, openai.com/blog/rss.xml, make.com/en/blog, blog.n8n.io, zapier.com/blog, webflow.com/blog
 - Format : leçon active (20% théorie / 80% pratique) avec hyperliens cliquables
 - Nom du fichier : `YYYY-MM-DD_lecon-nocode-ia_NN_[slug].docx`
 - Livrable → `Livrables/Leçons/`
 - Note : openai.com/news retourne 403 → utiliser openai.com/blog/rss.xml
+- Note : huggingface.co/blog retourne 500 (rendu JS) → utiliser huggingface.co/blog/feed.xml
 
 ---
 
