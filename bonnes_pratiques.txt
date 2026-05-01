@@ -1,0 +1,54 @@
+Voici les bonnes pratiques Claude Code, organisées par catégorie :
+
+---
+
+## Bonnes pratiques Claude Code
+
+### Rédaction des prompts
+- Donner des critères de vérification (tests, captures, sorties attendues)
+- Référencer les fichiers avec `@fichier`
+- Être spécifique : fichier, ligne, contrainte, définition du "terminé"
+- Utiliser le workflow **Explorer → Planifier → Implémenter** (Plan Mode : `Ctrl+G`)
+
+### CLAUDE.md
+- Inclure : commandes bash spécifiques, style de code, conventions de branches, gotchas du projet
+- Exclure : conventions standard, doc d'API détaillée, descriptions fichier par fichier
+- Garder court — si Claude ignore les règles, le fichier est trop long
+- Versionner dans git
+
+### Gestion de session
+- `/clear` entre tâches sans rapport
+- `/rewind` pour restaurer un état précédent
+- `--continue` / `--resume` pour reprendre une session
+- Nommer les sessions avec `/rename`
+
+### Gestion du contexte
+- Le contexte est la contrainte principale — surveiller son usage
+- Utiliser des sous-agents pour les investigations longues (ne polluent pas le contexte principal)
+- `/compact <instructions>` pour comprimer l'historique
+- Corriger tôt avec `Esc` plutôt que laisser Claude dériver
+
+### Permissions
+- Mode **Ask** (défaut) : approbation manuelle de chaque action
+- Mode **Auto** : classifier bloque les actions risquées, laisse passer le routine
+- Configurer des allowlists dans `settings.json` pour les commandes fréquentes
+- `/sandbox` pour isolation OS complète
+
+### Hooks
+- Pour les actions **qui doivent toujours** se produire (formatage, lint, validation)
+- Configurés dans `.claude/settings.json` — exécution garantie, contrairement aux instructions
+- Exemples : `PreCommandExecution`, `UserPromptSubmit`
+
+### Patterns à éviter
+
+| Pattern | Problème | Solution |
+|---------|----------|----------|
+| Session fourre-tout | Contexte saturé | `/clear` entre tâches |
+| Corrections répétées | Contexte pollué | Réécrire le prompt, redémarrer |
+| CLAUDE.md trop long | Règles ignorées | Élaguer, convertir en hooks |
+| Code sans vérification | Bugs masqués | Toujours fournir des tests |
+
+### Organisation projet
+- `En_cours/` : nettoyer après chaque tâche
+- `Templates/` : référencer explicitement avec `@` lors de la génération
+- Skills personnalisés (`/quiz-rbpp`, `/veille-has`) : les invoquer explicitement

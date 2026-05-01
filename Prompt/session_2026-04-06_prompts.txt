@@ -1,0 +1,107 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL COMPLET DES PROMPTS — Projet Claude_Travail
+  Reconstitué depuis les archives RTF + session du 2026-04-06
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  ARCHIVE — Prompts des sessions précédentes (fichiers RTF)
+  Classés du plus ancien au plus récent
+───────────────────────────────────────────────────────────────────
+
+[A01] [2026-04-04 ~16:24] Créer un quiz d'initiation à Claude Code.rtf
+      Est-ce que tu peux créer un quiz complet d'initiation à l'utilisation
+      de Claude Code
+
+[A02] [2026-04-04 ~16:26] Autoriser systématiquement Claude Code à Run sans devoir cliquer.rtf
+      Comment autoriser systématiquement Claude Code à Run sans devoir
+      cliquer avec la souris
+
+[A03] [2026-04-04 ~22:40] Explique-moi comment créer des fichiers templates dont tu peux t'inspirer pour les créations que je te demande.rtf
+      Explique-moi comment créer des fichiers modèles au format Microsoft
+      Word docx, au format Microsoft PowerPoint pptx pour les quiz, au
+      format Microsoft PowerPoint pptx pour les infographies dont tu peux
+      t'inspirer pour les créations que je te demande
+
+[A04] [2026-04-05 ~14:35] Veille SERAFIN_PH.rtf
+      Est-ce que tu peux à partir de ces différents sites
+        · https://www.atih.sante.fr/recueil-national-serafin-ph-2022
+        · https://handicap.gouv.fr/comite-strategique-de-la-reforme-tarifaire-des-etablissements-et-services-pour-personnes-handicapees-serafin-ph
+        · https://www.cnsa.fr/actualites/serafin-ph-preparation-du-recueil-dinformations-ph-2026-en-vue-du-deploiement-du-futur
+      me concocter de manière hebdomadaire une synthèse de manière à opérer
+      une veille professionnelle sur le thème de SERAFIN-PH et enregistrer
+      cette synthèse dans /Sources/Veille
+
+[A05] [2026-04-05 ~15:28] Apprentissage Claude.rtf
+      Est-ce que tu peux à partir de ce site
+        · https://code.claude.com/docs/fr/overview
+      ou d'un autre plus pertinent me concocter tous les vendredis une
+      leçon portant sur le thème de l'utilisation de l'IA Claude Code,
+      de manière attractive et comportant 20% de théorie et 80% d'exercices
+      pratiques
+
+───────────────────────────────────────────────────────────────────
+  SESSION DU 2026-04-06 — Prompts enregistrés en temps réel
+───────────────────────────────────────────────────────────────────
+
+[001] /restaurer-jobs
+      → Réactivation des 3 jobs CronCreate depuis jobs_config.json
+
+[002] exécute maintenant le pipeline RBPP
+      → Pipeline RBPP déclenché manuellement ; aucune nouvelle publication HAS détectée
+
+[003] exécute maintenant la veille SERAFIN-PH
+      → Première exécution : veille générée avec 2 sources (ATIH inaccessible en 403)
+
+[004] Est-ce que les deux fichiers Word présents dans /Sources/Veille/ font doublons
+      → Comparaison des deux fichiers .docx SERAFIN-PH : 70-80 % de recouvrement confirmé
+
+[005] Oui
+      → Confirmation de suppression du fichier du 5 avril (doublon)
+
+[006] Comment consulter atih.sante.fr Recueil national SERAFIN-PH sans que cela génère une erreur 403
+      [+ capture d'écran tableau ATIH] ; analyse du problème 403 et proposition de solutions
+
+[007] Oui
+      → Confirmation : tester l'option Claude in Chrome (MCP) pour contourner le 403 ATIH
+
+[008] J'ai installé Claude in Chrome relance l'option 3
+      → Extension installée ; relance de la récupération ATIH via Chrome MCP
+
+[009] exécute maintenant la veille SERAFIN-PH
+      → Deuxième exécution : veille complète avec 3 sources dont ATIH via Chrome ✅
+         Livrable : Sources/Veille/2026-04-06_veille_SERAFIN-PH.docx (12,8 Ko)
+
+[010] Est-ce que tu peux utiliser le job Pipeline RBPP HAS et l'appliquer aux fichiers contenus dans /Sources/RBPP/Projet Personnalisé
+      → Pipeline RBPP appliqué aux PDFs locaux (ANESM 2008 + HAS 2025)
+         Livrables générés :
+         - Sources/Veille/2026-04-06_veille_rbpp_projet-personnalise.docx (15,9 Ko)
+         - Livrables/Infographies/infographie_rbpp_projet-personnalise_2026-04-06.pptx (66,6 Ko)
+         - Livrables/Quiz/quiz_rbpp_projet-personnalise_2026-04-06.pptx (1 664 Ko / 204 slides)
+
+[011] Est-ce que tu peux généré un fichier dans lequel tu enregistres tous les prompt de cette session dans /Prompt et met à jour ce fichier toutes les fois que je fais un prompt nouveau, génère ce fichier au format Txt
+      → Création de ce fichier + configuration du hook UserPromptSubmit
+
+[012] [15:02:21] Est-ce que tu peux récupérer la totalité des prompts en commençant par le plus ancien, celui-ci : Explique-moi comment créer des fichiers modèles au format Microsoft Word docx, au format Microsoft PowerPoint pptx pour les quiz, au format Microsoft PowerPoint pptx pour les infographies dont tu peux t'inspirer pour les créations que je te demande
+      → Lecture des 5 fichiers RTF archivés + reconstruction de l'historique complet
+
+───────────────────────────────────────────────────────────────────
+  Les prompts suivants sont ajoutés automatiquement par le hook.
+───────────────────────────────────────────────────────────────────
+
+[001] [15:07:16] Est-ce que tu peux retoucher ce fichier, notamment les cadres où les caractères qui le remplissent sont illisibles /Sources/Veille/2026-04-06_veille_rbpp_projet-personnalise
+
+[001] [15:22:08] Est-ce que tu peux dans ce fichier ajouter 7 slides dans lesquelles chacun des slides détaille une pétale, tout en restant synthétique /Livrables/Infographie/infographie_rbpp_projet-personnalise_2026-04-06.pptx
+Et est-ce que tu peux retoucher ce fichier /Livrables/Quiz/quiz_rbpp_projet-personnalise_2026-04-06 en rajoutant pour chacun des slides 3 couleurs
+
+[001] [15:54:27] Est-ce que pour ce fichier /Livrables/Quiz/quiz_rbpp_projet-personnalise_2026-04-06 tu peux utiliser la même palette de couleurs que ce fichier /Livrables/Quiz/quiz_rbpp_v2_2026-04-05 et tout comme dans ce fichier /Livrables/Quiz/quiz_rbpp_v2_2026-04-05 utiliser un premier slide introductif dans ce fichier /Livrables/Quiz/quiz_rbpp_projet-personnalise_2026-04-06
+
+[001] [20:44:36] Stop
+
+[001] [20:49:06] Est-ce que tu peux retoucher /Livrables/Infographies/infographie_rbpp_projet-personnalise_2026-04-06, /Livrables/Quiz/quiz_rbpp_projet-personnalise_2026-04-06, /Sources/Veille/2026-04-06_veille_rbpp_projet-personnalise en utilisant les modèles dans /Templates/
+
+[001] [21:11:45] Rectifie le template d'infographie dans /Templates en te basant sur cette infographie /Livrables/Infographies/infographie_cnt_has2026.pptx
+Rectifie le template de Word dans /Templates en te basant sur cet modèle /Sources/Veille/2026-04-06_veille_SERAFIN-PH.docx
+Rectifie le template de quiz dans /Templates en te basant sur ce quiz /Livrables/Quiz/quiz_cnt_v1_2026-04-05.pptx
+
+[001] [21:20:23] Est-ce que tu peux retoucher /Livrables/Infographies/infographie_rbpp_projet-personnalise_2026-04-06, /Livrables/Quiz/quiz_rbpp_projet-personnalise_2026-04-06, /Sources/Veille/2026-04-06_veille_rbpp_projet-personnalise en utilisant les modèles modifiés à l'instant dans /Templates/
+

@@ -1,0 +1,36 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-27
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [10:45:37] j'ai fait des rajouts sur Chat Claude, est-ce que tu peux faire un push commit ?
+
+[001] [10:48:18] est-ce que je peux faire un push commit depuis Chat Claude ?
+
+[001] [10:50:05] est-ce que j'ai fait ça ou pas :  2. Tu les déposes dans le bon dossier local (`/Users/utilisateur/Github/claude-travail-livrables/`) ?
+
+[001] [10:52:42] est-ce que tu peux m'expliquer pas à pas : 1. **Copier manuellement** les fichiers créés dans Chat Claude vers `/Users/utilisateur/Github/claude-travail-livrables/Projets/webapp-livrables/`, puis me dire de faire le push.
+
+[001] [10:54:35] Voici ce que j'ai fait dans Chat Claude : 
+# Créer le dossier Emails
+mkdir -p ~/Claude_Travail/Emails
+
+# Déplacer les deux fichiers
+mv ~/Downloads/CLAUDE_[Emails.md](http://Emails.md) ~/Claude_Travail/Emails/[CLAUDE.md](http://CLAUDE.md)
+mv ~/Downloads/Outil_Anonymisation.html ~/Claude_Travail/Emails/
+
+# Vérifier
+ls ~/Claude_Travail/Emails/
+
+[001] [10:55:32] D)
+
+[001] [10:57:07] est-ce qu'il existe d'autres fichiers présents sur ma machine mais absents de kDrive ?
+
+[001] [10:57:35] oui
+
+[001] [10:59:17] est-ce que tu peux faire le ménage comme suggéré : L'original dans `~/Claude_Travail/Emails/` est toujours là aussi — tu peux le supprimer si tu veux faire le ménage.
+

@@ -1,0 +1,110 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-09
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [06:35:58] continue et achève ce que tu as commencé
+
+[001] [20:53:09] lance les 4 jobs
+
+[001] [20:54:48] <task-notification>
+<task-id>a0c076ffda1cb9f43</task-id>
+<tool-use-id>toolu_011aNuiq71MedE4Nkbonv9gQ</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/a0c076ffda1cb9f43.output</output-file>
+<status>completed</status>
+<summary>Agent "Job serafin-ph-veille" completed</summary>
+<result>Le fichier `2026-04-06_veille_SERAFIN-PH.docx` a été produit il y a **3 jours** (moins de 7 jours).
+
+---
+
+**Veille déjà effectuée cette semaine (`2026-04-06_veille_SERAFIN-PH.docx`). Aucune action.**
+
+La prochaine veille SERAFIN-PH pourra etre lancée a partir du **dimanche 13 avril 2026** (7 jours après le 06/04).</result>
+<usage><total_tokens>14248</total_tokens><tool_uses>2</tool_uses><duration_ms>11905</duration_ms></usage>
+</task-notification>
+
+[001] [20:54:51] <task-notification>
+<task-id>adb0591604eec88ab</task-id>
+<tool-use-id>toolu_014ZnK4rSQByS68cm4F8TUkr</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/adb0591604eec88ab.output</output-file>
+<status>completed</status>
+<summary>Agent "Job nocode-ia-veille" completed</summary>
+<result>Le fichier `2026-04-08_veille_nocode-ia.docx` a été créé hier (8 avril 2026), il y a moins de 7 jours.
+
+La veille NO-CODE + IA a déjà été effectuée cette semaine (`2026-04-08_veille_nocode-ia.docx`, créé hier le 8 avril 2026). Aucune action engagée.</result>
+<usage><total_tokens>14078</total_tokens><tool_uses>2</tool_uses><duration_ms>6493</duration_ms></usage>
+</task-notification>
+
+[001] [20:56:50] <task-notification>
+<task-id>a3328f8e74c8fe504</task-id>
+<tool-use-id>toolu_014dKeuM73tGrPnWjy6F9YaH</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/a3328f8e74c8fe504.output</output-file>
+<status>completed</status>
+<summary>Agent "Job rbpp-pipeline" completed</summary>
+<result>L'analyse est maintenant complète et définitive. Voici le bilan :
+
+---
+
+**Pipeline RBPP — Rapport d'exécution du 09/04/2026**
+
+**Etape 1 — Vérification des doublons**
+Le dernier fichier RBPP traité dans `Sources/Veille/` est `2026-04-06_veille_rbpp_projet-personnalise.docx` (6 avril 2026), soit 3 jours avant aujourd'hui.
+
+**Etape 2 — Vérification HAS**
+Après consultation de la page HAS et des publications triées par date décroissante, voici les publications RBPP secteur médico-social actuellement disponibles :
+
+| RBPP | Date HAS | Statut |
+|---|---|---|
+| TSA enfant et adolescent | 12/02/2026 | Déjà traitée |
+| Visites en présence d'un tiers | 02/03/2026 | Déjà traitée |
+| Projet personnalisé | 06/04/2026 | Déjà traitée |
+
+La seule publication après le 06/04/2026 est **"Traitement de l'incontinence urinaire d'effort de la femme – Note de cadrage"** (08/04/2026), qui est une recommandation en santé somatique (urologie gynécologique), **hors périmètre ESSMS**.
+
+**Conclusion : Aucune nouvelle RBPP du secteur social et médico-social n'a été publiée depuis la dernière exécution du pipeline (06/04/2026). Le pipeline est à jour.**
+
+Livrables existants confirmés :
+- `/Users/utilisateur/kDrive/Claude_Travail/Sources/Veille/` : 3 veilles RBPP Word
+- `/Users/utilisateur/kDrive/Claude_Travail/Livrables/Quiz/` : 3 quiz RBPP PowerPoint (+ 3 autres productions)
+- `/Users/utilisateur/kDrive/Claude_Travail/Livrables/Infographies/` : 3 infographies RBPP PowerPoint</result>
+<usage><total_tokens>29513</total_tokens><tool_uses>20</tool_uses><duration_ms>165334</duration_ms></usage>
+</task-notification>
+
+[001] [20:57:16] <task-notification>
+<task-id>ae14b3258024213e8</task-id>
+<tool-use-id>toolu_01Wq3rkviVb2MTBwueTrHq76</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/ae14b3258024213e8.output</output-file>
+<status>completed</status>
+<summary>Agent "Job claude-code-lecon" completed</summary>
+<result>Leçon générée avec succès. Voici le rapport :
+
+---
+
+**Leçon 02 créée**
+
+- **Fichier** : `/Users/utilisateur/kDrive/Claude_Travail/Livrables/Leçons/2026-04-09_lecon02_claude-md.docx`
+- **Taille** : 16,4 Ko
+- **Numéro** : 02 — CLAUDE.md : la mémoire persistante de vos projets
+- **Nombre d'exercices** : 5 exercices pratiques + 1 challenge final
+
+**Contenu de la leçon (structure complète) :**
+
+1. En-tête centré avec date, niveau et format 20/80
+2. Tableau "Au programme" (7 activités avec durées)
+3. Théorie (10 min) — les 4 scopes CLAUDE.md, schéma ASCII de priorité, règles d'or, fonctionnement de l'auto memory
+4. Exercice 1 — Créer son premier CLAUDE.md avec `/init`
+5. Exercice 2 — Scopes, priorités et CLAUDE.local.md
+6. Exercice 3 — Imports `@` vers des fichiers externes
+7. Exercice 4 — Règles ciblées `.claude/rules/` avec frontmatter `paths:`
+8. Exercice 5 — Auto memory : observer et piloter la mémoire automatique
+9. Challenge final — Configuration complète d'un projet Node.js API REST
+10. Tableau récapitulatif des 9 commandes/syntaxes clés
+11. Liens vers la documentation officielle + callout prochaine leçon (Leçon 03 — Mode Plan)
+12. Pied de page centré gris italique</result>
+<usage><total_tokens>38394</total_tokens><tool_uses>10</tool_uses><duration_ms>167437</duration_ms></usage>
+</task-notification>
+

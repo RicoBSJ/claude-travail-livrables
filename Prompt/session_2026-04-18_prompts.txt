@@ -1,0 +1,33 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-18
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [09:58:49] dans le job rbpp, est-ce que tu peux systématiquement télécharger la rbpp en référence dans /Sources/RBPP/
+
+[001] [10:04:53] est-ce que tu peux retravailler sur quiz_rbpp_bilan-qualite-essms-2025_2026-04-17.pptx et quiz_rbpp_tdi-volet2-scolarite-travail-loisirs_2026-04-17.pptx en te basant sur quiz_rbpp_projet-personnalise_2026-04-06.pptx tout en variant la palette de couleurs
+
+[001] [11:06:49] lance le job rbpp
+
+[001] [22:01:37] gh auth login
+
+[001] [22:09:21] gh auth login
+
+[001] [22:11:56] oui
+
+[001] [22:21:54] gh auth login
+
+[001] [22:23:10] fait
+
+[001] [22:23:31] gh
+
+[001] [22:24:39] gh repo create
+
+[001] [22:27:06] Nom du dépôt : claude-travail-livrables, public, cloner dans /Github tout en créant ce répertoire
+
+[001] [22:27:44] oui
+

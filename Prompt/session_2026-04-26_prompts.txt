@@ -1,0 +1,29 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-26
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [12:17:53] lance tous les jobs
+
+[001] [12:22:34] est-ce que tu peux supprimer les 3 jobs suivants : Web App, Agents Claude, MCP
+
+[001] [14:24:34] supprimer également les répertoires et sous-répertoires qui se rattachaient au 3 jobs supprimés
+
+[001] [14:25:07] Oui
+
+[001] [14:26:04] Oui, fais le ménage côté GitHub
+
+[001] [14:38:46] Option A
+
+[001] [15:11:42] @/Users/utilisateur/kDrive/Claude_Travail/Sources/RBPP/diagnostic_et_evaluation_des_troubles_schizophreniques_note_cadrage_has.pdf est-ce que tu peux appliquer le job rbpp-pipeline sur le fichier téléchargé ?
+
+[001] [15:40:51] est-ce que tu peux appliquer à ce fichier infographie_rbpp_troubles-schizophreniques_2026-04-26.pptx le style de ce fichier infographie_rbpp_tdi-volet2-scolarite-travail-loisirs_foret_2026-04-17.pptx tout en générant une variation de la palette de couleurs
+
+[001] [16:41:56] poursuit ce que tu as interrompu
+
+[001] [16:49:09] est-ce que tu peux remplacer le style de ce fichier quiz_rbpp_troubles-schizophreniques_2026-04-26.pptx par celui-ci quiz_rbpp_projet-personnalise_2026-04-06.pptx tout en générant une variation dans la palette de couleurs
+

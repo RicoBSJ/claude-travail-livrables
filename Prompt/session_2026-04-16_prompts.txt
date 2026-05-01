@@ -1,0 +1,88 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-16
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [19:39:36] lance tous les jobs
+
+[001] [19:42:16] <task-notification>
+<task-id>a85236c82d638a989</task-id>
+<tool-use-id>toolu_01PpUVfrAAZareSRpiBjBQ9w</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/a85236c82d638a989.output</output-file>
+<status>completed</status>
+<summary>Agent "Lancer job serafin" completed</summary>
+<result>---
+
+```
+✅ Job Veille SERAFIN-PH terminé manuellement.
+   Prochain déclenchement automatique : Chaque mercredi matin
+```
+
+**Livrable produit :** `/Users/utilisateur/kDrive/Claude_Travail/Sources/Veille/2026-04-16_veille_SERAFIN-PH.docx` — 15 Ko
+
+**Contenu du document :**
+- Tableau des sources avec statuts (2 ✅, 1 ⛔)
+- Tableau de bord — 5 thèmes avec statuts et échéances
+- Section handicap.gouv.fr : bilan comité stratégique du 2 juillet 2025, résultats recueil 2025 (86% de réponse), calendrier 2026–2027
+- Section CNSA : recueil PH 2026 en deux phases (mars + mai 2026), périmètre ~40 variables, application SIDOBA, logique année blanche
+- Section ATIH : ⛔ indisponible (403) — note de consultation directe
+- 6 points de vigilance pour les directions d'ESSMS (tableau)
+- Agenda avec 5 rendez-vous à surveiller
+- Rappel des rôles DGCS / CNSA / ATIH / ARS / ESSMS</result>
+<usage><total_tokens>43533</total_tokens><tool_uses>15</tool_uses><duration_ms>162064</duration_ms></usage>
+</task-notification>
+
+[001] [19:42:32] <task-notification>
+<task-id>af352971e1a43f509</task-id>
+<tool-use-id>toolu_01NWpaYzxoqxVhbcBMojfDfr</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/af352971e1a43f509.output</output-file>
+<status>completed</status>
+<summary>Agent "Lancer job webapp session 03" completed</summary>
+<result>You've hit your limit · resets 12am (Europe/Paris)</result>
+<usage><total_tokens>783</total_tokens><tool_uses>24</tool_uses><duration_ms>174965</duration_ms></usage>
+</task-notification>
+
+[001] [19:42:34] <task-notification>
+<task-id>a88f15f1e715fbdfc</task-id>
+<tool-use-id>toolu_0181jxHGk5NxvAVMdTzYcFoS</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/a88f15f1e715fbdfc.output</output-file>
+<status>completed</status>
+<summary>Agent "Lancer job nocode leçon 03" completed</summary>
+<result>You've hit your limit · resets 12am (Europe/Paris)</result>
+<usage><total_tokens>360</total_tokens><tool_uses>17</tool_uses><duration_ms>178528</duration_ms></usage>
+</task-notification>
+
+[001] [19:42:42] <task-notification>
+<task-id>a51693e9e09b295fb</task-id>
+<tool-use-id>toolu_012EwjmoZoe7dj8hDzhx8jwA</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/a51693e9e09b295fb.output</output-file>
+<status>completed</status>
+<summary>Agent "Lancer job agents session 03" completed</summary>
+<result>You've hit your limit · resets 12am (Europe/Paris)</result>
+<usage><total_tokens>290</total_tokens><tool_uses>9</tool_uses><duration_ms>182889</duration_ms></usage>
+</task-notification>
+
+[001] [19:43:20] <task-notification>
+<task-id>aa8ec7ea0d197e85a</task-id>
+<tool-use-id>toolu_018z9E4qC4RQvJ2Tcija279q</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/aa8ec7ea0d197e85a.output</output-file>
+<status>completed</status>
+<summary>Agent "Lancer job rbpp" completed</summary>
+<result>You've hit your limit · resets 12am (Europe/Paris)</result>
+<usage><total_tokens>685</total_tokens><tool_uses>25</tool_uses><duration_ms>226410</duration_ms></usage>
+</task-notification>
+
+[001] [19:43:36] <task-notification>
+<task-id>a9b48bf5d850840fb</task-id>
+<tool-use-id>toolu_01CCo6gApDQe7zULhtMj9gSA</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/a9b48bf5d850840fb.output</output-file>
+<status>completed</status>
+<summary>Agent "Lancer job MCP session 03" completed</summary>
+<result>You've hit your limit · resets 12am (Europe/Paris)</result>
+<usage><total_tokens>125</total_tokens><tool_uses>7</tool_uses><duration_ms>236469</duration_ms></usage>
+</task-notification>
+
