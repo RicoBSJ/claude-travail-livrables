@@ -221,6 +221,43 @@ unzip -p [fichier].pptx ppt/slides/slide1.xml | grep -c '<a:ext cx="-'
 
 ---
 
+## Jobs planifiés — Double mécanisme (session + système macOS)
+
+Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de vérité unique : `id`, `cron`, `prompt`…). Deux moyens de les exécuter automatiquement :
+
+### A. Planificateur de session (CronCreate) — Claude Code ouvert
+- Skill **`/restaurer-jobs`** : recrée tous les crons de la session depuis `jobs_config.json`.
+- Limites : crons liés à la session (disparaissent à la fermeture), auto-expiration à 7 jours, ne se déclenchent que si l'app est **ouverte et idle**.
+- Usage : `/restaurer-jobs` au démarrage de session.
+
+### B. Planificateur système (launchd) — **app fermée, autonomie réelle** ✅
+- 7 agents `~/Library/LaunchAgents/com.claudetravail.<job_id>.plist` exécutent les jobs **même Claude Code fermé**.
+- Chaîne : agent launchd → `scripts/run_job.sh <job_id>` → `claude -p` headless (lit `jobs_config.json`, exécute le job).
+- Modèle forcé : **sonnet** · plafond **2 $/exécution** (modifiable dans `run_job.sh`).
+- launchd **rattrape** une tâche manquée au réveil du Mac (mieux que crontab). Mac éteint = tâche sautée.
+- ⚠️ **Chrome MCP indisponible en headless** : le job RBPP (ATIH/HAS dynamique) peut être partiel → fallback WebFetch/WebSearch, sources bloquées marquées ⛔.
+
+**Scripts (`scripts/`) :**
+| Script | Rôle |
+|--------|------|
+| `run_job.sh <job_id>` | Exécute un job en headless (logs → `scripts/logs/`) |
+| `setup_launchd.sh` | Génère + charge les 7 agents (idempotent ; relancer après modif d'horaire) |
+| `teardown_launchd.sh` | Décharge + supprime tous les agents |
+
+**Commandes utiles :**
+```bash
+launchctl list | grep claudetravail        # voir les agents actifs
+bash scripts/setup_launchd.sh              # (ré)installer / mettre à jour
+bash scripts/run_job.sh ai-act-veille      # test manuel d'un job
+bash scripts/teardown_launchd.sh           # tout désactiver
+```
+
+**Horaires (= champ `cron`) :** ai-act-veille (quotidien 7h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · nocode-ia-veille (ven 8h03).
+
+> Règle : après tout ajout/modif de job dans `jobs_config.json`, relancer `bash scripts/setup_launchd.sh` pour synchroniser launchd. Les logs `scripts/logs/` et `node_modules` sont gitignorés.
+
+---
+
 ## NotebookLM
 
 5 notebooks thématiques, chacun avec un Notebook Guide dédié à coller dans l'interface.
