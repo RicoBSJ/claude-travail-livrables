@@ -240,7 +240,7 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 **Scripts (`scripts/`) :**
 | Script | Rôle |
 |--------|------|
-| `run_job.sh <job_id>` | Exécute un job en headless (logs → `scripts/logs/`) |
+| `run_job.sh <job_id>` | Exécute un job en headless (logs → `scripts/logs/`), puis **auto-commit + push** des livrables si succès (portée stricte : `Sources/Veille/{AI-Act,RGPD}` + `Sources/Veille/*.docx` + `Livrables/{Leçons,Quiz,Infographies}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`) |
 | `setup_launchd.sh` | Génère + charge les 8 agents (idempotent ; relancer après modif d'horaire) |
 | `teardown_launchd.sh` | Décharge + supprime tous les agents |
 
