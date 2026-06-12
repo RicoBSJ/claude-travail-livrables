@@ -45,6 +45,30 @@ EXIT=$?
 echo "" >> "$LOG"
 echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : $EXIT)" >> "$LOG"
 
+# ---- Auto-commit + push des livrables produits (option 2) ----
+# Portée STRICTE : uniquement les dossiers de livrables générés.
+# Jamais "git add -A" → les dossiers personnels sensibles restent hors git.
+if [ "$EXIT" -eq 0 ]; then
+  export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+  git add Sources/Veille/AI-Act Sources/Veille/RGPD Livrables/Leçons Livrables/Quiz Livrables/Infographies 2>/dev/null
+  git add Sources/Veille/*.docx 2>/dev/null
+  if git diff --cached --quiet 2>/dev/null; then
+    echo "[git] Rien de nouveau à committer." >> "$LOG"
+  else
+    git -c user.name="Claude (launchd)" -c user.email="claude@local" \
+        commit -q -m "chore($JOB_ID): livrables auto $(date +%Y-%m-%d)" >> "$LOG" 2>&1
+    # Intègre d'éventuels changements distants avant de pousser (autostash = robuste aux changements parasites)
+    git pull --rebase --autostash -q origin main >> "$LOG" 2>&1 || echo "[git] pull --rebase a échoué (on tente quand même le push)" >> "$LOG"
+    if git push -q origin main >> "$LOG" 2>&1; then
+      echo "[git] ✅ push OK" >> "$LOG"
+    else
+      echo "[git] ⛔ push ÉCHEC (livrables commités localement, à pousser manuellement)" >> "$LOG"
+    fi
+  fi
+else
+  echo "[git] Job en erreur (exit $EXIT) — pas de commit." >> "$LOG"
+fi
+
 # Purge des logs de plus de 30 jours
 find "$LOG_DIR" -name "*.log" -mtime +30 -delete 2>/dev/null
 
