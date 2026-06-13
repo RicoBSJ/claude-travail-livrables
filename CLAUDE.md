@@ -231,7 +231,7 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 - Usage : `/restaurer-jobs` au démarrage de session.
 
 ### B. Planificateur système (launchd) — **app fermée, autonomie réelle** ✅
-- 8 agents `~/Library/LaunchAgents/com.claudetravail.<job_id>.plist` exécutent les jobs **même Claude Code fermé**.
+- Un agent launchd par job (`~/Library/LaunchAgents/com.claudetravail.<job_id>.plist`) exécute les jobs **même Claude Code fermé**.
 - Chaîne : agent launchd → `scripts/run_job.sh <job_id>` → `claude -p` headless (lit `jobs_config.json`, exécute le job).
 - Modèle forcé : **sonnet** · plafond **2 $/exécution** (modifiable dans `run_job.sh`).
 - launchd **rattrape** une tâche manquée au réveil du Mac (mieux que crontab). Mac éteint = tâche sautée.
@@ -241,7 +241,7 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 | Script | Rôle |
 |--------|------|
 | `run_job.sh <job_id>` | Exécute un job en headless (logs → `scripts/logs/`), puis **auto-commit + push** des livrables si succès (portée stricte : `Sources/Veille/{AI-Act,RGPD}` + `Sources/Veille/*.docx` + `Livrables/{Leçons,Quiz,Infographies}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`) |
-| `setup_launchd.sh` | Génère + charge les 8 agents (idempotent ; relancer après modif d'horaire) |
+| `setup_launchd.sh` | Génère + charge tous les agents depuis la liste `JOBS` (idempotent ; relancer après modif d'horaire) |
 | `teardown_launchd.sh` | Décharge + supprime tous les agents |
 
 **Commandes utiles :**
@@ -252,9 +252,9 @@ bash scripts/run_job.sh ai-act-veille      # test manuel d'un job
 bash scripts/teardown_launchd.sh           # tout désactiver
 ```
 
-**Horaires (= champ `cron`) :** ai-act-veille (quotidien 7h03) · rgpd-veille (quotidien 7h33) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · nocode-ia-veille (ven 8h03).
+**Horaires (= champ `cron`) :** ai-act-veille (dim. 7h03) · rgpd-veille (dim. 7h33) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · nocode-ia-veille (ven 8h03) · placement-financier-lecon (sam 8h03).
 
-**Veilles quotidiennes (sous-dossiers dédiés dans `Sources/Veille/`) :** `AI-Act/` et `RGPD/` — 1 CR Word/jour, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté < 24h).
+**Veilles AI Act & RGPD (hebdomadaires, le dimanche) :** sous-dossiers dédiés `Sources/Veille/AI-Act/` et `Sources/Veille/RGPD/` — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent).
 
 > Règle : après tout ajout/modif de job dans `jobs_config.json`, relancer `bash scripts/setup_launchd.sh` pour synchroniser launchd. Les logs `scripts/logs/` et `node_modules` sont gitignorés.
 

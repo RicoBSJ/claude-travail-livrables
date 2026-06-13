@@ -25,8 +25,8 @@ mkdir -p "$AGENTS_DIR" "$LOG_DIR"
 chmod +x "$RUNNER"
 
 # job_id | minute | hour | weekday (vide = quotidien)
-JOBS="ai-act-veille|3|7|
-rgpd-veille|33|7|
+JOBS="ai-act-veille|3|7|0
+rgpd-veille|33|7|0
 rbpp-pipeline|30|8|1
 psychopathologie-lecon|3|8|1
 dzogchen-lecon|3|8|2
