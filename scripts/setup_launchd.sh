@@ -28,6 +28,7 @@ chmod +x "$RUNNER"
 JOBS="ai-act-veille|3|7|
 rgpd-veille|33|7|
 rbpp-pipeline|30|8|1
+psychopathologie-lecon|3|8|1
 dzogchen-lecon|3|8|2
 serafin-ph-veille|3|8|3
 enneagramme-lecon|3|9|3

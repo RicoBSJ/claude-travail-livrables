@@ -1,6 +1,6 @@
 ---
 name: lancer-job
-description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : ai-act, rgpd, serafin, rbpp, dzogchen, enneagramme, nocode, stoicisme, webapp, agents, mcp
+description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : ai-act, rgpd, serafin, rbpp, dzogchen, psychopathologie, enneagramme, nocode, stoicisme, webapp, agents, mcp
 disable-model-invocation: false
 ---
 
@@ -18,6 +18,7 @@ Identifie le job correspondant à l'argument selon cette correspondance :
 - "serafin" ou "serafin-ph" ou "veille"                              → job id "serafin-ph-veille"
 - "rbpp" ou "pipeline"                                               → job id "rbpp-pipeline"
 - "dzogchen" ou "lecon-dzogchen" ou "bouddhisme"                     → job id "dzogchen-lecon"
+- "psychopathologie" ou "psychopatho" ou "psycho" ou "clinique"      → job id "psychopathologie-lecon"
 - "enneagramme" ou "lecon-enneagramme" ou "personnalite"             → job id "enneagramme-lecon"
 - "nocode" ou "no-code" ou "ia" ou "nocode-ia" ou "lecon-nocode"    → job id "nocode-ia-veille"
 - "stoicisme" ou "lecon-stoicisme" ou "philosophie"                  → job id "stoicisme-lecon"
@@ -33,6 +34,7 @@ Jobs disponibles :
   /lancer-job serafin     — Veille SERAFIN-PH (mercredi 8h03)
   /lancer-job rbpp        — Pipeline RBPP HAS (lundi 8h30)
   /lancer-job dzogchen    — Leçon Dzogchen (mardi 8h03)
+  /lancer-job psychopathologie — Leçon Psychopathologie clinique (lundi 8h03)
   /lancer-job enneagramme — Leçon Ennéagramme (mercredi 9h03)
   /lancer-job nocode      — Leçon NO-CODE + IA (vendredi 8h03)
   /lancer-job stoicisme   — Leçon Stoïcisme (jeudi 8h03)
