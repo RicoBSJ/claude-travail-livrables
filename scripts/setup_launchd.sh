@@ -33,7 +33,8 @@ dzogchen-lecon|3|8|2
 serafin-ph-veille|3|8|3
 enneagramme-lecon|3|9|3
 stoicisme-lecon|3|8|4
-nocode-ia-veille|3|8|5"
+nocode-ia-veille|3|8|5
+placement-financier-lecon|3|8|6"
 
 echo "=== Installation des agents launchd Claude_Travail ==="
 echo ""
