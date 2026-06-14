@@ -46,12 +46,13 @@ echo "" >> "$LOG"
 echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : $EXIT)" >> "$LOG"
 
 # ---- Auto-commit + push des livrables produits (option 2) ----
-# Portée STRICTE : uniquement les dossiers de livrables générés.
+# Portée STRICTE : uniquement les dossiers de livrables générés (veilles + Livrables).
 # Jamais "git add -A" → les dossiers personnels sensibles restent hors git.
+# Sources/Veille (récursif) couvre tous les sous-dossiers de veille présents et futurs
+# (AI-Act, RGPD, iMac, …) ainsi que les .docx/.md de veille à la racine.
 if [ "$EXIT" -eq 0 ]; then
   export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
-  git add Sources/Veille/AI-Act Sources/Veille/RGPD Livrables/Leçons Livrables/Quiz Livrables/Infographies 2>/dev/null
-  git add Sources/Veille/*.docx 2>/dev/null
+  git add Sources/Veille Livrables/Leçons Livrables/Quiz Livrables/Infographies 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then
     echo "[git] Rien de nouveau à committer." >> "$LOG"
   else

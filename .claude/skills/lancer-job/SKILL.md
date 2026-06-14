@@ -1,6 +1,6 @@
 ---
 name: lancer-job
-description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : ai-act, rgpd, serafin, rbpp, dzogchen, psychopathologie, finance, hypnose, enneagramme, nocode, stoicisme, webapp, agents, mcp
+description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : ai-act, rgpd, imac, serafin, rbpp, dzogchen, psychopathologie, finance, hypnose, enneagramme, nocode, stoicisme, webapp, agents, mcp
 disable-model-invocation: false
 ---
 
@@ -15,6 +15,7 @@ Lis le fichier : /Users/utilisateur/kDrive/Claude_Travail/jobs_config.json
 Identifie le job correspondant à l'argument selon cette correspondance :
 - "ai-act" ou "aiact" ou "ia-act" ou "reglement-ia"                  → job id "ai-act-veille"
 - "rgpd" ou "gdpr" ou "donnees-personnelles" ou "cnil"               → job id "rgpd-veille"
+- "imac" ou "mac" ou "apple" ou "imac-m4" ou "imac-m5"               → job id "imac-veille"
 - "serafin" ou "serafin-ph" ou "veille"                              → job id "serafin-ph-veille"
 - "rbpp" ou "pipeline"                                               → job id "rbpp-pipeline"
 - "dzogchen" ou "lecon-dzogchen" ou "bouddhisme"                     → job id "dzogchen-lecon"
@@ -32,7 +33,8 @@ Si l'argument est vide ou non reconnu, affiche la liste des jobs disponibles :
 ```
 Jobs disponibles :
   /lancer-job ai-act      — Veille AI Act QUOTIDIENNE (tous les jours 7h03)
-  /lancer-job rgpd        — Veille RGPD QUOTIDIENNE (tous les jours 7h33)
+  /lancer-job rgpd        — Veille RGPD (dimanche 7h33)
+  /lancer-job imac        — Veille marché iMac M4/M5 (dimanche 8h03)
   /lancer-job serafin     — Veille SERAFIN-PH (mercredi 8h03)
   /lancer-job rbpp        — Pipeline RBPP HAS (lundi 8h30)
   /lancer-job dzogchen    — Leçon Dzogchen (mardi 8h03)

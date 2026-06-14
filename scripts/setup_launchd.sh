@@ -27,6 +27,7 @@ chmod +x "$RUNNER"
 # job_id | minute | hour | weekday (vide = quotidien)
 JOBS="ai-act-veille|3|7|0
 rgpd-veille|33|7|0
+imac-veille|3|8|0
 rbpp-pipeline|30|8|1
 psychopathologie-lecon|3|8|1
 dzogchen-lecon|3|8|2
