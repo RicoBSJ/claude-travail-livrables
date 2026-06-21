@@ -34,7 +34,7 @@ Si l'argument est vide ou non reconnu, affiche la liste des jobs disponibles :
 Jobs disponibles :
   /lancer-job ai-act      — Veille AI Act QUOTIDIENNE (tous les jours 7h03)
   /lancer-job rgpd        — Veille RGPD (dimanche 7h33)
-  /lancer-job imac        — Veille marché iMac M4/M5 (dimanche 8h03)
+  /lancer-job imac        — Veille marché tout-en-un : iMac M4/M5 + PC Windows (dimanche 8h03)
   /lancer-job serafin     — Veille SERAFIN-PH (mercredi 8h03)
   /lancer-job rbpp        — Pipeline RBPP HAS (lundi 8h30)
   /lancer-job dzogchen    — Leçon Dzogchen (mardi 8h03)
