@@ -1,0 +1,17 @@
+{
+  "name": "en_cours",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "docx": "^9.6.1",
+    "pdf-parse": "^1.1.1",
+    "pptxgenjs": "^4.0.1"
+  }
+}

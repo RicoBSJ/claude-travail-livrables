@@ -1,0 +1,19 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-14
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [07:03:15] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "ai-act-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [07:33:13] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "rgpd-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [11:39:49] Tu est expert en hypnose et auto-hypnose, dans ce domaine précis créé un job du même type que psychopathologie clinique, avec les mêmes conditions
+
+[001] [11:44:48] oui
+
+[001] [22:58:13] Tu es expert en Apple iMac, je veux que tu mettes en place une veille du marché de ce type de machine plus particulièrement - iMac M4 8 cœurs · 24 Go de RAM · 256 Go de stockage - iMac M4 8 cœurs . 24 Go de RAM · 512 Go de stockage - iMac M4 10 cœurs . 24 Go de RAM · 256 Go de stockage - iMac M4 10 cœurs . 32 Go de RAM · 256 Go de stockage - iMac M4 10 cœurs . 32 Go de RAM · 512 Go de stockage - et la sortie future des iMac M5, tu appliques les mêmes conditions que les jobs hebdomadaires déjà existant et ensuite tu exécutes une première fois le job que tu viendra tout juste de générer
+

@@ -13,7 +13,7 @@ export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 
 PROJECT="/Users/utilisateur/kDrive/Claude_Travail"
 JOB_ID="$1"
-LOG_DIR="$PROJECT/scripts/logs"
+LOG_DIR="$PROJECT/outils/scripts/logs"
 mkdir -p "$LOG_DIR"
 STAMP="$(date +%Y%m%d_%H%M%S)"
 LOG="$LOG_DIR/${JOB_ID}_${STAMP}.log"
@@ -48,11 +48,11 @@ echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : 
 # ---- Auto-commit + push des livrables produits (option 2) ----
 # Portée STRICTE : uniquement les dossiers de livrables générés (veilles + Livrables).
 # Jamais "git add -A" → les dossiers personnels sensibles restent hors git.
-# Sources/Veille (récursif) couvre tous les sous-dossiers de veille présents et futurs
+# sources/veille (récursif) couvre tous les sous-dossiers de veille présents et futurs
 # (AI-Act, RGPD, iMac, …) ainsi que les .docx/.md de veille à la racine.
 if [ "$EXIT" -eq 0 ]; then
   export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
-  git add Sources/Veille Livrables/Leçons Livrables/Quiz Livrables/Infographies 2>/dev/null
+  git add sources/veille livrables/lecons livrables/quiz livrables/infographies 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then
     echo "[git] Rien de nouveau à committer." >> "$LOG"
   else

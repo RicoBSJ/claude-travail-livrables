@@ -1,0 +1,27 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-26
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [00:01:22] Format : j'ai mis 3 séances-types (A/B/C) par cycle + un tableau de progression S1→S5 (compact, clair, ≤5 séances/page largement respecté). Tu préfères ça, ou que je détaille les 15 semaines une par une (45 séances distinctes) ? détaille les 15 semaines une par une (45 séances distinctes)
+Genou : tu as un diagnostic précis (ménisque, ligament, arthrose, amplitude limitée… ?) ? Ça affinerait les exercices ATG. Là j'ai pris une approche générique prudente : chondropathie fémoro tibiale
+Niveau de départ : fais-tu déjà des tractions strictes (combien ?) ? Ça calibre l'assistance élastique : 10 tractions
+Accès matériel : barre de porte (cycle 2) et salle CrossFit (cycle 3) bien disponibles ? Oui
+Fréquence : OK pour 3 séances/sem, ou tu veux que je monte à 4-5 ? 3 séances/sem
+
+[001] [00:12:22] 🗂️ L'ancien brouillon (...DRAFT.docx, format 3 séances-types) est maintenant obsolète. Tu veux que je le supprime ? (je ne touche à rien sans ton feu vert) NON
+📤 Je peux pousser la version finale sur GitHub si tu veux la versionner (les Livrables/Documents/ ne sont pas dans l'auto-push). OUI + L'ancien brouillon
+✏️ Un ajustement de contenu (volumes, exercices, durées) avant de figer ? NON
+
+[001] [08:03:17] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "nocode-ia-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [23:54:05] est-ce que tu peux résumer cette vidéo https://academie.dzogchentoday.org/courses/cycle-1-pack-1-une-introduction-au-dzogchen/lessons/une-philosophie-peut-elle-avoir-des-applications-spirituelles-theoria-et-praxis/
+
+[001] [23:57:10] La 2 : https://academie.dzogchentoday.org/courses/cycle-1-pack-1-une-introduction-au-dzogchen/lessons/une-philosophie-peut-elle-avoir-des-applications-spirituelles-theoria-et-praxis/
+
+[001] [23:59:11] c'est bon
+

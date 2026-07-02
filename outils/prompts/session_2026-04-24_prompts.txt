@@ -1,0 +1,19 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-24
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [06:23:46] continue
+
+[001] [06:47:26] <task-notification>
+<task-id>bog25of6q</task-id>
+<tool-use-id>toolu_01HYwS2ZR9s63BwJtW2U1ZnD</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/bog25of6q.output</output-file>
+<status>completed</status>
+<summary>Background command "Trouver tous les dépôts git locaux" completed (exit code 0)</summary>
+</task-notification>
+

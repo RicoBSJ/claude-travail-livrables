@@ -1,0 +1,17 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-28
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [07:03:12] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "ai-act-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [07:33:11] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "rgpd-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [08:03:19] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "imac-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [09:03:15] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "hypnose-lecon", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+

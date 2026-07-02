@@ -1,0 +1,19 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-05-26
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [07:36:44] fait un push
+
+[001] [23:05:26] fait un push
+
+[001] [23:09:07] - `prompt_veille_essms_perplexity_computer.md` (11,6 Ko) → Dans Prompts/
+- `tache_hebdomadaire_veille_essms_perplexity.md` (14 Ko) → Dans Prompts/
+- `veille-essms-2026-05-20-2026-05-26.docx` (78 Ko) → dans Veille/, et `veille-essms-2026-05-20-2026-05-26 2.docx` dans Veille/
+
+[001] [23:10:41] Supprime la version « 2 »
+

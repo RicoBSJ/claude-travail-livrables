@@ -1,0 +1,32 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-06
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [00:16:15] Tu es un expert en ENNÉAGRAMME et je veux que tu crée à l'image du job NO-CODE+IA un job similaire et qui pareillement propose une leçon hebdomadaire, une fois que le job est finalisé je veux que l'intègre avec les autres jobs
+
+[001] [12:15:18] lance tous les jobs
+
+[001] [13:24:19] Veux-tu relancer le job RBPP maintenant ? OUI
+
+[001] [13:25:25] Option A
+
+[001] [23:01:49] est-ce que tu peux résoudre ceci
+
+ÉTAPE 2 — Récupération des RBPP récentes :
+┌─────────────────────────────────────────┐
+│ WebFetch     : ❌ Contenu dynamique     │
+│ Chrome MCP   : ❌ Domaine bloqué        │
+│ API HAS      : ❌ Non disponible        │
+└─────────────────────────────────────────┘
+
+CONCLUSION : Impossible d'accéder dynamiquement au listage HAS
+
+[001] [23:16:21] est-ce que tu peux localiser :
+
+veille_rbpp_autisme-recommandations.docx** | 9.6 Ko | Word | 1 page synthèse : 5 points clés HAS |
+

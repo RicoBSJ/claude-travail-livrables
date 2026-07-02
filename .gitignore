@@ -1,8 +1,8 @@
 # Logs d'exécution des jobs planifiés (launchd)
-scripts/logs/
+outils/scripts/logs/
 
 # Dépendances Node des scripts temporaires
-En_cours/node_modules/
+en_cours/node_modules/
 node_modules/
 
 # Fichiers macOS
@@ -10,5 +10,5 @@ node_modules/
 **/.DS_Store
 
 # Fichiers temporaires de génération
-En_cours/*.js
-En_cours/package-lock.json
+en_cours/*.js
+en_cours/package-lock.json

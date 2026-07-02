@@ -1,0 +1,23 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-05-24
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [14:24:13] applique le job RBPP Pipeline sur cette adresse Internet  : https://www.has-sante.fr/jcms/p_3293652/fr/l-analyse-des-evenements-indesirables-associes-aux-soins-eias-mode-d-emploi
+
+[001] [14:31:50] fait un push
+
+[001] [14:41:39] Les fichiers PowerPoint que tu génères dans /Livrables/Infographies/ comportent systématiquement une erreur lors de leur ouverture, est-ce que tu peux corriger ce problème ?
+
+[001] [14:46:10] parfait mais dans certains fichier les informations sont excentrées du cadre principale, est-ce que tu peux corriger ça ?
+
+[001] [14:52:17] est-ce que tu peux corriger celui-ci : infographie_rbpp_troubles-schizophreniques_2026-04-26.pptx
+
+[001] [14:55:15] Parfait !
+
+[001] [14:55:33] fait un push
+

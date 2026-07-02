@@ -1,0 +1,744 @@
+VIM — RÉFÉRENCE COMPLÈTE AVEC EXPLICATIONS
+===========================================
+
+==============================================
+1. LES MODES DE VIM
+==============================================
+
+Vim fonctionne en "modes". Contrairement à un éditeur classique, vous ne
+pouvez pas taper du texte immédiatement — il faut d'abord entrer dans le
+bon mode. C'est déroutant au début, mais très puissant ensuite.
+
+  NORMAL   → Le mode par défaut à l'ouverture. Sert à naviguer, copier,
+             supprimer, lancer des commandes. On ne tape pas de texte ici.
+
+  INSERT   → Le mode "écriture". Identique à un éditeur classique.
+             Tout ce que vous tapez s'insère dans le fichier.
+
+  VISUAL   → Mode sélection. Permet de sélectionner du texte pour le
+             copier, supprimer, indenter, etc.
+
+  COMMAND  → Mode commande, activé avec ":". Permet de sauvegarder,
+             quitter, chercher/remplacer, configurer Vim, etc.
+
+Règle d'or : appuyez sur Echap pour toujours revenir en mode Normal.
+
+
+── Entrer en mode INSERT ─────────────────────
+
+  i   (insert before)
+      Place le curseur juste avant le caractère courant et entre en INSERT.
+      Utilisation typique : corriger un mot en se positionnant dessus.
+
+  a   (append after)
+      Place le curseur juste après le caractère courant et entre en INSERT.
+      Utile pour ajouter du texte à la suite d'un mot.
+
+  o   (open line below)
+      Crée une nouvelle ligne vide sous la ligne courante et entre en INSERT.
+      Équivalent de "Fin" puis "Entrée" dans un éditeur classique.
+
+  O   (open line above)
+      Crée une nouvelle ligne vide au-dessus de la ligne courante et entre en INSERT.
+
+  I   (Insert at beginning)
+      Se positionne au début de la ligne (premier caractère non vide) et entre en INSERT.
+
+  A   (Append at end)
+      Se positionne à la fin de la ligne et entre en INSERT.
+      Très utilisé pour ajouter du texte en fin de ligne.
+
+  s   (substitute character)
+      Supprime le caractère sous le curseur et entre en INSERT.
+
+  S   (Substitute line)
+      Supprime toute la ligne courante et entre en INSERT. Alias de cc.
+
+
+── Entrer en mode VISUAL ─────────────────────
+
+  v   (visual character)
+      Sélection caractère par caractère. Déplacez le curseur pour étendre
+      la sélection. Utile pour copier une portion précise d'une ligne.
+
+  V   (visual line)
+      Sélection ligne entière. Chaque déplacement ajoute une ligne entière
+      à la sélection. Utile pour copier ou déplacer des blocs de lignes.
+
+  Ctrl+v   (visual block)
+      Sélection en bloc rectangulaire (colonne). Utile pour éditer plusieurs
+      lignes en même temps, ex. ajouter un "#" devant 10 lignes d'un coup.
+
+
+── Revenir en mode NORMAL ────────────────────
+
+  Echap
+      Quitte n'importe quel mode et revient en mode Normal.
+      À utiliser dès que vous avez terminé une action.
+
+  Ctrl+c
+      Alternative à Echap pour quitter INSERT ou VISUAL.
+      Moins recommandé car ne déclenche pas certains mappings.
+
+
+==============================================
+2. QUITTER VIM
+==============================================
+
+  :q
+      (quit) Quitter Vim. Fonctionne uniquement si le fichier n'a pas été
+      modifié depuis la dernière sauvegarde. Sinon, Vim affiche une erreur
+      et vous demande de sauvegarder d'abord.
+
+  :q!
+      (quit force) Quitter Vim sans sauvegarder, même si le fichier a été
+      modifié. Le "!" signifie "forcer" en Vim. Toutes les modifications
+      sont perdues définitivement.
+
+  :wq
+      (write and quit) Sauvegarder le fichier puis quitter. Équivalent de
+      Ctrl+S puis fermeture dans un éditeur classique. Toujours disponible,
+      même si le fichier n'a pas changé (contrairement à :x).
+
+  :x
+      Sauvegarder et quitter, mais uniquement si le fichier a été modifié.
+      Différence avec :wq : si rien n'a changé, :x ne touche pas la date
+      de modification du fichier. Pratique pour les systèmes qui surveillent
+      les modifications de fichiers.
+
+  ZZ
+      Raccourci en mode Normal (sans ":"). Équivalent de :x — sauvegarde
+      et quitte si des modifications ont été faites.
+
+  ZQ
+      Raccourci en mode Normal. Équivalent de :q! — quitte sans sauvegarder.
+
+
+==============================================
+3. FICHIERS
+==============================================
+
+  :w
+      (write) Sauvegarder le fichier courant sans quitter Vim.
+      À faire régulièrement pendant l'édition.
+
+  :w nom.txt
+      Sauvegarder le contenu courant dans un nouveau fichier "nom.txt".
+      Le fichier courant reste ouvert — Vim ne bascule pas vers nom.txt.
+
+  :e nom.txt
+      (edit) Ouvrir "nom.txt" dans Vim. Si le fichier courant a des
+      modifications non sauvegardées, Vim vous en avertit.
+
+  :e!
+      Recharger le fichier courant depuis le disque, en abandonnant toutes
+      les modifications en cours. Utile quand un autre programme a modifié
+      le fichier.
+
+  :r nom.txt
+      (read) Insérer le contenu du fichier "nom.txt" à la position du
+      curseur. Utile pour fusionner deux fichiers.
+
+  :saveas nom.txt
+      Sauvegarder sous un nouveau nom ET basculer Vim vers ce nouveau
+      fichier. Différent de ":w nom.txt" qui ne change pas le fichier courant.
+
+
+==============================================
+4. NAVIGATION (mode Normal)
+==============================================
+
+── Déplacements de base ──────────────────────
+
+  h   Aller à gauche d'un caractère.
+      Équivalent de la flèche gauche. Préférez h/j/k/l aux flèches pour
+      ne pas quitter la position des mains sur le clavier.
+
+  j   Aller en bas d'une ligne.
+      Équivalent de la flèche bas.
+
+  k   Aller en haut d'une ligne.
+      Équivalent de la flèche haut.
+
+  l   Aller à droite d'un caractère.
+      Équivalent de la flèche droite.
+
+  Astuce : ces commandes acceptent un nombre en préfixe.
+  Ex : 5j = descendre de 5 lignes. 10l = avancer de 10 caractères.
+
+
+── Déplacements par mot ──────────────────────
+
+  w   (word) Aller au début du mot suivant.
+      Les ponctuations comptent comme des séparateurs de mots.
+
+  W   Aller au début du mot suivant en ignorant la ponctuation.
+      Ne compte que les espaces comme séparateurs.
+
+  b   (back) Aller au début du mot précédent.
+
+  B   Aller au début du mot précédent en ignorant la ponctuation.
+
+  e   (end) Aller à la fin du mot courant (ou du suivant si déjà en fin).
+
+  E   Aller à la fin du mot courant en ignorant la ponctuation.
+
+
+── Déplacements dans la ligne ────────────────
+
+  0   (zéro) Aller au tout début de la ligne (colonne 1), même si c'est
+      un espace vide.
+
+  ^   Aller au premier caractère non vide de la ligne. Plus utile que 0
+      pour les fichiers indentés.
+
+  $   Aller à la fin de la ligne. Le "$" représente la fin en regex.
+
+  f<c>
+      (find) Aller au prochain caractère <c> sur la ligne courante.
+      Ex : fa  →  saute au prochain "a" de la ligne.
+
+  F<c>
+      Aller au caractère <c> précédent sur la ligne courante.
+
+  t<c>
+      (till) Aller juste avant le prochain caractère <c>.
+      Différence avec f : f atterrit sur le caractère, t atterrit avant.
+
+  ;   Répéter le dernier f/F/t/T dans la même direction.
+
+  ,   Répéter le dernier f/F/t/T dans la direction opposée.
+
+
+── Déplacements dans le fichier ──────────────
+
+  gg  Aller à la première ligne du fichier.
+      Double "g" = go to beginning.
+
+  G   Aller à la dernière ligne du fichier.
+      Majuscule = aller à la fin.
+
+  :42
+      Aller directement à la ligne 42. Tapez ":" puis le numéro.
+      Variante : 42G fait la même chose en mode Normal.
+
+  Ctrl+f
+      (forward) Descendre d'une page complète. Équivalent de Page Down.
+
+  Ctrl+b
+      (backward) Remonter d'une page complète. Équivalent de Page Up.
+
+  Ctrl+d
+      (down) Descendre d'une demi-page. Plus précis que Ctrl+f.
+
+  Ctrl+u
+      (up) Remonter d'une demi-page.
+
+  %   Aller au bracket/parenthèse/accolade correspondant(e).
+      Si le curseur est sur "{", appuyer sur % saute au "}" correspondant.
+      Très utile pour vérifier que les blocs sont bien fermés.
+
+  ''  (deux apostrophes) Revenir à la position du curseur avant le dernier
+      grand déplacement (saut de ligne, recherche, etc.).
+
+  Ctrl+o
+      Reculer dans l'historique des positions (jumps). Comme le bouton
+      "précédent" d'un navigateur.
+
+  Ctrl+i
+      Avancer dans l'historique des positions.
+
+
+── Déplacements visuels ──────────────────────
+
+  H   (High) Aller à la première ligne visible à l'écran.
+
+  M   (Middle) Aller à la ligne du milieu de l'écran.
+
+  L   (Low) Aller à la dernière ligne visible à l'écran.
+
+  zz  Centrer l'écran sur la ligne courante (sans déplacer le curseur).
+
+  zt  Amener la ligne courante en haut de l'écran.
+
+  zb  Amener la ligne courante en bas de l'écran.
+
+
+==============================================
+5. ÉDITION (mode Normal)
+==============================================
+
+── Supprimer ─────────────────────────────────
+
+  x   Supprimer le caractère sous le curseur.
+      Équivalent de la touche "Suppr" dans un éditeur classique.
+
+  X   Supprimer le caractère avant le curseur.
+      Équivalent de "Retour arrière".
+
+  dd  Supprimer (couper) la ligne entière courante.
+      La ligne est placée dans le presse-papiers de Vim (registre).
+
+  dw  Supprimer depuis le curseur jusqu'à la fin du mot courant.
+
+  d$  Supprimer depuis le curseur jusqu'à la fin de la ligne.
+
+  D   Supprimer depuis le curseur jusqu'à la fin de la ligne.
+      Équivalent de d$.
+
+  d0  Supprimer depuis le curseur jusqu'au début de la ligne.
+
+  dgg Supprimer depuis la ligne courante jusqu'au début du fichier.
+
+  dG  Supprimer depuis la ligne courante jusqu'à la fin du fichier.
+
+  Astuce : "d" accepte un nombre en préfixe.
+  Ex : 3dd = supprimer 3 lignes. 2dw = supprimer 2 mots.
+
+
+── Copier (Yank) ─────────────────────────────
+
+  yy  (yank yank) Copier la ligne courante dans le presse-papiers de Vim.
+
+  yw  Copier depuis le curseur jusqu'à la fin du mot.
+
+  y$  Copier depuis le curseur jusqu'à la fin de la ligne.
+
+  ygg Copier depuis la ligne courante jusqu'au début du fichier.
+
+  yG  Copier depuis la ligne courante jusqu'à la fin du fichier.
+
+  Note : le "presse-papiers" de Vim (registre) est interne à Vim.
+  Pour copier vers le presse-papiers système (pour coller hors de Vim) :
+  "+yy  (copiez dans le registre "+", qui correspond au clipboard système)
+
+
+── Coller ────────────────────────────────────
+
+  p   (paste) Coller après le curseur.
+      Si vous avez copié une ligne entière (yy/dd), elle est collée sous
+      la ligne courante. Si vous avez copié du texte, il est collé après
+      le curseur.
+
+  P   Coller avant le curseur.
+      Une ligne entière est collée au-dessus de la ligne courante.
+
+
+── Annuler / Rétablir ────────────────────────
+
+  u   (undo) Annuler la dernière action.
+      Appuyez plusieurs fois pour annuler plusieurs actions.
+
+  Ctrl+r
+      (redo) Rétablir une action annulée avec u.
+
+
+── Modifier ──────────────────────────────────
+
+  r<c>
+      (replace) Remplacer le caractère sous le curseur par <c>, sans
+      passer en mode INSERT. Le plus rapide pour corriger un seul caractère.
+
+  R   Entrer en mode REPLACE : chaque caractère tapé écrase celui qui est
+      en dessous. Comme la touche "Inser" dans d'autres éditeurs.
+
+  cw  (change word) Supprimer jusqu'à la fin du mot et entrer en INSERT.
+      Permet de réécrire un mot directement.
+
+  cc  Supprimer toute la ligne et entrer en INSERT.
+      Le texte supprimé va dans le presse-papiers.
+
+  C   Supprimer depuis le curseur jusqu'à la fin de la ligne et entrer
+      en INSERT. Équivalent de c$.
+
+  ~   Basculer la casse du caractère sous le curseur (minuscule ↔ majuscule)
+      et avancer d'un caractère.
+
+  .   (point) Répéter la dernière commande de modification.
+      L'une des commandes les plus puissantes de Vim. Ex : si vous venez
+      de faire "cw" + "nouveau" + Echap, appuyer sur "." reproduit toute
+      cette séquence sur le prochain mot.
+
+
+── Indenter ──────────────────────────────────
+
+  >>  Indenter la ligne courante vers la droite (ajoute une tabulation).
+
+  <<  Désindenter la ligne courante vers la gauche.
+
+  ==  Auto-indenter la ligne courante selon les règles du langage détecté.
+
+  Astuce : en mode Visual, sélectionnez plusieurs lignes puis tapez >
+  pour les indenter toutes d'un coup.
+
+
+── Combiner avec des mouvements ──────────────
+
+  Vim suit la logique : [opérateur] + [mouvement]
+  Les opérateurs d, y, c, > peuvent tous se combiner avec les mouvements.
+
+  Exemples :
+    d3w   → supprimer les 3 prochains mots
+    y5j   → copier les 5 prochaines lignes
+    c$    → changer jusqu'à la fin de la ligne
+    >3j   → indenter les 3 prochaines lignes
+    dap   → supprimer le paragraphe courant (ap = "a paragraph")
+    di"   → supprimer le contenu entre guillemets (di" = "inside quotes")
+    ya(   → copier tout ce qui est entre parenthèses (ya( = "around parens")
+
+
+==============================================
+6. RECHERCHE ET REMPLACEMENT
+==============================================
+
+── Rechercher ────────────────────────────────
+
+  /motif
+      Chercher "motif" vers le bas dans le fichier. Appuyez sur Entrée pour
+      valider. Vim surligne toutes les occurrences trouvées.
+      Supporte les expressions régulières.
+      Ex : /function   cherche le mot "function"
+      Ex : /^function  cherche "function" en début de ligne
+
+  ?motif
+      Chercher "motif" vers le haut dans le fichier.
+
+  n   (next) Aller à l'occurrence suivante dans la direction de la recherche.
+
+  N   Aller à l'occurrence précédente (direction inverse).
+
+  *   Chercher le mot exact sous le curseur vers le bas.
+      Plus rapide que de taper /mot.
+
+  #   Chercher le mot exact sous le curseur vers le haut.
+
+  :noh
+      (no highlight) Effacer la surbrillance des résultats de recherche
+      sans désactiver la fonctionnalité. La recherche suivante surlignera
+      à nouveau.
+
+
+── Remplacer ─────────────────────────────────
+
+  La syntaxe générale est :  :[portée]s/ancien/nouveau/[options]
+
+  :%s/ancien/nouveau/g
+      "%" = tout le fichier
+      "s" = substitution
+      "g" = global (toutes les occurrences sur chaque ligne, pas seulement
+            la première)
+      Remplace toutes les occurrences de "ancien" par "nouveau".
+
+  :%s/ancien/nouveau/gc
+      Comme au-dessus, mais demande confirmation pour chaque occurrence.
+      Répondez avec : y (oui), n (non), a (tous), q (quitter), l (ce dernier).
+
+  :%s/ancien/nouveau/gi
+      Insensible à la casse (i = ignorecase).
+
+  :10,20s/ancien/nouveau/g
+      Remplacer uniquement entre les lignes 10 et 20.
+
+  :s/ancien/nouveau/g
+      Remplacer uniquement sur la ligne courante.
+
+  :.,$s/ancien/nouveau/g
+      "." = ligne courante, "$" = fin du fichier.
+      Remplacer depuis la ligne courante jusqu'à la fin.
+
+  Expressions régulières utiles dans les remplacements :
+    .       → n'importe quel caractère
+    *       → zéro ou plusieurs fois
+    \+      → une ou plusieurs fois
+    ^       → début de ligne
+    $       → fin de ligne
+    \w      → un caractère de mot (lettre, chiffre, _)
+
+
+==============================================
+7. SÉLECTION VISUELLE (mode Visual)
+==============================================
+
+  v
+      Entrer en mode Visual caractère. Déplacez le curseur pour étendre
+      la sélection mot par mot ou caractère par caractère.
+
+  V
+      Entrer en mode Visual ligne. Chaque déplacement sélectionne une
+      ligne entière supplémentaire.
+
+  Ctrl+v
+      Entrer en mode Visual bloc. Sélectionne une colonne rectangulaire.
+      Ex : pour commenter 5 lignes Python avec "#" :
+        1. Ctrl+v → sélectionner 5 lignes
+        2. I (majuscule) → entrer en INSERT au début du bloc
+        3. Taper "#"
+        4. Echap → le "#" s'applique à toutes les lignes sélectionnées
+
+  Depuis une sélection Visual, vous pouvez faire :
+    y       Copier la sélection
+    d       Supprimer la sélection
+    c       Supprimer et entrer en INSERT
+    >       Indenter vers la droite
+    <       Désindenter vers la gauche
+    u       Mettre en minuscules
+    U       Mettre en majuscules
+    ~       Inverser la casse
+    :       Lancer une commande sur la sélection
+
+
+==============================================
+8. MULTI-FENÊTRES ET ONGLETS
+==============================================
+
+── Fenêtres (splits) ─────────────────────────
+
+  :split nom.txt      (ou :sp)
+      Diviser l'écran horizontalement. Le fichier "nom.txt" s'ouvre dans
+      la fenêtre du dessus. Les deux fichiers sont visibles en même temps.
+
+  :vsplit nom.txt     (ou :vsp)
+      Diviser l'écran verticalement. Côte à côte.
+
+  Ctrl+w w
+      Passer à la fenêtre suivante (cycle entre toutes les fenêtres ouvertes).
+
+  Ctrl+w h/j/k/l
+      Se déplacer vers la fenêtre à gauche/bas/haut/droite.
+
+  Ctrl+w =
+      Redimensionner toutes les fenêtres pour qu'elles aient la même taille.
+
+  Ctrl+w q
+      Fermer la fenêtre courante. Si c'est la dernière, Vim se ferme.
+
+  :only
+      Fermer toutes les fenêtres sauf la courante.
+
+
+── Onglets ───────────────────────────────────
+
+  :tabnew nom.txt
+      Ouvrir "nom.txt" dans un nouvel onglet. Les onglets sont visibles
+      en haut de l'écran dans les terminaux qui les supportent.
+
+  gt  (go tab) Aller à l'onglet suivant.
+
+  gT  Aller à l'onglet précédent.
+
+  :tabc       (tabclose) Fermer l'onglet courant.
+
+  :tabo       (tabonly) Fermer tous les onglets sauf le courant.
+
+
+==============================================
+9. CONFIGURATION RAPIDE (en session)
+==============================================
+
+Ces paramètres sont actifs uniquement pour la session en cours.
+Pour les rendre permanents, les ajouter dans ~/.vimrc.
+
+  :set number
+      Afficher les numéros de lignes à gauche de chaque ligne.
+
+  :set nonumber
+      Masquer les numéros de lignes. "no" devant un paramètre le désactive.
+
+  :set relativenumber
+      Numéros de lignes relatifs. La ligne courante est 0, les autres
+      affichent leur distance. Utile pour les commandes comme 5j ou 3dd.
+
+  :set hlsearch
+      (highlight search) Surligner toutes les occurrences de la recherche.
+
+  :set incsearch
+      (incremental search) Surligner les occurrences au fur et à mesure
+      que vous tapez le motif de recherche.
+
+  :set ignorecase
+      Recherche insensible à la casse. "/vim" trouve "vim", "Vim", "VIM".
+
+  :set smartcase
+      Insensible à la casse sauf si le motif contient une majuscule.
+      À utiliser avec ignorecase.
+
+  :set autoindent
+      Reproduire l'indentation de la ligne précédente sur la nouvelle ligne.
+
+  :set tabstop=2
+      Définir qu'une tabulation représente 2 espaces visuellement.
+
+  :set shiftwidth=2
+      Largeur d'indentation utilisée par >> et <<.
+
+  :set expandtab
+      Convertir les tabulations en espaces à la frappe. Recommandé pour
+      JavaScript et Python.
+
+  :set wrap
+      Activer le retour à la ligne automatique (visuel seulement,
+      le fichier n'est pas modifié).
+
+  :set nowrap
+      Désactiver le retour à la ligne automatique.
+
+  :set cursorline
+      Surligner la ligne courante pour repérer plus facilement le curseur.
+
+  :syntax on
+      Activer la coloration syntaxique selon le type de fichier détecté.
+
+  :set filetype=javascript
+      Forcer le type de fichier pour la coloration syntaxique.
+
+
+==============================================
+10. BASCULER ENTRE VIM ET BASH
+==============================================
+
+── Depuis Vim vers Bash ──────────────────────
+
+  Ctrl+z
+      Suspendre Vim et retourner immédiatement dans le shell bash.
+      Vim reste intact en mémoire (tâche de fond suspendue).
+      La ligne "[1]+ Stopped  vim fichier.txt" confirme la suspension.
+      Utilisez "fg" pour revenir dans Vim exactement là où vous étiez.
+
+  :!commande
+      Exécuter une commande bash sans quitter Vim. La sortie s'affiche
+      dans le terminal, puis Vim reprend. Vim reste ouvert en arrière-plan.
+      Ex : :!ls -la         → liste les fichiers du répertoire courant
+      Ex : :!git status     → voir l'état git sans quitter Vim
+      Ex : :!npm test       → lancer les tests
+      Ex : :!python %       → exécuter le fichier courant (% = nom du fichier)
+
+  :r !commande
+      Exécuter une commande bash et insérer sa sortie dans le fichier
+      à la position du curseur.
+      Ex : :r !date         → insère la date courante dans le fichier
+      Ex : :r !ls           → insère la liste des fichiers
+
+  :shell
+      Ouvrir un sous-shell bash interactif depuis Vim. Vous pouvez exécuter
+      autant de commandes que vous voulez. Tapez "exit" pour fermer ce
+      sous-shell et revenir exactement dans Vim.
+
+  :terminal   (Vim 8+ et Neovim uniquement)
+      Ouvre un terminal intégré directement dans une fenêtre Vim.
+      Plus pratique que :shell car visible en même temps que le code.
+      Pour quitter : tapez "exit" dans le terminal, ou Ctrl+w q.
+
+
+── Depuis Bash vers Vim ──────────────────────
+
+  fg
+      (foreground) Ramener Vim au premier plan après un Ctrl+z.
+      Si plusieurs tâches sont suspendues, "fg %1" reprend la première,
+      "fg %2" la deuxième, etc.
+      "jobs" liste toutes les tâches suspendues.
+
+  vim nom.txt
+      Ouvrir un fichier dans Vim depuis bash.
+
+  vim +42 nom.txt
+      Ouvrir "nom.txt" et positionner directement le curseur à la ligne 42.
+
+  vim +/motif nom.txt
+      Ouvrir "nom.txt" et positionner le curseur sur la première occurrence
+      de "motif". Utile pour aller directement à une fonction ou un bug.
+
+  vim -d fichier1.txt fichier2.txt
+      Ouvrir Vim en mode "diff" pour comparer deux fichiers côte à côte,
+      avec les différences surlignées.
+
+  Résumé du workflow Vim ↔ Bash :
+    Vim → Bash   :  Ctrl+z   (suspend)   ou   :shell   (sous-shell)
+    Bash → Vim   :  fg       (reprendre) ou   exit     (quitter le sous-shell)
+
+
+==============================================
+11. COMMANDES UTILES SUPPLÉMENTAIRES
+==============================================
+
+  :help motclé
+      Ouvrir l'aide intégrée de Vim sur n'importe quel sujet.
+      Ex : :help gg   :help visual   :help substitute
+      Fermer l'aide avec :q.
+
+  :version
+      Afficher la version de Vim et les fonctionnalités compilées.
+      Utile pour savoir si :terminal ou d'autres fonctions avancées
+      sont disponibles.
+
+  :history
+      Afficher l'historique de toutes les commandes ":" que vous avez
+      saisies dans cette session.
+
+  Ctrl+g
+      Afficher en bas de l'écran : nom du fichier, ligne courante, total
+      de lignes, et pourcentage de progression dans le fichier.
+
+  g Ctrl+g
+      Afficher des statistiques détaillées : nombre de mots, lignes,
+      caractères, et octets du fichier ou de la sélection.
+
+  ga
+      Afficher le code ASCII, octal et hexadécimal du caractère sous
+      le curseur. Utile pour détecter des caractères invisibles.
+
+  :marks
+      Lister tous les marqueurs posés dans le fichier.
+
+  m<c>
+      Poser un marqueur nommé <c> à la position courante.
+      Ex : ma  →  pose le marqueur "a"
+
+  '<c>
+      Aller à la ligne du marqueur <c>.
+      Ex : 'a  →  sauter à la ligne où "a" a été posé.
+
+  `<c>
+      (accent grave) Aller à la position exacte (ligne ET colonne) du
+      marqueur <c>.
+
+  :registers
+      Afficher le contenu de tous les registres (presse-papiers) de Vim.
+      Utile pour retrouver un texte copié précédemment.
+
+  q<c>
+      Démarrer l'enregistrement d'une macro dans le registre <c>.
+      Ex : qa  →  commence à enregistrer dans "a"
+      Effectuez vos actions, puis appuyez sur "q" pour arrêter.
+
+  @<c>
+      Rejouer la macro enregistrée dans le registre <c>.
+      Ex : @a  →  rejoue la macro "a"
+      10@a    →  rejoue 10 fois la macro "a"
+
+  Ctrl+a
+      Incrémenter le nombre sous le curseur.
+      Ex : si le curseur est sur "42", Ctrl+a donne "43".
+
+  Ctrl+x
+      Décrémenter le nombre sous le curseur.
+
+
+==============================================
+RÉCAPITULATIF — TOUCHES ESSENTIELLES
+==============================================
+
+  Echap         Revenir en mode Normal (toujours disponible)
+  i             Entrer en mode INSERT (écriture)
+  :wq           Sauvegarder et quitter
+  :q!           Quitter sans sauvegarder
+  u             Annuler la dernière action
+  Ctrl+r        Rétablir
+  .             Répéter la dernière modification
+  /motif        Chercher dans le fichier
+  n / N         Occurrence suivante / précédente
+  :%s/a/b/g     Remplacer dans tout le fichier
+  dd / yy / p   Couper / Copier / Coller une ligne
+  Ctrl+z        Suspendre Vim et retourner dans bash
+  fg            Reprendre Vim depuis bash
+
+==============================================

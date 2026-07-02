@@ -1,0 +1,54 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-05-02
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [00:29:46] Voici la structure du prompt que j'aime déployer : 
+Je précise ma demande ou ma recherche puis je demande à l'IA d'endosser le rôle d'un expert dans le domaine qui m'intéresse et d'affiner ma recherche en me posant des questions spécifiques, une fois que l'IA a généré un premier résultat, je lui demande ses sources afin de m'assurer qu'elle n'hallucine pas, je fais d'ailleurs une recherche extérieure pour confirmer ses sources, à la suite de ce résultat, je demande à l'IA de rechercher les points faibles dans ce qu'elle a généré et des les améliorer, enfin, pour terminer, je demande à l'IA de faire un reverse enginering pour qu'elle génère le prompt parfait qui aurait d'emblée produit le résultat final
+Mets-toi dans le rôle d'un expert en prompt, pose moi des questions si nécessaire et donne-moi un prompt impeccable
+
+[001] [00:35:26] Q1 — Périmètre du prompt
+Universel (tous sujets) ou tu veux une version ancrée dans ton contexte médico-social/RBPP ? Les deux versions ont des usages différents
+-> une version ancrée dans ton contexte médico-social/RBPP
+
+Q2 — Format de déploiement
+
+Monobloc : un seul prompt à envoyer en une fois, qui orchestre tout
+Séquentiel : un prompt initial + des prompts de relance types pour chaque étape (sources, points faibles, reverse)
+Les deux : un prompt système + une trame de conversation
+Tu l'utilises dans quelle interface principalement — [Claude.ai](http://Claude.ai), ChatGPT, NotebookLM, autre ?
+-> Les deux : un prompt système + une trame de conversation, à utiliser dans Claude Code, [Claude.ai](http://Claude.ai) et NotebookLM
+
+Q3 — Le livrable visé
+Qu'est-ce que tu produis en sortie typiquement avec cette méthode ?
+-> une fiche sous-forme de check list synthétique
+
+Synthèse structurée (document Word/PDF)
+Réponse stratégique / note de cadrage
+Formation / contenu pédagogique
+Analyse critique d'un document existant
+-> les 3 si possible
+Q4 — La brique "reverse engineering"
+Tu veux qu'elle soit :
+
+Incluse dans le workflow (l'IA génère le prompt parfait à la fin, que tu peux réutiliser)
+Optionnelle (tu l'appelles seulement quand tu veux capitaliser)
+Externalisée (tu t'en charges toi-même, tu n'as pas besoin que l'IA la génère)
+-> Incluse dans le workflow (l'IA génère le prompt parfait à la fin, que tu peux réutiliser)
+
+[001] [00:39:45] NotebookLM/RBPP/Prompts/ spécifiquement pour NotebookLM, dans Prompts/ pour [Claude.ai](http://Claude.ai) et dans [CLAUDE.md](http://CLAUDE.md) pour Claude Code
+
+[001] [00:45:18] Crée moi une checklist générique pour bien écrire un prompt, bases toi sur ce que tu viens de générer
+
+[001] [00:51:42] est-ce que tu peux enregistrer ce prompt dans ce format :
+
+## Documents Word
+
+- Style professionnel, structuré avec titres et sous-titres
+- Français, registre professionnel médico-social
+- Livrable → `Livrables/Documents/
+

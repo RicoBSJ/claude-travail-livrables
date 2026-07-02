@@ -1,0 +1,310 @@
+CLAUDE CODE — RÉFÉRENCE DES COMMANDES TERMINAL (macOS)
+Version 2.1.92
+=============================================================
+
+USAGE
+  claude [options] [commande] [prompt]
+
+Par défaut, lance une session interactive. Utilisez -p/--print pour un usage
+non-interactif (scripts, pipes).
+
+=============================================================
+OPTIONS
+=============================================================
+
+── SESSION ──────────────────────────────────────────────────
+
+-p, --print
+  Imprime la réponse et quitte. Mode non-interactif, indispensable pour
+  les pipes et les scripts. Ex : echo "mon prompt" | claude -p
+
+-c, --continue
+  Reprend la conversation la plus récente dans le répertoire courant.
+
+-r, --resume [valeur]
+  Reprend une conversation par son ID de session, ou ouvre un sélecteur
+  interactif avec un terme de recherche optionnel.
+
+--fork-session
+  Lors d'une reprise (--resume ou --continue), crée un nouvel ID de session
+  au lieu de réutiliser l'original.
+
+-n, --name <nom>
+  Attribue un nom d'affichage à la session (visible dans /resume et le
+  titre du terminal).
+
+--no-session-persistence
+  Désactive la sauvegarde de session sur disque (uniquement avec --print).
+
+--session-id <uuid>
+  Force l'utilisation d'un UUID spécifique pour la session.
+
+--from-pr [valeur]
+  Reprend une session liée à une PR (par numéro ou URL), ou ouvre un
+  sélecteur interactif.
+
+── MODÈLE & EFFORT ──────────────────────────────────────────
+
+--model <modèle>
+  Spécifie le modèle à utiliser. Alias acceptés : "sonnet", "opus".
+  Nom complet : "claude-sonnet-4-6", "claude-opus-4-6", etc.
+
+--effort <niveau>
+  Niveau d'effort du modèle : low, medium, high, max.
+
+--fallback-model <modèle>
+  Modèle de secours si le modèle principal est surchargé
+  (uniquement avec --print).
+
+--betas <betas...>
+  Active des fonctionnalités bêta via des headers API
+  (réservé aux utilisateurs avec clé API).
+
+── RÉPERTOIRES & FICHIERS ───────────────────────────────────
+
+--add-dir <répertoires...>
+  Ajoute des répertoires supplémentaires auxquels Claude peut accéder
+  avec ses outils.
+
+--file <specs...>
+  Télécharge des ressources fichiers au démarrage.
+  Format : file_id:chemin_relatif
+  Ex : --file file_abc:doc.txt file_def:img.png
+
+── OUTILS ───────────────────────────────────────────────────
+
+--tools <outils...>
+  Spécifie les outils disponibles parmi les outils intégrés.
+  "" = désactive tous les outils.
+  "default" = utilise tous les outils.
+  Ex : --tools "Bash,Edit,Read"
+
+--allowedTools, --allowed-tools <outils...>
+  Liste d'outils autorisés (séparés par virgule ou espace).
+  Ex : --allowed-tools "Bash(git:*) Edit"
+
+--disallowedTools, --disallowed-tools <outils...>
+  Liste d'outils refusés.
+  Ex : --disallowed-tools "Bash(git:*) Edit"
+
+── PERMISSIONS ──────────────────────────────────────────────
+
+--permission-mode <mode>
+  Mode de gestion des permissions :
+  • default       — comportement standard (demande pour les actions risquées)
+  • acceptEdits   — accepte automatiquement les éditions de fichiers
+  • auto          — approuve automatiquement tout
+  • dontAsk       — n'interrompt jamais pour demander
+  • plan          — mode lecture seule, pas de modifications
+  • bypassPermissions — contourne toutes les vérifications
+
+--dangerously-skip-permissions
+  Contourne toutes les vérifications de permissions. À réserver aux
+  environnements sandboxés sans accès internet.
+
+--allow-dangerously-skip-permissions
+  Rend possible le contournement des permissions sans l'activer par défaut.
+
+── PROMPTS SYSTÈME ──────────────────────────────────────────
+
+--system-prompt <prompt>
+  Remplace le prompt système par défaut.
+
+--append-system-prompt <prompt>
+  Ajoute du texte à la fin du prompt système par défaut.
+
+── FORMAT D'ENTRÉE/SORTIE ───────────────────────────────────
+
+--output-format <format>
+  Format de sortie (uniquement avec --print) :
+  • text        — texte brut (défaut)
+  • json        — résultat JSON unique
+  • stream-json — streaming JSON en temps réel
+
+--input-format <format>
+  Format d'entrée (uniquement avec --print) :
+  • text        — texte brut (défaut)
+  • stream-json — streaming JSON en temps réel
+
+--json-schema <schéma>
+  Valide la sortie selon un schéma JSON.
+  Ex : {"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}
+
+--include-partial-messages
+  Inclut les chunks partiels au fil de leur arrivée
+  (uniquement avec --print et --output-format=stream-json).
+
+--include-hook-events
+  Inclut tous les événements du cycle de vie des hooks dans le flux
+  (uniquement avec --output-format=stream-json).
+
+--replay-user-messages
+  Réémet les messages utilisateur de stdin vers stdout
+  (uniquement avec stream-json).
+
+── MCP (MODEL CONTEXT PROTOCOL) ─────────────────────────────
+
+--mcp-config <configs...>
+  Charge des serveurs MCP depuis des fichiers JSON ou des chaînes.
+
+--strict-mcp-config
+  N'utilise que les serveurs MCP de --mcp-config, ignore toute autre
+  configuration MCP.
+
+--mcp-debug [DÉPRÉCIÉ]
+  Active le mode debug MCP. Utiliser --debug à la place.
+
+── AGENTS ───────────────────────────────────────────────────
+
+--agent <agent>
+  Spécifie l'agent à utiliser pour la session (remplace le paramètre 'agent').
+
+--agents <json>
+  Définit des agents personnalisés via un objet JSON.
+  Ex : '{"reviewer": {"description": "Reviews code", "prompt": "..."}}'
+
+── PLUGINS ──────────────────────────────────────────────────
+
+--plugin-dir <chemin>
+  Charge les plugins d'un répertoire pour cette session uniquement
+  (répétable : --plugin-dir A --plugin-dir B).
+
+--disable-slash-commands
+  Désactive tous les skills (commandes /).
+
+── IDE & INTERFACE ──────────────────────────────────────────
+
+--ide
+  Se connecte automatiquement à l'IDE au démarrage (si un seul IDE valide
+  est disponible).
+
+--chrome
+  Active l'intégration Claude in Chrome.
+
+--no-chrome
+  Désactive l'intégration Claude in Chrome.
+
+--brief
+  Active l'outil SendUserMessage pour la communication agent→utilisateur.
+
+── GIT WORKTREES ─────────────────────────────────────────────
+
+-w, --worktree [nom]
+  Crée un nouveau git worktree pour la session
+  (nom optionnel). Utile pour isoler des changements expérimentaux.
+
+--tmux
+  Crée une session tmux pour le worktree (nécessite --worktree).
+  Utilise les panneaux natifs iTerm2 si disponibles.
+  --tmux=classic pour tmux traditionnel.
+
+── BUDGET & SÉCURITÉ ─────────────────────────────────────────
+
+--max-budget-usd <montant>
+  Plafond de dépense en dollars pour les appels API
+  (uniquement avec --print).
+
+--bare
+  Mode minimal : désactive les hooks, LSP, plugins, auto-mémoire,
+  CLAUDE.md automatique, etc. Utile pour des pipelines CI légers.
+  Auth strictement via ANTHROPIC_API_KEY.
+
+── CONFIGURATION ─────────────────────────────────────────────
+
+--settings <fichier-ou-json>
+  Charge des paramètres depuis un fichier JSON ou une chaîne JSON.
+
+--setting-sources <sources>
+  Sources de paramètres à charger (séparées par virgule) :
+  user, project, local.
+
+── DEBUG & DIAGNOSTIC ────────────────────────────────────────
+
+-d, --debug [filtre]
+  Active le mode debug avec filtrage optionnel par catégorie.
+  Ex : "api,hooks" ou "!1p,!file"
+
+--debug-file <chemin>
+  Écrit les logs de debug dans un fichier spécifique
+  (active implicitement le mode debug).
+
+--verbose
+  Remplace le paramètre verbose de la configuration.
+
+── DIVERS ────────────────────────────────────────────────────
+
+--remote-control-session-name-prefix <préfixe>
+  Préfixe pour les noms de sessions Remote Control auto-générés
+  (défaut : hostname).
+
+-v, --version
+  Affiche le numéro de version.
+
+-h, --help
+  Affiche l'aide.
+
+=============================================================
+SOUS-COMMANDES
+=============================================================
+
+claude agents [options]
+  Liste les agents configurés.
+
+claude auth
+  Gère l'authentification (connexion, déconnexion, tokens).
+
+claude auto-mode
+  Inspecte la configuration du classificateur auto mode.
+
+claude doctor
+  Vérifie la santé de l'auto-updater de Claude Code et des serveurs MCP.
+
+claude install [options] [cible]
+  Installe un build natif de Claude Code.
+  Cible : stable, latest, ou version spécifique.
+
+claude mcp
+  Configure et gère les serveurs MCP.
+
+claude plugin | claude plugins
+  Gère les plugins Claude Code.
+
+claude setup-token
+  Configure un token d'authentification durable
+  (nécessite un abonnement Claude).
+
+claude update | claude upgrade
+  Vérifie et installe les mises à jour disponibles.
+
+=============================================================
+EXEMPLES D'USAGE
+=============================================================
+
+# Mode non-interactif simple
+claude -p "qu'est-ce que CLAUDE.md ?"
+
+# Pipe
+cat index.js | claude -p "explique ce code en 3 points"
+
+# Sortie JSON structurée
+claude -p "liste les bonnes pratiques" --output-format json
+
+# Reprendre la dernière session
+claude --continue
+
+# Session nommée avec modèle spécifique
+claude --name "debug-session" --model opus
+
+# Limiter les outils disponibles
+claude --tools "Read,Grep" -p "analyse l'architecture du projet"
+
+# Budget plafonné
+claude -p "refactorise index.js" --max-budget-usd 0.10
+
+# Mode plan (lecture seule)
+claude --permission-mode plan
+
+# Créer un worktree isolé
+claude --worktree feature-test
+
+=============================================================

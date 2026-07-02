@@ -1,0 +1,53 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-08
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [15:50:28] Tu es un expert en AI Act, la loi européenne sur l'intelligence artificielle
+Je veux que tu mettes en place une veille professionnelle portant sur l’AI Act
+Je veux tout d'abord que tu recherches les sites les plus pertinents sur ce sujet et si nécessaire utilise un MCP Google Chrome si tu ne parviens pas à te connecter directement
+Pour se faire, je veux que tu t'inspires du job RBPP Pipeline, en revanche, je ne veux pas paramétrer cette veille sur une fréquence hebdomadaire mais sur une fréquence quotidienne
+Tous les jours, je veux un compte-rendu complet dans un fichier au format Word et comme d'habitude évite les doublons
+
+[001] [16:03:03] 1. **Risque de redondance quotidienne** : l'actu AI Act ne bouge pas tous les jours. Beaucoup de CR risquent d'être quasi identiques. Le job le détecte (niveau d'alerte 🟢/🟡/🔴) mais ne *bloque* pas un CR « vide ». → Veux-tu que j'ajoute une règle « si aucune nouveauté < 24h, produire un CR allégé ou ne rien produire » ? OUI
+2. **Volume d'archives** : 1 fichier/jour = ~365 docx/an dans `Sources/Veille/`. → Envisager un sous-dossier dédié `Sources/Veille/AI-Act/` à terme : OK
+Tu veux que je **fasse un push** pour sauvegarder le nouveau job et le compte-rendu sur GitHub ? OUI, après exécution des points 1 et 2 ci-dessus
+
+[001] [16:05:59] Créer le **CronCreate** réel pour planifier l'exécution automatique
+
+[001] [16:08:47] Mette en place le cron système macOS pour l'autonomie réelle (app fermée) pas uniquement sur le job que tu viens de générer mais sur tous les jobs s'il-te-plait
+
+[001] [16:09:53] Réponds uniquement par les deux caractères: OK
+
+[001] [16:12:20] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "ai-act-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:14:18] les deux
+
+[001] [16:16:57] est-ce que tous les 7 jobs sont-ils en autonomie réelle ?
+
+[001] [16:20:17] améliore les 2 jobs partiels et ensuite teste en headless tous les jobs
+
+[001] [16:23:51] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "ai-act-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:24:09] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "rbpp-pipeline", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:24:32] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "dzogchen-lecon", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:25:00] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "serafin-ph-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:25:25] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "enneagramme-lecon", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:25:46] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "stoicisme-lecon", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:26:13] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "nocode-ia-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:27:12] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "serafin-ph-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [17:00:20] Force un run de production réel (en écartant temporairement ses livrables récents, comme pour SERAFIN)
+
+[001] [17:01:15] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "rbpp-pipeline", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+

@@ -18,36 +18,36 @@ Les thématiques récurrentes incluent :
 
 ```
 Claude_Travail/
-├── CLAUDE.md               ← ce fichier
-├── jobs_config.json        ← configuration des jobs planifiés (CronCreate)
-├── Sources/
-│   ├── RBPP/               ← PDFs HAS/ANESM bruts (sous-dossier par RBPP)
-│   ├── TNmP/               ← fichiers Excel TNmP
-│   ├── QVCT/               ← documents QVCT
-│   └── Veille/             ← toutes les veilles produites (SERAFIN, RBPP, HAS, NO-CODE+IA)
-├── Templates/
-│   ├── quiz_style.js       ← template quiz PowerPoint (multi-palette RBPP/CNT/TNmP)
-│   ├── infographie_style.js← template infographies (format pétale et cartes)
-│   └── word_style.js       ← template documents Word
-├── En_cours/               ← scripts temporaires + node_modules (à nettoyer après chaque tâche)
-├── Livrables/
-│   ├── Quiz/               ← convention : quiz_[type]_[slug]_YYYY-MM-DD.pptx
-│   ├── Infographies/       ← convention : infographie_[type]_[slug]_YYYY-MM-DD.pptx
-│   ├── Leçons/             ← leçons Word hebdomadaires (NO-CODE+IA)
-│   └── Documents/          ← documents Word divers
-├── NotebookLM/             ← notebooks thématiques (RBPP, HAS, SERAFIN-PH, Formation, CPOM)
-│   ├── README.md           ← architecture, workflow, limites NotebookLM
-│   ├── RBPP/               ← Sources_PDF/ + Prompts/notebook_guide_RBPP.md
-│   ├── Evaluation_HAS/     ← Sources_PDF/ + Prompts/notebook_guide_Evaluation_HAS.md
-│   ├── SERAFIN-PH/         ← Sources_PDF/ + Prompts/notebook_guide_SERAFIN-PH.md
-│   ├── Formation_Equipe/   ← Sources_PDF/ + Prompts/notebook_guide_Formation_Equipe.md
-│   └── CPOM/               ← Sources_PDF/ + Prompts/notebook_guide_CPOM.md
-├── Prompts/                ← prompts réutilisables (Claude.ai, Claude Code, NotebookLM)
-│   └── workflow_5etapes_claudeai.md
-├── Ressources/             ← documentation de référence externe (MCP, outils, guides)
-└── Prompt/
-    ├── session_YYYY-MM-DD_prompts.txt  ← logs de sessions actives
-    └── Archives/           ← anciens prompts .rtf
+├── CLAUDE.md               ← ce fichier (instructions projet, auto-chargé)
+├── jobs_config.json        ← configuration des jobs planifiés (source de vérité)
+├── .gitignore
+│
+├── sources/                ← ENTRÉES
+│   ├── rbpp/               ← PDFs HAS/ANESM bruts (un sous-dossier par RBPP)
+│   ├── tnmp/               ← fichiers Excel TNmP
+│   ├── qvct/               ← documents QVCT
+│   └── veille/             ← veilles produites (SERAFIN, RBPP, HAS, ESSMS…)
+│       └── ai-act/ · rgpd/ · imac/   ← veilles à sous-dossier dédié
+│
+├── livrables/              ← SORTIES
+│   ├── lecons/             ← leçons Word hebdomadaires (parcours d'apprentissage)
+│   ├── quiz/               ← quiz_[type]_[slug]_YYYY-MM-DD.pptx
+│   ├── infographies/       ← infographie_[type]_[slug]_YYYY-MM-DD.pptx
+│   ├── documents/          ← documents Word divers, fiches synthèse
+│   └── projets/
+│
+├── outils/                 ← OUTILLAGE
+│   ├── scripts/            ← run_job.sh, setup/teardown_launchd.sh, logs/ (gitignorés)
+│   ├── templates/          ← quiz_style.js, infographie_style.js, word_style.js
+│   └── prompts/            ← prompts réutilisables + archives/
+│
+├── ressources/             ← docs de référence (MCP, CLI, vim, bonnes pratiques…)
+│
+├── contexte/               ← instructions thématiques (chaque sous-dossier garde son CLAUDE.md auto-chargé)
+│   ├── cpom/ · serafin-ph/ · formations-rbpp/ · archives/
+│   └── emails/             ← CLAUDE.md + outil-anonymisation.html
+│
+└── en_cours/               ← temporaire (scripts jetables + node_modules ; nettoyer après chaque tâche)
 ```
 
 ### Conventions de nommage des livrables
@@ -69,17 +69,17 @@ Claude_Travail/
 - **Librairie PDF** : pdf-parse (lecture), pdfkit (création)
 - **Langue des scripts** : JavaScript (Node.js)
 - Toujours vérifier si `node_modules` existe avant d'installer des dépendances
-- Toujours utiliser `npm install` dans `En_cours/` pour les scripts temporaires
+- Toujours utiliser `npm install` dans `en_cours/` pour les scripts temporaires
 
 ---
 
 ## Règles générales
 
 - Lire le fichier source en entier avant de commencer à générer quoi que ce soit.
-- Utiliser les templates existants dans `Templates/` si disponibles.
-- Sauvegarder les livrables finaux dans le bon sous-dossier de `Livrables/`.
-- Utiliser `En_cours/` pour les scripts et fichiers intermédiaires.
-- Nettoyer `En_cours/` après chaque tâche terminée.
+- Utiliser les templates existants dans `outils/templates/` si disponibles.
+- Sauvegarder les livrables finaux dans le bon sous-dossier de `livrables/`.
+- Utiliser `en_cours/` pour les scripts et fichiers intermédiaires.
+- Nettoyer `en_cours/` après chaque tâche terminée.
 - Pour toute action irréversible (suppression, écrasement), demander confirmation d'abord.
 - Afficher un plan structuré avant de générer un fichier long (>20 slides ou >10 pages).
 
@@ -94,7 +94,7 @@ Claude_Travail/
 - Style : fond bleu marine `#1B3A6B`, texte blanc, police Calibri
 - Couverture équilibrée de l'ensemble du document source
 - Niveau adapté aux professionnels du médico-social
-- Livrable → `Livrables/Quiz/`
+- Livrable → `livrables/quiz/`
 
 ### Script type (pptxgenjs)
 ```javascript
@@ -131,7 +131,7 @@ questions.forEach((q, i) => {
   });
 });
 
-pres.writeFile({ fileName: "Livrables/Quiz/quiz_output.pptx" });
+pres.writeFile({ fileName: "livrables/quiz/quiz_output.pptx" });
 console.log("✅ Quiz généré avec succès.");
 ```
 
@@ -144,7 +144,7 @@ console.log("✅ Quiz généré avec succès.");
 - Fond blanc, couleurs distinctes par pétale (palette harmonieuse)
 - Police Calibri, format 16:9
 - Titre au centre de la fleur
-- Livrable → `Livrables/Infographies/`
+- Livrable → `livrables/infographies/`
 
 ### ⚠️ Règle critique 1 — Lignes de connexion radiales (dimensions positives)
 
@@ -199,7 +199,7 @@ unzip -p [fichier].pptx ppt/slides/slide1.xml | grep -c '<a:ext cx="-'
 
 - Style professionnel, structuré avec titres et sous-titres
 - Français, registre professionnel médico-social
-- Livrable → `Livrables/Documents/` (documents divers) ou `Livrables/Leçons/` (leçons hebdomadaires)
+- Livrable → `livrables/documents/` (documents divers) ou `livrables/lecons/` (leçons hebdomadaires)
 
 ---
 
@@ -208,14 +208,14 @@ unzip -p [fichier].pptx ppt/slides/slide1.xml | grep -c '<a:ext cx="-'
 - Source : https://www.has-sante.fr
 - Résumé d'une page max : titre, date, public cible, points clés
 - Nom du fichier : `YYYY-MM-DD_veille_HAS.md`
-- Livrable → `Sources/Veille/`
+- Livrable → `sources/veille/`
 
 ## Veille NO-CODE + IA (hebdomadaire, vendredi 8h03)
 
 - Sources : the-decoder.com, huggingface.co/blog/feed.xml, simonwillison.net, openai.com/blog/rss.xml, make.com/en/blog, blog.n8n.io, zapier.com/blog, webflow.com/blog
 - Format : leçon active (20% théorie / 80% pratique) avec hyperliens cliquables
 - Nom du fichier : `YYYY-MM-DD_lecon-nocode-ia_NN_[slug].docx`
-- Livrable → `Livrables/Leçons/`
+- Livrable → `livrables/lecons/`
 - Note : openai.com/news retourne 403 → utiliser openai.com/blog/rss.xml
 - Note : huggingface.co/blog retourne 500 (rendu JS) → utiliser huggingface.co/blog/feed.xml
 
@@ -232,31 +232,31 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 
 ### B. Planificateur système (launchd) — **app fermée, autonomie réelle** ✅
 - Un agent launchd par job (`~/Library/LaunchAgents/com.claudetravail.<job_id>.plist`) exécute les jobs **même Claude Code fermé**.
-- Chaîne : agent launchd → `scripts/run_job.sh <job_id>` → `claude -p` headless (lit `jobs_config.json`, exécute le job).
+- Chaîne : agent launchd → `outils/scripts/run_job.sh <job_id>` → `claude -p` headless (lit `jobs_config.json`, exécute le job).
 - Modèle forcé : **sonnet** · plafond **2 $/exécution** (modifiable dans `run_job.sh`).
 - launchd **rattrape** une tâche manquée au réveil du Mac (mieux que crontab). Mac éteint = tâche sautée.
 - ✅ **Tous les jobs sont 100% headless** : aucune dépendance Chrome MCP. Les sources dynamiques/bloquées (ATIH, listing HAS) sont récupérées via **WebSearch + WebFetch** ; toute source inaccessible est marquée ⛔ et le job continue.
 
-**Scripts (`scripts/`) :**
+**Scripts (`outils/scripts/`) :**
 | Script | Rôle |
 |--------|------|
-| `run_job.sh <job_id>` | Exécute un job en headless (logs → `scripts/logs/`), puis **auto-commit + push** des livrables si succès (portée stricte : `Sources/Veille/{AI-Act,RGPD}` + `Sources/Veille/*.docx` + `Livrables/{Leçons,Quiz,Infographies}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`) |
+| `run_job.sh <job_id>` | Exécute un job en headless (logs → `outils/scripts/logs/`), puis **auto-commit + push** des livrables si succès (portée stricte : `sources/veille/{AI-Act,RGPD}` + `sources/veille/*.docx` + `livrables/{lecons,Quiz,Infographies}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`) |
 | `setup_launchd.sh` | Génère + charge tous les agents depuis la liste `JOBS` (idempotent ; relancer après modif d'horaire) |
 | `teardown_launchd.sh` | Décharge + supprime tous les agents |
 
 **Commandes utiles :**
 ```bash
 launchctl list | grep claudetravail        # voir les agents actifs
-bash scripts/setup_launchd.sh              # (ré)installer / mettre à jour
-bash scripts/run_job.sh ai-act-veille      # test manuel d'un job
-bash scripts/teardown_launchd.sh           # tout désactiver
+bash outils/scripts/setup_launchd.sh              # (ré)installer / mettre à jour
+bash outils/scripts/run_job.sh ai-act-veille      # test manuel d'un job
+bash outils/scripts/teardown_launchd.sh           # tout désactiver
 ```
 
 **Horaires (= champ `cron`) :** ai-act-veille (dim. 7h03) · rgpd-veille (dim. 7h33) · imac-veille (dim. 8h03) · hypnose-lecon (dim. 9h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · nocode-ia-veille (ven 8h03) · placement-financier-lecon (sam 8h03).
 
-**Veilles hebdomadaires à sous-dossier dédié dans `Sources/Veille/` :** `AI-Act/` · `RGPD/` · `iMac/` (veille marché comparative tout-en-un : iMac M4/M5 + PC Windows équivalents) — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent). L'auto-push couvre tout `Sources/Veille/` (récursif).
+**Veilles hebdomadaires à sous-dossier dédié dans `sources/veille/` :** `AI-Act/` · `RGPD/` · `iMac/` (veille marché comparative tout-en-un : iMac M4/M5 + PC Windows équivalents) — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent). L'auto-push couvre tout `sources/veille/` (récursif).
 
-> Règle : après tout ajout/modif de job dans `jobs_config.json`, relancer `bash scripts/setup_launchd.sh` pour synchroniser launchd. Les logs `scripts/logs/` et `node_modules` sont gitignorés.
+> Règle : après tout ajout/modif de job dans `jobs_config.json`, relancer `bash outils/scripts/setup_launchd.sh` pour synchroniser launchd. Les logs `outils/scripts/logs/` et `node_modules` sont gitignorés.
 
 ---
 
@@ -273,7 +273,7 @@ bash scripts/teardown_launchd.sh           # tout désactiver
 | **CPOM** | Préparation contractuelle · Suivi indicateurs · Bilans ARS |
 
 - Sources acceptées : **PDF uniquement** (convertir DOCX/PPTX via Office 365 → Exporter → PDF)
-- Guides : `NotebookLM/[nom]/Prompts/notebook_guide_[nom].md`
+- Guides : `NotebookLM/[nom]/outils/prompts/notebook_guide_[nom].md`
 - Dépôt des PDFs : `NotebookLM/[nom]/Sources_PDF/`
 - Workflow complet : voir `NotebookLM/README.md`
 
@@ -310,7 +310,7 @@ Générer le prompt parfait autonome qui aurait produit ce résultat final dès 
 Critères : autonome · réutilisable · complet (rôle + contexte + contraintes + format) · compact.
 Le présenter dans un bloc de code prêt à copier-coller.
 
-Prompt de référence complet → `Prompts/workflow_5etapes_claudeai.md`
+Prompt de référence complet → `outils/prompts/workflow_5etapes_claudeai.md`
 
 ---
 
@@ -318,6 +318,6 @@ Prompt de référence complet → `Prompts/workflow_5etapes_claudeai.md`
 
 - Slides surchargées en texte
 - Formulations trop académiques ou trop familières
-- Fichiers intermédiaires oubliés dans `En_cours/`
+- Fichiers intermédiaires oubliés dans `en_cours/`
 - Actions irréversibles sans confirmation préalable
 - Scripts qui écrasent un livrable existant sans prévenir

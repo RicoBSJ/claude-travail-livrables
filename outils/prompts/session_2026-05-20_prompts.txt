@@ -1,0 +1,19 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-05-20
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [21:03:41] fait un push
+
+[001] [21:18:39] fait un push
+
+[001] [21:51:20] fait un push
+
+[001] [21:52:04] lance tous les jobs
+
+[001] [21:58:11] fait un push
+

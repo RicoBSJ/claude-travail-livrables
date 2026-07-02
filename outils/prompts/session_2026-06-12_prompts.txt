@@ -1,0 +1,314 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-12
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [07:03:16] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "ai-act-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [07:33:14] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "rgpd-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [08:03:17] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "nocode-ia-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:33:12] fais un push
+
+[001] [16:34:49] On laisse comme ça
+
+[001] [16:37:02] Les derniers fichiers créés dans Sources/Veille/RGPD et Sources/Veille/AI-Act n'ont pas été push
+
+[001] [16:39:17] option 2
+
+[001] [16:41:24] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "ai-act-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:46:30] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "ai-act-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [16:47:52] <task-notification>
+<task-id>a60a75bc4f7cb21ec</task-id>
+<tool-use-id>toolu_01KGfcsksAQKQxhePqwphqDB</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/6ecd29e8-25b6-4ad8-a9db-a4727b8ad64b/tasks/a60a75bc4f7cb21ec.output</output-file>
+<status>completed</status>
+<summary>Agent "Fetch AI Act sources 1-4" completed</summary>
+<result>Perfect! Now I have comprehensive data from all sources. Let me compile the complete report.
+
+---
+
+## RESULTS: Recent News/Articles from 4 Sources (Last 7 Days - June 2026)
+
+### 1. EU Digital Strategy - Regulatory Framework AI
+**Source:** https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai
+
+**Recent Articles (June 2026):**
+
+1. **EU and Brazil Digital Partnership**
+   - **Date:** June 12, 2026
+   - **Type:** Press Release
+   - **Summary:** The European Union and Brazil strengthened their collaborative efforts through a new Digital Partnership initiative.
+
+2. **Code of Practice on AI-Generated Content**
+   - **Date:** June 10, 2026
+   - **Type:** Press Release
+   - **Summary:** The Commission unveiled a voluntary compliance framework for marking and labeling AI-created materials to enhance transparency and consumer awareness.
+
+3. **G7 Cybersecurity Declaration**
+   - **Date:** June 8, 2026
+   - **Type:** Digibyte
+   - **Summary:** The European Commission endorsed a G7 declaration focused on bolstering global digital security and infrastructure resilience against emerging threats.
+
+4. **Tech Sovereignty Package Proposal**
+   - **Date:** June 3, 2026
+   - **Type:** Press Release
+   - **Summary:** The Commission introduced measures designed to reinforce Europe's digital independence and strengthen its technological capabilities in strategic sectors.
+
+5. **AI Act Enforcement Support**
+   - **Date:** June 1, 2026
+   - **Type:** Press Release
+   - **Summary:** Independent expert assistance was mobilized to support effective implementation and oversight of AI Act requirements across member states.
+
+---
+
+### 2. artificialintelligenceact.eu (Home Page)
+**Source:** https://artificialintelligenceact.eu/
+
+⛔ **Status:** Direct fetch returned website code only (no accessible news content). Retrieved via WebSearch instead.
+
+**Key Updates (June 2026):**
+
+- **Code of Practice on AI-Generated Content Finalization**
+  - **Date:** June 2026
+  - **Summary:** Final version of the Code of Practice on Article 50 compliance expected by June 2026, focusing on marking, detection, and labelling of AI-generated content.
+
+- **AI Office Assessment Due**
+  - **Date:** June 2026 (2 years after entry into force)
+  - **Summary:** The Commission will assess whether the AI Office has been given sufficient powers and competences, and whether resources need to be upgraded.
+
+---
+
+### 3. artificialintelligenceact.eu Implementation Timeline
+**Source:** https://artificialintelligenceact.eu/implementation-timeline/
+
+⛔ **Status:** Direct fetch returned website code only (no accessible news content). Retrieved via WebSearch instead.
+
+**Critical Implementation Deadlines (June-August 2026):**
+
+1. **August 2, 2026 - Full AI Act Application**
+   - **Summary:** The AI Act shall apply from August 2, 2026. Each Member State must establish at least one AI regulatory sandbox by this date.
+
+2. **December 2, 2026 - Generative AI Transition Period Ends**
+   - **Summary:** Generative AI systems already on the market before May 2026 must meet machine-readable marking requirements under Article 50(2) by December 2, 2026.
+
+3. **Earlier 2026 Preparations**
+   - **Summary:** Member states must implement rules on penalties (including administrative fines) and establish operational AI regulatory sandboxes before August 2.
+
+---
+
+### 4. IAPP (International Association of Privacy Professionals)
+**Source:** https://iapp.org/news/
+
+**Recent Articles (Last 7 Days - June 2026):**
+
+1. **Notes from the IAPP Canada: Course correction may be coming for Canada's privacy enforcement model**
+   - **Date:** June 12, 2026
+   - **URL:** https://iapp.org/news/a/notes-from-the-iapp-canada-course-correction-may-be-coming-for-canadas-privacy-enforcement-model
+   - **Summary:** Federal legislation proposing an administrative tribunal for social media oversight could signal broader shifts in how Canada regulates private-sector privacy, moving away from the current unique model.
+
+2. **A view from DC: The plan to trade kids' safety rules for AI preemption**
+   - **Date:** June 12, 2026
+   - **URL:** https://iapp.org/news/a/a-view-from-dc-the-plan-to-trade-kids-safety-rules-for-ai-preemption
+   - **Summary:** The White House is negotiating to bundle children's safety legislation with AI preemption measures, seeking congressional backing before the midterms.
+
+3. **A view from Brussels: Why the CADA sovereignty proposal deserves attention**
+   - **Date:** June 11, 2026
+   - **URL:** https://iapp.org/news/a/a-view-from-brussels-why-the-cada-sovereignty-proposal-deserves-attention
+   - **Summary:** The EU's Cloud and Artificial Intelligence Development Act introduces sovereignty frameworks with compliance and governance implications for vendor screening and data transfers.
+
+4. **Europe's Cloud and AI Development Act: Grand ambition, fragile foundations**
+   - **Date:** June 11, 2026
+   - **URL:** https://iapp.org/news/a/europe-s-cloud-and-ai-development-act-grand-ambition-fragile-foundations
+   - **Summary:** While CADA represents ambitious technological sovereignty objectives, its success depends on adequate regulatory relief, investment incentives, and infrastructure support.
+
+5. **Notes from the Asia-Pacific region: Australia kicks AI governance, digital responsibility into high gear**
+   - **Date:** June 11, 2026
+   - **URL:** https://iapp.org/news/a/notes-from-the-asia-pacific-region-australia-kicks-ai-governance-digital-responsibility-into-high-gear
+   - **Summary:** Australia's privacy regulator is developing guidance on automated decision-making transparency and updating AML/CTF privacy obligations as public trust in AI declines.
+
+6. **OPC finds Grok chatbot and deepfakes violated Canada's privacy law**
+   - **Date:** June 11, 2026
+   - **URL:** https://iapp.org/news/a/opc-finds-grok-chatbot-and-deepfakes-violated-canada-s-privacy-law
+   - **Summary:** Canada's Privacy Commissioner found X Corp. and xAI violated federal privacy law by deploying Grok without safeguards, generating millions of sexualized deepfakes.
+
+7. **Notes from the AI Governance Center: The key AI governance issues tackled at AIGG Europe 2026**
+   - **Date:** June 10, 2026
+   - **URL:** https://iapp.org/news/a/notes-from-the-ai-governance-center-the-key-ai-governance-issues-tackled-at-aigg-europe-2026
+   - **Summary:** European AI governance professionals are shifting focus from policy creation to implementation challenges, emphasizing distributed governance and technical standards development.
+
+8. **In these changing times, anonymization cannot keep up with AI**
+   - **Date:** June 10, 2026
+   - **URL:** https://iapp.org/news/a/in-these-changing-times-anonymization-cannot-keep-up-with-ai
+   - **Summary:** Advancing AI capabilities are eroding anonymization's viability as a privacy safeguard, requiring organizations to shift toward continuous governance frameworks.
+
+9. **Privacy governance was not built for agents: Rethinking data protection for autonomous systems**
+   - **Date:** June 10, 2026
+   - **URL:** https://iapp.org/news/a/privacy-governance-was-not-built-for-agents-rethinking-data-protection-for-autonomous-systems
+   - **Summary:** Agentic AI systems that operate autonomously present novel privacy challenges requiring runtime visibility and redesigned governance approaches.
+
+---
+
+## SUMMARY
+
+**Successfully Accessed:** 2 direct sources + 2 via WebSearch fallback
+- Source 1 (EC Digital Strategy): 5 articles extracted
+- Source 2 &amp; 3 (artificialintelligenceact.eu): Retrieved via WebSearch with key implementation milestones
+- Source 4 (IAPP): 9 articles extracted
+
+**Total Recent Items:** 17+ news articles/updates from June 5-12, 2026
+
+**Key Themes:** EU AI Act implementation timelines (August 2, 2026 critical date), privacy governance for emerging AI systems (generative AI, autonomous agents), international regulatory coordination (EU-Brazil partnership, G7 cybersecurity), and vendor compliance frameworks.
+
+Sources:
+- [EU Digital Strategy - AI Regulatory Framework](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai)
+- [EU Artificial Intelligence Act Portal](https://artificialintelligenceact.eu/)
+- [AI Act Implementation Timeline](https://artificialintelligenceact.eu/implementation-timeline/)
+- [IAPP News](https://iapp.org/news/)</result>
+<usage><total_tokens>19036</total_tokens><tool_uses>6</tool_uses><duration_ms>44882</duration_ms></usage>
+</task-notification>
+
+[001] [16:49:11] <task-notification>
+<task-id>afb0f6091994fe9a6</task-id>
+<tool-use-id>toolu_01DXXqW55KijXJDRgvhoM9Mb</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/6ecd29e8-25b6-4ad8-a9db-a4727b8ad64b/tasks/afb0f6091994fe9a6.output</output-file>
+<status>completed</status>
+<summary>Agent "Fetch AI Act sources 5-7 + CNIL" completed</summary>
+<result>Excellent! Now let me compile the comprehensive report with all the sources. Let me organize all the findings I've gathered:
+
+## Comprehensive EU AI Act News Report - June 2026
+
+Based on my research, here are the recent news items and updates from the three sources and related news coverage (last 7 days around June 2026):
+
+---
+
+### SOURCE 1: EU AI Act Service Desk Timeline
+**Status: Accessible** ✓
+
+**Findings:**
+The EU AI Act Service Desk timeline page contains static implementation milestone information rather than dated news articles. Key dates referenced:
+- **02 Feb 2025** - General provisions and prohibitions apply
+- **02 Aug 2025** - General-purpose AI rules activate
+- **02 Aug 2026** - High-risk AI system rules commence
+- **02 Aug 2027** - Rules for high-risk AI in regulated products apply
+
+No articles published in the last 7 days on this page.
+
+---
+
+### SOURCE 2: Council of the EU Press Releases
+**Status: ⛔ Access Denied (403 Error)** 
+
+**Fallback WebSearch Results:**
+
+The most recent relevant press release from Consilium is:
+
+**1. "Artificial Intelligence: Council and Parliament agree to simplify and streamline rules"**
+- **Date:** May 7, 2026
+- **URL:** [https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/](https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/)
+- **Summary:** Council, European Parliament, and European Commission negotiators reached a provisional agreement on the Digital Omnibus amendments to the EU AI Act. The agreement delays high-risk AI system compliance from August 2, 2026 to December 2, 2027; extends regulatory sandbox establishment from August 2, 2026 to August 2, 2027; and reduces the grace period for AI-generated content transparency from 6 months to 3 months (deadline December 2, 2026).
+
+---
+
+### SOURCE 3: CNIL (French Data Protection Authority)
+**Status: Accessible** ✓
+
+**Recent Items Published:**
+
+**1. "IA générative et vie privée" (Generative AI and Privacy) Poster Campaign**
+- **Date:** May 27, 2026
+- **URL:** https://www.cnil.fr/fr/ia-generative-et-vie-privee-affiche-coproduite-pipc-cnil
+- **Summary:** The CNIL partnered with South Korea's Personal Information Protection Commission (PIPC) to create an educational poster explaining how to protect personal data when using AI systems. This awareness campaign addresses the rapid growth of generative AI usage.
+
+**2. Conversational AI and Youth Mental Health Study Results**
+- **Date:** May 5, 2026
+- **URL:** https://www.cnil.fr/fr/ia-conversationnelle-et-sante-mentale-des-jeunes-resultats-de-lenquete-europeenne
+- **Summary:** A European survey by Groupe VYV and CNIL found that nearly 9 out of 10 young people in France use conversational AI, with approximately half discussing mental health topics with these systems. Highlights privacy and data protection risks for youth.
+
+**3. Web Scraping and AI Development Webinar**
+- **Date:** April 2, 2026
+- **URL:** https://www.cnil.fr/fr/revoir-le-webinaire-developpement-ia-webscraping-base-legale-interet-legitime
+- **Summary:** The CNIL hosted a webinar examining legitimate interest as a legal basis for developing AI systems, particularly addressing web scraping practices in model training.
+
+**4. G7 2026: CNIL Hosts Data Protection Authorities Roundtable in Paris**
+- **Date:** Announced May 6, 2026 (Event: June 23-26, 2026)
+- **URL:** [https://www.cnil.fr/en/g7-2026-cnil-hosts-roundtable-in-paris](https://www.cnil.fr/en/g7-2026-cnil-hosts-roundtable-in-paris)
+- **Summary:** The CNIL will host the annual Data Protection and Privacy Authorities Roundtable from June 23-26, 2026, bringing together authorities from Canada, France, Germany, Italy, Japan, UK, US, and the EU. The meeting focuses on emerging technologies, law enforcement cooperation, and free movement of data amid growing concerns about AI regulation.
+
+**5. Privacy Research Day - June 24, 2026**
+- **Date:** Call for papers published May 6, 2026 (Event: June 24, 2026)
+- **URL:** [https://www.cnil.fr/en/privacy-research-day-2026](https://www.cnil.fr/en/privacy-research-day-2026)
+- **Summary:** The fifth edition of Privacy Research Day will be held on June 24, 2026, at CNIL in Paris as part of the G7 Data Protection Authorities meeting. The multidisciplinary panel will explore tensions in AI regulation across technical, political, and democratic perspectives.
+
+---
+
+### ADDITIONAL BREAKING NEWS - June 2026 AI Act Updates
+
+**1. Code of Practice on AI-Generated Content Marking and Labelling**
+- **Date:** June 10, 2026
+- **URL:** [https://digital-strategy.ec.europa.eu/en/news/commission-publishes-code-practice-marking-and-labelling-ai-generated-content](https://digital-strategy.ec.europa.eu/en/news/commission-publishes-code-practice-marking-and-labelling-ai-generated-content)
+- **Summary:** The European Commission published a voluntary Code of Practice providing standardized methods for marking and labeling AI-generated content. The code addresses transparency requirements under Article 50 of the AI Act, including labeling deepfakes and AI-manipulated text on matters of public interest. Compliance begins August 2, 2026, with providers and deployers able to sign by July 22, 2026.
+
+**2. Cloud and AI Development Act (CADA) Formally Adopted**
+- **Date:** June 3, 2026
+- **URL:** [https://digital-strategy.ec.europa.eu/en/policies/cloud-and-ai-development-act](https://digital-strategy.ec.europa.eu/en/policies/cloud-and-ai-development-act)
+- **Summary:** The European Commission formally adopted the legislative proposal for the Cloud and AI Development Act (CADA) on June 3, 2026. This sovereignty-oriented framework addresses EU vulnerabilities in cloud and AI infrastructure—specifically the decline of EU cloud providers (from 29% market share in 2017 to 15% by 2022) and data center capacity shortages. Key measures include cloud service assurance levels for public sector procurement, data center acceleration zones with streamlined 12-month permitting timelines, and an "open source first" principle for public sector entities.
+
+**3. EU AI Act Timeline Relief and Simplification - Detailed Analysis**
+- **Date:** May 18, 2026 (reporting on May 7 agreement)
+- **URL:** [https://www.insideprivacy.com/artificial-intelligence/eu-ai-act-update-timeline-relief-targeted-simplification-and-new-prohibitions/](https://www.insideprivacy.com/artificial-intelligence/eu-ai-act-update-timeline-relief-targeted-simplification-and-new-prohibitions/)
+- **Summary:** Comprehensive breakdown of the Digital Omnibus amendments including postponed compliance deadlines, new prohibitions on non-consensual intimate imagery and CSAM (effective December 2, 2026), changes to the Machinery Regulation classification, special category data permissions for bias detection, and expanded AI Office supervisory authority. Expected final adoption in June 2026.
+
+**4. EU Simplification Deal: "Companies Should Not Be Regulated Twice"**
+- **Date:** May 7, 2026
+- **URL:** [https://www.euronews.com/next/2026/05/07/eu-reaches-tentative-deal-to-simplify-ai-rules](https://www.euronews.com/next/2026/05/07/eu-reaches-tentative-deal-to-simplify-ai-rules)
+- **Summary:** The EU and European Parliament reached a provisional agreement to streamline AI regulations. Key points include implementation delays for high-risk AI systems (December 2027), reduced compliance burden for SMEs, elimination of dual regulation between sectoral and AI rules, mandatory watermarking of AI-generated content by December 2, 2026, and expanded SME access to EU-level regulatory sandboxes.
+
+**5. "EU Agrees to Simplify AI Rules to Boost Innovation and Ban 'Nudification' Apps to Protect Citizens"**
+- **Date:** May 7, 2026
+- **URL:** [https://digital-strategy.ec.europa.eu/en/news/eu-agrees-simplify-ai-rules-boost-innovation-and-ban-nudification-apps-protect-citizens](https://digital-strategy.ec.europa.eu/en/news/eu-agrees-simplify-ai-rules-boost-innovation-and-ban-nudification-apps-protect-citizens)
+- **Summary:** The European Commission welcomed the political agreement between Parliament and Council on streamlined AI rules. Implementation timeline for high-risk AI systems in biometrics, critical infrastructure, education, employment, migration, asylum, and border control is set for December 2, 2027; AI integrated into products like lifts or toys: August 2, 2028. The agreement includes prohibition of AI systems generating non-consensual sexually explicit content (nudification apps) and child sexual abuse material, effective December 2, 2026.
+
+**6. The EU Cloud and AI Development Act in Depth**
+- **Date:** June 11, 2026
+- **URL:** [https://www.insideglobaltech.com/2026/06/11/the-eu-cloud-and-ai-development-act-in-depth/](https://www.insideglobaltech.com/2026/06/11/the-eu-cloud-and-ai-development-act-in-depth/)
+- **Summary:** Detailed analysis of the June 3, 2026 CADA proposal, which establishes a cloud sovereignty framework with four assurance levels for public sector providers, requires "Union added value" evaluation in procurement, mandates Member State designation of data center acceleration zones with 12-month permit timelines, and promotes open source principles. Designed to triple EU data center capacity within 5-7 years and reduce dependence on non-EU providers.
+
+---
+
+### Summary of Key June 2026 Developments:
+
+1. **Code of Practice Published (June 10)** - Voluntary transparency standard for AI-generated content marking
+2. **CADA Formally Adopted (June 3)** - New legislation for cloud and AI infrastructure sovereignty
+3. **G7 Data Protection Meeting (June 23-26)** - International cooperation on AI and data protection
+4. **Privacy Research Day (June 24)** - Academic-regulatory bridge on AI regulation challenges
+
+All items represent critical compliance milestones for organizations before August 2, 2026 general implementation date.
+
+---
+
+### Sources:
+- [EU AI Act Service Desk Timeline](https://ai-act-service-desk.ec.europa.eu/en/ai-act/timeline/timeline-implementation-eu-ai-act)
+- [Council of the EU - AI Act Press Releases](https://www.consilium.europa.eu/en/press/press-releases/)
+- [CNIL - Intelligence Artificielle](https://www.cnil.fr/fr/intelligence-artificielle)
+- [Council and Parliament Agree to Simplify AI Rules](https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/)
+- [Code of Practice on AI-Generated Content](https://digital-strategy.ec.europa.eu/en/news/commission-publishes-code-practice-marking-and-labelling-ai-generated-content)
+- [Cloud and AI Development Act Policy](https://digital-strategy.ec.europa.eu/en/policies/cloud-and-ai-development-act)
+- [EU AI Act Timeline Relief and New Prohibitions](https://www.insideprivacy.com/artificial-intelligence/eu-ai-act-update-timeline-relief-targeted-simplification-and-new-prohibitions/)
+- [EU Agrees to Simplify AI Rules](https://digital-strategy.ec.europa.eu/en/news/eu-agrees-simplify-ai-rules-boost-innovation-and-ban-nudification-apps-protect-citizens)
+- [EU Reaches Tentative Deal on Simplified AI Rules](https://www.euronews.com/next/2026/05/07/eu-reaches-tentative-deal-to-simplify-ai-rules)
+- [CNIL G7 2026 Data Protection Authorities Roundtable](https://www.cnil.fr/en/g7-2026-cnil-hosts-roundtable-in-paris)
+- [Privacy Research Day 2026](https://www.cnil.fr/en/privacy-research-day-2026)
+- [The EU Cloud and AI Development Act in Depth](https://www.insideglobaltech.com/2026/06/11/the-eu-cloud-and-ai-development-act-in-depth/)</result>
+<usage><total_tokens>29970</total_tokens><tool_uses>21</tool_uses><duration_ms>116504</duration_ms></usage>
+</task-notification>
+
+[001] [16:54:57] documenter cet auto-push dans la section « Jobs planifiés » de CLAUDE.md (1 ligne) pour que ce soit tracé : fais le
+

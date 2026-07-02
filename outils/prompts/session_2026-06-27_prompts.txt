@@ -1,0 +1,41 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-27
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [00:00:37] ouvert
+
+[001] [00:02:05] réessaie
+
+[001] [00:05:48] réessaie sur le navigateur safari https://academie.dzogchentoday.org/courses/cycle-1-pack-1-une-introduction-au-dzogchen/lessons/une-philosophie-peut-elle-avoir-des-applications-spirituelles-theoria-et-praxis/
+
+[001] [00:09:25] et ici https://vimeo.com/979684599/e74dc864a2?fl=pl&fe=cm
+
+[001] [08:03:18] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "placement-financier-lecon", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [14:43:08] est-ce que tu peux exécuter manuellement le job RBPP ?
+
+[001] [14:43:40] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "rbpp-pipeline", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [14:45:54] exécute le job RBPP sur ça https://www.has-sante.fr/jcms/p_3604128/fr/guide-elaborer-le-projet-personnalise-d-accompagnement-ppa-dans-le-dossier-usager-informatise-dui
+
+[001] [14:50:21] les deux
+
+[001] [15:05:07] est-ce que tu peux enregistrer la RBPP dans le repertoire le plus approprié ?
+
+[001] [15:07:25] commite/pousse
+
+[001] [15:08:58] https://www.has-sante.fr/upload/docs/application/pdf/2026-06/dir1/guide_elaborer_le_ppa_dans_le_dui_mai_2026.pdf
+
+[001] [15:09:43] https://www.has-sante.fr/upload/docs/application/pdf/2026-06/dir1/synthese_guide_elaborer_le_ppa_dans_le_dui_mai_2026.pdf
+
+[001] [15:10:17] oui
+
+[001] [15:20:42] sur tous les points cités
+
+[001] [15:23:30] non
+

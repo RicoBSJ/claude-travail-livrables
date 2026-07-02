@@ -1,0 +1,19 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-07
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [16:20:42] fais un push
+
+[001] [16:23:55] A
+
+[001] [16:26:07] https://github.com/RicoBSJ/claude-travail-livrables.git
+
+[001] [16:28:56] Option 1
+
+[001] [16:33:32] clé ajoutée
+

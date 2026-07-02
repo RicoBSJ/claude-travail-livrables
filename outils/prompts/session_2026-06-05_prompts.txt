@@ -1,0 +1,24 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-05
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [23:20:21] montre moi tous les jobs au format markdown
+
+[001] [23:21:41] la localisation des jobs dans mon répertoire
+
+[001] [23:24:54] lance tous les jobs
+
+[001] [23:35:49] Tu es un expert en stoïcisme et je veux que tu crée à l'image du job NO-CODE+IA créer un job similaire et qui pareillement propose une leçon hebdomadaire, une fois que le job est finalisé je veux que l'intègre avec les autres jobs
+
+[001] [23:40:19] Veux-tu que je :
+1. **Ajoute le job à la skill /lancer-job** pour qu'il soit directement accessible ? OUI
+2. **Lance le job dès maintenant** pour générer la première leçon ? OUI
+3. **Affiche la structure détaillée du job** (complet) ? OUI
+
+[001] [23:44:49] Tu es un expert en DZOGCHEN et je veux que tu crée à l'image du job NO-CODE+IA un job similaire et qui pareillement propose une leçon hebdomadaire, une fois que le job est finalisé je veux que l'intègre avec les autres jobs
+

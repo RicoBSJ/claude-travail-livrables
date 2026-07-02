@@ -1,0 +1,17 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-07-02
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [08:03:16] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "stoicisme-lecon", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [22:27:32] Tu es expert en optimisation du rangement de l'information selon des répertoires et des sous-répertoires, concernant mon répertoire de travail, est-ce que tu pourrais me proposer un classement plus cohérent, plus optimal, change éventuellement les noms des répertoires et sous-répertoires, pose moi des questions avant de faire une première proposition
+
+[001] [22:38:47] contexte/*.md : en consolidant, ces instructions thématiques ne seront plus auto-chargées par dossier (comportement des CLAUDE.md en sous-dossier). C'est le prix de la consolidation que tu as choisie — OK ? NON, JE PRÉFÈRE QUE LES INSTRUCTIONS THÉMATIQUES SOIENT AUTO-CHARGÉES PAR DOSSIER
+
+[001] [22:40:17] ok on part la-dessus
+

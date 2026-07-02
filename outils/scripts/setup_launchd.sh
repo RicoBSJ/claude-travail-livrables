@@ -16,10 +16,10 @@
 # ============================================================
 
 PROJECT="/Users/utilisateur/kDrive/Claude_Travail"
-RUNNER="$PROJECT/scripts/run_job.sh"
+RUNNER="$PROJECT/outils/scripts/run_job.sh"
 AGENTS_DIR="$HOME/Library/LaunchAgents"
 LABEL_PREFIX="com.claudetravail"
-LOG_DIR="$PROJECT/scripts/logs"
+LOG_DIR="$PROJECT/outils/scripts/logs"
 
 mkdir -p "$AGENTS_DIR" "$LOG_DIR"
 chmod +x "$RUNNER"

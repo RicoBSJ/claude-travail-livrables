@@ -1,0 +1,43 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-08
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [07:32:48] est-ce que tu peux reprendre là uù tu t'es arrêté
+
+[001] [18:17:15] exécute maintenant la veille SERAFIN-PH
+
+[001] [18:18:55] comment lancer mes jobs séparément et simultanément
+
+[001] [18:24:42] Detect my project's dev servers and save all their configurations to .claude/launch.json, then ask which ones to start.
+
+```json
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "<server-name>",
+      "runtimeExecutable": "<command>",
+      "runtimeArgs": ["<args>"],
+      "port": <port>
+    }
+  ]
+}
+```
+
+Use runtimeExecutable for the command (e.g. "yarn", "npm", "node", "python") and runtimeArgs for its arguments. Call preview_start for each server the user wants to run.
+
+[001] [18:25:36] Commit and push all changes so I can continue this session on the web.
+
+[001] [18:26:36] non merci
+
+[001] [18:29:57] est-ce que tu peux sélectionner les meilleurs sites traitant du thème du "NO-CODE" et de l'"IA" et préparer une veille professionnelle hebdomadaire tous les jeudis afin que je sois informé des avancées dans ces deux domaines mais également lorsque ces deux domaines s'interpénètrent, le tout dans un fichier Word
+
+[001] [18:55:34] comment résoudre le OpenAI News	https://openai.com/news	⛔ (403)
+
+[001] [19:15:34] est-ce que tu peux dans ce document Word rajouter des liens Internet afin de pouvoir approfondir l'information si besoin
+

@@ -1,0 +1,37 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-10
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [07:03:14] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "ai-act-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [08:03:11] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "serafin-ph-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [09:03:11] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "enneagramme-lecon", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [11:01:17] Tu es un expert en RGPD, règlement européen qui encadre la collecte, l’utilisation et la protection des données personnelles
+Je veux que tu mettes en place une veille professionnelle portant sur le RGPD
+Pour se faire, je veux que tu t'inspires du job AI Act
+Tous les jours, je veux un compte-rendu complet dans un fichier au format Word et comme d'habitude évite les doublons
+Exécute le job une première fois aujourd'hui
+
+[001] [11:07:50] Met à jour la doc
+
+[001] [13:58:14] Est-ce que ceci a été exécuté : MER 10 juin  →  SERAFIN-PH (8h03) · Ennéagramme (9h03)
+
+[001] [15:23:34] je veux que tu réécrives les jobs Stoïcisme, Dzogchen et Ennéagramme comme tu l'as fait pour NO-CODE+IA, ces trois jobs Stoïcisme, Dzogchen et Ennéagramme ne correspondent pas à des veilles professionnelles mais ils constituent des leçons en vue de mon apprentissage sur ces thèmes, de la même façon que pour NO-CODE+IA
+
+[001] [15:57:54] est-ce que tu peux structurer le job NO-CODE+IA de la même façon que les jobs Dzogchen, Ennéagramme et Stoïcisme ?
+
+[001] [16:02:08] est-ce que tu peux exécuter immédiatement ces 4 jobs ?
+
+[001] [16:09:55] ouvres en une pour relecture
+
+[001] [16:11:22] régénérer les 3 autres avec exactement les mêmes réglages mais elles le sont déjà ?
+
+[001] [16:12:39] mon verdict sur la Stoïcisme vaut validation pour l'ensemble
+

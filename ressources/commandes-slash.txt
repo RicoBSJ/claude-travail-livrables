@@ -1,0 +1,163 @@
+Voici toutes les commandes slash de Claude Code, organisées par thème :
+
+---
+
+## Session & Conversation
+
+| Commande | Description |
+|---|---|
+| `/clear` | Efface l'historique et libère le contexte |
+| `/compact [instructions]` | Compacte la conversation avec focus optionnel |
+| `/branch [nom]` | Crée une branche de la conversation courante |
+| `/rewind` | Revient à un point antérieur de la conversation |
+| `/rename [nom]` | Renomme la session courante |
+| `/resume [session]` | Reprend une session par ID ou nom |
+| `/export [fichier]` | Exporte la conversation en texte |
+| `/copy [N]` | Copie la dernière réponse dans le presse-papiers |
+
+---
+
+## Modèle & Configuration
+
+| Commande | Description |
+|---|---|
+| `/model [modèle]` | Sélectionne ou change le modèle IA |
+| `/effort [low\|medium\|high\|max]` | Règle le niveau d'effort du modèle |
+| `/config` | Ouvre les paramètres (thème, modèle, etc.) |
+| `/theme` | Change le thème de couleur |
+| `/color [couleur]` | Définit la couleur de la barre de prompt |
+| `/fast [on\|off]` | Active/désactive le mode rapide |
+
+---
+
+## Contexte & Utilisation
+
+| Commande | Description |
+|---|---|
+| `/context` | Visualise l'utilisation du contexte actuel |
+| `/cost` | Statistiques de tokens utilisés |
+| `/usage` | Limites du plan et statut des rate limits |
+| `/stats` | Historique de sessions, streaks, préférences |
+
+---
+
+## Permissions & Sécurité
+
+| Commande | Description |
+|---|---|
+| `/permissions` | Gère les règles allow/ask/deny pour les outils |
+| `/add-dir <chemin>` | Ajoute un répertoire de travail pour la session |
+| `/security-review` | Analyse les changements en cours pour détecter des vulnérabilités |
+
+---
+
+## Outils & Intégrations
+
+| Commande | Description |
+|---|---|
+| `/mcp` | Gère les connexions aux serveurs MCP |
+| `/ide` | Gère les intégrations IDE |
+| `/hooks` | Affiche les configurations de hooks |
+| `/install-github-app` | Configure l'app GitHub Actions pour un dépôt |
+| `/install-slack-app` | Installe l'app Claude pour Slack |
+
+---
+
+## Workflow & Code
+
+| Commande | Description |
+|---|---|
+| `/plan [description]` | Entre en mode plan avec une description optionnelle |
+| `/diff` | Visualiseur de diff interactif pour les changements non commités |
+| `/simplify [focus]` | Révise et améliore le code récemment modifié |
+| `/security-review` | Analyse les changements du branch courant |
+| `/autofix-pr` | Lance une session web qui surveille la PR et pousse des fixes |
+
+---
+
+## Automatisation & Tâches
+
+| Commande | Description |
+|---|---|
+| `/schedule` | Crée/gère des tâches planifiées dans le cloud |
+| `/loop [intervalle] [prompt]` | Répète un prompt à intervalles réguliers |
+| `/tasks` | Liste et gère les tâches en arrière-plan |
+
+---
+
+## Mémoire & Documentation
+
+| Commande | Description |
+|---|---|
+| `/memory` | Édite les fichiers CLAUDE.md, gère l'auto-mémoire |
+| `/init` | Initialise le projet avec un CLAUDE.md |
+
+---
+
+## Diagnostics & Debug
+
+| Commande | Description |
+|---|---|
+| `/doctor` | Diagnostique l'installation de Claude Code |
+| `/debug` | Active les logs de debug pour la session |
+| `/status` | Affiche version, modèle, compte, connectivité |
+
+---
+
+## Sessions distantes & Web
+
+| Commande | Description |
+|---|---|
+| `/remote-control` | Rend la session accessible depuis claude.ai |
+| `/teleport` | Rapatrie une session web dans ce terminal |
+| `/desktop` | Continue la session dans l'app desktop (macOS/Windows) |
+| `/web-setup` | Connecte GitHub à Claude Code web via `gh` CLI |
+
+---
+
+## Cloud Providers
+
+| Commande | Description |
+|---|---|
+| `/setup-bedrock` | Configure Amazon Bedrock |
+| `/setup-vertex` | Configure Google Vertex AI |
+
+---
+
+## Compte & Authentification
+
+| Commande | Description |
+|---|---|
+| `/login` | Connexion au compte Anthropic |
+| `/logout` | Déconnexion |
+| `/privacy-settings` | Paramètres de confidentialité (Pro/Max) |
+| `/upgrade` | Page de mise à niveau du plan |
+
+---
+
+## Terminal & Clavier
+
+| Commande | Description |
+|---|---|
+| `/keybindings` | Ouvre/crée la config des raccourcis clavier |
+| `/terminal-setup` | Configure Shift+Enter et autres raccourcis |
+| `/statusline` | Configure la barre de statut shell |
+
+---
+
+## Aide & Divers
+
+| Commande | Description |
+|---|---|
+| `/help` | Affiche l'aide et les commandes disponibles |
+| `/skills` | Liste les skills disponibles |
+| `/powerup` | Leçons interactives sur les fonctionnalités |
+| `/release-notes` | Notes de version interactives |
+| `/feedback` | Soumet un retour ou signale un bug |
+| `/btw <question>` | Pose une question rapide sans l'ajouter au contexte |
+| `/insights` | Rapport d'analyse de tes sessions |
+| `/exit` | Quitte le CLI |
+
+---
+
+> **Note** : la disponibilité de certaines commandes dépend de ta plateforme, ton plan et ton environnement (ex: `/desktop` uniquement sur macOS/Windows). Les commandes de type **Skill** (`/simplify`, `/loop`, `/schedule`...) sont des prompts envoyés à Claude, pas des comportements codés en dur.

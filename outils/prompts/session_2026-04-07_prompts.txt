@@ -1,0 +1,58 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-07
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [06:08:00] Est-ce que tu peux continuer le travail que tu as interrompu et l'achever
+
+[001] [07:38:44] exécute maintenant la veille SERAFIN-PH
+exécute maintenant le pipeline RBPP
+
+[001] [20:03:45] Est-ce que pour les modèles dans /Templates/ tu peux revenir aux versions qui ont permis de générer /Livrables/Quiz/quiz_cnt_v1_2026-04-05.pptx, /Livrables/Quiz/quiz_rbpp_v2_2026-04-05.pptx, /Livrables/Quiz/quiz_tnmp_v2_2026-04-05.pptx, /Livrables/Infographies/infographie_cnt_has2026.pptx, /Sources/Veille/2026-04-06_veille_SERAFIN-PH.docx
+
+[001] [21:30:36] @/Users/utilisateur/kDrive/Claude_Travail/Sources/Veille/2026-02-12_veille_rbpp_tsa-enfant-adolescent.docx @/Users/utilisateur/kDrive/Claude_Travail/Sources/Veille/2026-03-02_veille_rbpp_visites-presence-tiers.docx @/Users/utilisateur/kDrive/Claude_Travail/Sources/Veille/2026-04-06_veille_rbpp_projet-personnalise.docx Est-ce que tu peux remettre en forme ces 3 fichiers à partir des templates
+
+[001] [21:42:38] @/Users/utilisateur/kDrive/Claude_Travail/Livrables/Quiz/quiz_rbpp_projet-personnalise_2026-04-06.pptx @/Users/utilisateur/kDrive/Claude_Travail/Livrables/Quiz/quiz_rbpp_tsa-enfant-adolescent_2026-02-12.pptx @/Users/utilisateur/kDrive/Claude_Travail/Livrables/Quiz/quiz_rbpp_visites-presence-tiers_2026-03-02.pptx Est-ce que tu peux remettre en forme ces 3 fichiers à partir des templates
+
+[001] [21:51:51] @/Users/utilisateur/kDrive/Claude_Travail/Livrables/Infographies/infographie_qvct_v2_2026-04-05.pptx @/Users/utilisateur/kDrive/Claude_Travail/Livrables/Infographies/infographie_rbpp_20260404.pptx @/Users/utilisateur/kDrive/Claude_Travail/Livrables/Infographies/infographie_rbpp_projet-personnalise_2026-04-06.pptx @/Users/utilisateur/kDrive/Claude_Travail/Livrables/Infographies/infographie_rbpp_tsa-enfant-adolescent_2026-02-12.pptx @/Users/utilisateur/kDrive/Claude_Travail/Livrables/Infographies/infographie_rbpp_visites-presence-tiers_2026-03-02.pptx Est-ce que tu peux remettre en forme ces 5 fichiers à partir des templates
+
+[001] [22:03:30] Detect my project's dev servers and save all their configurations to .claude/launch.json, then ask which ones to start.
+
+```json
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "<server-name>",
+      "runtimeExecutable": "<command>",
+      "runtimeArgs": ["<args>"],
+      "port": <port>
+    }
+  ]
+}
+```
+
+Use runtimeExecutable for the command (e.g. "yarn", "npm", "node", "python") and runtimeArgs for its arguments. Call preview_start for each server the user wants to run.
+
+[001] [22:04:23] Detect my project's dev servers and save all their configurations to .claude/launch.json, then ask which ones to start.
+
+```json
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "<server-name>",
+      "runtimeExecutable": "<command>",
+      "runtimeArgs": ["<args>"],
+      "port": <port>
+    }
+  ]
+}
+```
+
+Use runtimeExecutable for the command (e.g. "yarn", "npm", "node", "python") and runtimeArgs for its arguments. Call preview_start for each server the user wants to run.
+

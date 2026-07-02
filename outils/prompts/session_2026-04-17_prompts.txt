@@ -1,0 +1,124 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-17
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [07:44:50] archive ces jobs — 03 — API Route /api/livrables — 03 — Agent basique — 03 — Prompts MCP | ⏳ | et relance les 3 autres
+
+[001] [07:46:29] archive ces jobs — 03 — API Route /api/livrables — 03 — Agent basique — 03 — Prompts MCP | ⏳ | et relance les 3 autres
+
+[001] [07:52:52] met un terme à ces jobs — 03 — API Route /api/livrables — 03 — Agent basique — 03 — Prompts MCP | ⏳ | et relance le job rbpp
+
+[001] [07:57:36] <task-notification>
+<task-id>a3b59706d5f0e5dce</task-id>
+<tool-use-id>toolu_01TiWmWALVJRqMBzk73QLyMh</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/a3b59706d5f0e5dce.output</output-file>
+<status>completed</status>
+<summary>Agent "Relancer job rbpp" completed</summary>
+<result>J'ai maintenant une image complète de la situation. Voici le bilan :
+
+**Synthèse de la veille HAS — Publications médico-sociales depuis le 6 avril 2026**
+
+Aucune nouvelle **RBPP** (Recommandation de Bonnes Pratiques Professionnelles) au sens strict n'a été publiée par la HAS pour le secteur médico-social depuis le 6 avril 2026. La dernière RBPP en date reste celle sur le **TSA enfant/adolescent** du 12/02/2026 — déjà couverte par les livrables existants (`2026-02-12_veille_rbpp_tsa-enfant-adolescent.docx`, `quiz_rbpp_tsa-enfant-adolescent_2026-02-12.pptx`, `infographie_rbpp_tsa-enfant-adolescent_2026-02-12.pptx`).
+
+**Publications HAS du secteur médico-social identifiées après le 6 avril 2026 (hors RBPP) :**
+
+| Date | Titre | Type | Couvert ? |
+|------|-------|------|-----------|
+| 15/04/2026 | "Quel est le niveau de qualité des accompagnements des ESSMS en France ?" | Communiqué de presse / Bilan annuel évaluation ESSMS 2025 | Oui — `2026-04-16_veille_rbpp_bilan-qualite-essms-2025.docx` déjà produit |
+| 16/04/2026 | Guide EIAS : mode d'emploi | Guide méthodologique (soins) | Hors scope médico-social direct |
+| 13/04/2026 | Flash Sécurité Patient — allaitement | Outil amélioration pratiques (périnatalité) | Hors scope ESSMS |
+
+**Concernant la veille TDI volet 2** (`2026-04-17_veille_rbpp_tdi-volet2-scolarite-travail-loisirs.docx`) : le site HAS ne référence pas de RBPP TDI volet 2 publiée après le 6 avril 2026 dans les résultats de recherche — cette veille a vraisemblablement été produite en anticipation ou sur la base d'une RBPP TDI dont la publication n'est pas encore référencée dans le catalogue principal de la page RBPP.
+
+**Conclusion du pipeline :**
+
+```
+⏭️ Aucune nouvelle RBPP médico-sociale à traiter depuis le 6 avril 2026.
+   Les deux veilles récentes (16/04 et 17/04) couvrent les publications sectorielles disponibles.
+   Quiz et infographies sont à jour jusqu'au 6 avril 2026.
+   Livrables quiz/infographies manquants pour : bilan qualité ESSMS 2025 et TDI volet 2
+   (si ces publications constituent bien des RBPP, les livrables quiz/infographies n'ont pas encore été générés).
+```
+
+---
+
+```
+✅ Job Pipeline RBPP HAS terminé manuellement.
+   Prochain déclenchement automatique : Chaque lundi matin
+```
+
+---
+
+**Rapport de veille — 2026-04-17**
+
+La HAS n'a publié **aucune nouvelle RBPP** pour le secteur médico-social (ESSMS) depuis le 6 avril 2026. Les seules publications pertinentes sont :
+
+- **15/04/2026** : Bilan évaluation qualité ESSMS 2025 (communiqué de presse, déjà couvert par `2026-04-16_veille_rbpp_bilan-qualite-essms-2025.docx`) — 37 % des 47 700 ESSMS évalués, niveau satisfaisant, fragilités en gestion des risques et prévention maltraitance
+- Publications médicales non liées au secteur médico-social (sarcomes, allaitement, EIAS)
+
+Les quiz PowerPoint et infographies sont à jour jusqu'au 6 avril 2026. Si vous souhaitez générer quiz + infographie pour le **bilan qualité ESSMS 2025** et/ou la **RBPP TDI volet 2**, je peux le faire sur commande — ces deux veilles existent mais n'ont pas encore leurs livrables pédagogiques associés.</result>
+<usage><total_tokens>56051</total_tokens><tool_uses>46</tool_uses><duration_ms>271074</duration_ms></usage>
+</task-notification>
+
+[001] [07:59:24] <task-notification>
+<task-id>acba73588eadc281c</task-id>
+<tool-use-id>toolu_019KedBSXJa3RwUUvYHL4R1M</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/acba73588eadc281c.output</output-file>
+<status>completed</status>
+<summary>Agent "Relancer job rbpp" completed</summary>
+<result>Les scripts restants appartiennent à d'autres jobs (agents, MCP, nocode-ia) — ils ne concernent pas ce pipeline et ne doivent pas être supprimés.
+
+```
+✅ Job Pipeline RBPP HAS terminé manuellement.
+   Prochain déclenchement automatique : Chaque lundi matin (cron: 30 8 * * 1)
+```
+
+---
+
+**Rapport d'exécution — Pipeline RBPP HAS — 2026-04-17**
+
+**Analyse HAS :** Aucune nouvelle RBPP du secteur médico-social publiée après le 06/04/2026. La dernière RBPP visible est celle sur le TSA (12/02/2026), déjà traitée. Cependant, deux RBPP non couvertes ont été détectées : RBPP TDI Volet 1 (mis à jour 19/11/2025) et **RBPP TDI Volet 2** (publiée 18/11/2025), couvrant scolarité, travail et loisirs.
+
+**Livrables produits (RBPP TDI Volet 2) :**
+
+| Livrable | Fichier | Taille |
+|---|---|---|
+| Veille Word | `2026-04-17_veille_rbpp_tdi-volet2-scolarite-travail-loisirs.docx` | 12 Ko |
+| Quiz PPTX 100 questions | `quiz_rbpp_tdi-volet2-scolarite-travail-loisirs_2026-04-17.pptx` | 1,5 Mo |
+| Infographie pétale PPTX | `infographie_rbpp_tdi-volet2-scolarite-travail-loisirs_2026-04-17.pptx` | 108 Ko |
+
+**Bonus :** La veille sur le bilan annuel qualité ESSMS 2025 (communiqué HAS du 15/04/2026) a également été générée : `2026-04-16_veille_rbpp_bilan-qualite-essms-2025.docx` (12 Ko) — donnée clé : seulement 10,5% des ESSMS valident les 18 critères impératifs du référentiel HAS.</result>
+<usage><total_tokens>90957</total_tokens><tool_uses>48</tool_uses><duration_ms>754004</duration_ms></usage>
+</task-notification>
+
+[001] [08:00:15] oui
+
+[001] [08:06:03] <task-notification>
+<task-id>a74d7b0334c511c86</task-id>
+<tool-use-id>toolu_01FBEJnXUa4qjH8hBBYyX1PN</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/a74d7b0334c511c86.output</output-file>
+<status>completed</status>
+<summary>Agent "Générer quiz + infographie bilan qualité ESSMS 2025" completed</summary>
+<result>You've hit your limit · resets 12pm (Europe/Paris)</result>
+<usage><total_tokens>209</total_tokens><tool_uses>7</tool_uses><duration_ms>324845</duration_ms></usage>
+</task-notification>
+
+[001] [14:51:26] reprend où tu en étais
+
+[001] [15:34:32] est-ce que tu peux regénérer infographie_rbpp_bilan-qualite-essms-2025_2026-04-17.pptx ainsi que infographie_rbpp_tdi-volet2-scolarite-travail-loisirs_2026-04-17 de sorte que les résultats soient finalisés : caractères qui ne sortent pas du cadre, fichier devant être réparé à son ouverture
+
+[001] [15:35:15] est-ce que tu peux regénérer infographie_rbpp_bilan-qualite-essms-2025_2026-04-17.pptx ainsi que infographie_rbpp_tdi-volet2-scolarite-travail-loisirs_2026-04-17 de sorte que les résultats soient finalisés : caractères qui ne sortent pas du cadre, fichier ne devant pas être réparé à son ouverture
+
+[001] [16:16:21] est-ce que tu peux retravailler le visuel de infographie_rbpp_bilan-qualite-essms-2025_2026-04-17.pptx ainsi que infographie_rbpp_tdi-volet2-scolarite-travail-loisirs_2026-04-17.pptx en te basant sur infographie_cnt_2026-04-05
+
+[001] [22:08:13] continue
+
+[001] [22:47:41] est-ce que tu peux retravailler ce que tu viens de générer selon ces paramêtres : J'ai maintenant tous les éléments du style CNT. Je vais reproduire exactement : fond `#0E0C25`, cercles décoratifs semi-transparents, palette violet/cyan/teal/jaune, colonnes en cartes, structure multi-slides mais en générant des variations précisément sur ceci : palette violet/cyan/teal/jaune
+
+[001] [22:56:40] est-ce que tu peux appliquer les mêmes paramètres et la même présentation pour infographie_qvct_v2_2026-04-05.pptx, infographie_rbpp_2026-04-04.pptx, infographie_rbpp_projet-personnalise_2026-04-06.pptx, infographie_rbpp_tsa-enfant-adolescent_2026-02-12.pptx, infographie_rbpp_visites-presence-tiers_2026-03-02
+

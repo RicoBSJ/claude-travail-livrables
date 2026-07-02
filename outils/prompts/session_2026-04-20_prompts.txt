@@ -1,0 +1,19 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-20
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [07:16:09] est-ce que tu pourras mettre à jour le repo Github, me montrer exactement la commande pour le faire
+
+[001] [07:17:55] oui
+
+[001] [21:51:10] est-ce que tu pourras mettre à jour le repo Github
+
+[001] [21:52:12] lance tous les jobs
+
+[001] [22:00:54] oui
+

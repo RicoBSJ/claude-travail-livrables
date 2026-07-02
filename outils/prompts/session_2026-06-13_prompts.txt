@@ -1,0 +1,25 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-06-13
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [07:03:13] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "ai-act-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [07:33:09] Tu es dans le projet Claude_Travail (/Users/utilisateur/kDrive/Claude_Travail). Lis le fichier jobs_config.json, trouve le job dont l'id est "rgpd-veille", puis exécute INTÉGRALEMENT le contenu de son champ "prompt" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+[001] [12:49:11] Tu est expert en psychopathologie clinique, dans ce domaine précis créé un job du même type que Dzogchen, avec les mêmes conditions
+
+[001] [12:53:55] oui lance la 1re leçon maintenant
+
+[001] [12:56:38] Tu est expert en placement financier, dans ce domaine précis créé un job du même type que psychopathologie clinique, avec les mêmes conditions, tiens compte du compte du fait que j'ai 61 ans et que je voudrais pouvoir récolter les bénéfices de ce placement d'ici 7 à 8 ans
+
+[001] [13:00:14] oui
+
+[001] [13:13:11] Le 14 juin 2026 n'est pas un samedi en France mains un dimanche
+
+[001] [13:15:42] est-ce que tu peux à partir de demain reparamètrer les jobs AI Act et RGPD sur une fréquence hebdomadaire et non plus quotidienne ?
+

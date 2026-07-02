@@ -1,0 +1,11 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-19
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [22:22:23] est-ce que tu peux appliquer le job RBPP sur /Sources/RBPP/premieres_clefs_dusage_de_ia_generative_en_sante_rapport_delaboration.pdf
+

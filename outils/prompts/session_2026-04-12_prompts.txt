@@ -1,0 +1,153 @@
+═══════════════════════════════════════════════════════════════════
+  JOURNAL DES PROMPTS — Session du 2026-04-12
+  Projet : Claude_Travail / ESSMS médico-social
+═══════════════════════════════════════════════════════════════════
+
+───────────────────────────────────────────────────────────────────
+  Prompts enregistrés automatiquement par le hook UserPromptSubmit
+───────────────────────────────────────────────────────────────────
+
+[001] [10:42:48] est-ce que tu peux supprimer tout ce qui a été créé à partir des ces prompts :
+git init echo "function hello(name) { return 'Bonjour ' + name; }" > index.js
+claude
+ajoute une fonction goodbye qui retourne "Au revoir " + le nom
+montre-moi le contenu actuel du fichier index.js
+ajoute une validation : si le nom est vide, lance une erreur "Le nom ne peut pas être vide"
+écris des tests unitaires pour les fonctions hello et goodbye, avec des cas limites
+quels fichiers ai-je modifiés ?
+commite mes changements avec un message descriptif
+crée une nouvelle branche appelée feature/validation
+montre-moi les 5 derniers commits
+reviens sur la branche main
+claude -p "qu'est-ce que CLAUDE.md et à quoi ça sert ?"
+cat index.js | claude -p "explique ce que fait ce code en 3 points"
+claude -p "liste les bonnes pratiques Claude Code" --output-format json
+car je veux créer ces prompts dans un autre répertoire
+
+[001] [10:43:55] tu peux tout supprimer sauf ça : /Users/utilisateur/kDrive/Claude_Travail/bonnes_pratiques.txt
+
+[001] [10:46:42] est-ce qu'il ne faut pas également supprimer /En_cours/node_modules ?
+
+[001] [10:47:55] quel prompt a créé node_modules, package.json, package-lock.json ?
+
+[001] [10:48:28] ok merci
+
+[001] [14:58:36] Detect my project's dev servers and save all their configurations to .claude/launch.json, then ask which ones to start.
+
+```json
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "<server-name>",
+      "runtimeExecutable": "<command>",
+      "runtimeArgs": ["<args>"],
+      "port": <port>
+    }
+  ]
+}
+```
+
+Use runtimeExecutable for the command (e.g. "yarn", "npm", "node", "python") and runtimeArgs for its arguments. Call preview_start for each server the user wants to run.
+
+[001] [22:31:53] Explique-moi clairement quels sont les différents type de projets que tu es en mesure de créer
+
+[001] [22:40:45] Remplace le job de leçons Claude par un projet d'application web afin de consulter mes livrables en ligne (Application full-stack - Next.js ou Nuxt + API) pas à pas, un projet d'automatisation et de scripts (Agents Claude autonomes - Claude API + Agent SDK) pas à pas et un projet de code (Intégrations MCP - MCP SDK) pas à pas, les trois projets détaillés et progressifs
+
+[001] [22:48:56] /lancer-job webapp
+/lancer-job agents
+/lancer-job mcp
+
+[001] [22:51:43] <task-notification>
+<task-id>a498b190db56f2523</task-id>
+<tool-use-id>toolu_01LpBgPuKAdhdfV5JM26zyU9</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/a498b190db56f2523.output</output-file>
+<status>completed</status>
+<summary>Agent "Lancer job agents session 01" completed</summary>
+<result>Tout est en place. Voici le bilan complet :
+
+---
+
+**Session 01/10 — Hello Claude API : terminee**
+
+**Fichiers crees dans `Projets/claude-agents/` :**
+
+- `/Users/utilisateur/kDrive/Claude_Travail/Projets/claude-agents/package.json` — projet npm initialise avec `@anthropic-ai/sdk` et `dotenv`
+- `/Users/utilisateur/kDrive/Claude_Travail/Projets/claude-agents/.env.example` — placeholder `ANTHROPIC_API_KEY=sk-ant-...`
+- `/Users/utilisateur/kDrive/Claude_Travail/Projets/claude-agents/src/01_hello.js` — appel API classique, affichage de la reponse et des metadonnees (tokens, stop_reason)
+- `/Users/utilisateur/kDrive/Claude_Travail/Projets/claude-agents/src/01_streaming.js` — meme prompt en streaming SSE, ecriture token par token dans stdout
+- `/Users/utilisateur/kDrive/Claude_Travail/Projets/claude-agents/src/01_params.js` — comparaison de 3 configurations (temperature basse/haute, max_tokens limite, system prompt different)
+
+**Livrable Word genere :**
+
+- `/Users/utilisateur/kDrive/Claude_Travail/Livrables/Projets/claude-agents/2026-04-11_agents_01_hello-claude-api.docx` — 13 Ko
+
+Le guide couvre : concept du SDK Anthropic, architecture d'un appel API, classique vs streaming, extraits annotes des 3 scripts, 3 exercices pratiques (modifier le prompt, comparer les modeles, conversation multi-tours), un challenge calcul de cout en temps reel, un schema ASCII du flux de donnees, et l'annonce de la session 02 (Tool use).
+
+`En_cours/` nettoyé — script temporaire supprimé.</result>
+<usage><total_tokens>28470</total_tokens><tool_uses>18</tool_uses><duration_ms>151146</duration_ms></usage>
+</task-notification>
+
+[001] [22:53:22] <task-notification>
+<task-id>aae1de3b673062eb9</task-id>
+<tool-use-id>toolu_01U2HF8dFTADY6TcuFKN5AVF</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/aae1de3b673062eb9.output</output-file>
+<status>completed</status>
+<summary>Agent "Lancer job MCP session 01" completed</summary>
+<result>Tout est en place. Voici le bilan de confirmation :
+
+---
+
+**Session 01/10 — Premier serveur MCP stdio — TERMINEE**
+
+**Theme :** Premier serveur MCP stdio : SDK, outil hello_world, connexion Claude Code
+
+**Fichiers créés dans Projets/mcp-integrations/ :**
+- `package.json` — `"type": "module"` + dépendances `@modelcontextprotocol/sdk ^1.29.0` + `zod ^4.3.6`
+- `src/01_hello_server.js` — serveur MCP stdio avec 2 outils : `hello_world` et `get_project_info`
+- `claude_mcp_config.json` — configuration à copier dans `~/.claude/claude.json`
+- `node_modules/` — 91 packages installés, 0 vulnérabilité
+
+**Livrable Word :**
+- `/Users/utilisateur/kDrive/Claude_Travail/Livrables/Projets/mcp-integrations/2026-04-11_mcp_01_premier-serveur-stdio.docx` — 21 Ko
+
+**Test serveur MCP :** validé — répond correctement au protocole JSON-RPC 2.0 avec `protocolVersion: "2024-11-05"` et expose les outils avec `capabilities.tools.listChanged: true`.
+
+**Pour connecter à Claude Code :** copier le contenu de `claude_mcp_config.json` dans `~/.claude/claude.json` (section `mcpServers`) et redémarrer Claude Code.</result>
+<usage><total_tokens>43688</total_tokens><tool_uses>20</tool_uses><duration_ms>246967</duration_ms></usage>
+</task-notification>
+
+[001] [22:55:06] <task-notification>
+<task-id>ad931900dd66c116c</task-id>
+<tool-use-id>toolu_012SWnRDP6Qu5eUHmhAQYt28</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-utilisateur-kDrive-Claude-Travail/50108fe5-5e1b-4031-a4d6-2d3e16a9172c/tasks/ad931900dd66c116c.output</output-file>
+<status>completed</status>
+<summary>Agent "Lancer job webapp session 01" completed</summary>
+<result>Tout est en ordre. Voici le bilan complet de l'exécution du job "projet-webapp" :
+
+---
+
+**Session 01/10 — Initialisation Next.js — COMPLETEE**
+
+**Etape 1 — Vérification doublons** : aucun fichier webapp existant, session 01 confirmée.
+
+**Etape 2 — Session** : 01 — thème "Initialisation : create-next-app, TypeScript, Tailwind, structure", slug `init-nextjs`.
+
+**Etape 4 — Code implémenté** dans `/Users/utilisateur/kDrive/Claude_Travail/Projets/webapp-livrables/` :
+- `next.config.mjs` — alias `@livrables`, packages serveur externes pour sessions futures
+- `tailwind.config.ts` — palette `#1B3A6B`, police Inter
+- `postcss.config.mjs` — Tailwind v3 + autoprefixer
+- `.env.local` — variable `LIVRABLES_PATH`
+- `src/app/layout.tsx` — layout global, font Inter, métadonnées françaises
+- `src/app/page.tsx` — page d'accueil avec grille de 5 catégories colorées
+- `src/app/globals.css` — palette CSS custom + Tailwind v3
+- `src/app/{quiz,infographies,lecons,veilles,projets}/page.tsx` — 5 pages stub
+
+Note technique : Next.js 16 requiert Node.js 20+, mais Node.js 18 est installé. Downgrade vers Next.js 14 LTS + Tailwind CSS v3 effectué — **build 100% propre, 10 routes compilées, 0 erreurs**.
+
+**Etape 5-6 — Guide Word généré** : `/Users/utilisateur/kDrive/Claude_Travail/Livrables/Projets/webapp-livrables/2026-04-11_webapp_01_init-nextjs.docx` (12 Ko) — inclut en-tête coloré, barre de progression, objectifs, concepts, extraits de code, procédure de test, aperçu session 02.
+
+**Etape 7 — Nettoyage** : script temporaire supprimé.</result>
+<usage><total_tokens>40913</total_tokens><tool_uses>45</tool_uses><duration_ms>359070</duration_ms></usage>
+</task-notification>
+
