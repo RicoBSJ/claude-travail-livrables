@@ -234,6 +234,7 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 - Un agent launchd par job (`~/Library/LaunchAgents/com.claudetravail.<job_id>.plist`) exécute les jobs **même Claude Code fermé**.
 - Chaîne : agent launchd → `outils/scripts/run_job.sh <job_id>` → `claude -p` headless (lit `jobs_config.json`, exécute le job).
 - Modèle forcé : **sonnet** · plafond **2 $/exécution** (modifiable dans `run_job.sh`).
+- **Retry intégré** : jusqu'à **3 tentatives** (backoff 90s → 180s) en cas d'échec transitoire (timeout réseau/API au réveil du Mac). Un skip pour doublon (exit 0) n'est jamais retenté. Sans ce garde-fou, un job hebdo qui rate son unique créneau perdait 7 jours.
 - launchd **rattrape** une tâche manquée au réveil du Mac (mieux que crontab). Mac éteint = tâche sautée.
 - ✅ **Tous les jobs sont 100% headless** : aucune dépendance Chrome MCP. Les sources dynamiques/bloquées (ATIH, listing HAS) sont récupérées via **WebSearch + WebFetch** ; toute source inaccessible est marquée ⛔ et le job continue.
 

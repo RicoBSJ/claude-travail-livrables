@@ -34,16 +34,42 @@ echo "=========================================================" >> "$LOG"
 # --add-dir : accès au dossier projet
 # --model sonnet : modèle économique pour l'exécution autonome (modifiable)
 # --max-budget-usd : plafond de coût de sécurité par exécution
-/usr/local/bin/claude -p "Tu es dans le projet Claude_Travail ($PROJECT). Lis le fichier jobs_config.json, trouve le job dont l'id est \"$JOB_ID\", puis exécute INTÉGRALEMENT le contenu de son champ \"prompt\" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon." \
-  --permission-mode bypassPermissions \
-  --add-dir "$PROJECT" \
-  --model sonnet \
-  --max-budget-usd 2.00 \
-  >> "$LOG" 2>&1
+#
+# Retry : les échecs transitoires (timeout réseau/API, pic de charge au réveil du Mac)
+# faisaient perdre tout le créneau — pour un job hebdo, c'était 7 jours de retard.
+# On réessaie jusqu'à MAX_ATTEMPTS fois, avec backoff. Un skip pour doublon renvoie
+# exit 0 → il n'est jamais retenté ; seul un vrai échec (exit ≠ 0) relance une tentative.
+MAX_ATTEMPTS=3
+RETRY_DELAYS=(90 180)   # attente (s) avant les tentatives 2 et 3
 
-EXIT=$?
+EXIT=1
+ATTEMPT=1
+while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
+  echo "--- Tentative $ATTEMPT/$MAX_ATTEMPTS — $(date '+%H:%M:%S') ---" >> "$LOG"
+  /usr/local/bin/claude -p "Tu es dans le projet Claude_Travail ($PROJECT). Lis le fichier jobs_config.json, trouve le job dont l'id est \"$JOB_ID\", puis exécute INTÉGRALEMENT le contenu de son champ \"prompt\" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon." \
+    --permission-mode bypassPermissions \
+    --add-dir "$PROJECT" \
+    --model sonnet \
+    --max-budget-usd 2.00 \
+    >> "$LOG" 2>&1
+  EXIT=$?
+
+  if [ "$EXIT" -eq 0 ]; then
+    [ "$ATTEMPT" -gt 1 ] && echo "[retry] ✅ Succès à la tentative $ATTEMPT." >> "$LOG"
+    break
+  fi
+
+  echo "[retry] ⚠️ Tentative $ATTEMPT échouée (exit $EXIT)." >> "$LOG"
+  if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
+    DELAY="${RETRY_DELAYS[$((ATTEMPT - 1))]}"
+    echo "[retry] ⏳ Nouvelle tentative dans ${DELAY}s…" >> "$LOG"
+    sleep "$DELAY"
+  fi
+  ATTEMPT=$((ATTEMPT + 1))
+done
+
 echo "" >> "$LOG"
-echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : $EXIT)" >> "$LOG"
+echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : $EXIT, tentatives : $((ATTEMPT > MAX_ATTEMPTS ? MAX_ATTEMPTS : ATTEMPT)))" >> "$LOG"
 
 # ---- Auto-commit + push des livrables produits (option 2) ----
 # Portée STRICTE : uniquement les dossiers de livrables générés (veilles + Livrables).
