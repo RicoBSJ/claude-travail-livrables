@@ -12,7 +12,8 @@
 #   enneagramme-lecon  mercredi 9h03
 #   stoicisme-lecon    jeudi    8h03
 #   nocode-ia-veille   vendredi 8h03
-# Weekday launchd : 0/7=dimanche, 1=lundi … 5=vendredi, 6=samedi
+#   entretien-motivationnel-lecon  QUOTIDIEN 9h33 (intensif 08->14/07 ; croisiere jeudi via regle de phase dans le prompt)
+# Weekday launchd : 0/7=dimanche, 1=lundi … 5=vendredi, 6=samedi (vide = quotidien)
 # ============================================================
 
 PROJECT="/Users/utilisateur/kDrive/Claude_Travail"
@@ -36,7 +37,8 @@ enneagramme-lecon|3|9|3
 stoicisme-lecon|3|8|4
 nocode-ia-veille|3|8|5
 placement-financier-lecon|3|8|6
-hypnose-lecon|3|9|0"
+hypnose-lecon|3|9|0
+entretien-motivationnel-lecon|33|9|"
 
 echo "=== Installation des agents launchd Claude_Travail ==="
 echo ""

@@ -253,7 +253,7 @@ bash outils/scripts/run_job.sh ai-act-veille      # test manuel d'un job
 bash outils/scripts/teardown_launchd.sh           # tout désactiver
 ```
 
-**Horaires (= champ `cron`) :** ai-act-veille (dim. 7h03) · rgpd-veille (dim. 7h33) · imac-veille (dim. 8h03) · hypnose-lecon (dim. 9h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · nocode-ia-veille (ven 8h03) · placement-financier-lecon (sam 8h03).
+**Horaires (= champ `cron`) :** ai-act-veille (dim. 7h03) · rgpd-veille (dim. 7h33) · imac-veille (dim. 8h03) · hypnose-lecon (dim. 9h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · nocode-ia-veille (ven 8h03) · placement-financier-lecon (sam 8h03) · entretien-motivationnel-lecon (**quotidien 9h33** du 08→14/07 puis **jeudi** via règle de phase dans le prompt).
 
 **Veilles hebdomadaires à sous-dossier dédié dans `sources/veille/` :** `AI-Act/` · `RGPD/` · `iMac/` (veille marché comparative tout-en-un : iMac M4/M5 + PC Windows équivalents) — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent). L'auto-push couvre tout `sources/veille/` (récursif).
 

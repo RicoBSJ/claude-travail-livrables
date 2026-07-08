@@ -23,6 +23,7 @@ Identifie le job correspondant à l'argument selon cette correspondance :
 - "finance" ou "placement" ou "placement-financier" ou "epargne"     → job id "placement-financier-lecon"
 - "hypnose" ou "auto-hypnose" ou "autohypnose"                       → job id "hypnose-lecon"
 - "enneagramme" ou "lecon-enneagramme" ou "personnalite"             → job id "enneagramme-lecon"
+- "em" ou "entretien-motivationnel" ou "motivation" ou "motivationnel" → job id "entretien-motivationnel-lecon"
 - "nocode" ou "no-code" ou "ia" ou "nocode-ia" ou "lecon-nocode"    → job id "nocode-ia-veille"
 - "stoicisme" ou "lecon-stoicisme" ou "philosophie"                  → job id "stoicisme-lecon"
 - "webapp" ou "web" ou "nextjs" ou "portail"                         → job id "projet-webapp"
@@ -42,6 +43,7 @@ Jobs disponibles :
   /lancer-job finance     — Leçon Placement financier / éducation (samedi 8h03)
   /lancer-job hypnose     — Leçon Hypnose & auto-hypnose (dimanche 9h03)
   /lancer-job enneagramme — Leçon Ennéagramme (mercredi 9h03)
+  /lancer-job em          — Leçon Entretien Motivationnel (quotidien 08→14/07, puis jeudi 9h33)
   /lancer-job nocode      — Leçon NO-CODE + IA (vendredi 8h03)
   /lancer-job stoicisme   — Leçon Stoïcisme (jeudi 8h03)
   /lancer-job webapp      — Projet Web App Livrables Next.js (vendredi 8h20)
