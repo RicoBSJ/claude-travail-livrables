@@ -42,6 +42,19 @@ echo "=========================================================" >> "$LOG"
 MAX_ATTEMPTS=3
 RETRY_DELAYS=(90 180)   # attente (s) avant les tentatives 2 et 3
 
+# Plafond de coût par exécution (modifiable). Défaut 2 $, mais certains jobs
+# très lourds en sources (WebFetch + boucles WebSearch de repli) dépassent
+# régulièrement ce plafond → claude -p sort en erreur, les 3 tentatives
+# échouent et le créneau (hebdo) est perdu. On relève le plafond au cas par cas.
+BUDGET_DEFAULT="2.00"
+case "$JOB_ID" in
+  rgpd-veille)   BUDGET="4.00" ;;   # 7 sources (CNIL×2, EDPB, EDPS…) + repli WebSearch : job le plus coûteux
+  ai-act-veille) BUDGET="3.00" ;;   # veille multi-sources également gourmande
+  rbpp-pipeline) BUDGET="4.00" ;;   # peut générer jusqu'à 3 livrables (veille + quiz 100 Q + infographie)
+  *)             BUDGET="$BUDGET_DEFAULT" ;;
+esac
+echo "[budget] Plafond de coût pour $JOB_ID : ${BUDGET} \$" >> "$LOG"
+
 EXIT=1
 ATTEMPT=1
 while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
@@ -50,7 +63,7 @@ while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
     --permission-mode bypassPermissions \
     --add-dir "$PROJECT" \
     --model sonnet \
-    --max-budget-usd 2.00 \
+    --max-budget-usd "$BUDGET" \
     >> "$LOG" 2>&1
   EXIT=$?
 
@@ -84,12 +97,32 @@ if [ "$EXIT" -eq 0 ]; then
   else
     git -c user.name="Claude (launchd)" -c user.email="claude@local" \
         commit -q -m "chore($JOB_ID): livrables auto $(date +%Y-%m-%d)" >> "$LOG" 2>&1
-    # Intègre d'éventuels changements distants avant de pousser (autostash = robuste aux changements parasites)
-    git pull --rebase --autostash -q origin main >> "$LOG" 2>&1 || echo "[git] pull --rebase a échoué (on tente quand même le push)" >> "$LOG"
-    if git push -q origin main >> "$LOG" 2>&1; then
-      echo "[git] ✅ push OK" >> "$LOG"
-    else
-      echo "[git] ⛔ push ÉCHEC (livrables commités localement, à pousser manuellement)" >> "$LOG"
+
+    # Intègre d'éventuels changements distants avant de pousser (autostash = robuste aux changements parasites).
+    # Si le rebase échoue (vrai conflit de contenu), il laisse le dépôt en état "mid-rebase" :
+    # sans --abort, TOUS les jobs suivants héritent du blocage et empilent leurs commits en local.
+    # On abandonne donc proprement le rebase raté avant de tenter le push (le commit local est préservé).
+    if ! git pull --rebase --autostash -q origin main >> "$LOG" 2>&1; then
+      echo "[git] ⚠️ pull --rebase a échoué — abandon du rebase (git rebase --abort) pour ne pas bloquer les jobs suivants." >> "$LOG"
+      git rebase --abort >> "$LOG" 2>&1
+    fi
+
+    # Push avec retries réseau (backoff), pour absorber les coupures transitoires au réveil du Mac.
+    PUSH_OK=0
+    for PUSH_TRY in 1 2 3; do
+      if git push -q origin main >> "$LOG" 2>&1; then
+        echo "[git] ✅ push OK (tentative $PUSH_TRY)" >> "$LOG"
+        PUSH_OK=1
+        break
+      fi
+      echo "[git] ⚠️ push tentative $PUSH_TRY échouée." >> "$LOG"
+      [ "$PUSH_TRY" -lt 3 ] && sleep $((PUSH_TRY * 15))
+    done
+
+    if [ "$PUSH_OK" -ne 1 ]; then
+      # Alerte explicite : des commits sont bloqués en local et ne sont PAS sur origin.
+      AHEAD="$(git rev-list --count origin/main..HEAD 2>/dev/null || echo '?')"
+      echo "[git] ⛔ push ÉCHEC après 3 tentatives — $AHEAD commit(s) en avance sur origin/main, à pousser manuellement (git push origin main)." >> "$LOG"
     fi
   fi
 else
