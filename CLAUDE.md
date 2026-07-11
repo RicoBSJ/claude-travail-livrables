@@ -233,7 +233,7 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 ### B. Planificateur système (launchd) — **app fermée, autonomie réelle** ✅
 - Un agent launchd par job (`~/Library/LaunchAgents/com.claudetravail.<job_id>.plist`) exécute les jobs **même Claude Code fermé**.
 - Chaîne : agent launchd → `outils/scripts/run_job.sh <job_id>` → `claude -p` headless (lit `jobs_config.json`, exécute le job).
-- Modèle forcé : **sonnet** · plafond **2 $/exécution** (modifiable dans `run_job.sh`).
+- Modèle forcé : **sonnet** · **plafond de coût par-job** (défini dans `run_job.sh`, modifiable) : `rgpd-veille` et `rbpp-pipeline` **4 $**, `ai-act-veille` **3 $**, tous les autres jobs **2 $** (défaut). Les jobs multi-sources dépassaient le plafond fixe de 2 $ → `claude -p` sortait en erreur, les 3 tentatives échouaient et le créneau hebdo était perdu (ex. RGPD du 05/07/2026).
 - **Retry intégré** : jusqu'à **3 tentatives** (backoff 90s → 180s) en cas d'échec transitoire (timeout réseau/API au réveil du Mac). Un skip pour doublon (exit 0) n'est jamais retenté. Sans ce garde-fou, un job hebdo qui rate son unique créneau perdait 7 jours.
 - launchd **rattrape** une tâche manquée au réveil du Mac (mieux que crontab). Mac éteint = tâche sautée.
 - ✅ **Tous les jobs sont 100% headless** : aucune dépendance Chrome MCP. Les sources dynamiques/bloquées (ATIH, listing HAS) sont récupérées via **WebSearch + WebFetch** ; toute source inaccessible est marquée ⛔ et le job continue.
@@ -241,7 +241,8 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 **Scripts (`outils/scripts/`) :**
 | Script | Rôle |
 |--------|------|
-| `run_job.sh <job_id>` | Exécute un job en headless (logs → `outils/scripts/logs/`), puis **auto-commit + push** des livrables si succès (portée stricte : `sources/veille/{AI-Act,RGPD}` + `sources/veille/*.docx` + `livrables/{lecons,Quiz,Infographies}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`) |
+| `run_job.sh <job_id>` | Exécute un job en headless (logs → `outils/scripts/logs/`), puis **auto-commit + push** des livrables si succès (portée stricte : `sources/veille/{AI-Act,RGPD}` + `sources/veille/*.docx` + `livrables/{lecons,Quiz,Infographies}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`). **Push durci** : `git rebase --abort` propre si le `pull --rebase` échoue (évite de bloquer les jobs suivants), **3 tentatives de push** avec backoff réseau, et log du nombre de commits en avance sur `origin/main` en cas d'échec |
+| `rattrapage_jobs.sh [job_id…]` | Rejoue une liste de jobs manqués via `run_job.sh` (anti-doublon de chaque job actif → aucun doublon). Sans argument : liste par défaut (`rgpd-veille` + `stoicisme-lecon`, `nocode-ia-veille`, `placement-financier-lecon`, `entretien-motivationnel-lecon`) |
 | `setup_launchd.sh` | Génère + charge tous les agents depuis la liste `JOBS` (idempotent ; relancer après modif d'horaire) |
 | `teardown_launchd.sh` | Décharge + supprime tous les agents |
 
