@@ -38,7 +38,7 @@ stoicisme-lecon|3|8|4
 nocode-ia-veille|3|8|5
 placement-financier-lecon|3|8|6
 hypnose-lecon|3|9|0
-entretien-motivationnel-lecon|33|9|"
+entretien-motivationnel-lecon|33|9|4"
 
 echo "=== Installation des agents launchd Claude_Travail ==="
 echo ""
