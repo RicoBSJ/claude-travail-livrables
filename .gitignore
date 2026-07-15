@@ -12,3 +12,7 @@ node_modules/
 # Fichiers temporaires de génération
 en_cours/*.js
 en_cours/package-lock.json
+
+# Secret d'authentification headless (jeton longue durée) — JAMAIS commité
+outils/scripts/claude_auth.env
+outils/scripts/.env

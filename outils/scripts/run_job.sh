@@ -29,6 +29,22 @@ echo "=========================================================" >> "$LOG"
 echo ">>> $(date '+%Y-%m-%d %H:%M:%S') — Démarrage du job : $JOB_ID" >> "$LOG"
 echo "=========================================================" >> "$LOG"
 
+# ---- Authentification headless (jeton longue durée) ----
+# Le jeton OAuth du Keychain (login de l'app Claude Code) expire ~chaque semaine et
+# NE se rafraîchit PAS en contexte launchd → 401 sur tous les jobs (panne du 09→15/07/2026).
+# Solution durable : un jeton LONGUE DURÉE (généré par `claude setup-token`, adossé à
+# l'abonnement Pro, sans facturation API), stocké HORS git dans :
+#   outils/scripts/claude_auth.env   (gitignoré ; chmod 600)
+#   contenu : CLAUDE_CODE_OAUTH_TOKEN=...    (ou, à défaut, ANTHROPIC_API_KEY=...)
+AUTH_ENV="$PROJECT/outils/scripts/claude_auth.env"
+if [ -f "$AUTH_ENV" ]; then
+  set -a; . "$AUTH_ENV"; set +a
+  echo "[auth] Jeton longue durée chargé depuis claude_auth.env." >> "$LOG"
+fi
+if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
+  echo "[auth] ⚠️ Aucun jeton longue durée (CLAUDE_CODE_OAUTH_TOKEN / ANTHROPIC_API_KEY) : repli sur le jeton Keychain, susceptible d'expirer (401). Générer : 'claude setup-token'." >> "$LOG"
+fi
+
 # Exécution headless : Claude lit jobs_config.json et exécute le job demandé.
 # --permission-mode bypassPermissions : pas de prompt interactif (WebFetch/Bash/Write autorisés)
 # --add-dir : accès au dossier projet
@@ -59,6 +75,7 @@ EXIT=1
 ATTEMPT=1
 while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
   echo "--- Tentative $ATTEMPT/$MAX_ATTEMPTS — $(date '+%H:%M:%S') ---" >> "$LOG"
+  LOG_MARK=$(wc -l < "$LOG")   # repère : lignes du log AVANT cette tentative (pour scanner sa seule sortie)
   /usr/local/bin/claude -p "Tu es dans le projet Claude_Travail ($PROJECT). Lis le fichier jobs_config.json, trouve le job dont l'id est \"$JOB_ID\", puis exécute INTÉGRALEMENT le contenu de son champ \"prompt\" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon." \
     --permission-mode bypassPermissions \
     --add-dir "$PROJECT" \
@@ -69,6 +86,16 @@ while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
 
   if [ "$EXIT" -eq 0 ]; then
     [ "$ATTEMPT" -gt 1 ] && echo "[retry] ✅ Succès à la tentative $ATTEMPT." >> "$LOG"
+    break
+  fi
+
+  # Fail-fast : une erreur d'AUTHENTIFICATION (401 / jeton expiré) n'est PAS transitoire.
+  # Réessayer 3× + backoff ne sert à rien (constat de la panne du 09→15/07/2026) → on arrête net.
+  # Motif CIBLÉ sur l'échec d'auth du CLI (PAS un simple "401/403" qui pourrait
+  # provenir d'un WebFetch de source bloquée — ex. ATIH 403, normal et géré).
+  if tail -n +"$((LOG_MARK + 1))" "$LOG" | grep -qiE 'Failed to authenticate|authentication_error|Invalid authentication credentials|OAuth token (has )?expired|Please run.*(login|setup-token)'; then
+    echo "[auth] ⛔ Échec d'AUTHENTIFICATION détecté — erreur non transitoire, arrêt des tentatives." >> "$LOG"
+    echo "[auth] 👉 Régénérer un jeton : 'claude setup-token', puis le placer dans outils/scripts/claude_auth.env (CLAUDE_CODE_OAUTH_TOKEN=...)." >> "$LOG"
     break
   fi
 
