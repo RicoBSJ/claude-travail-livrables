@@ -9,6 +9,10 @@ node_modules/
 .DS_Store
 **/.DS_Store
 
+# Fichiers de verrouillage/temporaires Office (créés quand un .docx est ouvert)
+~$*
+**/~$*
+
 # Fichiers temporaires de génération
 en_cours/*.js
 en_cours/package-lock.json
