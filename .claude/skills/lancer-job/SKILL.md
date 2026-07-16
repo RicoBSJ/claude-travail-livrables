@@ -1,6 +1,6 @@
 ---
 name: lancer-job
-description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : ai-act, rgpd, imac, serafin, rbpp, dzogchen, psychopathologie, finance, hypnose, enneagramme, nocode, stoicisme, webapp, agents, mcp
+description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : ai-act, rgpd, imac, serafin, rbpp, dzogchen, psychopathologie, finance, hypnose, enneagramme, em, nocode, stoicisme
 disable-model-invocation: false
 ---
 
@@ -26,14 +26,11 @@ Identifie le job correspondant à l'argument selon cette correspondance :
 - "em" ou "entretien-motivationnel" ou "motivation" ou "motivationnel" → job id "entretien-motivationnel-lecon"
 - "nocode" ou "no-code" ou "ia" ou "nocode-ia" ou "lecon-nocode"    → job id "nocode-ia-veille"
 - "stoicisme" ou "lecon-stoicisme" ou "philosophie"                  → job id "stoicisme-lecon"
-- "webapp" ou "web" ou "nextjs" ou "portail"                         → job id "projet-webapp"
-- "agents" ou "claude-agents" ou "api" ou "sdk"                      → job id "projet-claude-agents"
-- "mcp" ou "mcp-integrations" ou "serveur-mcp"                       → job id "projet-mcp"
 
 Si l'argument est vide ou non reconnu, affiche la liste des jobs disponibles :
 ```
 Jobs disponibles :
-  /lancer-job ai-act      — Veille AI Act QUOTIDIENNE (tous les jours 7h03)
+  /lancer-job ai-act      — Veille AI Act (dimanche 7h03)
   /lancer-job rgpd        — Veille RGPD (dimanche 7h33)
   /lancer-job imac        — Veille marché tout-en-un : iMac M4/M5 + PC Windows (dimanche 8h03)
   /lancer-job serafin     — Veille SERAFIN-PH (mercredi 8h03)
@@ -43,12 +40,9 @@ Jobs disponibles :
   /lancer-job finance     — Leçon Placement financier / éducation (samedi 8h03)
   /lancer-job hypnose     — Leçon Hypnose & auto-hypnose (dimanche 9h03)
   /lancer-job enneagramme — Leçon Ennéagramme (mercredi 9h03)
-  /lancer-job em          — Leçon Entretien Motivationnel (quotidien 08→14/07, puis jeudi 9h33)
+  /lancer-job em          — Leçon Entretien Motivationnel (jeudi 9h33)
   /lancer-job nocode      — Leçon NO-CODE + IA (vendredi 8h03)
   /lancer-job stoicisme   — Leçon Stoïcisme (jeudi 8h03)
-  /lancer-job webapp      — Projet Web App Livrables Next.js (vendredi 8h20)
-  /lancer-job agents      — Projet Agents Claude autonomes (vendredi 8h35)
-  /lancer-job mcp         — Projet Intégrations MCP (vendredi 8h50)
 ```
 Et arrête-toi.
 
