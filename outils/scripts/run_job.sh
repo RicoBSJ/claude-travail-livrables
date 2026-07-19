@@ -66,6 +66,7 @@ BUDGET_DEFAULT="2.00"
 case "$JOB_ID" in
   rgpd-veille)   BUDGET="4.00" ;;   # 7 sources (CNIL×2, EDPB, EDPS…) + repli WebSearch : job le plus coûteux
   ai-act-veille) BUDGET="3.00" ;;   # veille multi-sources également gourmande
+  imac-veille)   BUDGET="3.50" ;;   # 10 sources (Apple ×6, 9to5Mac, Fnac/Darty) : a dépassé les 2 $ le 19/07/2026 (sauvé par le retry)
   rbpp-pipeline) BUDGET="4.00" ;;   # peut générer jusqu'à 3 livrables (veille + quiz 100 Q + infographie)
   *)             BUDGET="$BUDGET_DEFAULT" ;;
 esac
