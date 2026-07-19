@@ -100,6 +100,18 @@ while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
     break
   fi
 
+  # Fail-fast n°2 : limite d'usage du plan atteinte. Elle ne se lève qu'à une heure
+  # de réinitialisation donnée (souvent plusieurs heures plus tard) : un backoff de
+  # 90s/180s n'y changera rien. Constaté le 19/07/2026 sur hypnose-lecon (3 tentatives
+  # perdues, dimanche empilant 4 jobs de 7h03 à 9h03).
+  if tail -n +"$((LOG_MARK + 1))" "$LOG" | grep -qiE "hit your limit|usage limit|quota exceeded"; then
+    RESET_LINE="$(tail -n +"$((LOG_MARK + 1))" "$LOG" | grep -iE "hit your limit|usage limit|quota exceeded" | head -1)"
+    echo "[limit] ⛔ LIMITE D'USAGE atteinte — arrêt des tentatives (le backoff ne peut pas la lever)." >> "$LOG"
+    echo "[limit] 👉 $RESET_LINE" >> "$LOG"
+    echo "[limit] 👉 Rejouer après réinitialisation : bash outils/scripts/rattrapage_jobs.sh $JOB_ID" >> "$LOG"
+    break
+  fi
+
   echo "[retry] ⚠️ Tentative $ATTEMPT échouée (exit $EXIT)." >> "$LOG"
   if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
     DELAY="${RETRY_DELAYS[$((ATTEMPT - 1))]}"

@@ -38,7 +38,7 @@ Jobs disponibles :
   /lancer-job dzogchen    — Leçon Dzogchen (mardi 8h03)
   /lancer-job psychopathologie — Leçon Psychopathologie clinique (lundi 8h03)
   /lancer-job finance     — Leçon Placement financier / éducation (samedi 8h03)
-  /lancer-job hypnose     — Leçon Hypnose & auto-hypnose (dimanche 9h03)
+  /lancer-job hypnose     — Leçon Hypnose & auto-hypnose (mardi 9h03)
   /lancer-job enneagramme — Leçon Ennéagramme (mercredi 9h03)
   /lancer-job em          — Leçon Entretien Motivationnel (jeudi 9h33)
   /lancer-job nocode      — Leçon NO-CODE + IA (vendredi 8h03)
