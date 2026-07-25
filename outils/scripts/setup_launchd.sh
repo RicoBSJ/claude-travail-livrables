@@ -5,14 +5,15 @@
 # Idempotent : relançable à volonté (décharge puis recharge).
 #
 # Horaires (= champ "cron" de jobs_config.json) :
-#   ai-act-veille      tous les jours 7h03
+#   revenus-passifs-lecon  dimanche 7h03
+#   imac-veille        dimanche 8h03
 #   rbpp-pipeline      lundi    8h30
 #   dzogchen-lecon     mardi    8h03
 #   serafin-ph-veille  mercredi 8h03
 #   enneagramme-lecon  mercredi 9h03
 #   stoicisme-lecon    jeudi    8h03
 #   nocode-ia-veille   vendredi 8h03
-#   entretien-motivationnel-lecon  QUOTIDIEN 9h33 (intensif 08->14/07 ; croisiere jeudi via regle de phase dans le prompt)
+#   entretien-motivationnel-lecon  jeudi 9h33
 # Weekday launchd : 0/7=dimanche, 1=lundi … 5=vendredi, 6=samedi (vide = quotidien)
 # ============================================================
 
@@ -26,8 +27,7 @@ mkdir -p "$AGENTS_DIR" "$LOG_DIR"
 chmod +x "$RUNNER"
 
 # job_id | minute | hour | weekday (vide = quotidien)
-JOBS="ai-act-veille|3|7|0
-rgpd-veille|33|7|0
+JOBS="revenus-passifs-lecon|3|7|0
 imac-veille|3|8|0
 rbpp-pipeline|30|8|1
 psychopathologie-lecon|3|8|1

@@ -64,8 +64,6 @@ RETRY_DELAYS=(90 180)   # attente (s) avant les tentatives 2 et 3
 # échouent et le créneau (hebdo) est perdu. On relève le plafond au cas par cas.
 BUDGET_DEFAULT="2.00"
 case "$JOB_ID" in
-  rgpd-veille)   BUDGET="4.00" ;;   # 7 sources (CNIL×2, EDPB, EDPS…) + repli WebSearch : job le plus coûteux
-  ai-act-veille) BUDGET="3.00" ;;   # veille multi-sources également gourmande
   imac-veille)   BUDGET="3.50" ;;   # 10 sources (Apple ×6, 9to5Mac, Fnac/Darty) : a dépassé les 2 $ le 19/07/2026 (sauvé par le retry)
   rbpp-pipeline) BUDGET="4.00" ;;   # peut générer jusqu'à 3 livrables (veille + quiz 100 Q + infographie)
   *)             BUDGET="$BUDGET_DEFAULT" ;;
@@ -128,7 +126,7 @@ echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : 
 # Portée STRICTE : uniquement les dossiers de livrables générés (veilles + Livrables).
 # Jamais "git add -A" → les dossiers personnels sensibles restent hors git.
 # sources/veille (récursif) couvre tous les sous-dossiers de veille présents et futurs
-# (AI-Act, RGPD, iMac, …) ainsi que les .docx/.md de veille à la racine.
+# (iMac, …) ainsi que les .docx/.md de veille à la racine.
 if [ "$EXIT" -eq 0 ]; then
   export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
   git add sources/veille livrables/lecons livrables/quiz livrables/infographies 2>/dev/null

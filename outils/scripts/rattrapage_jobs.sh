@@ -13,7 +13,7 @@
 #
 # Usage :
 #   bash outils/scripts/rattrapage_jobs.sh              # rejoue la liste ci-dessous
-#   bash outils/scripts/rattrapage_jobs.sh rgpd-veille  # rejoue un seul job
+#   bash outils/scripts/rattrapage_jobs.sh dzogchen-lecon  # rejoue un seul job
 # ============================================================
 
 set -u
@@ -28,7 +28,6 @@ fi
 
 # ---- Liste des jobs à rattraper -----------------------------------------
 # Confirmé manquant (trou dans une semaine par ailleurs complète) :
-#   rgpd-veille                 (dimanche 05/07 sauté)
 # À confirmer via les logs (aucun push depuis le 08/07) — laissés actifs car
 # l'anti-doublon les protège s'ils ont finalement tourné :
 #   stoicisme-lecon             (jeudi 09/07)
@@ -37,7 +36,7 @@ fi
 #   entretien-motivationnel-lecon (jours intensifs 09→11/07)
 # Commente (#) les lignes que tu ne veux PAS rejouer.
 DEFAULT_JOBS=(
-  rgpd-veille
+  revenus-passifs-lecon
   stoicisme-lecon
   nocode-ia-veille
   placement-financier-lecon
@@ -79,7 +78,7 @@ echo "========================================================="
 for R in "${RESULTS[@]}"; do echo "  $R"; done
 echo ""
 echo "Vérifie les livrables produits :"
-echo "  ls -t sources/veille/rgpd/ | head"
+echo "  ls -t livrables/lecons/ | head"
 echo "  ls -t livrables/lecons/ | head"
 echo "Et l'état du push :"
 echo "  git status -sb"
