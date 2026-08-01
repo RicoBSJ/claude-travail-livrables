@@ -12,7 +12,7 @@
 #   serafin-ph-veille  mercredi 8h03
 #   enneagramme-lecon  mercredi 9h03
 #   stoicisme-lecon    jeudi    8h03
-#   nocode-ia-veille   vendredi 8h03
+#   appli-ia-lecon     vendredi 8h03
 #   entretien-motivationnel-lecon  jeudi 9h33
 # Weekday launchd : 0/7=dimanche, 1=lundi … 5=vendredi, 6=samedi (vide = quotidien)
 # ============================================================
@@ -35,7 +35,7 @@ dzogchen-lecon|3|8|2
 serafin-ph-veille|3|8|3
 enneagramme-lecon|3|9|3
 stoicisme-lecon|3|8|4
-nocode-ia-veille|3|8|5
+appli-ia-lecon|3|8|5
 placement-financier-lecon|3|8|6
 hypnose-lecon|3|9|2
 entretien-motivationnel-lecon|33|9|4"

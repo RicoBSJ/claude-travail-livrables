@@ -31,14 +31,13 @@ fi
 # À confirmer via les logs (aucun push depuis le 08/07) — laissés actifs car
 # l'anti-doublon les protège s'ils ont finalement tourné :
 #   stoicisme-lecon             (jeudi 09/07)
-#   nocode-ia-veille            (vendredi 10/07)
 #   placement-financier-lecon   (samedi 11/07)
 #   entretien-motivationnel-lecon (jours intensifs 09→11/07)
 # Commente (#) les lignes que tu ne veux PAS rejouer.
 DEFAULT_JOBS=(
   revenus-passifs-lecon
   stoicisme-lecon
-  nocode-ia-veille
+  appli-ia-lecon
   placement-financier-lecon
   entretien-motivationnel-lecon
 )

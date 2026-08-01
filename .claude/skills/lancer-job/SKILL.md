@@ -1,6 +1,6 @@
 ---
 name: lancer-job
-description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : revenus, imac, serafin, rbpp, dzogchen, psychopathologie, finance, hypnose, enneagramme, em, nocode, stoicisme
+description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : revenus, imac, serafin, rbpp, dzogchen, psychopathologie, finance, hypnose, enneagramme, em, appli, stoicisme
 disable-model-invocation: false
 ---
 
@@ -23,7 +23,7 @@ Identifie le job correspondant à l'argument selon cette correspondance :
 - "hypnose" ou "auto-hypnose" ou "autohypnose"                       → job id "hypnose-lecon"
 - "enneagramme" ou "lecon-enneagramme" ou "personnalite"             → job id "enneagramme-lecon"
 - "em" ou "entretien-motivationnel" ou "motivation" ou "motivationnel" → job id "entretien-motivationnel-lecon"
-- "nocode" ou "no-code" ou "ia" ou "nocode-ia" ou "lecon-nocode"    → job id "nocode-ia-veille"
+- "appli" ou "app" ou "dev" ou "javascript" ou "code" ou "nocode"    → job id "appli-ia-lecon"
 - "stoicisme" ou "lecon-stoicisme" ou "philosophie"                  → job id "stoicisme-lecon"
 
 Si l'argument est vide ou non reconnu, affiche la liste des jobs disponibles :
@@ -39,7 +39,7 @@ Jobs disponibles :
   /lancer-job hypnose     — Leçon Hypnose & auto-hypnose (mardi 9h03)
   /lancer-job enneagramme — Leçon Ennéagramme (mercredi 9h03)
   /lancer-job em          — Leçon Entretien Motivationnel (jeudi 9h33)
-  /lancer-job nocode      — Leçon NO-CODE + IA (vendredi 8h03)
+  /lancer-job appli       — Leçon Développement d'applications avec l'IA (vendredi 8h03)
   /lancer-job stoicisme   — Leçon Stoïcisme (jeudi 8h03)
 ```
 Et arrête-toi.

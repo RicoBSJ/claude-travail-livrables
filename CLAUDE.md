@@ -34,7 +34,7 @@ Claude_Travail/
 │   ├── quiz/               ← quiz_[type]_[slug]_YYYY-MM-DD.pptx
 │   ├── infographies/       ← infographie_[type]_[slug]_YYYY-MM-DD.pptx
 │   ├── documents/          ← documents Word divers, fiches synthèse
-│   └── projets/
+│   └── projets/appli-ia/   ← projet fil rouge du parcours appli-ia (code + PROJET.md)
 │
 ├── outils/                 ← OUTILLAGE
 │   ├── scripts/            ← run_job.sh, setup/teardown_launchd.sh, logs/ (gitignorés)
@@ -57,7 +57,7 @@ Claude_Travail/
 | Veille | `YYYY-MM-DD_veille_[sujet].docx` | `2026-04-06_veille_SERAFIN-PH.docx` |
 | Quiz | `quiz_[type]_[slug]_YYYY-MM-DD.pptx` | `quiz_rbpp_projet-personnalise_2026-04-06.pptx` |
 | Infographie | `infographie_[type]_[slug]_YYYY-MM-DD.pptx` | `infographie_rbpp_tsa-enfant-adolescent_2026-02-12.pptx` |
-| Leçon NO-CODE+IA | `YYYY-MM-DD_lecon-nocode-ia_NN_[slug].docx` | `2026-04-10_lecon-nocode-ia_01_ia-agentique-production.docx` |
+| Leçon (parcours) | `YYYY-MM-DD_lecon-[parcours]_NN_[slug].docx` | `2026-08-07_lecon-appli-ia_01_cadrage-specification.docx` |
 
 ---
 
@@ -210,14 +210,17 @@ unzip -p [fichier].pptx ppt/slides/slide1.xml | grep -c '<a:ext cx="-'
 - Nom du fichier : `YYYY-MM-DD_veille_HAS.md`
 - Livrable → `sources/veille/`
 
-## Veille NO-CODE + IA (hebdomadaire, vendredi 8h03)
+## Leçon Développement d'applications avec l'IA (hebdomadaire, vendredi 8h03)
 
-- Sources : the-decoder.com, huggingface.co/blog/feed.xml, simonwillison.net, openai.com/blog/rss.xml, make.com/en/blog, blog.n8n.io, zapier.com/blog, webflow.com/blog
-- Format : leçon active (20% théorie / 80% pratique) avec hyperliens cliquables
-- Nom du fichier : `YYYY-MM-DD_lecon-nocode-ia_NN_[slug].docx`
-- Livrable → `livrables/lecons/`
-- Note : openai.com/news retourne 403 → utiliser openai.com/blog/rss.xml
-- Note : huggingface.co/blog retourne 500 (rendu JS) → utiliser huggingface.co/blog/feed.xml
+- Parcours **fermé de 12 leçons**, JavaScript/TypeScript, avec **projet fil rouge** : « Portail Livrables » (application web locale qui liste, recherche et filtre les livrables produits par les jobs).
+- Sources : documentation officielle en priorité (developer.mozilla.org, nodejs.org, typescriptlang.org, react.dev, nextjs.org, docs.claude.com, cnil.fr).
+- Format : leçon active (20% théorie / 80% pratique), **code complet et exécutable** à chaque incrément.
+- Nom du fichier : `YYYY-MM-DD_lecon-appli-ia_NN_[slug].docx`
+- Livrables → `livrables/lecons/` (la leçon) **et** `livrables/projets/appli-ia/` (le code + `PROJET.md`).
+- **`PROJET.md` est la mémoire du parcours** : le job le lit au début de chaque leçon et le met à jour à la fin. Sans lui, pas de continuité du fil rouge.
+- Garde-fou spécifique : ne jamais écrire de version de bibliothèque ni de signature d'API de mémoire (écosystème très mouvant) → vérifier à la doc officielle.
+
+> Historique : ce job remplace `nocode-ia-veille` (supprimé le 02/08/2026). Les **16 leçons NO-CODE + IA** déjà produites (`lecon-nocode-ia_01` à `_16`) sont conservées dans `livrables/lecons/`.
 
 ---
 
@@ -244,7 +247,7 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 | Script | Rôle |
 |--------|------|
 | `run_job.sh <job_id>` | Exécute un job en headless (logs → `outils/scripts/logs/`), puis **auto-commit + push** des livrables si succès (portée stricte : `sources/veille/{AI-Act,RGPD}` + `sources/veille/*.docx` + `livrables/{lecons,Quiz,Infographies}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`). **Push durci** : `git rebase --abort` propre si le `pull --rebase` échoue (évite de bloquer les jobs suivants), **3 tentatives de push** avec backoff réseau, et log du nombre de commits en avance sur `origin/main` en cas d'échec |
-| `rattrapage_jobs.sh [job_id…]` | Rejoue une liste de jobs manqués via `run_job.sh` (anti-doublon de chaque job actif → aucun doublon). Sans argument : liste par défaut (`revenus-passifs-lecon` + `stoicisme-lecon`, `nocode-ia-veille`, `placement-financier-lecon`, `entretien-motivationnel-lecon`) |
+| `rattrapage_jobs.sh [job_id…]` | Rejoue une liste de jobs manqués via `run_job.sh` (anti-doublon de chaque job actif → aucun doublon). Sans argument : liste par défaut (`revenus-passifs-lecon` + `stoicisme-lecon`, `appli-ia-lecon`, `placement-financier-lecon`, `entretien-motivationnel-lecon`) |
 | `setup_launchd.sh` | Génère + charge tous les agents depuis la liste `JOBS` (idempotent ; relancer après modif d'horaire) |
 | `teardown_launchd.sh` | Décharge + supprime tous les agents |
 
@@ -256,7 +259,7 @@ bash outils/scripts/run_job.sh revenus-passifs-lecon   # test manuel d'un job
 bash outils/scripts/teardown_launchd.sh           # tout désactiver
 ```
 
-**Horaires (= champ `cron`) :** revenus-passifs-lecon (dim. 7h03) · imac-veille (dim. 8h03) · hypnose-lecon (mar 9h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · nocode-ia-veille (ven 8h03) · placement-financier-lecon (sam 8h03) · entretien-motivationnel-lecon (jeu 9h33).
+**Horaires (= champ `cron`) :** revenus-passifs-lecon (dim. 7h03) · imac-veille (dim. 8h03) · hypnose-lecon (mar 9h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · appli-ia-lecon (ven 8h03) · placement-financier-lecon (sam 8h03) · entretien-motivationnel-lecon (jeu 9h33).
 
 **Veille hebdomadaire à sous-dossier dédié dans `sources/veille/` :** `iMac/` (veille marché comparative tout-en-un : iMac M4/M5 + PC Windows équivalents) — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent). L'auto-push couvre tout `sources/veille/` (récursif).
 
