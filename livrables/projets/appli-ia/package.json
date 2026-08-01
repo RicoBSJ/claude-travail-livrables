@@ -1,0 +1,13 @@
+{
+  "name": "portail-livrables",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Consultation des livrables produits par les jobs Claude_Travail",
+  "type": "commonjs",
+  "scripts": {
+    "inventaire": "node scripts/inventaire.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

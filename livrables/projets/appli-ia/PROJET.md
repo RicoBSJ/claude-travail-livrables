@@ -8,51 +8,58 @@
 
 ## État de l'application
 
-**Non démarrée.** Le parcours commence à la leçon 01 (cadrage et spécification).
+**Amorcée — leçon 01 terminée (02/08/2026).**
 
-## Objectif du projet
+Le projet dispose d'une spécification écrite, d'une structure de dépôt Node.js et d'un
+premier script fonctionnel en ligne de commande. `npm run inventaire` parcourt les dossiers
+de livrables (y compris les sous-dossiers de `sources/veille/`) et affiche, par catégorie,
+le nombre de fichiers, leur poids total et les trois plus récents.
 
-Une application web **locale** qui liste, recherche et filtre les livrables produits par les
-jobs automatisés du projet Claude_Travail : leçons (`livrables/lecons/`), veilles
-(`sources/veille/`), quiz et infographies.
+**Exécution réelle du 02/08/2026** : 202 livrables détectés — 79 leçons (1 435 Ko),
+19 quiz (47 256 Ko), 38 infographies (4 945 Ko), 66 veilles (915 Ko).
 
-Pourquoi ce sujet :
-- les données existent déjà sur le disque, aucune saisie à créer ;
-- l'outil sert vraiment au quotidien (plus de 100 livrables accumulés) ;
-- aucune donnée de personne accompagnée n'y entre jamais — uniquement mes propres documents
-  de travail.
+Pas encore d'interface : la sortie est du texte dans le terminal. C'est l'objet de la leçon 02.
 
 ## Choix techniques arrêtés
 
-| Élément | Choix | Décidé en leçon |
+| Élément | Choix | Décidé en |
 |---|---|---|
-| Langage | JavaScript / TypeScript | avant le parcours |
-| Runtime | Node.js | avant le parcours |
-| Framework | *à décider* | leçon 01 ou 05 |
+| Langage | JavaScript (CommonJS) — TypeScript introduit en leçon 03 | leçon 01 |
+| Runtime | **Node.js v24 LTS** (`v24.18.1` relevée sur nodejs.org le 02/08/2026) | leçon 01 |
+| Dépendances externes | **aucune** à ce stade — uniquement `fs` et `path` (modules internes) | leçon 01 |
+| Framework d'interface | *à décider* | leçon 05 |
 | Base de données | *à décider* | leçon 07 |
 
-Aucune version de bibliothèque n'est encore figée : elles seront relevées à la documentation
-officielle au fil des leçons, jamais de mémoire.
+Aucune bibliothèque tierce n'est installée : c'est délibéré, pour que le projet reste lisible
+et sans surface d'attaque au démarrage.
 
 ## Fichiers du projet
 
-Aucun pour l'instant.
+| Fichier | Rôle |
+|---|---|
+| `SPEC.md` | Spécification v1 : problème, utilisateur, données, fonctions, **hors périmètre**, critère de réussite |
+| `package.json` | Métadonnées du projet, script `inventaire`, `engines.node >= 24`, `private: true` |
+| `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store` |
+| `scripts/inventaire.js` | Parcours récursif des dossiers de livrables, inventaire par catégorie. **Lecture seule.** |
+| `PROJET.md` | Ce fichier — mémoire du parcours |
 
-## Livré à la leçon NN
+## Livré à la leçon 01
 
-Rien encore.
+- Vérification de l'environnement (Node, npm, git) avec les versions de référence relevées à la source.
+- Rédaction de `SPEC.md` — exercice central de la leçon, appuyé sur le résultat de Geruslu,
+  Aliyeva & Tüzün (arXiv, 26/03/2026) : la spécification et l'expertise du développeur sont
+  des facteurs déterminants de la qualité du code généré par IA.
+- Initialisation du dépôt : `package.json`, `.gitignore`, dossier `scripts/`.
+- Premier script exécutable `scripts/inventaire.js`, **testé et fonctionnel**.
 
 ## Reste à faire
 
-L'intégralité de la feuille de route (12 leçons) :
-
-1. Cadrage, spécification, environnement
-2. Socle web, premier écran
+2. Socle web : transformer la sortie texte en page HTML affichable — générer avec l'IA, puis relire et corriger
 3. TypeScript et structure de projet
-4. Lecture des données réelles (Node.js)
+4. Lecture des données réelles côté serveur (exposer l'inventaire en JSON)
 5. Interface (React / Next.js)
 6. Recherche et filtres
-7. Persistance (base de données)
+7. Persistance (base de données locale)
 8. API et architecture
 9. Qualité, tests, débogage
 10. Sécurité et données (RGPD)
@@ -61,6 +68,11 @@ L'intégralité de la feuille de route (12 leçons) :
 
 ## Points en suspens
 
-- Le périmètre exact du portail (livrables seuls, ou aussi les sources ?) est à trancher en
-  leçon 01.
-- Le choix du framework d'interface dépendra du niveau de complexité constaté aux leçons 2-4.
+- **Périmètre tranché en leçon 01** : le portail couvre `livrables/lecons`, `livrables/quiz`,
+  `livrables/infographies` et `sources/veille` (récursif). Extensions retenues : `.docx`,
+  `.pptx`, `.pdf`, `.md`.
+- **Poids des quiz** : 19 fichiers pour 47 Mo, soit l'essentiel du volume. À surveiller si un
+  jour on veut afficher des aperçus — hors périmètre v1.
+- **Chemin racine en dur** : `inventaire.js` remonte de 4 niveaux depuis `__dirname`. Ça marche,
+  mais ça casserait si le projet était déplacé. Dette assumée, à traiter en leçon 04 ou 08.
+- Le choix du framework d'interface (leçon 05) dépendra de ce que révèlent les leçons 02 à 04.
