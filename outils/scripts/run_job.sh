@@ -129,9 +129,13 @@ echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : 
 # sources/veille (récursif) couvre tous les sous-dossiers de veille présents et futurs
 # (iMac, …) ainsi que les .docx/.md de veille à la racine.
 # livrables/projets couvre le projet fil rouge du parcours appli-ia (code + PROJET.md).
+# livrables/documents couvre les documents Word divers et fiches synthèse.
+# NB : la portée reste une LISTE BLANCHE explicite. Ne jamais la remplacer par un
+# 'git add -A' : les dossiers personnels (contexte/, sources/rbpp, en_cours…) doivent
+# rester hors de toute publication automatique.
 if [ "$EXIT" -eq 0 ]; then
   export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
-  git add sources/veille livrables/lecons livrables/quiz livrables/infographies livrables/projets livrables/controles 2>/dev/null
+  git add sources/veille livrables/lecons livrables/quiz livrables/infographies livrables/projets livrables/controles livrables/documents 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then
     echo "[git] Rien de nouveau à committer." >> "$LOG"
   else

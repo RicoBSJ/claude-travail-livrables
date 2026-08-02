@@ -247,7 +247,7 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 **Scripts (`outils/scripts/`) :**
 | Script | Rôle |
 |--------|------|
-| `run_job.sh <job_id>` | Exécute un job en headless (logs → `outils/scripts/logs/`), puis **auto-commit + push** des livrables si succès (portée stricte : `sources/veille/{AI-Act,RGPD}` + `sources/veille/*.docx` + `livrables/{lecons,Quiz,Infographies}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`). **Push durci** : `git rebase --abort` propre si le `pull --rebase` échoue (évite de bloquer les jobs suivants), **3 tentatives de push** avec backoff réseau, et log du nombre de commits en avance sur `origin/main` en cas d'échec |
+| `run_job.sh <job_id>` | Exécute un job en headless (logs → `outils/scripts/logs/`), puis **auto-commit + push** des livrables si succès (portée stricte, liste blanche explicite : `sources/veille/` (récursif) + `livrables/{lecons,quiz,infographies,projets,controles,documents}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`). **Push durci** : `git rebase --abort` propre si le `pull --rebase` échoue (évite de bloquer les jobs suivants), **3 tentatives de push** avec backoff réseau, et log du nombre de commits en avance sur `origin/main` en cas d'échec |
 | `rattrapage_jobs.sh [job_id…]` | Rejoue une liste de jobs manqués via `run_job.sh` (anti-doublon de chaque job actif → aucun doublon). Sans argument : liste par défaut (`revenus-passifs-lecon` + `stoicisme-lecon`, `appli-ia-lecon`, `placement-financier-lecon`, `entretien-motivationnel-lecon`) |
 | `setup_launchd.sh` | Génère + charge tous les agents depuis la liste `JOBS` (idempotent ; relancer après modif d'horaire) |
 | `teardown_launchd.sh` | Décharge + supprime tous les agents |
