@@ -34,6 +34,7 @@ Claude_Travail/
 │   ├── quiz/               ← quiz_[type]_[slug]_YYYY-MM-DD.pptx
 │   ├── infographies/       ← infographie_[type]_[slug]_YYYY-MM-DD.pptx
 │   ├── documents/          ← documents Word divers, fiches synthèse
+│   ├── controles/          ← notes de contrôle qualité hebdomadaires (job controle-livrables)
 │   └── projets/appli-ia/   ← projet fil rouge du parcours appli-ia (code + PROJET.md)
 │
 ├── outils/                 ← OUTILLAGE
@@ -259,7 +260,7 @@ bash outils/scripts/run_job.sh revenus-passifs-lecon   # test manuel d'un job
 bash outils/scripts/teardown_launchd.sh           # tout désactiver
 ```
 
-**Horaires (= champ `cron`) :** revenus-passifs-lecon (dim. 7h03) · imac-veille (dim. 8h03) · hypnose-lecon (mar 9h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · appli-ia-lecon (ven 8h03) · placement-financier-lecon (sam 8h03) · entretien-motivationnel-lecon (jeu 9h33).
+**Horaires (= champ `cron`) :** revenus-passifs-lecon (dim. 7h03) · imac-veille (dim. 8h03) · hypnose-lecon (mar 9h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · appli-ia-lecon (ven 8h03) · placement-financier-lecon (sam 8h03) · entretien-motivationnel-lecon (jeu 9h33) · controle-livrables (dim. 11h03).
 
 **Veille hebdomadaire à sous-dossier dédié dans `sources/veille/` :** `iMac/` (veille marché comparative tout-en-un : iMac M4/M5 + PC Windows équivalents) — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent). L'auto-push couvre tout `sources/veille/` (récursif).
 

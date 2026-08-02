@@ -66,6 +66,7 @@ BUDGET_DEFAULT="2.00"
 case "$JOB_ID" in
   imac-veille)   BUDGET="3.50" ;;   # 10 sources (Apple ×6, 9to5Mac, Fnac/Darty) : a dépassé les 2 $ le 19/07/2026 (sauvé par le retry)
   rbpp-pipeline) BUDGET="4.00" ;;   # peut générer jusqu'à 3 livrables (veille + quiz 100 Q + infographie)
+  controle-livrables) BUDGET="4.00" ;;   # contrôle toute la semaine : nombreux curl + remontées aux sources primaires
   *)             BUDGET="$BUDGET_DEFAULT" ;;
 esac
 echo "[budget] Plafond de coût pour $JOB_ID : ${BUDGET} \$" >> "$LOG"
@@ -130,7 +131,7 @@ echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : 
 # livrables/projets couvre le projet fil rouge du parcours appli-ia (code + PROJET.md).
 if [ "$EXIT" -eq 0 ]; then
   export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
-  git add sources/veille livrables/lecons livrables/quiz livrables/infographies livrables/projets 2>/dev/null
+  git add sources/veille livrables/lecons livrables/quiz livrables/infographies livrables/projets livrables/controles 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then
     echo "[git] Rien de nouveau à committer." >> "$LOG"
   else

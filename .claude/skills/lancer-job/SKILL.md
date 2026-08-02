@@ -1,6 +1,6 @@
 ---
 name: lancer-job
-description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : revenus, imac, serafin, rbpp, dzogchen, psychopathologie, finance, hypnose, enneagramme, em, appli, stoicisme
+description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : revenus, imac, serafin, rbpp, dzogchen, psychopathologie, finance, hypnose, enneagramme, em, appli, stoicisme, controle
 disable-model-invocation: false
 ---
 
@@ -25,6 +25,7 @@ Identifie le job correspondant à l'argument selon cette correspondance :
 - "em" ou "entretien-motivationnel" ou "motivation" ou "motivationnel" → job id "entretien-motivationnel-lecon"
 - "appli" ou "app" ou "dev" ou "javascript" ou "code" ou "nocode"    → job id "appli-ia-lecon"
 - "stoicisme" ou "lecon-stoicisme" ou "philosophie"                  → job id "stoicisme-lecon"
+- "controle" ou "qualite" ou "relecture" ou "verif"                  → job id "controle-livrables"
 
 Si l'argument est vide ou non reconnu, affiche la liste des jobs disponibles :
 ```
@@ -41,6 +42,7 @@ Jobs disponibles :
   /lancer-job em          — Leçon Entretien Motivationnel (jeudi 9h33)
   /lancer-job appli       — Leçon Développement d'applications avec l'IA (vendredi 8h03)
   /lancer-job stoicisme   — Leçon Stoïcisme (jeudi 8h03)
+  /lancer-job controle    — Contrôle qualité des livrables de la semaine (dimanche 11h03)
 ```
 Et arrête-toi.
 

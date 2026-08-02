@@ -6,6 +6,7 @@
 #
 # Horaires (= champ "cron" de jobs_config.json) :
 #   revenus-passifs-lecon  dimanche 7h03
+#   controle-livrables     dimanche 11h03 (contrôle qualité de la semaine)
 #   imac-veille        dimanche 8h03
 #   rbpp-pipeline      lundi    8h30
 #   dzogchen-lecon     mardi    8h03
@@ -38,7 +39,8 @@ stoicisme-lecon|3|8|4
 appli-ia-lecon|3|8|5
 placement-financier-lecon|3|8|6
 hypnose-lecon|3|9|2
-entretien-motivationnel-lecon|33|9|4"
+entretien-motivationnel-lecon|33|9|4
+controle-livrables|3|11|0"
 
 echo "=== Installation des agents launchd Claude_Travail ==="
 echo ""
