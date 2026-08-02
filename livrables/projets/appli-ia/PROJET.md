@@ -37,7 +37,7 @@ et sans surface d'attaque au démarrage.
 
 | Fichier | Rôle |
 |---|---|
-| `SPEC.md` | Spécification v1 : problème, utilisateur, données, fonctions, **hors périmètre**, critère de réussite |
+| `SPEC.md` | Spécification **v1.1** : problème, utilisateur, données, fonctions, **hors périmètre**, critère de réussite, journal des révisions |
 | `package.json` | Métadonnées du projet, scripts `inventaire` et `demo-recursivite`, `engines.node >= 24`, `private: true` |
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store` |
 | `scripts/inventaire.js` | Parcours récursif des dossiers de livrables, inventaire par catégorie. **Lecture seule.** |
@@ -52,6 +52,17 @@ et sans surface d'attaque au démarrage.
   des facteurs déterminants de la qualité du code généré par IA.
 - Initialisation du dépôt : `package.json`, `.gitignore`, dossier `scripts/`.
 - Premier script exécutable `scripts/inventaire.js`, **testé et fonctionnel**.
+
+## Écarts spec / code à résorber (ouverts le 02/08/2026)
+
+Constatés en confrontant `SPEC.md` au code et au disque. La spec fait foi ; le code doit
+s'aligner. À traiter comme incréments des prochaines leçons :
+
+| # | Écart | Où le traiter |
+|---|---|---|
+| 1 | `livrables/documents/` et `livrables/controles/` sont dans la spec mais absents de `DOSSIERS` dans `inventaire.js` — les documents et notes de contrôle sont donc invisibles | leçon 02 ou 04 |
+| 2 | Les fichiers de verrouillage Office (`~$…`) sont comptés comme livrables (81 leçons au lieu de 80) — exclusion à ajouter au filtre | leçon 02 (exercice) |
+| 3 | La date affichée est le `mtime` du fichier, alors que la spec impose la date contenue dans le NOM | leçon 06 (tri et filtres) |
 
 ## Reste à faire
 
