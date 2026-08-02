@@ -5,7 +5,8 @@
   "description": "Consultation des livrables produits par les jobs Claude_Travail",
   "type": "commonjs",
   "scripts": {
-    "inventaire": "node scripts/inventaire.js"
+    "inventaire": "node scripts/inventaire.js",
+    "demo-recursivite": "node scripts/demo_recursivite.js"
   },
   "engines": {
     "node": ">=24"

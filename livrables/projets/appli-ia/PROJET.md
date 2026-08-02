@@ -38,9 +38,10 @@ et sans surface d'attaque au démarrage.
 | Fichier | Rôle |
 |---|---|
 | `SPEC.md` | Spécification v1 : problème, utilisateur, données, fonctions, **hors périmètre**, critère de réussite |
-| `package.json` | Métadonnées du projet, script `inventaire`, `engines.node >= 24`, `private: true` |
+| `package.json` | Métadonnées du projet, scripts `inventaire` et `demo-recursivite`, `engines.node >= 24`, `private: true` |
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store` |
 | `scripts/inventaire.js` | Parcours récursif des dossiers de livrables, inventaire par catégorie. **Lecture seule.** |
+| `scripts/demo_recursivite.js` | **Annexe pédagogique**, ne fait PAS partie de l'application. Même logique que `inventaire.js`, mais commente à voix haute chaque appel de la fonction pour rendre la récursivité visible. Lancé par `npm run demo-recursivite`. Créé le 02/08/2026 en réponse à une question sur le fonctionnement du parcours récursif. |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
 ## Livré à la leçon 01
