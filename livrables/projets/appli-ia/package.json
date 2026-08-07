@@ -6,7 +6,8 @@
   "type": "commonjs",
   "scripts": {
     "inventaire": "node scripts/inventaire.js",
-    "demo-recursivite": "node scripts/demo_recursivite.js"
+    "demo-recursivite": "node scripts/demo_recursivite.js",
+    "serveur": "node scripts/serveur.js"
   },
   "engines": {
     "node": ">=24"

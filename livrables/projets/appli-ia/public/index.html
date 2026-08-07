@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portail Livrables</title>
+  <style>
+    /* ── Variables CSS — les couleurs du projet ── */
+    :root {
+      --bleu:   #1B3A6B;
+      --fond:   #F5F7FA;
+      --texte:  #1F2937;
+      --gris:   #6B7280;
+      --blanc:  #FFFFFF;
+      --accent: #3B82F6;
+    }
+
+    /* Reset minimal */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--fond);
+      color: var(--texte);
+      min-height: 100vh;
+    }
+
+    /* ── En-tête ── */
+    header {
+      background: var(--bleu);
+      color: var(--blanc);
+      padding: 1.5rem 2rem;
+    }
+    header h1 { font-size: 1.5rem; }
+    header p  { font-size: 0.875rem; opacity: 0.75; margin-top: 0.25rem; }
+
+    /* ── Zone principale ── */
+    main { padding: 2rem; max-width: 960px; margin: 0 auto; }
+
+    /* Bande de statut */
+    #statut {
+      background: var(--blanc);
+      border-left: 4px solid var(--accent);
+      padding: 0.875rem 1.25rem;
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--gris);
+    }
+
+    /* Grille de cartes */
+    .grille {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1rem;
+    }
+
+    /* Carte par catégorie */
+    .carte {
+      background: var(--blanc);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      border-top: 3px solid var(--bleu);
+    }
+    .carte h2 {
+      font-size: 1rem;
+      text-transform: capitalize;
+      color: var(--bleu);
+      margin-bottom: 0.4rem;
+    }
+    .meta {
+      font-size: 0.8rem;
+      color: var(--gris);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Liste des fichiers récents */
+    .recents { list-style: none; font-size: 0.78rem; }
+    .recents li {
+      padding: 0.2rem 0;
+      border-bottom: 1px solid var(--fond);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .recents li:last-child { border-bottom: none; }
+    .date { color: var(--gris); margin-right: 0.4rem; }
+
+    /* ── Pied de page ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.75rem;
+      color: var(--gris);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Portail Livrables</h1>
+  <p>Inventaire en direct des productions automatisées — Claude_Travail</p>
+</header>
+
+<main>
+  <div id="statut">Chargement de l'inventaire…</div>
+  <div class="grille" id="grille"></div>
+</main>
+
+<footer>
+  Données lues en direct depuis le disque ·
+  <span id="heure"></span>
+</footer>
+
+<script>
+  // Affiche l'heure de chargement dans le pied de page
+  document.getElementById("heure").textContent =
+    new Date().toLocaleString("fr-FR");
+
+  // Appel à l'API locale : le serveur Node.js renvoie l'inventaire en JSON
+  fetch("/api/inventaire")
+    .then(function(reponse) {
+      // Si le serveur renvoie une erreur HTTP, on la propage
+      if (!reponse.ok) {
+        throw new Error("Réponse serveur : " + reponse.status);
+      }
+      return reponse.json();
+    })
+    .then(function(data) {
+      // Mise à jour de la bande de statut
+      const nbCategories = Object.keys(data).length;
+      document.getElementById("statut").textContent =
+        "Inventaire chargé — " + nbCategories + " catégories.";
+
+      // Construction des cartes
+      const grille = document.getElementById("grille");
+
+      for (const cle of Object.keys(data)) {
+        const info  = data[cle];
+        const carte = document.createElement("div");
+        carte.className = "carte";
+
+        // Liste des fichiers récents
+        let recentsHTML;
+        if (info.recents.length === 0) {
+          recentsHTML = "<p class='meta'>Aucun fichier</p>";
+        } else {
+          const items = info.recents.map(function(f) {
+            return "<li><span class='date'>" + f.modifie + "</span>" + f.nom + "</li>";
+          });
+          recentsHTML = "<ul class='recents'>" + items.join("") + "</ul>";
+        }
+
+        carte.innerHTML =
+          "<h2>" + cle + "</h2>" +
+          "<p class='meta'>" + info.nombre + " fichier(s) · " + info.taille_ko + " Ko</p>" +
+          recentsHTML;
+
+        grille.appendChild(carte);
+      }
+    })
+    .catch(function(erreur) {
+      document.getElementById("statut").textContent =
+        "Erreur lors du chargement : " + erreur.message;
+    });
+</script>
+
+</body>
+</html>

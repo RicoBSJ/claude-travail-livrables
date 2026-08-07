@@ -8,17 +8,18 @@
 
 ## État de l'application
 
-**Amorcée — leçon 01 terminée (02/08/2026).**
+**Socle web opérationnel — leçon 02 terminée (07/08/2026).**
 
-Le projet dispose d'une spécification écrite, d'une structure de dépôt Node.js et d'un
-premier script fonctionnel en ligne de commande. `npm run inventaire` parcourt les dossiers
-de livrables (y compris les sous-dossiers de `sources/veille/`) et affiche, par catégorie,
-le nombre de fichiers, leur poids total et les trois plus récents.
+Le Portail Livrables dispose désormais d'une interface web locale. `node scripts/serveur.js`
+démarre un serveur HTTP sur le port 3000 ; ouvrir http://localhost:3000 affiche une grille de
+cartes, une par catégorie de livrables, avec le nombre de fichiers, le poids total et les 5 plus
+récents. Les données sont chargées en direct depuis le disque via `fetch('/api/inventaire')`.
 
-**Exécution réelle du 02/08/2026** : 202 livrables détectés — 79 leçons (1 435 Ko),
-19 quiz (47 256 Ko), 38 infographies (4 945 Ko), 66 veilles (915 Ko).
+**Inventaire lors du démarrage test du 07/08/2026** : 6 catégories — lecons (86 fichiers),
+quiz, infographies, veilles, documents, controles. Les fichiers temporaires Office (`~$…`) sont
+désormais exclus du comptage.
 
-Pas encore d'interface : la sortie est du texte dans le terminal. C'est l'objet de la leçon 02.
+Pas encore de recherche ni de filtres : c'est l'objet de la leçon 06.
 
 ## Choix techniques arrêtés
 
@@ -26,52 +27,56 @@ Pas encore d'interface : la sortie est du texte dans le terminal. C'est l'objet 
 |---|---|---|
 | Langage | JavaScript (CommonJS) — TypeScript introduit en leçon 03 | leçon 01 |
 | Runtime | **Node.js v24 LTS** (`v24.18.1` relevée sur nodejs.org le 02/08/2026) | leçon 01 |
-| Dépendances externes | **aucune** à ce stade — uniquement `fs` et `path` (modules internes) | leçon 01 |
+| Serveur HTTP | Module natif `node:http` — sans framework | leçon 02 |
+| Interface | HTML/CSS/JS vanilla — sans framework frontend (React/Vue à décider leçon 05) | leçon 02 |
+| Dépendances externes | **aucune** à ce stade | leçon 02 |
 | Framework d'interface | *à décider* | leçon 05 |
 | Base de données | *à décider* | leçon 07 |
 
-Aucune bibliothèque tierce n'est installée : c'est délibéré, pour que le projet reste lisible
-et sans surface d'attaque au démarrage.
+Aucune bibliothèque tierce n'est installée : c'est délibéré.
 
 ## Fichiers du projet
 
 | Fichier | Rôle |
 |---|---|
-| `SPEC.md` | Spécification **v1.1** : problème, utilisateur, données, fonctions, **hors périmètre**, critère de réussite, journal des révisions |
-| `package.json` | Métadonnées du projet, scripts `inventaire` et `demo-recursivite`, `engines.node >= 24`, `private: true` |
+| `SPEC.md` | Spécification **v1.1** : problème, utilisateur, données, fonctions, hors périmètre, critère de réussite, journal des révisions |
+| `package.json` | Métadonnées du projet, scripts `inventaire`, `demo-recursivite` et `serveur`, `engines.node >= 24`, `private: true` |
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store` |
-| `scripts/inventaire.js` | Parcours récursif des dossiers de livrables, inventaire par catégorie. **Lecture seule.** |
-| `scripts/demo_recursivite.js` | **Annexe pédagogique**, ne fait PAS partie de l'application. Même logique que `inventaire.js`, mais commente à voix haute chaque appel de la fonction pour rendre la récursivité visible. Lancé par `npm run demo-recursivite`. Créé le 02/08/2026 en réponse à une question sur le fonctionnement du parcours récursif. |
+| `scripts/inventaire.js` | Parcours récursif des dossiers de livrables, inventaire par catégorie — sortie terminal. **Lecture seule.** |
+| `scripts/demo_recursivite.js` | **Annexe pédagogique** — même logique qu'inventaire.js, mais commente chaque appel de la fonction. Lancé par `npm run demo-recursivite`. |
+| `scripts/serveur.js` | Serveur HTTP local (port 3000). Route `/api/inventaire` → JSON. Routes statiques → fichiers de `public/`. Garde-fou path traversal inclus. **Lecture seule.** Créé le 07/08/2026. |
+| `public/index.html` | Première page web du portail : grille de cartes par catégorie, chargement dynamique via `fetch('/api/inventaire')`. CSS intégré (variables, grille responsive). Créé le 07/08/2026. |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
-## Livré à la leçon 01
+## Livré à la leçon 01 (02/08/2026)
 
 - Vérification de l'environnement (Node, npm, git) avec les versions de référence relevées à la source.
-- Rédaction de `SPEC.md` — exercice central de la leçon, appuyé sur le résultat de Geruslu,
-  Aliyeva & Tüzün (arXiv, 26/03/2026) : la spécification et l'expertise du développeur sont
-  des facteurs déterminants de la qualité du code généré par IA.
+- Rédaction de `SPEC.md`.
 - Initialisation du dépôt : `package.json`, `.gitignore`, dossier `scripts/`.
-- Premier script exécutable `scripts/inventaire.js`, **testé et fonctionnel**.
+- Premier script exécutable `scripts/inventaire.js`, testé et fonctionnel.
 
-## Écarts spec / code à résorber (ouverts le 02/08/2026)
+## Livré à la leçon 02 (07/08/2026)
 
-Constatés en confrontant `SPEC.md` au code et au disque. La spec fait foi ; le code doit
-s'aligner. À traiter comme incréments des prochaines leçons :
+- Ajout de `dossiers documents/` et `livrables/controles/` dans l'inventaire (écart n°1 résolu).
+- Filtre sur les fichiers temporaires Office `~$…` dans `estLivrable()` (écart n°2 résolu).
+- Création de `scripts/serveur.js` : serveur HTTP natif Node.js, route `/api/inventaire`, route
+  statique avec garde-fou path traversal, lecture asynchrone `fs.readFile`.
+- Création de `public/index.html` : grille responsive CSS, chargement des données via `fetch()`,
+  gestion d'erreur réseau.
+
+## Écarts spec / code résiduels (ouverts)
 
 | # | Écart | Où le traiter |
 |---|---|---|
-| 1 | `livrables/documents/` et `livrables/controles/` sont dans la spec mais absents de `DOSSIERS` dans `inventaire.js` — les documents et notes de contrôle sont donc invisibles | leçon 02 ou 04 |
-| 2 | Les fichiers de verrouillage Office (`~$…`) sont comptés comme livrables (81 leçons au lieu de 80) — exclusion à ajouter au filtre | leçon 02 (exercice) |
-| 3 | La date affichée est le `mtime` du fichier, alors que la spec impose la date contenue dans le NOM | leçon 06 (tri et filtres) |
+| 3 | La date affichée dans les cartes est le `mtime` du fichier, alors que la spec impose la date contenue dans le NOM | leçon 06 (tri et filtres) |
 
 ## Reste à faire
 
-2. Socle web : transformer la sortie texte en page HTML affichable — générer avec l'IA, puis relire et corriger
-3. TypeScript et structure de projet
-4. Lecture des données réelles côté serveur (exposer l'inventaire en JSON)
-5. Interface (React / Next.js)
+3. TypeScript et structure de projet — typer Livrable et Categorie, compiler avec tsc
+4. Données réelles côté serveur — mieux structurer la route API, ajouter la pagination
+5. Interface — React ou Next.js (à décider)
 6. Recherche et filtres
-7. Persistance (base de données locale)
+7. Persistance (base de données locale SQLite)
 8. API et architecture
 9. Qualité, tests, débogage
 10. Sécurité et données (RGPD)
@@ -81,10 +86,10 @@ s'aligner. À traiter comme incréments des prochaines leçons :
 ## Points en suspens
 
 - **Périmètre tranché en leçon 01** : le portail couvre `livrables/lecons`, `livrables/quiz`,
-  `livrables/infographies` et `sources/veille` (récursif). Extensions retenues : `.docx`,
-  `.pptx`, `.pdf`, `.md`.
-- **Poids des quiz** : 19 fichiers pour 47 Mo, soit l'essentiel du volume. À surveiller si un
-  jour on veut afficher des aperçus — hors périmètre v1.
-- **Chemin racine en dur** : `inventaire.js` remonte de 4 niveaux depuis `__dirname`. Ça marche,
-  mais ça casserait si le projet était déplacé. Dette assumée, à traiter en leçon 04 ou 08.
-- Le choix du framework d'interface (leçon 05) dépendra de ce que révèlent les leçons 02 à 04.
+  `livrables/infographies`, `sources/veille`, `livrables/documents`, `livrables/controles`.
+  Extensions retenues : `.docx`, `.pptx`, `.pdf`, `.md`.
+- **Poids des quiz** : essentiel du volume. À surveiller si on veut afficher des aperçus — hors périmètre v1.
+- **Chemin racine en dur** : `scripts/serveur.js` et `inventaire.js` remontent de 4 niveaux depuis `__dirname`.
+  Ça marche, mais ça casserait si le projet était déplacé. Dette assumée, à traiter en leçon 04 ou 08.
+- **Port 3000 en dur** : acceptable pour l'usage local. En leçon 08, on lira PORT depuis une variable d'environnement.
+- Le choix du framework d'interface (leçon 05) dépendra de ce que révèlent les leçons 03 et 04.
