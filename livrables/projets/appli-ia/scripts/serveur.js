@@ -115,7 +115,9 @@ const serveur = http.createServer((req, res) => {
   const ext  = path.extname(absolu);
   const mime = TYPES_MIME[ext] || "application/octet-stream";
 
-  // Lecture asynchrone du fichier (ne bloque pas le serveur pendant la lecture)
+  // Lecture asynchrone du fichier (ne bloque pas le serveur pendant la lecture).
+  // Exercice « CASSER » de la leçon 02 : ajoute + '.inexistant' au chemin ci-dessous,
+  // relance, observe le 404 — puis retire-le. Le serveur ne plante pas : il répond.
   fs.readFile(absolu, (err, contenu) => {
     if (err) {
       res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
