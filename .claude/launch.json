@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portail-livrables",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["livrables/projets/appli-ia/scripts/serveur.js"],
+      "port": 3000
+    }
+  ]
+}
