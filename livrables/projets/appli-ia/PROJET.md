@@ -84,10 +84,11 @@ de refaire un appel réseau pour la même chose.
 | # | Écart | Où le traiter |
 |---|---|---|
 | 3 | La date affichée dans les cartes est le `mtime` du fichier, alors que la spec impose la date contenue dans le NOM | leçon 06 (tri et filtres) |
+| 4 | `README.md` est compté comme un livrable dans `scripts/serveur.js`, alors que `SPEC.md` v1.2 l'exclut explicitement (« un fichier qui décrit un dossier n'en est pas un livrable »). Visible sur le portail : la carte *Controles* affiche 2 fichiers au lieu de 1. Ouvert le 08/08/2026. | **leçon 03** |
 
 ## Reste à faire
 
-3. TypeScript et structure de projet — typer Livrable et Categorie, compiler avec tsc
+3. TypeScript et structure de projet — typer Livrable et Categorie, compiler avec tsc. **Traiter au passage l'écart n°4** : aligner `estLivrable()` de `scripts/serveur.js` sur la spec v1.2 en excluant les fichiers de documentation de dossier. Le filtre existe déjà dans `exercices/02_lister_livrables_avec_spec.js` (constante `DOCS_DE_DOSSIER`) et peut servir de référence — c'est un bon premier cas de typage : que vaut la liste des exclusions, et comment la typer proprement ?
 4. Données réelles côté serveur — mieux structurer la route API, ajouter la pagination
 5. Interface — React ou Next.js (à décider)
 6. Recherche et filtres
