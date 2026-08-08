@@ -39,13 +39,14 @@ Aucune bibliothèque tierce n'est installée : c'est délibéré.
 
 | Fichier | Rôle |
 |---|---|
-| `SPEC.md` | Spécification **v1.1** : problème, utilisateur, données, fonctions, hors périmètre, critère de réussite, journal des révisions |
+| `SPEC.md` | Spécification **v1.2** : problème, utilisateur, données, fonctions, hors périmètre, critère de réussite, journal des révisions |
 | `package.json` | Métadonnées du projet, scripts `inventaire`, `demo-recursivite` et `serveur`, `engines.node >= 24`, `private: true` |
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store` |
 | `scripts/inventaire.js` | Parcours récursif des dossiers de livrables, inventaire par catégorie — sortie terminal. **Lecture seule.** |
 | `scripts/demo_recursivite.js` | **Annexe pédagogique** — même logique qu'inventaire.js, mais commente chaque appel de la fonction. Lancé par `npm run demo-recursivite`. |
 | `scripts/serveur.js` | Serveur HTTP local (port 3000). Route `/api/inventaire` → JSON. Routes statiques → fichiers de `public/`. Garde-fou path traversal inclus. **Lecture seule.** Créé le 07/08/2026. |
 | `public/index.html` | Première page web du portail : grille de cartes par catégorie, chargement dynamique via `fetch('/api/inventaire')`. CSS intégré (variables, grille responsive). Créé le 07/08/2026. |
+| `exercices/` | **Artefacts pédagogiques**, hors application. Contient le Challenge de la leçon 01 (deux scripts de listage : sans spec puis avec spec) et son README explicatif. Créé le 08/08/2026. |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
 ## Livré à la leçon 01 (02/08/2026)
@@ -84,6 +85,11 @@ Aucune bibliothèque tierce n'est installée : c'est délibéré.
 12. Maintenance et évolution
 
 ## Points en suspens
+
+- **9 livrables sans date dans leur nom** (constaté le 08/08/2026) : quiz, infographies et
+  documents antérieurs à la convention `YYYY-MM-DD_`. Ce sont de VRAIS livrables — la spec v1.2
+  tranche : ne pas les exclure, mais les signaler et les classer en fin de liste. À prévoir dans
+  l'interface (leçon 06) : ils ne doivent pas disparaître d'un tri par date.
 
 - **Périmètre tranché en leçon 01** : le portail couvre `livrables/lecons`, `livrables/quiz`,
   `livrables/infographies`, `sources/veille`, `livrables/documents`, `livrables/controles`.
