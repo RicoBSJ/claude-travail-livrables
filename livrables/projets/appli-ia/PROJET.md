@@ -45,7 +45,7 @@ Aucune bibliothèque tierce n'est installée : c'est délibéré.
 | `scripts/inventaire.js` | Parcours récursif des dossiers de livrables, inventaire par catégorie — sortie terminal. **Lecture seule.** |
 | `scripts/demo_recursivite.js` | **Annexe pédagogique** — même logique qu'inventaire.js, mais commente chaque appel de la fonction. Lancé par `npm run demo-recursivite`. |
 | `scripts/serveur.js` | Serveur HTTP local (port 3000). Route `/api/inventaire` → JSON. Routes statiques → fichiers de `public/`. Garde-fou path traversal inclus. **Lecture seule.** Créé le 07/08/2026. |
-| `public/index.html` | Première page web du portail : grille de cartes par catégorie, chargement dynamique via `fetch('/api/inventaire')`. CSS intégré (variables, grille responsive). Créé le 07/08/2026. |
+| `public/index.html` | Première page web du portail : grille de cartes par catégorie, chargement dynamique via `fetch('/api/inventaire')`. CSS intégré (variables, grille responsive). Créé le 07/08/2026. **Enrichi le 08/08** d'un pied de page affichant les totaux (nombre de livrables et poids en Mo), calculés dans le `.then()` existant via `Object.values(data).reduce(...)` — sans second appel réseau. |
 | `exercices/` | **Artefacts pédagogiques**, hors application. Contient le Challenge de la leçon 01 (deux scripts de listage : sans spec puis avec spec) et son README explicatif. Créé le 08/08/2026. |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
@@ -64,6 +64,20 @@ Aucune bibliothèque tierce n'est installée : c'est délibéré.
   statique avec garde-fou path traversal, lecture asynchrone `fs.readFile`.
 - Création de `public/index.html` : grille responsive CSS, chargement des données via `fetch()`,
   gestion d'erreur réseau.
+
+## Ajouté hors leçon (08/08/2026)
+
+Pied de page de totaux dans `public/index.html`, travaillé par l'apprenant puis corrigé
+ensemble. Trois bugs rencontrés, instructifs pour la suite :
+
+| Bug | Cause | Correction |
+|---|---|---|
+| `fetch("URL_DE_TON_API")` | placeholder jamais remplacé | supprimé — les données étaient déjà disponibles |
+| `categorie.info?.nombre` | niveau `.info` inexistant dans l'API ; le `?.` masquait l'erreur au lieu de la signaler | `cat.nombre` |
+| `querySelector("#footer")` | aucun élément ne portait cet id | `<div id="totaux">` ajouté, ciblé par `getElementById` |
+
+Enseignement retenu : les données reçues par un `fetch` existant se réutilisent, plutôt que
+de refaire un appel réseau pour la même chose.
 
 ## Écarts spec / code résiduels (ouverts)
 

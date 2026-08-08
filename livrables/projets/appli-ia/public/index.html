@@ -111,6 +111,7 @@
 <footer>
   Données lues en direct depuis le disque ·
   <span id="heure"></span>
+  <div id="totaux"></div>
 </footer>
 
 <script>
@@ -159,6 +160,25 @@
 
         grille.appendChild(carte);
       }
+
+      // Totaux, calculés à partir des données DÉJÀ reçues par ce fetch.
+      // Object.values() transforme l'objet { lecons: {...}, quiz: {...} }
+      // en tableau [ {...}, {...} ], seul format que reduce sait parcourir.
+      const categories = Object.values(data);
+
+      const totalLivrables = categories.reduce(
+        function (total, cat) { return total + cat.nombre; },
+        0
+      );
+
+      const poidsMo = categories.reduce(
+        function (total, cat) { return total + cat.taille_ko; },
+        0
+      ) / 1024;
+
+      document.getElementById("totaux").textContent =
+        totalLivrables + " livrables · " +
+        poidsMo.toFixed(1).replace(".", ",") + " Mo";
     })
     .catch(function(erreur) {
       document.getElementById("statut").textContent =
