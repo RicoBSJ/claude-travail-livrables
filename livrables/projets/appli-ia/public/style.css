@@ -1,0 +1,94 @@
+/* style.css — Portail Livrables
+   Extrait de index.html le 09/08/2026 : le CSS représentait 41 % du fichier.
+   Séparer structure (HTML), style (CSS) et comportement (JS) — le serveur
+   déclarait déjà le type MIME text/css, il était prêt pour ce découpage. */
+
+/* ── Variables CSS — les couleurs du projet ── */
+:root {
+  --bleu:   #1B3A6B;
+  --fond:   #F5F7FA;
+  --texte:  #1F2937;
+  --gris:   #6B7280;
+  --blanc:  #FFFFFF;
+  --accent: #3B82F6;
+}
+
+/* Reset minimal */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--fond);
+  color: var(--texte);
+  min-height: 100vh;
+}
+
+/* ── En-tête ── */
+header {
+  background: var(--bleu);
+  color: var(--blanc);
+  padding: 1.5rem 2rem;
+}
+header h1 { font-size: 1.5rem; }
+header p  { font-size: 0.875rem; opacity: 0.75; margin-top: 0.25rem; }
+
+/* ── Zone principale ── */
+main { padding: 2rem; max-width: 960px; margin: 0 auto; }
+
+/* Bande de statut */
+#statut {
+  background: var(--blanc);
+  border-left: 4px solid var(--accent);
+  padding: 0.875rem 1.25rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--gris);
+}
+
+/* Grille de cartes */
+.grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1rem;
+}
+
+/* Carte par catégorie */
+.carte {
+  background: var(--blanc);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border-top: 3px solid var(--bleu);
+}
+.carte h2 {
+  font-size: 1rem;
+  text-transform: capitalize;
+  color: var(--bleu);
+  margin-bottom: 0.4rem;
+}
+.meta {
+  font-size: 0.8rem;
+  color: var(--gris);
+  margin-bottom: 0.75rem;
+}
+
+/* Liste des fichiers récents */
+.recents { list-style: none; font-size: 0.78rem; }
+.recents li {
+  padding: 0.2rem 0;
+  border-bottom: 1px solid var(--fond);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recents li:last-child { border-bottom: none; }
+.date { color: var(--gris); margin-right: 0.4rem; }
+
+/* ── Pied de page ── */
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.75rem;
+  color: var(--gris);
+}

@@ -45,7 +45,8 @@ Aucune bibliothèque tierce n'est installée : c'est délibéré.
 | `scripts/inventaire.js` | Parcours récursif des dossiers de livrables, inventaire par catégorie — sortie terminal. **Lecture seule.** |
 | `scripts/demo_recursivite.js` | **Annexe pédagogique** — même logique qu'inventaire.js, mais commente chaque appel de la fonction. Lancé par `npm run demo-recursivite`. |
 | `scripts/serveur.js` | Serveur HTTP local (port 3000). Route `/api/inventaire` → JSON. Routes statiques → fichiers de `public/`. Garde-fou path traversal inclus. **Lecture seule.** Créé le 07/08/2026. |
-| `public/index.html` | Première page web du portail : grille de cartes par catégorie, chargement dynamique via `fetch('/api/inventaire')`. CSS intégré (variables, grille responsive). Créé le 07/08/2026. **Enrichi le 08/08** d'un pied de page affichant les totaux (nombre de livrables et poids en Mo), calculés dans le `.then()` existant via `Object.values(data).reduce(...)` — sans second appel réseau. |
+| `public/index.html` | Première page web du portail : grille de cartes par catégorie, chargement dynamique via `fetch('/api/inventaire')`. Créé le 07/08/2026. **Enrichi le 08/08** d'un pied de page affichant les totaux (nombre de livrables et poids en Mo), calculés dans le `.then()` existant via `Object.values(data).reduce(...)` — sans second appel réseau. |
+| `public/style.css` | Feuille de style du portail (94 lignes) : variables CSS, grille responsive, cartes, badges. **Extraite d'index.html le 09/08/2026** — le CSS y représentait 41 % du fichier. |
 | `exercices/` | **Artefacts pédagogiques**, hors application. Contient le Challenge de la leçon 01 (deux scripts de listage : sans spec puis avec spec) et son README explicatif. Créé le 08/08/2026. |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
@@ -91,6 +92,28 @@ arrivent réellement, et non au chargement de la page qui le précède ; et `#to
 l'API — qui n'en comporte pas. C'est la cause directe du bug `categorie.info?.nombre`. Un
 énoncé d'exercice doit décrire la FORME DES DONNÉES, pas emprunter un nom de variable au
 code environnant.
+
+## Séparation du CSS (09/08/2026)
+
+Question posée par l'apprenant : pourquoi le CSS est-il dans le fichier HTML plutôt que dans un
+fichier `.css` ? Réponse : c'était un choix de simplicité de la leçon 02 — défendable pour une
+première page, mais périmé dès lors que le CSS représentait **41 % du fichier** (91 lignes sur 190).
+
+Argument décisif relevé dans le code : `scripts/serveur.js` déclarait **déjà** le type MIME
+`text/css` dans sa table `TYPES_MIME`. Le serveur était écrit prêt pour cette séparation — elle
+n'avait simplement pas été franchie.
+
+| | Avant | Après |
+|---|---|---|
+| `index.html` | 190 lignes | 100 lignes |
+| `public/style.css` | — | 94 lignes |
+
+Vérifié dans le navigateur après extraction : feuille chargée depuis `/style.css`, **17 règles CSS
+appliquées**, type MIME `text/css; charset=utf-8` (et non `octet-stream`), rendu identique, garde-fou
+path traversal toujours en 403, aucune erreur console.
+
+À enchaîner en leçon 03 (« TypeScript et **structure de projet** ») : la séparation des fichiers est
+faite pour le CSS, elle reste à penser pour le JavaScript, aujourd'hui encore inline dans `index.html`.
 
 ## Écarts spec / code résiduels (ouverts)
 
