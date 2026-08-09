@@ -47,6 +47,7 @@ Aucune bibliothèque tierce n'est installée : c'est délibéré.
 | `scripts/serveur.js` | Serveur HTTP local (port 3000). Route `/api/inventaire` → JSON. Routes statiques → fichiers de `public/`. Garde-fou path traversal inclus. **Lecture seule.** Créé le 07/08/2026. |
 | `public/index.html` | Première page web du portail : grille de cartes par catégorie, chargement dynamique via `fetch('/api/inventaire')`. Créé le 07/08/2026. **Enrichi le 08/08** d'un pied de page affichant les totaux (nombre de livrables et poids en Mo), calculés dans le `.then()` existant via `Object.values(data).reduce(...)` — sans second appel réseau. |
 | `public/style.css` | Feuille de style du portail (94 lignes) : variables CSS, grille responsive, cartes, badges. **Extraite d'index.html le 09/08/2026** — le CSS y représentait 41 % du fichier. |
+| `public/app.js` | Comportement du portail (70 lignes) : appel `fetch('/api/inventaire')`, construction des cartes, calcul des totaux. **Extrait d'index.html le 09/08/2026** — le JS y représentait 80 % du fichier restant. Chargé en FIN de `<body>` : cette position garantit que le HTML existe quand le script s'exécute. |
 | `exercices/` | **Artefacts pédagogiques**, hors application. Contient le Challenge de la leçon 01 (deux scripts de listage : sans spec puis avec spec) et son README explicatif. Créé le 08/08/2026. |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
@@ -112,8 +113,32 @@ Vérifié dans le navigateur après extraction : feuille chargée depuis `/style
 appliquées**, type MIME `text/css; charset=utf-8` (et non `octet-stream`), rendu identique, garde-fou
 path traversal toujours en 403, aucune erreur console.
 
-À enchaîner en leçon 03 (« TypeScript et **structure de projet** ») : la séparation des fichiers est
-faite pour le CSS, elle reste à penser pour le JavaScript, aujourd'hui encore inline dans `index.html`.
+## Séparation du JavaScript (09/08/2026)
+
+Même démarche, poursuivie dans la foulée. Après l'extraction du CSS, le JavaScript représentait
+**80 % du fichier restant** (71 lignes sur 100).
+
+| | Au départ | Après CSS | Après JS |
+|---|---|---|---|
+| `index.html` | 190 lignes | 100 lignes | **29 lignes** |
+| `public/style.css` | — | 94 lignes | 94 lignes |
+| `public/app.js` | — | — | **80 lignes** |
+
+`index.html` ne contient plus que de la structure : en-tête, zone principale avec deux conteneurs
+vides, pied de page, et deux balises de liaison.
+
+**Point technique consigné dans l'en-tête d'`app.js`** : la balise `<script src="/app.js">` reste en
+FIN de `<body>`, à la place exacte du bloc inline. Cette position garantit que le HTML existe déjà
+quand le script s'exécute — `document.getElementById()` trouve donc ses éléments. La déplacer dans
+le `<head>` casserait tout, sauf à lui ajouter l'attribut `defer`.
+
+Vérifié dans le navigateur : `app.js` et `style.css` chargés comme ressources externes, types MIME
+corrects (`application/javascript` et `text/css`), 6 cartes construites, totaux calculés, garde-fou
+path traversal en 403, aucune erreur console.
+
+À enchaîner en leçon 03 (« TypeScript et **structure de projet** ») : les trois rôles sont désormais
+dans trois fichiers. La question suivante est celle du découpage d'`app.js` lui-même, aujourd'hui
+d'un seul bloc — et du typage des données qu'il manipule.
 
 ## Écarts spec / code résiduels (ouverts)
 
