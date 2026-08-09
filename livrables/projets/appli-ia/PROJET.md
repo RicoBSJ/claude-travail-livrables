@@ -79,6 +79,19 @@ ensemble. Trois bugs rencontrés, instructifs pour la suite :
 Enseignement retenu : les données reçues par un `fetch` existant se réutilisent, plutôt que
 de refaire un appel réseau pour la même chose.
 
+**Format aligné le 09/08/2026** sur le critère de réussite du Challenge A de la leçon 02 :
+le pied de page affiche désormais « N livrables · X,Y Mo — chargé à HH:MM:SS ». Deux points
+de méthode au passage : l'heure est prise DANS le `.then()`, au moment où les données
+arrivent réellement, et non au chargement de la page qui le précède ; et `#totaux` porte un
+état initial « chargement… » plutôt qu'un vide silencieux si le serveur ne répond pas.
+
+⚠️ À signaler pour les prochaines leçons : l'énoncé du Challenge A parlait de « somme des
+`info.nombre` », en reprenant le nom d'une variable LOCALE de la boucle des cartes
+(`const info = data[cle]`). Présenté ainsi, ce nom passe pour un niveau de la structure de
+l'API — qui n'en comporte pas. C'est la cause directe du bug `categorie.info?.nombre`. Un
+énoncé d'exercice doit décrire la FORME DES DONNÉES, pas emprunter un nom de variable au
+code environnant.
+
 ## Écarts spec / code résiduels (ouverts)
 
 | # | Écart | Où le traiter |

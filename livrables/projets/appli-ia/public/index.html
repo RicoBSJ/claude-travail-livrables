@@ -110,15 +110,10 @@
 
 <footer>
   Données lues en direct depuis le disque ·
-  <span id="heure"></span>
-  <div id="totaux"></div>
+  <span id="totaux">chargement…</span>
 </footer>
 
 <script>
-  // Affiche l'heure de chargement dans le pied de page
-  document.getElementById("heure").textContent =
-    new Date().toLocaleString("fr-FR");
-
   // Appel à l'API locale : le serveur Node.js renvoie l'inventaire en JSON
   fetch("/api/inventaire")
     .then(function(reponse) {
@@ -176,9 +171,14 @@
         0
       ) / 1024;
 
+      // L'heure est prise ICI, au moment où les données sont réellement arrivées —
+      // et non au chargement de la page, qui précède la réponse du serveur.
+      const heureChargement = new Date().toLocaleTimeString("fr-FR");
+
       document.getElementById("totaux").textContent =
         totalLivrables + " livrables · " +
-        poidsMo.toFixed(1).replace(".", ",") + " Mo";
+        poidsMo.toFixed(1).replace(".", ",") + " Mo" +
+        " — chargé à " + heureChargement;
     })
     .catch(function(erreur) {
       document.getElementById("statut").textContent =
