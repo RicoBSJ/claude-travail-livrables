@@ -47,7 +47,9 @@ Aucune bibliothèque tierce n'est installée : c'est délibéré.
 | `scripts/serveur.js` | Serveur HTTP local (port 3000). Route `/api/inventaire` → JSON. Routes statiques → fichiers de `public/`. Garde-fou path traversal inclus. **Lecture seule.** Créé le 07/08/2026. |
 | `public/index.html` | Première page web du portail : grille de cartes par catégorie, chargement dynamique via `fetch('/api/inventaire')`. Créé le 07/08/2026. **Enrichi le 08/08** d'un pied de page affichant les totaux (nombre de livrables et poids en Mo), calculés dans le `.then()` existant via `Object.values(data).reduce(...)` — sans second appel réseau. |
 | `public/style.css` | Feuille de style du portail (94 lignes) : variables CSS, grille responsive, cartes, badges. **Extraite d'index.html le 09/08/2026** — le CSS y représentait 41 % du fichier. |
-| `public/app.js` | Comportement du portail (70 lignes) : appel `fetch('/api/inventaire')`, construction des cartes, calcul des totaux. **Extrait d'index.html le 09/08/2026** — le JS y représentait 80 % du fichier restant. Chargé en FIN de `<body>` : cette position garantit que le HTML existe quand le script s'exécute. |
+| `public/app.js` | **Point d'entrée** (33 lignes) : orchestre les étapes, sans savoir comment elles sont réalisées. Chargé par `<script src="/app.js" type="module">` en fin de `<body>`. |
+| `public/api.js` | **Accès aux données** (21 lignes) : `chargerInventaire()`. Ne touche JAMAIS au DOM — réutilisable tel quel dans une autre page. |
+| `public/rendu.js` | **Affichage** (65 lignes) : `afficherStatut()`, `afficherCartes()`, `afficherTotaux()`. Ne fait AUCUN appel réseau — contrepartie exacte d'api.js. |
 | `exercices/` | **Artefacts pédagogiques**, hors application. Contient le Challenge de la leçon 01 (deux scripts de listage : sans spec puis avec spec) et son README explicatif. Créé le 08/08/2026. |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
@@ -139,6 +141,40 @@ path traversal en 403, aucune erreur console.
 À enchaîner en leçon 03 (« TypeScript et **structure de projet** ») : les trois rôles sont désormais
 dans trois fichiers. La question suivante est celle du découpage d'`app.js` lui-même, aujourd'hui
 d'un seul bloc — et du typage des données qu'il manipule.
+
+## Découpage d'app.js en modules (09/08/2026)
+
+Troisième étape de séparation, demandée par l'apprenant dans la foulée des deux précédentes.
+`app.js` faisait 80 lignes d'un seul bloc mélangeant réseau, DOM et orchestration.
+
+**Réserve assumée** : 80 lignes ne *nécessitent* pas de modules. L'intérêt est pédagogique —
+apprendre le découpage sur un cas maîtrisable plutôt que le découvrir sur 800 lignes. Le découpage
+suit donc les vraies coutures fonctionnelles, pas un tranchage arbitraire.
+
+| Fichier | Lignes | Responsabilité | Ce qu'il ignore délibérément |
+|---|---|---|---|
+| `api.js` | 21 | Parler au serveur | le DOM — il n'y touche jamais |
+| `rendu.js` | 65 | Écrire dans la page | le réseau — aucun `fetch` |
+| `app.js` | 33 | Orchestrer | *comment* les deux autres travaillent |
+
+`app.js` se lit désormais comme un résumé de l'application : charger, afficher le statut, afficher
+les cartes, afficher les totaux, et traiter l'erreur.
+
+**Deux pièges documentés dans l'en-tête d'`app.js`** :
+1. La balise doit porter `type="module"`, sinon le navigateur refuse `import` et `export`.
+2. Les chemins d'import exigent l'extension : `"./api.js"` et non `"./api"`. Le navigateur ne la
+   devine pas, contrairement à Node.js — source de confusion classique en passant de l'un à l'autre.
+
+À noter : un module est différé (`defer`) par défaut, sa position en fin de `<body>` n'est donc plus
+indispensable. Conservée quand même, elle reste correcte.
+
+Vérifié dans le navigateur via le journal réseau : `/app.js` chargé, puis `/api.js` et `/rendu.js`
+tirés en cascade par ses imports, puis `/api/inventaire`. 6 cartes construites, totaux calculés,
+CSS appliqué, aucune erreur console.
+
+**Choix de méthode** : le style `.then` a été conservé plutôt que converti en `async/await`. Une
+seule chose à la fois — ce changement modularise, il ne réécrit pas. Mélanger les deux aurait rendu
+la comparaison avant/après illisible. La conversion reste un candidat pour une leçon ultérieure.
 
 ## Écarts spec / code résiduels (ouverts)
 
