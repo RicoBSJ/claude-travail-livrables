@@ -14,7 +14,7 @@
 #   enneagramme-lecon  mercredi 9h03
 #   stoicisme-lecon    jeudi    8h03
 #   appli-ia-lecon     vendredi 8h03
-#   entretien-motivationnel-lecon  jeudi 9h33
+#   astrologie-karmique-lecon      jeudi 9h33
 # Weekday launchd : 0/7=dimanche, 1=lundi … 5=vendredi, 6=samedi (vide = quotidien)
 # ============================================================
 
@@ -39,7 +39,7 @@ stoicisme-lecon|3|8|4
 appli-ia-lecon|3|8|5
 placement-financier-lecon|3|8|6
 hypnose-lecon|3|9|2
-entretien-motivationnel-lecon|33|9|4
+astrologie-karmique-lecon|33|9|4
 controle-livrables|3|11|0"
 
 echo "=== Installation des agents launchd Claude_Travail ==="

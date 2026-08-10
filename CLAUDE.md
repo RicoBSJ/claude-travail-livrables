@@ -248,7 +248,7 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 | Script | Rôle |
 |--------|------|
 | `run_job.sh <job_id>` | Exécute un job en headless (logs → `outils/scripts/logs/`), puis **auto-commit + push** des livrables si succès (portée stricte, liste blanche explicite : `sources/veille/` (récursif) + `livrables/{lecons,quiz,infographies,projets,controles,documents}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`). **Push durci** : `git rebase --abort` propre si le `pull --rebase` échoue (évite de bloquer les jobs suivants), **3 tentatives de push** avec backoff réseau, et log du nombre de commits en avance sur `origin/main` en cas d'échec |
-| `rattrapage_jobs.sh [job_id…]` | Rejoue une liste de jobs manqués via `run_job.sh` (anti-doublon de chaque job actif → aucun doublon). Sans argument : liste par défaut (`revenus-passifs-lecon` + `stoicisme-lecon`, `appli-ia-lecon`, `placement-financier-lecon`, `entretien-motivationnel-lecon`) |
+| `rattrapage_jobs.sh [job_id…]` | Rejoue une liste de jobs manqués via `run_job.sh` (anti-doublon de chaque job actif → aucun doublon). Sans argument : liste par défaut (`revenus-passifs-lecon` + `stoicisme-lecon`, `appli-ia-lecon`, `placement-financier-lecon`, `astrologie-karmique-lecon`) |
 | `setup_launchd.sh` | Génère + charge tous les agents depuis la liste `JOBS` (idempotent ; relancer après modif d'horaire) |
 | `teardown_launchd.sh` | Décharge + supprime tous les agents |
 
@@ -260,7 +260,11 @@ bash outils/scripts/run_job.sh revenus-passifs-lecon   # test manuel d'un job
 bash outils/scripts/teardown_launchd.sh           # tout désactiver
 ```
 
-**Horaires (= champ `cron`) :** revenus-passifs-lecon (dim. 7h03) · imac-veille (dim. 8h03) · hypnose-lecon (mar 9h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · appli-ia-lecon (ven 8h03) · placement-financier-lecon (sam 8h03) · entretien-motivationnel-lecon (jeu 9h33) · controle-livrables (dim. 11h03).
+**Horaires (= champ `cron`) :** revenus-passifs-lecon (dim. 7h03) · imac-veille (dim. 8h03) · hypnose-lecon (mar 9h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · appli-ia-lecon (ven 8h03) · placement-financier-lecon (sam 8h03) · astrologie-karmique-lecon (jeu 9h33) · controle-livrables (dim. 11h03).
+
+> Historique : `astrologie-karmique-lecon` (créé le 10/08/2026) reprend le créneau de `entretien-motivationnel-lecon`, supprimé le même jour. Les **11 leçons d'entretien motivationnel** déjà produites (`lecon-entretien-motivationnel_01` à `_11`) sont conservées dans `livrables/lecons/`.
+>
+> Garde-fous spécifiques à ce parcours : les données astronomiques se vérifient **exclusivement** auprès de sources d'astronomie (IMCCE, Observatoire de Paris, NASA), jamais d'un site d'astrologie ; toute affirmation d'interprétation est **attribuée à son auteur** (Schulman, Spiller, Greene) ; chaque leçon comporte un encadré distinguant fait observable, convention du corpus et état de la recherche ; **aucun usage professionnel** n'est suggéré — le parcours est un intérêt personnel et ne touche jamais à l'accompagnement des personnes.
 
 **Veille hebdomadaire à sous-dossier dédié dans `sources/veille/` :** `iMac/` (veille marché comparative tout-en-un : iMac M4/M5 + PC Windows équivalents) — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent). L'auto-push couvre tout `sources/veille/` (récursif).
 

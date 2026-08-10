@@ -39,7 +39,7 @@ DEFAULT_JOBS=(
   stoicisme-lecon
   appli-ia-lecon
   placement-financier-lecon
-  entretien-motivationnel-lecon
+  astrologie-karmique-lecon
 )
 
 # Si un id de job est passé en argument, on ne rejoue que celui-là.
