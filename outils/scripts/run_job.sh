@@ -130,12 +130,19 @@ echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : 
 # (iMac, …) ainsi que les .docx/.md de veille à la racine.
 # livrables/projets couvre le projet fil rouge du parcours appli-ia (code + PROJET.md).
 # livrables/documents couvre les documents Word divers et fiches synthèse.
+# EXCLUSION livrables/lecons/*.md : les fiches Obsidian adossées aux leçons sont des
+# notes de travail personnelles. Elles sont versionnées (commit manuel du 14/08/2026)
+# mais ne doivent JAMAIS repartir seules : dès qu'un résumé personnel y est écrit, un
+# job qui les pousserait le publierait sur le dépôt public sans intervention.
+# Les autres .md restent couverts : PROJET.md et SPEC.md (mémoire du parcours appli-ia)
+# et les veilles de sources/veille en dépendent.
 # NB : la portée reste une LISTE BLANCHE explicite. Ne jamais la remplacer par un
 # 'git add -A' : les dossiers personnels (contexte/, sources/rbpp, en_cours…) doivent
 # rester hors de toute publication automatique.
 if [ "$EXIT" -eq 0 ]; then
   export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
-  git add sources/veille livrables/lecons livrables/quiz livrables/infographies livrables/projets livrables/controles livrables/documents 2>/dev/null
+  git add sources/veille livrables/lecons livrables/quiz livrables/infographies livrables/projets livrables/controles livrables/documents \
+          ':(exclude)livrables/lecons/*.md' 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then
     echo "[git] Rien de nouveau à committer." >> "$LOG"
   else
