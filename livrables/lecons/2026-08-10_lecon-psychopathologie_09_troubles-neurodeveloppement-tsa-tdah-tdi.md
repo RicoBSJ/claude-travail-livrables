@@ -33,5 +33,7 @@ La leçon insiste sur les **comorbidités**, qui sont la règle plutôt que l'ex
 
 - **⬅️ Précédente** · [[2026-08-03_lecon-psychopathologie_08_troubles-personnalite-clusters-borderline]]
   famille voisine, avec laquelle les croisements sont fréquents en pratique
+- **➡️ Suivante** · [[2026-08-14_lecon-psychopathologie_10_troubles-conduites-alimentaires]]
+  les TCA, dont la leçon suivante rappelle qu'ils sont fréquemment associés au TSA — notamment chez les femmes autistes, avec masquage diagnostique
 - **🔗 Pont** · [[2026-06-13_lecon-psychopathologie_01_intro-modeles-psychopatho]]
   les quatre D y trouvent leur limite : dans le neurodéveloppement, la « déviance » à la norme n'est pas un critère pertinent mais une différence de fonctionnement
