@@ -20,3 +20,7 @@ en_cours/package-lock.json
 # Secret d'authentification headless (jeton longue durée) — JAMAIS commité
 outils/scripts/claude_auth.env
 outils/scripts/.env
+
+# Configuration locale du vault Obsidian (thèmes, plugins, dispositions,
+# chemins propres à cette machine) — les NOTES, elles, restent versionnées
+.obsidian/
