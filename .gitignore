@@ -24,3 +24,6 @@ outils/scripts/.env
 # Configuration locale du vault Obsidian (thèmes, plugins, dispositions,
 # chemins propres à cette machine) — les NOTES, elles, restent versionnées
 .obsidian/
+
+# Canvas Obsidian (tableaux blancs de travail, à tout niveau du vault)
+*.canvas
