@@ -123,6 +123,19 @@ done
 echo "" >> "$LOG"
 echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : $EXIT, tentatives : $((ATTEMPT > MAX_ATTEMPTS ? MAX_ATTEMPTS : ATTEMPT)))" >> "$LOG"
 
+# ---- Fiches Obsidian des nouvelles leçons ----
+# Crée la note .md adossée à chaque .docx de livrables/lecons/ qui n'en a pas encore.
+# Idempotent, n'écrase jamais une fiche existante, ne touche à aucun .docx.
+# La fiche est volontairement VIDE (tags « a-classer », sections Résumé et Notes liées
+# à remplir) : ce qui est déductible du nom de fichier est pré-rempli, le reste suppose
+# d'avoir lu la leçon. Ces fiches restent locales — elles sont exclues de l'auto-push
+# ci-dessous, et apparaissent donc dans `git status` tant qu'elles ne sont pas
+# committées à la main. C'est voulu : la liste des fiches à compléter est visible.
+if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/fiches_obsidian.py" ]; then
+  /usr/bin/python3 "$PROJECT/outils/scripts/fiches_obsidian.py" >> "$LOG" 2>&1 \
+    || echo "⚠️ fiches_obsidian.py a échoué (sans conséquence sur le livrable)" >> "$LOG"
+fi
+
 # ---- Auto-commit + push des livrables produits (option 2) ----
 # Portée STRICTE : uniquement les dossiers de livrables générés (veilles + Livrables).
 # Jamais "git add -A" → les dossiers personnels sensibles restent hors git.
