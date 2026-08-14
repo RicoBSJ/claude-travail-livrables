@@ -8,28 +8,30 @@
 
 ## État de l'application
 
-**Socle web opérationnel — leçon 02 terminée (07/08/2026).**
+**TypeScript en place — leçon 03 terminée (14/08/2026).**
 
-Le Portail Livrables dispose désormais d'une interface web locale. `node scripts/serveur.js`
-démarre un serveur HTTP sur le port 3000 ; ouvrir http://localhost:3000 affiche une grille de
-cartes, une par catégorie de livrables, avec le nombre de fichiers, le poids total et les 5 plus
-récents. Les données sont chargées en direct depuis le disque via `fetch('/api/inventaire')`.
+Le Portail Livrables tourne toujours avec `node scripts/serveur.js` (JavaScript, port 3000).
+Un couche TypeScript est désormais installée en parallèle : `npm run build` compile `src/`
+vers `dist/`, et `node dist/inventaire.js` affiche l'inventaire complet en version typée.
 
-**Inventaire lors du démarrage test du 07/08/2026** : 6 catégories — lecons (86 fichiers),
-quiz, infographies, veilles, documents, controles. Les fichiers temporaires Office (`~$…`) sont
-désormais exclus du comptage.
+**Écart n°4 résolu (14/08/2026)** : `README.md` est maintenant exclu de l'inventaire dans
+`scripts/serveur.js` et `src/inventaire.ts`. La carte Contrôles affiche 1 fichier (et non 2).
 
-Pas encore de recherche ni de filtres : c'est l'objet de la leçon 06.
+**Inventaire lors de la compilation de test (14/08/2026)** : lecons 195 fichiers, quiz 19,
+infographies 38, veilles (dossier), documents, controles 1.
+
+TypeScript installé : version 7.0.2. @types/node : 26.2.0.
 
 ## Choix techniques arrêtés
 
 | Élément | Choix | Décidé en |
 |---|---|---|
-| Langage | JavaScript (CommonJS) — TypeScript introduit en leçon 03 | leçon 01 |
-| Runtime | **Node.js v24 LTS** (`v24.18.1` relevée sur nodejs.org le 02/08/2026) | leçon 01 |
+| Langage | JavaScript (CommonJS) côté serveur/scripts + TypeScript côté `src/` | leçon 01 & 03 |
+| Runtime | **Node.js v24 LTS** (LTS Active, vérifié nodejs.org le 14/08/2026) | leçon 01 |
+| TypeScript | **7.0.2** (vérifié npm show le 14/08/2026) + @types/node 26.2.0 | leçon 03 |
+| tsconfig | `target: ES2022`, `module: commonjs`, `strict: true`, sans `moduleResolution` (supprimé dans TS7) | leçon 03 |
 | Serveur HTTP | Module natif `node:http` — sans framework | leçon 02 |
 | Interface | HTML/CSS/JS vanilla — sans framework frontend (React/Vue à décider leçon 05) | leçon 02 |
-| Dépendances externes | **aucune** à ce stade | leçon 02 |
 | Framework d'interface | *à décider* | leçon 05 |
 | Base de données | *à décider* | leçon 07 |
 
@@ -40,17 +42,21 @@ Aucune bibliothèque tierce n'est installée : c'est délibéré.
 | Fichier | Rôle |
 |---|---|
 | `SPEC.md` | Spécification **v1.2** : problème, utilisateur, données, fonctions, hors périmètre, critère de réussite, journal des révisions |
-| `package.json` | Métadonnées du projet, scripts `inventaire`, `demo-recursivite` et `serveur`, `engines.node >= 24`, `private: true` |
+| `package.json` | v0.3.0 · scripts `inventaire`, `demo-recursivite`, `serveur`, `build`, `inventaire:ts` · devDependencies typescript+@types/node |
+| `tsconfig.json` | Configuration TypeScript : target ES2022, module commonjs, strict, types:[node], outDir ./dist, rootDir ./src |
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store` |
-| `scripts/inventaire.js` | Parcours récursif des dossiers de livrables, inventaire par catégorie — sortie terminal. **Lecture seule.** |
-| `scripts/demo_recursivite.js` | **Annexe pédagogique** — même logique qu'inventaire.js, mais commente chaque appel de la fonction. Lancé par `npm run demo-recursivite`. |
-| `scripts/serveur.js` | Serveur HTTP local (port 3000). Route `/api/inventaire` → JSON. Routes statiques → fichiers de `public/`. Garde-fou path traversal inclus. **Lecture seule.** Créé le 07/08/2026. |
-| `public/index.html` | Première page web du portail : grille de cartes par catégorie, chargement dynamique via `fetch('/api/inventaire')`. Créé le 07/08/2026. **Enrichi le 08/08** d'un pied de page affichant les totaux (nombre de livrables et poids en Mo), calculés dans le `.then()` existant via `Object.values(data).reduce(...)` — sans second appel réseau. |
-| `public/style.css` | Feuille de style du portail (94 lignes) : variables CSS, grille responsive, cartes, badges. **Extraite d'index.html le 09/08/2026** — le CSS y représentait 41 % du fichier. |
-| `public/app.js` | **Point d'entrée** (33 lignes) : orchestre les étapes, sans savoir comment elles sont réalisées. Chargé par `<script src="/app.js" type="module">` en fin de `<body>`. |
-| `public/api.js` | **Accès aux données** (21 lignes) : `chargerInventaire()`. Ne touche JAMAIS au DOM — réutilisable tel quel dans une autre page. |
-| `public/rendu.js` | **Affichage** (65 lignes) : `afficherStatut()`, `afficherCartes()`, `afficherTotaux()`. Ne fait AUCUN appel réseau — contrepartie exacte d'api.js. |
-| `exercices/` | **Artefacts pédagogiques**, hors application. Contient le Challenge de la leçon 01 (deux scripts de listage : sans spec puis avec spec) et son README explicatif. Créé le 08/08/2026. |
+| `scripts/inventaire.js` | Inventaire terminal (JavaScript) — 4 dossiers seulement (version d'origine). Lecture seule. |
+| `scripts/demo_recursivite.js` | **Annexe pédagogique** — même logique qu'inventaire.js, commentée. `npm run demo-recursivite`. |
+| `scripts/serveur.js` | Serveur HTTP local (port 3000). **Modifié leçon 03** : ajout DOCS_DE_DOSSIER — résout écart n°4. Lecture seule. |
+| `src/types.ts` | **Nouveau leçon 03** — Interfaces : `Livrable`, `Categorie`, `Inventaire`, `DossierConfig`. Aucune logique. |
+| `src/inventaire.ts` | **Nouveau leçon 03** — Version TypeScript de l'inventaire (6 dossiers, écart n°4 résolu). Compilé vers `dist/inventaire.js`. |
+| `dist/` | **Généré par `npm run build`** — Ne pas éditer. Contient `.js`, `.d.ts`, `.js.map` pour chaque source de `src/`. |
+| `public/index.html` | Page web du portail : grille de cartes, pied de page totaux. 29 lignes. |
+| `public/style.css` | Feuille de style (94 lignes). Extraite d'index.html le 09/08/2026. |
+| `public/app.js` | Point d'entrée (33 lignes) : orchestration. `type="module"`. |
+| `public/api.js` | Accès aux données (21 lignes) : `chargerInventaire()`. Sans DOM. |
+| `public/rendu.js` | Affichage (65 lignes) : `afficherStatut()`, `afficherCartes()`, `afficherTotaux()`. Sans réseau. |
+| `exercices/` | Artefacts pédagogiques leçon 01 (deux scripts de listage + README). Hors application. |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
 ## Livré à la leçon 01 (02/08/2026)
@@ -181,12 +187,22 @@ la comparaison avant/après illisible. La conversion reste un candidat pour une 
 | # | Écart | Où le traiter |
 |---|---|---|
 | 3 | La date affichée dans les cartes est le `mtime` du fichier, alors que la spec impose la date contenue dans le NOM | leçon 06 (tri et filtres) |
-| 4 | `README.md` est compté comme un livrable dans `scripts/serveur.js`, alors que `SPEC.md` v1.2 l'exclut explicitement (« un fichier qui décrit un dossier n'en est pas un livrable »). Visible sur le portail : la carte *Controles* affiche 2 fichiers au lieu de 1. Ouvert le 08/08/2026. | **leçon 03** |
+| 4 | ~~README.md compté comme livrable~~ **Résolu leçon 03** : ajout de DOCS_DE_DOSSIER dans serveur.js et src/inventaire.ts | ✅ |
+
+## Livré à la leçon 03 (14/08/2026)
+
+- Fix écart n°4 : ajout de `DOCS_DE_DOSSIER = ["readme.md"]` dans `scripts/serveur.js`.
+- Création de `src/types.ts` : interfaces `Livrable`, `Categorie`, `Inventaire`, `DossierConfig`.
+- Création de `src/inventaire.ts` : version TypeScript de l'inventaire (6 dossiers, écart n°4 inclus).
+- Création de `tsconfig.json` : target ES2022, module commonjs, strict, types:[node].
+- Mise à jour `package.json` v0.3.0 : scripts `build` et `inventaire:ts`, devDependencies.
+- Installation de `typescript@7.0.2` et `@types/node@26.2.0` (2 packages, 0 vulnérabilités).
+- Compilation réussie : `npm run build` → `dist/inventaire.js` fonctionnel.
+- Point technique documenté : TypeScript 7 a supprimé `moduleResolution: "node"` (TS5108). Solution : retirer l'option de tsconfig.json.
 
 ## Reste à faire
 
-3. TypeScript et structure de projet — typer Livrable et Categorie, compiler avec tsc. **Traiter au passage l'écart n°4** : aligner `estLivrable()` de `scripts/serveur.js` sur la spec v1.2 en excluant les fichiers de documentation de dossier. Le filtre existe déjà dans `exercices/02_lister_livrables_avec_spec.js` (constante `DOCS_DE_DOSSIER`) et peut servir de référence — c'est un bon premier cas de typage : que vaut la liste des exclusions, et comment la typer proprement ?
-4. Données réelles côté serveur — mieux structurer la route API, ajouter la pagination
+4. Données réelles côté serveur — mieux structurer la route API, extraire la date du nom, pagination
 5. Interface — React ou Next.js (à décider)
 6. Recherche et filtres
 7. Persistance (base de données locale SQLite)

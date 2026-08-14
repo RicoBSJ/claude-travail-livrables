@@ -19,6 +19,11 @@ const RACINE = path.resolve(__dirname, "..", "..", "..", "..");
 
 const EXTENSIONS = [".docx", ".pptx", ".pdf", ".md"];
 
+// Exclusions spec v1.2 :
+//   ~$…       → fichiers temporaires de verrouillage Office (déjà exclus depuis leçon 02)
+//   readme.md → décrit le dossier, n'est pas un livrable (écart n°4, résolu leçon 03)
+const DOCS_DE_DOSSIER = ["readme.md"];
+
 const DOSSIERS = [
   { cle: "lecons",       chemin: path.join(RACINE, "livrables", "lecons") },
   { cle: "quiz",         chemin: path.join(RACINE, "livrables", "quiz") },
@@ -34,6 +39,8 @@ const DOSSIERS = [
 function estLivrable(nom) {
   // Les fichiers temporaires Office portent un préfixe ~$ — on les exclut
   if (nom.startsWith("~$")) return false;
+  // Les fichiers de documentation de dossier (ex. README.md) ne sont pas des livrables
+  if (DOCS_DE_DOSSIER.includes(nom.toLowerCase())) return false;
   return EXTENSIONS.includes(path.extname(nom).toLowerCase());
 }
 
