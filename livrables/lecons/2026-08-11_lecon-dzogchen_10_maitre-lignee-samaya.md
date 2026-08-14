@@ -33,5 +33,7 @@ La leçon détaille les qualités attendues d'un maître qualifié. **C'est auss
 
 - **⬅️ Précédente** · [[2026-08-04_lecon-dzogchen_09_ngondro-pratiques-preliminaires]]
   dont le guru yoga est le pivot approfondi ici
+- **➡️ Suivante** · [[2026-08-14_lecon-dzogchen_11_rushen-separer-samsara-nirvana]]
+  le Rushen, pratique qui prépare le terrain intérieur pour recevoir la transmission dont cette leçon pose le cadre
 - **🔗 Pont** · [[2026-06-05_lecon-dzogchen_01_rigpa-reconnaissance]]
   boucle du parcours : l'introduction directe à rigpa, posée dès la leçon 01, est précisément ce que seul un maître vajra est réputé pouvoir transmettre
