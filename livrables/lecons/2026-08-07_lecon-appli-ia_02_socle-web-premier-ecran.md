@@ -34,5 +34,7 @@ Cette leçon a été relue trois fois et porte un **journal des corrections en f
 
 - **⬅️ Précédente** · [[2026-08-02_lecon-appli-ia_01_cadrage-specification]]
   dont la spécification est ici mise à l'épreuve du code
+- **➡️ Suivante** · [[2026-08-14_lecon-appli-ia_03_typescript-structure-projet]]
+  qui type le code écrit ici, et résout l'écart n°4 laissé ouvert
 - **🔗 Pont** · [[2026-04-10_lecon01_fondamentaux]]
   même famille d'outils vue deux ans plus tôt sous l'angle de l'usage ; ici sous celui de la production de code
