@@ -33,5 +33,7 @@ La leçon donne un critère objectif pour comparer deux placements à rendement 
 
 - **⬅️ Précédente** · [[2026-08-01_lecon-placement-financier_08_immobilier-scpi-pierre-papier]]
   dont les frais d'entrée motivaient cette généralisation
+- **➡️ Suivante** · [[2026-08-15_lecon-placement-financier_10_fiscalite-revenus-capital]]
+  le second levier d'érosion silencieuse, après les frais : la fiscalité des revenus du capital
 - **🔗 Pont** · [[2026-07-04_lecon-placement-financier_04_interets-composes-inflation-rendement-reel]]
   même mécanique exponentielle, appliquée cette fois contre l'épargnant
