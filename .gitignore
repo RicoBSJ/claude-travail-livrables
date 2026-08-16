@@ -27,3 +27,8 @@ outils/scripts/.env
 
 # Canvas Obsidian (tableaux blancs de travail, à tout niveau du vault)
 *.canvas
+
+# Notes quotidiennes Obsidian — notes de travail personnelles, jamais publiées.
+# Le plugin les déposait à la racine du vault (donc du dépôt) : il est configuré
+# pour écrire dans journal/ via .obsidian/daily-notes.json.
+journal/
