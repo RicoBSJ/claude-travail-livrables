@@ -6,7 +6,7 @@ veille: serafin-ph
 statut: veille-active
 tags:
   - veille/serafin-ph
-  - a-classer
+  - theme/socle
 ---
 
 # Veille SERAFIN-PH — Synthèse hebdomadaire
@@ -157,4 +157,12 @@ L'opération est soumise à validation préalable par la **CNIL** et les autres 
 ---
 
 *Synthèse produite automatiquement — Veille professionnelle SERAFIN-PH*
-*5 avril 2026 · Sources : handicap.gouv.fr ✅ · cnsa.fr ✅*
+*5 avril 2026 · Sources : handicap.gouv.fr ✅ · cnsa.fr ✅*## Résumé
+
+**Première veille du dossier**, et la seule rédigée directement en markdown. Elle installe le socle que les suivantes reprendront : réforme du financement des ESSMS pour personnes handicapées, passage d'une logique de place à une logique de solution d'accompagnement.
+
+## Notes liées
+
+- **➡️ Suivante** · [[2026-04-06_veille_SERAFIN-PH.fiche]]
+- **🗂️ Dossier** · [[SERAFIN-PH_dossier.fiche]]
+  état consolidé du dossier SERAFIN-PH, que les veilles hebdomadaires ne donnent jamais d'un bloc
