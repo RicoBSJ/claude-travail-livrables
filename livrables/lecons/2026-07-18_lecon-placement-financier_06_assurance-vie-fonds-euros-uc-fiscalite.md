@@ -8,7 +8,6 @@ numero: 6
 statut: parcours-actif
 tags:
   - parcours/placement-financier
-  - registre/prive
   - module/intermediaire
   - enveloppe/assurance-vie
   - support/fonds-euros

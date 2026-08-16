@@ -8,7 +8,6 @@ numero: 10
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
   - module/avance
   - concept/maitre-vajra
   - concept/lignee

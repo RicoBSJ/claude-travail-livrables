@@ -8,7 +8,6 @@ numero: 8
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
   - module/types
   - type/6-loyaliste
   - centre/mental

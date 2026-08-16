@@ -8,7 +8,6 @@ numero: 10
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
   - module/types
   - type/8-chef
   - centre/instinctif

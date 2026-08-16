@@ -8,7 +8,6 @@ numero: 10
 statut: parcours-archive
 tags:
   - parcours/entretien-motivationnel
-  - registre/pro
   - module/avance
   - domaine/addictions
   - domaine/observance

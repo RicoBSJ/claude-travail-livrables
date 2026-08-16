@@ -8,8 +8,6 @@ numero: 10
 statut: parcours-actif
 tags:
   - parcours/placement-financier
-  - registre/prive
-  - module/fondamental
   - notion/pfu
   - notion/bareme-progressif
   - notion/prelevements-sociaux

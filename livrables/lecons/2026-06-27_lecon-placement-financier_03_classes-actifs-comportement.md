@@ -8,8 +8,6 @@ numero: 3
 statut: parcours-actif
 tags:
   - parcours/placement-financier
-  - registre/prive
-  - module/fondamental
   - actif/monetaire
   - actif/obligations
   - actif/actions

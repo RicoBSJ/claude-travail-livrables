@@ -8,7 +8,6 @@ numero: 2
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
   - module/veille
   - outil/n8n
   - notion/agents-en-production

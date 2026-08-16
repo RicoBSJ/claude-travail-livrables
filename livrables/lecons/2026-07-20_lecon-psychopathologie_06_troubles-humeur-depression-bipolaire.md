@@ -8,7 +8,6 @@ numero: 6
 statut: parcours-actif
 tags:
   - parcours/psychopathologie
-  - registre/pro
   - module/clinique
   - trouble/depression
   - trouble/bipolaire

@@ -8,8 +8,6 @@ numero: 2
 statut: parcours-actif
 tags:
   - parcours/astrologie-karmique
-  - registre/perso
-  - module/fondamental
   - objet/ecliptique
   - objet/zodiaque-tropical
   - objet/zodiaque-sideral

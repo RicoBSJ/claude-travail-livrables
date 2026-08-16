@@ -8,7 +8,6 @@ numero: 6
 statut: parcours-actif
 tags:
   - parcours/hypnose
-  - registre/mixte
   - module/technique
   - technique/approfondissement
   - technique/ratification

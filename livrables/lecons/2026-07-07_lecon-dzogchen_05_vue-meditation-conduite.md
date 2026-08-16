@@ -8,8 +8,6 @@ numero: 5
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
-  - module/fondamental
   - concept/tawa
   - concept/gom
   - concept/chopa

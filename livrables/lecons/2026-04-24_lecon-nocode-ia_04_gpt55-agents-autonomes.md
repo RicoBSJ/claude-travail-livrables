@@ -8,7 +8,6 @@ numero: 4
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
   - module/veille
   - notion/evaluation-agents
   - notion/rpa

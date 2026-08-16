@@ -8,8 +8,6 @@ numero: 9
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
-  - module/fondamental
   - pratique/ngondro
   - pratique/guru-yoga
   - concept/quatre-contemplations

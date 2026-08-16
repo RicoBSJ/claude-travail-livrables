@@ -8,8 +8,6 @@ numero: 5
 statut: parcours-actif
 tags:
   - parcours/placement-financier
-  - registre/prive
-  - module/fondamental
   - enveloppe/livrets
   - enveloppe/assurance-vie
   - enveloppe/pea

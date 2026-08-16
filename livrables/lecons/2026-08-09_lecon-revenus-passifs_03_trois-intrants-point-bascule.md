@@ -8,8 +8,6 @@ numero: 3
 statut: parcours-actif
 tags:
   - parcours/revenus-passifs
-  - registre/prive
-  - module/fondamental
   - notion/trois-intrants
   - notion/point-de-bascule
   - notion/capital-temps-competence
@@ -31,5 +29,7 @@ Le troisième apport est diagnostique : **pourquoi un modèle prétendument pass
 
 - **⬅️ Précédente** · [[2026-08-02_lecon-revenus-passifs_02_grandes-familles-panorama]]
   dont les quatre critères trouvent ici leur mécanique
+- **➡️ Suivante** · [[2026-08-16_lecon-revenus-passifs_04_economie-reelle-couts-fiscalite]]
+  qui applique l'économie réelle au modèle : coûts par couches, fiscalité française, taux d'échec
 - **🔗 Pont** · [[2026-08-08_lecon-placement-financier_09_frais-impact-long-terme]]
   le point de bascule et le calcul des frais posent la même question sous deux angles : au bout de combien de temps ce que je paie est-il réellement couvert ?

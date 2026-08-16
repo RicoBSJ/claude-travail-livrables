@@ -8,8 +8,6 @@ numero: 2
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
-  - module/fondamental
   - auteur/gurdjieff
   - auteur/ichazo
   - auteur/naranjo

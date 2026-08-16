@@ -8,7 +8,6 @@ numero: 8
 statut: parcours-actif
 tags:
   - parcours/stoicisme
-  - registre/perso
   - module/intermediaire
   - auteur/epictete
   - auteur/nietzsche

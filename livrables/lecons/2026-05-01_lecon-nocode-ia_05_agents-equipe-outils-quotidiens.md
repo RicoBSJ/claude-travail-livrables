@@ -8,7 +8,6 @@ numero: 5
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
   - module/veille
   - notion/agent-persistant
   - outil/microsoft-365

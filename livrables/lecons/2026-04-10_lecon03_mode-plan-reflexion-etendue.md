@@ -8,7 +8,6 @@ numero: 0
 statut: parcours-archive
 tags:
   - parcours/claude-code
-  - registre/mixte
   - outil/mode-plan
   - notion/reflexion-etendue
   - notion/lecture-seule

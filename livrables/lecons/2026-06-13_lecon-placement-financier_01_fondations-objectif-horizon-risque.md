@@ -8,8 +8,6 @@ numero: 1
 statut: parcours-actif
 tags:
   - parcours/placement-financier
-  - registre/prive
-  - module/fondamental
   - notion/horizon
   - notion/profil-de-risque
   - notion/epargne-precaution

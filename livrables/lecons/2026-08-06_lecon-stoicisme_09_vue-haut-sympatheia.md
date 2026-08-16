@@ -8,7 +8,6 @@ numero: 9
 statut: parcours-actif
 tags:
   - parcours/stoicisme
-  - registre/perso
   - module/avance
   - auteur/posidonios
   - auteur/marc-aurele

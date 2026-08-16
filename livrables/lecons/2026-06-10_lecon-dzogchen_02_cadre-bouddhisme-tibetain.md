@@ -8,8 +8,6 @@ numero: 2
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
-  - module/fondamental
   - concept/atiyoga
   - concept/neuf-vehicules
   - ecole/nyingma

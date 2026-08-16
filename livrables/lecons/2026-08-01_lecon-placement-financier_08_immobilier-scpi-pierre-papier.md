@@ -8,7 +8,6 @@ numero: 8
 statut: parcours-actif
 tags:
   - parcours/placement-financier
-  - registre/prive
   - module/intermediaire
   - actif/immobilier
   - support/scpi

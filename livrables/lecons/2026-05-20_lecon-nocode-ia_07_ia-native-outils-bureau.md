@@ -8,7 +8,6 @@ numero: 7
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
   - module/veille
   - notion/ia-native
   - notion/prompt-code

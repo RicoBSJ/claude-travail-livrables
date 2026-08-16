@@ -8,7 +8,6 @@ numero: 9
 statut: parcours-actif
 tags:
   - parcours/hypnose
-  - registre/mixte
   - module/pratique
   - pratique/ancrages
   - concept/conditionnement

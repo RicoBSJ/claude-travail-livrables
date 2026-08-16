@@ -8,8 +8,6 @@ numero: 3
 statut: parcours-actif
 tags:
   - parcours/stoicisme
-  - registre/perso
-  - module/fondamental
   - auteur/platon
   - auteur/zenon
   - auteur/chrysippe

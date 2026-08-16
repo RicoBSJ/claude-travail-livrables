@@ -8,7 +8,6 @@ numero: 15
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
   - module/automatisation
   - notion/api
   - notion/http-request

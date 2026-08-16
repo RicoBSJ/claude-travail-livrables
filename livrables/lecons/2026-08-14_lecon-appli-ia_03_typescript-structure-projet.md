@@ -8,8 +8,6 @@ numero: 3
 statut: parcours-actif
 tags:
   - parcours/appli-ia
-  - registre/mixte
-  - module/fondamental
   - techno/typescript
   - techno/tsconfig
   - notion/typage-statique

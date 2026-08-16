@@ -8,8 +8,6 @@ numero: 7
 statut: parcours-actif
 tags:
   - parcours/placement-financier
-  - registre/prive
-  - module/fondamental
   - enveloppe/per
   - notion/tmi
   - notion/sortie-capital-rente

@@ -8,7 +8,6 @@ numero: 10
 statut: parcours-actif
 tags:
   - parcours/stoicisme
-  - registre/perso
   - module/avance
   - auteur/epictete
   - concept/prokopton

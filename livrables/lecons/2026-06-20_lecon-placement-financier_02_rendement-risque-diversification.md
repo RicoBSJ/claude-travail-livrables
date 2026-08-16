@@ -8,8 +8,6 @@ numero: 2
 statut: parcours-actif
 tags:
   - parcours/placement-financier
-  - registre/prive
-  - module/fondamental
   - notion/prime-de-risque
   - notion/volatilite
   - notion/diversification

@@ -8,8 +8,6 @@ numero: 9
 statut: parcours-actif
 tags:
   - parcours/placement-financier
-  - registre/prive
-  - module/fondamental
   - notion/frais
   - notion/retrocessions
   - notion/interets-composes

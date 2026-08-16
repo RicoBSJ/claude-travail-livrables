@@ -8,8 +8,6 @@ numero: 13
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
-  - module/fondamental
   - outil/make
   - outil/zapier
   - notion/declencheur-action

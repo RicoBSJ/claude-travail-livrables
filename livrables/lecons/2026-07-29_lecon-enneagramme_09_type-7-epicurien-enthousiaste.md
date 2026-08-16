@@ -8,7 +8,6 @@ numero: 9
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
   - module/types
   - type/7-epicurien
   - centre/mental

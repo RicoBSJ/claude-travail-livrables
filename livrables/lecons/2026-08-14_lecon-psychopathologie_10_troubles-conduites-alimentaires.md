@@ -8,7 +8,6 @@ numero: 10
 statut: parcours-actif
 tags:
   - parcours/psychopathologie
-  - registre/pro
   - module/clinique
   - trouble/anorexie-mentale
   - trouble/boulimie

@@ -8,8 +8,6 @@ numero: 3
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
-  - module/fondamental
   - concept/centre-instinctif
   - concept/centre-emotionnel
   - concept/centre-mental

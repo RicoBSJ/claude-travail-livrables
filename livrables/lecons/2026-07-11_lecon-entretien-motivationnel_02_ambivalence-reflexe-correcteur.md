@@ -8,8 +8,6 @@ numero: 2
 statut: parcours-archive
 tags:
   - parcours/entretien-motivationnel
-  - registre/pro
-  - module/fondamental
   - concept/ambivalence
   - concept/reflexe-correcteur
   - concept/discours-changement

@@ -8,8 +8,6 @@ numero: 1
 statut: parcours-actif
 tags:
   - parcours/appli-ia
-  - registre/mixte
-  - module/fondamental
   - techno/nodejs
   - notion/specification
   - outil/claude-code

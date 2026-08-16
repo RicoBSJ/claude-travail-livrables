@@ -8,8 +8,6 @@ numero: 9
 statut: parcours-actif
 tags:
   - parcours/psychopathologie
-  - registre/pro
-  - module/fondamental
   - trouble/tsa
   - trouble/tdah
   - trouble/tdi

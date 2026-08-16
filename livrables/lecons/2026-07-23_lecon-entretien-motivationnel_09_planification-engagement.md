@@ -8,7 +8,6 @@ numero: 9
 statut: parcours-archive
 tags:
   - parcours/entretien-motivationnel
-  - registre/pro
   - module/applique
   - processus/planifier
   - outil/epe

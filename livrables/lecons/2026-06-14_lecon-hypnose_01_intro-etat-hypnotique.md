@@ -8,8 +8,6 @@ numero: 1
 statut: parcours-actif
 tags:
   - parcours/hypnose
-  - registre/mixte
-  - module/fondamental
   - concept/etat-hypnotique
   - concept/suggestibilite
   - source/inserm

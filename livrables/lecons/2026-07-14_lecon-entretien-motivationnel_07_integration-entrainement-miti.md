@@ -8,8 +8,6 @@ numero: 7
 statut: parcours-archive
 tags:
   - parcours/entretien-motivationnel
-  - registre/pro
-  - module/fondamental
   - outil/miti
   - concept/fidelite
   - concept/supervision

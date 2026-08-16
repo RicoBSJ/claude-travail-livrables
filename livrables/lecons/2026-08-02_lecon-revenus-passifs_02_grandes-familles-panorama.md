@@ -8,8 +8,6 @@ numero: 2
 statut: parcours-actif
 tags:
   - parcours/revenus-passifs
-  - registre/prive
-  - module/fondamental
   - notion/familles-de-modeles
   - notion/maintenance
   - notion/capital-requis

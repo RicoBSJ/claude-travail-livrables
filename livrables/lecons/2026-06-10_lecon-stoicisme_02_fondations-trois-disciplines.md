@@ -8,8 +8,6 @@ numero: 2
 statut: parcours-actif
 tags:
   - parcours/stoicisme
-  - registre/mixte
-  - module/fondamental
   - auteur/zenon
   - auteur/chrysippe
   - auteur/epictete

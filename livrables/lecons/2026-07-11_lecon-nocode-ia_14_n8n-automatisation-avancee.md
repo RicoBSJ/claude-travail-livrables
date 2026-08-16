@@ -8,7 +8,6 @@ numero: 14
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
   - module/automatisation
   - outil/n8n
   - notion/auto-hebergement

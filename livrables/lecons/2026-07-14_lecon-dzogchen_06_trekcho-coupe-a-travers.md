@@ -8,7 +8,6 @@ numero: 6
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
   - module/pratique
   - pratique/trekcho
   - concept/kadag

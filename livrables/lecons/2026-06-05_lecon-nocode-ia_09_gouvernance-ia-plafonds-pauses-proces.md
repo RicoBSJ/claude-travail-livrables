@@ -8,7 +8,6 @@ numero: 9
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
   - module/veille
   - notion/regulation
   - notion/plafonds

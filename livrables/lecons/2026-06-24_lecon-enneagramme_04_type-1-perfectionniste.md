@@ -8,7 +8,6 @@ numero: 4
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
   - module/types
   - type/1-perfectionniste
   - centre/instinctif

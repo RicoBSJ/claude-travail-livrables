@@ -8,8 +8,6 @@ numero: 2
 statut: parcours-actif
 tags:
   - parcours/hypnose
-  - registre/mixte
-  - module/fondamental
   - auteur/mesmer
   - auteur/erickson
   - concept/magnetisme-animal

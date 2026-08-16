@@ -8,8 +8,6 @@ numero: 1
 statut: parcours-actif
 tags:
   - parcours/revenus-passifs
-  - registre/prive
-  - module/fondamental
   - notion/continuum-actif-passif
   - notion/mythes
   - notion/signaux-alerte

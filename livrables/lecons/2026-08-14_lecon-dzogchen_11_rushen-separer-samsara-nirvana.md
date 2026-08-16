@@ -8,7 +8,6 @@ numero: 11
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
   - module/pratique
   - pratique/rushen
   - pratique/ngondro-dzogchen

@@ -8,7 +8,6 @@ numero: 1
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
   - module/veille
   - outil/n8n
   - outil/make

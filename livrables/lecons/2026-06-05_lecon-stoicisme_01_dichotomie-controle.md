@@ -8,8 +8,6 @@ numero: 1
 statut: parcours-actif
 tags:
   - parcours/stoicisme
-  - registre/mixte
-  - module/fondamental
   - auteur/epictete
   - concept/dichotomie-controle
   - concept/acceptation

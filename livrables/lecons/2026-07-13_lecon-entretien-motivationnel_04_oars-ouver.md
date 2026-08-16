@@ -8,8 +8,6 @@ numero: 4
 statut: parcours-archive
 tags:
   - parcours/entretien-motivationnel
-  - registre/pro
-  - module/fondamental
   - outil/oars
   - outil/reflets
   - outil/questions-ouvertes

@@ -8,7 +8,6 @@ numero: 8
 statut: parcours-actif
 tags:
   - parcours/hypnose
-  - registre/mixte
   - module/pratique
   - pratique/auto-hypnose
   - concept/intention

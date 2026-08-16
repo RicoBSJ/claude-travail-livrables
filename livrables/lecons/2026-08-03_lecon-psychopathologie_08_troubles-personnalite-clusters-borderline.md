@@ -8,7 +8,6 @@ numero: 8
 statut: parcours-actif
 tags:
   - parcours/psychopathologie
-  - registre/pro
   - module/clinique
   - trouble/personnalite
   - trouble/borderline

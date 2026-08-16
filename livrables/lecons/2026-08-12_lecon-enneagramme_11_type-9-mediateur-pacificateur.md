@@ -8,7 +8,6 @@ numero: 11
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
   - module/types
   - type/9-mediateur
   - centre/instinctif

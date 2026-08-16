@@ -8,7 +8,6 @@ numero: 6
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
   - module/veille
   - notion/mcp
   - notion/production

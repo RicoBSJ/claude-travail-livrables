@@ -8,8 +8,6 @@ numero: 3
 statut: parcours-actif
 tags:
   - parcours/psychopathologie
-  - registre/pro
-  - module/fondamental
   - concept/semiologie
   - concept/signe-symptome-syndrome
   - outil/examen-clinique

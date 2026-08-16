@@ -8,8 +8,6 @@ numero: 12
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
-  - module/fondamental
   - notion/tokens
   - notion/fenetre-de-contexte
   - notion/temperature

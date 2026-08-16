@@ -8,8 +8,6 @@ numero: 4
 statut: parcours-actif
 tags:
   - parcours/hypnose
-  - registre/mixte
-  - module/fondamental
   - auteur/erickson
   - outil/modele-de-milton
   - outil/truismes

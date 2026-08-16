@@ -8,8 +8,6 @@ numero: 3
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
-  - module/fondamental
   - concept/gzhi
   - concept/kadag
   - concept/lhundrub

@@ -8,8 +8,6 @@ numero: 6
 statut: parcours-archive
 tags:
   - parcours/entretien-motivationnel
-  - registre/pro
-  - module/fondamental
   - concept/discordance
   - concept/ethique
   - concept/autonomie

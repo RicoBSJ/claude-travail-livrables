@@ -8,8 +8,6 @@ numero: 4
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
-  - module/fondamental
   - auteur/garab-dorje
   - auteur/manjushrimitra
   - texte/tsik-sum-nedek

@@ -8,7 +8,6 @@ numero: 11
 statut: parcours-archive
 tags:
   - parcours/entretien-motivationnel
-  - registre/pro
   - module/intermediaire
   - format/em-bref
   - format/em-groupe

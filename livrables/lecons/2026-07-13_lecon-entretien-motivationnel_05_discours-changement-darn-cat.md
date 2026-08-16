@@ -8,8 +8,6 @@ numero: 5
 statut: parcours-archive
 tags:
   - parcours/entretien-motivationnel
-  - registre/pro
-  - module/fondamental
   - outil/darn-cat
   - concept/discours-maintien
   - concept/evocation

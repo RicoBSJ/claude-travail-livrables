@@ -8,8 +8,6 @@ numero: 16
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
-  - module/fondamental
   - outil/airtable
   - outil/notion
   - notion/persistance

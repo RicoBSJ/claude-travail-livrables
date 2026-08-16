@@ -8,8 +8,6 @@ numero: 5
 statut: parcours-actif
 tags:
   - parcours/stoicisme
-  - registre/perso
-  - module/fondamental
   - auteur/marc-aurele
   - auteur/fronton
   - auteur/apollonius

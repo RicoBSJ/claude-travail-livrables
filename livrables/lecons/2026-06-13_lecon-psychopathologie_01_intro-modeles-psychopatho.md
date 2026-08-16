@@ -8,8 +8,6 @@ numero: 1
 statut: parcours-actif
 tags:
   - parcours/psychopathologie
-  - registre/pro
-  - module/fondamental
   - modele/biomedical
   - modele/psychodynamique
   - modele/tcc

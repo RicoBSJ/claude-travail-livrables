@@ -8,8 +8,6 @@ numero: 4
 statut: parcours-actif
 tags:
   - parcours/stoicisme
-  - registre/perso
-  - module/fondamental
   - auteur/epictete
   - auteur/arrien
   - auteur/musonius-rufus

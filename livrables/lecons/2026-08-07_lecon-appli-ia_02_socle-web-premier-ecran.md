@@ -8,8 +8,6 @@ numero: 2
 statut: parcours-actif
 tags:
   - parcours/appli-ia
-  - registre/mixte
-  - module/fondamental
   - techno/html-css-js
   - techno/node-http
   - notion/requete-reponse

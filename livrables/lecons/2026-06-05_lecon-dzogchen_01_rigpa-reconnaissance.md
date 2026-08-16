@@ -8,8 +8,6 @@ numero: 1
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
-  - module/fondamental
   - concept/rigpa
   - concept/ma-rigpa
   - concept/base-voie-fruit

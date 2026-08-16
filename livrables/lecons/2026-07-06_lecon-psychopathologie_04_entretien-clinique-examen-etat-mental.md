@@ -8,8 +8,6 @@ numero: 4
 statut: parcours-actif
 tags:
   - parcours/psychopathologie
-  - registre/pro
-  - module/fondamental
   - outil/entretien-clinique
   - outil/examen-etat-mental
   - concept/alliance-therapeutique

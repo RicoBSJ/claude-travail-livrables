@@ -8,7 +8,6 @@ numero: 7
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
   - module/types
   - type/5-investigateur
   - centre/mental

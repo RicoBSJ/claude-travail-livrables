@@ -8,8 +8,6 @@ numero: 10
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
-  - module/fondamental
   - notion/no-code
   - notion/llm
   - outil/zapier

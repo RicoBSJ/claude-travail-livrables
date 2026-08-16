@@ -8,8 +8,6 @@ numero: 2
 statut: parcours-actif
 tags:
   - parcours/psychopathologie
-  - registre/pro
-  - module/fondamental
   - classification/cim-11
   - classification/dsm-5-tr
   - auteur/canguilhem

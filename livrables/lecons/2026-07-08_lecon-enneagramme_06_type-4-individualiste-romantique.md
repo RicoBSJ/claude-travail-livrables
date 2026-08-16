@@ -8,7 +8,6 @@ numero: 6
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
   - module/types
   - type/4-individualiste
   - centre/emotionnel

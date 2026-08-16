@@ -8,8 +8,6 @@ numero: 7
 statut: parcours-actif
 tags:
   - parcours/stoicisme
-  - registre/perso
-  - module/fondamental
   - auteur/chrysippe
   - auteur/seneque
   - concept/pathe

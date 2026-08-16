@@ -8,8 +8,6 @@ numero: 1
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
-  - module/fondamental
   - type/2-aidant
   - auteur/riso-hudson
   - concept/orgueil

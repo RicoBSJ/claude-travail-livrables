@@ -8,7 +8,6 @@ numero: 5
 statut: parcours-actif
 tags:
   - parcours/enneagramme
-  - registre/mixte
   - module/types
   - type/3-battant
   - centre/emotionnel

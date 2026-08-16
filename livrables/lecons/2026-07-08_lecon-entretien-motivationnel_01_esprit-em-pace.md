@@ -8,8 +8,6 @@ numero: 1
 statut: parcours-archive
 tags:
   - parcours/entretien-motivationnel
-  - registre/pro
-  - module/fondamental
   - auteur/miller
   - auteur/rollnick
   - concept/pace

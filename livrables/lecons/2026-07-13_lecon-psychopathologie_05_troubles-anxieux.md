@@ -8,7 +8,6 @@ numero: 5
 statut: parcours-actif
 tags:
   - parcours/psychopathologie
-  - registre/pro
   - module/clinique
   - trouble/tag
   - trouble/phobies

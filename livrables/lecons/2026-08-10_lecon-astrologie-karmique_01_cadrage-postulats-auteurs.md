@@ -8,8 +8,6 @@ numero: 1
 statut: parcours-actif
 tags:
   - parcours/astrologie-karmique
-  - registre/perso
-  - module/fondamental
   - auteur/schulman
   - auteur/spiller
   - auteur/greene

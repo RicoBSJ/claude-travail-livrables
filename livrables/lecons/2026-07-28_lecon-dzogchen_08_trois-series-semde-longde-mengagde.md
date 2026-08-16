@@ -8,8 +8,6 @@ numero: 8
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
-  - module/fondamental
   - concept/semde
   - concept/longde
   - concept/mengagde

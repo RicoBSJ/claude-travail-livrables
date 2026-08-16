@@ -8,7 +8,6 @@ numero: 7
 statut: parcours-actif
 tags:
   - parcours/dzogchen
-  - registre/perso
   - module/avance
   - pratique/togal
   - concept/lhundrub

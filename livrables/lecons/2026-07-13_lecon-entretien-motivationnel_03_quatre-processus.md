@@ -8,8 +8,6 @@ numero: 3
 statut: parcours-archive
 tags:
   - parcours/entretien-motivationnel
-  - registre/pro
-  - module/fondamental
   - processus/engager
   - processus/focaliser
   - processus/evoquer

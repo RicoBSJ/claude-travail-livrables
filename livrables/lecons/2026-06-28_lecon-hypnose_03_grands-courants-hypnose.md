@@ -8,8 +8,6 @@ numero: 3
 statut: parcours-actif
 tags:
   - parcours/hypnose
-  - registre/mixte
-  - module/fondamental
   - courant/classique
   - courant/ericksonienne
   - courant/nouvelle-hypnose

@@ -8,8 +8,6 @@ numero: 11
 statut: parcours-archive
 tags:
   - parcours/nocode-ia
-  - registre/mixte
-  - module/fondamental
   - notion/prompt-engineering
   - outil/rcie
   - notion/few-shot

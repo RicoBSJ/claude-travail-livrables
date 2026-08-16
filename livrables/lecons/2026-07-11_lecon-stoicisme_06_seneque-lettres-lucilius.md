@@ -8,8 +8,6 @@ numero: 6
 statut: parcours-actif
 tags:
   - parcours/stoicisme
-  - registre/perso
-  - module/fondamental
   - auteur/seneque
   - auteur/lucilius
   - concept/temps

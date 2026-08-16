@@ -8,7 +8,6 @@ numero: 7
 statut: parcours-actif
 tags:
   - parcours/hypnose
-  - registre/mixte
   - module/technique
   - technique/reassociation
   - concept/contre-indications
