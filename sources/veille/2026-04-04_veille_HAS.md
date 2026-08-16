@@ -6,7 +6,8 @@ veille: has
 statut: veille-active
 tags:
   - veille/has
-  - a-classer
+  - theme/tsa
+  - theme/rbpp
 ---
 
 # Veille HAS — Trouble du spectre de l'autisme (TSA) : interventions et parcours de vie
@@ -55,3 +56,12 @@ tags:
 ---
 
 *Veille générée automatiquement le 4 avril 2026*
+
+---
+
+## Notes liées
+
+- **🔗 Pont** · [[2026-02-12_veille_rbpp_tsa-enfant-adolescent.fiche]]
+  veille Word sur la même RBPP, produite par le pipeline
+- **🔗 Pont** · [[2026-08-10_lecon-psychopathologie_09_troubles-neurodeveloppement-tsa-tdah-tdi]]
+  le versant clinique du TSA

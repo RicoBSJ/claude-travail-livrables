@@ -6,7 +6,8 @@ veille: essms
 statut: veille-archive
 tags:
   - veille/essms
-  - a-classer
+  - theme/essms
+  - theme/social
 ---
 
 # Prompt de veille hebdomadaire — Secteur médico-social ESSMS (v2.1)
@@ -176,3 +177,10 @@ Le prompt ci-dessus. Couvre ce que RSS et mail ne poussent pas : CNSA/SERAFIN au
 - **RSS vs mail HAS** : le flux RSS capte la catégorie large (évaluation ESSMS) ; les alertes mail captent les mots-clés fins que le RSS ne filtre pas. Ne pas créer une alerte mail qui recouvre exactement un flux RSS déjà importé.
 - **CNSA / DGCS / Légifrance** : pas de RSS exploitable. Couverts par la routine web + la Lettre CNSA. Légifrance : alerte JO austère, faible valeur ajoutée vs le décodage presse — non prioritaire.
 - **Seul point irréductiblement manuel** : le suivi rapproché du calendrier SERAFIN pendant les pics de recueil (les dates bougent). Aucune automatisation ne le fiabilise à 100 %.
+
+---
+
+## Notes liées
+
+- **🔗 Pont** · [[veille-essms-2026-05-20-2026-05-26.fiche]]
+  veille ESSMS précédente, au nommage historique
