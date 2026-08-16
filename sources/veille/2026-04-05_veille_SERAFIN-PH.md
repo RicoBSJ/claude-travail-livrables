@@ -1,3 +1,14 @@
+---
+type: veille
+date_creation: 2026-08-16
+date_veille: 2026-04-05
+veille: serafin-ph
+statut: veille-active
+tags:
+  - veille/serafin-ph
+  - a-classer
+---
+
 # Veille SERAFIN-PH — Synthèse hebdomadaire
 **Date de production :** 5 avril 2026
 **Public cible :** Directions et cadres d'ESSMS (foyer de vie, FAM, MAS, SAVS, SAMSAH, IME, ITEP, SESSAD…)

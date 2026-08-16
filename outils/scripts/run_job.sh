@@ -135,6 +135,10 @@ if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/fiches_obsidian.py" ]; the
   /usr/bin/python3 "$PROJECT/outils/scripts/fiches_obsidian.py" >> "$LOG" 2>&1 \
     || echo "⚠️ fiches_obsidian.py a échoué (sans conséquence sur le livrable)" >> "$LOG"
 fi
+if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/fiches_veille.py" ]; then
+  /usr/bin/python3 "$PROJECT/outils/scripts/fiches_veille.py" >> "$LOG" 2>&1 \
+    || echo "⚠️ fiches_veille.py a échoué (sans conséquence sur le livrable)" >> "$LOG"
+fi
 
 # ---- Auto-commit + push des livrables produits (option 2) ----
 # Portée STRICTE : uniquement les dossiers de livrables générés (veilles + Livrables).
@@ -143,6 +147,12 @@ fi
 # (iMac, …) ainsi que les .docx/.md de veille à la racine.
 # livrables/projets couvre le projet fil rouge du parcours appli-ia (code + PROJET.md).
 # livrables/documents couvre les documents Word divers et fiches synthèse.
+# EXCLUSION sources/veille/*.fiche.md : même principe pour les veilles. Le suffixe
+# « .fiche.md » est indispensable ici — sources/veille/ contient AUSSI des veilles
+# rédigées directement en markdown (veille HAS notamment), qui sont des livrables et
+# doivent continuer d'être publiées. Une exclusion sur *.md les bloquerait.
+# ⚠️ Ne pas écrire '**/*.fiche.md' : en pathspec git, ** exige au moins un répertoire
+# intermédiaire et laisserait passer les fiches à la racine de sources/veille/.
 # EXCLUSION livrables/lecons/*.md : les fiches Obsidian adossées aux leçons sont des
 # notes de travail personnelles. Elles sont versionnées (commit manuel du 14/08/2026)
 # mais ne doivent JAMAIS repartir seules : dès qu'un résumé personnel y est écrit, un
@@ -155,7 +165,7 @@ fi
 if [ "$EXIT" -eq 0 ]; then
   export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
   git add sources/veille livrables/lecons livrables/quiz livrables/infographies livrables/projets livrables/controles livrables/documents \
-          ':(exclude)livrables/lecons/*.md' 2>/dev/null
+          ':(exclude)livrables/lecons/*.md' ':(exclude)sources/veille/*.fiche.md' 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then
     echo "[git] Rien de nouveau à committer." >> "$LOG"
   else

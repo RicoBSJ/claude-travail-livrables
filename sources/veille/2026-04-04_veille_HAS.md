@@ -1,3 +1,14 @@
+---
+type: veille
+date_creation: 2026-08-16
+date_veille: 2026-04-04
+veille: has
+statut: veille-active
+tags:
+  - veille/has
+  - a-classer
+---
+
 # Veille HAS — Trouble du spectre de l'autisme (TSA) : interventions et parcours de vie
 
 **Date de publication** : 12 février 2026 (adoptée par le Collège le 8 janvier 2026)

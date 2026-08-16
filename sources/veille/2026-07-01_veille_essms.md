@@ -1,3 +1,14 @@
+---
+type: veille
+date_creation: 2026-08-16
+date_veille: 2026-07-01
+veille: essms
+statut: veille-archive
+tags:
+  - veille/essms
+  - a-classer
+---
+
 # Prompt de veille hebdomadaire — Secteur médico-social ESSMS (v2.1)
 
 > Prompt à coller dans une Routine Claude Code (ou une Scheduled Task Desktop).
