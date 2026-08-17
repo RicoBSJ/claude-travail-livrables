@@ -37,6 +37,8 @@ La section sur les comorbidités est celle qui concerne le plus directement un f
 
 - **⬅️ Précédente** · [[2026-08-10_lecon-psychopathologie_09_troubles-neurodeveloppement-tsa-tdah-tdi]]
   la leçon le dit explicitement : garde la grille des présentations atypiques et des comorbidités, les TCA sont fréquemment associés au TSA et au TDAH avec des tableaux qui brouillent le diagnostic
+- **➡️ Suivante** · [[2026-08-17_lecon-psychopathologie_11_addictions-troubles-usage-substances]]
+  la leçon suivante pose la continuité : TCA et addictions partagent le circuit de la récompense, le craving, la perte de contrôle et les conduites compensatoires. Le même mécanisme, élargi aux substances et aux addictions comportementales
 - **🔗 Pont** · [[2026-08-03_lecon-psychopathologie_08_troubles-personnalite-clusters-borderline]]
   cité parmi les comorbidités les plus documentées. Le recouvrement borderline/TCA — impulsivité, conduites de coupure, rapport au corps — rend la prise en charge particulièrement complexe
 - **🔗 Pont** · [[2026-07-13_lecon-psychopathologie_05_troubles-anxieux]]
