@@ -13,6 +13,7 @@ existante n'est écrasée · le script est idempotent.
 """
 import json
 import re
+import subprocess
 import sys
 from datetime import date
 from pathlib import Path
@@ -68,6 +69,30 @@ def analyser(nom):
     return "a-classer", 0
 
 
+def fiches_distantes(prefixe):
+    """Noms des .md déjà présents sur origin/main sous ce préfixe.
+
+    Une fiche peut avoir été remplie et poussée depuis une autre machine.
+    La recréer vide ici produirait un fichier non suivi qui BLOQUE le
+    prochain `git pull` (« seraient effacés par la fusion »). On s'abstient
+    donc, et le pull apportera la version renseignée.
+
+    Aucun accès réseau : on lit la dernière référence connue localement.
+    En cas d'échec (pas de dépôt, pas de remote, git absent), on renvoie un
+    ensemble vide et le script se comporte comme avant.
+    """
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(RACINE), "ls-tree", "-r", "--name-only",
+             "origin/main", "--", prefixe],
+            capture_output=True, text=True, timeout=15)
+        if out.returncode != 0:
+            return set()
+        return {Path(l).name for l in out.stdout.splitlines() if l.endswith(".md")}
+    except (OSError, subprocess.SubprocessError):
+        return set()
+
+
 def main():
     essai = "--dry-run" in sys.argv
     if not LECONS.is_dir():
@@ -75,14 +100,18 @@ def main():
         return 1
 
     actifs = parcours_actifs()
+    distantes = fiches_distantes("livrables/lecons")
     aujourdhui = date.today().isoformat()
-    crees = []
+    crees, differees = [], []
 
     for docx in sorted(LECONS.rglob("*.docx")):
         if docx.name.startswith("~$"):
             continue
         note = docx.with_suffix(".md")
         if note.exists():
+            continue
+        if note.name in distantes:
+            differees.append(note.name)
             continue
 
         parcours, numero = analyser(docx.name)
@@ -96,11 +125,15 @@ def main():
             note.write_text(contenu, encoding="utf-8")
         crees.append(note.name)
 
+    prefixe = "[essai] " if essai else ""
     if crees:
-        prefixe = "[essai] " if essai else ""
         for n in crees:
             print(f"  {prefixe}+ fiche Obsidian : {n}")
         print(f"  {prefixe}{len(crees)} fiche(s) créée(s) — à compléter (résumé, tags, liens)")
+    if differees:
+        for n in differees:
+            print(f"  {prefixe}⏭️  déjà sur origin/main, non recréée : {n}")
+        print(f"  {prefixe}→ un `git pull` apportera la version renseignée")
     return 0
 
 

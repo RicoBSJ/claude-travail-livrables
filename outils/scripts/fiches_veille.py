@@ -15,6 +15,7 @@ existante n'est écrasée · les sous-dossiers sont parcourus.
 """
 import json
 import re
+import subprocess
 import sys
 from datetime import date
 from pathlib import Path
@@ -80,6 +81,26 @@ def sujet_de(chemin):
     return "a-classer"
 
 
+def fiches_distantes(prefixe):
+    """Noms des .fiche.md déjà présents sur origin/main sous ce préfixe.
+
+    Une fiche peut avoir été remplie et poussée depuis une autre machine.
+    La recréer vide ici produirait un fichier non suivi qui BLOQUE le
+    prochain `git pull`. On s'abstient donc, et le pull apportera la version
+    renseignée. Aucun accès réseau : dernière référence connue localement.
+    """
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(RACINE), "ls-tree", "-r", "--name-only",
+             "origin/main", "--", prefixe],
+            capture_output=True, text=True, timeout=15)
+        if out.returncode != 0:
+            return set()
+        return {Path(l).name for l in out.stdout.splitlines() if l.endswith(".md")}
+    except (OSError, subprocess.SubprocessError):
+        return set()
+
+
 def main():
     essai = "--dry-run" in sys.argv
     if not VEILLE.is_dir():
@@ -87,14 +108,18 @@ def main():
         return 1
 
     actifs = jobs_existants()
+    distantes = fiches_distantes("sources/veille")
     aujourdhui = date.today().isoformat()
-    crees = []
+    crees, differees = [], []
 
     for docx in sorted(VEILLE.rglob("*.docx")):
         if docx.name.startswith("~$"):
             continue
         note = docx.with_suffix(".fiche.md")
         if note.exists():
+            continue
+        if note.name in distantes:
+            differees.append(note.name)
             continue
 
         sujet = sujet_de(docx)
@@ -111,11 +136,15 @@ def main():
             note.write_text(contenu, encoding="utf-8")
         crees.append(note.relative_to(VEILLE))
 
+    prefixe = "[essai] " if essai else ""
     if crees:
-        prefixe = "[essai] " if essai else ""
         for n in crees:
             print(f"  {prefixe}+ fiche veille : {n}")
         print(f"  {prefixe}{len(crees)} fiche(s) créée(s) — à compléter (résumé, tags, liens)")
+    if differees:
+        for n in differees:
+            print(f"  {prefixe}⏭️  déjà sur origin/main, non recréée : {n}")
+        print(f"  {prefixe}→ un `git pull` apportera la version renseignée")
     return 0
 
 
