@@ -118,6 +118,11 @@ def main():
         note = docx.with_suffix(".fiche.md")
         if note.exists():
             continue
+        # La veille existe déjà en markdown (même nom, sans suffixe) : ce .md EST
+        # la note Obsidian, une fiche d'accompagnement ferait doublon. Cas des
+        # veilles HAS, que le pipeline produit en Word ET en markdown.
+        if docx.with_suffix(".md").exists():
+            continue
         if note.name in distantes:
             differees.append(note.name)
             continue
