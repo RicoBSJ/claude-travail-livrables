@@ -31,7 +31,12 @@ RACINE = Path(__file__).resolve().parents[2]
 LECONS = RACINE / "livrables" / "lecons"
 VEILLE = RACINE / "sources" / "veille"
 
-VERT, ROUGE, JAUNE, GRAS, RAZ = "\033[32m", "\033[31m", "\033[33m", "\033[1m", "\033[0m"
+# Couleurs seulement si la sortie est un terminal : dans un fichier de log
+# (run_job.sh), les séquences ANSI rendraient le journal illisible.
+if sys.stdout.isatty() and "--sans-couleur" not in sys.argv:
+    VERT, ROUGE, JAUNE, GRAS, RAZ = "\033[32m", "\033[31m", "\033[33m", "\033[1m", "\033[0m"
+else:
+    VERT = ROUGE = JAUNE = GRAS = RAZ = ""
 
 
 def type_de(p):

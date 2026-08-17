@@ -140,6 +140,24 @@ if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/fiches_veille.py" ]; then
     || echo "⚠️ fiches_veille.py a échoué (sans conséquence sur le livrable)" >> "$LOG"
 fi
 
+# ---- Audit du vault (informatif, JAMAIS bloquant) ----
+# Contrôle le nommage, la cohérence des fiches et l'intégrité des liens juste
+# avant la publication. Il n'interrompt rien et ne corrige rien : un faux
+# positif ne doit pas empêcher un livrable de partir. Son rôle est de laisser
+# une trace dans le journal, à relire quand quelque chose cloche.
+# Motif : le 17/08/2026, le pipeline RBPP a nommé sa note de veille HAS
+# « .fiche.md » — le suffixe exclu de l'auto-push. Le livrable n'aurait jamais
+# été publié, et rien dans le journal ne l'aurait signalé.
+if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/audit_vault.py" ]; then
+  if /usr/bin/python3 "$PROJECT/outils/scripts/audit_vault.py" >> "$LOG" 2>&1; then
+    echo "[audit] vault conforme" >> "$LOG"
+  else
+    echo "⚠️ [audit] ANOMALIES DÉTECTÉES dans le vault — voir le détail ci-dessus." >> "$LOG"
+    echo "         Le livrable a bien été produit ; l'audit n'interrompt rien." >> "$LOG"
+    echo "         Relancer à la main : python3 outils/scripts/audit_vault.py --verbeux" >> "$LOG"
+  fi
+fi
+
 # ---- Auto-commit + push des livrables produits (option 2) ----
 # Portée STRICTE : uniquement les dossiers de livrables générés (veilles + Livrables).
 # Jamais "git add -A" → les dossiers personnels sensibles restent hors git.
