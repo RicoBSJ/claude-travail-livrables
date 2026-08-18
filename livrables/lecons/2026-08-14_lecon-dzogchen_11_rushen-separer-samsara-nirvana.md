@@ -37,6 +37,8 @@ Situation dans le chemin : le Rushen relève du **ngöndro spécifiquement dzogc
 
 - **⬅️ Précédente** · [[2026-08-11_lecon-dzogchen_10_maitre-lignee-samaya]]
   le maître et le samaya forment le filet de confiance qui rend la transmission possible ; le Rushen prépare le terrain intérieur pour la recevoir
+- **➡️ Suivante** · [[2026-08-18_lecon-dzogchen_12_quatre-visions-togal]]
+  les quatre visions du tögal, dont le rushen prépare le terrain
 - **🔗 Pont** · [[2026-08-04_lecon-dzogchen_09_ngondro-pratiques-preliminaires]]
   distinction à ne pas manquer : le ngöndro général (prostrations, mandala, Vajrasattva) et le ngöndro proprement dzogchen dont relève le Rushen ne se substituent pas l'un à l'autre
 - **🔗 Pont** · [[2026-07-14_lecon-dzogchen_06_trekcho-coupe-a-travers]]
