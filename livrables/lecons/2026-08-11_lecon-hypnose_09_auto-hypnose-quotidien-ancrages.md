@@ -32,5 +32,7 @@ Le reste est consacré aux routines, aux mini-pratiques de quelques minutes et �
 
 - **⬅️ Précédente** · [[2026-08-04_lecon-hypnose_08_auto-hypnose-fondations]]
   dont elle prolonge les fondations dans le quotidien
+- **➡️ Suivante** · [[2026-08-18_lecon-hypnose_10_suggestion-post-hypnotique]]
+  la suggestion post-hypnotique, dont l'ancrage vu ici est un cas particulier
 - **🔗 Pont** · [[2026-07-05_lecon-hypnose_04_langage-hypnotique]]
   l'ancrage repose sur une suggestion formulée en transe : la qualité de sa formulation décide de son efficacité
