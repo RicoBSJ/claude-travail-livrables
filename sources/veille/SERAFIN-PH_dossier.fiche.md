@@ -3,7 +3,7 @@ type: note-dossier
 date_creation: 2026-08-16
 veille: serafin-ph
 statut: veille-active
-couverture: 2026-04-05 → 2026-08-12
+couverture: 2026-04-05 → 2026-08-19
 tags:
   - veille/serafin-ph
   - dossier/synthese
@@ -14,8 +14,8 @@ tags:
 
 # SERAFIN-PH — état du dossier
 
-Note de synthèse construite à partir des **19 veilles hebdomadaires** produites entre
-le 5 avril et le 12 août 2026. Les veilles disent ce qui bouge une semaine donnée ;
+Note de synthèse construite à partir des **20 veilles hebdomadaires** produites entre
+le 5 avril et le 19 août 2026. Les veilles disent ce qui bouge une semaine donnée ;
 cette note dit **où en est le dossier**, ce qu'aucune d'elles ne donne d'un bloc.
 
 ## Ce qui est acquis
@@ -23,12 +23,13 @@ cette note dit **où en est le dossier**, ce qu'aucune d'elles ne donne d'un blo
 | Élément | État |
 |---|---|
 | Recueil PH 2025 (secteur enfance) | clos — **86 %** de répondants, **90 %** des solutions installées |
-| Recueil PH 2026, phase 1 (caractéristiques des places) | terminée, mars 2026 |
+| **Base légale** — art. 90 de la LFSS 2026 (loi du 30/12/2025) | première mise en œuvre pour les ESMS enfants |
+| Recueil PH 2026, phase 1 (caractéristiques des places) | terminée — **mars ou avril 2026 selon les veilles**, divergence non tranchée |
 | Recueil PH 2026, phase 2 (indicateurs de modulation) | terminée, mai 2026 |
 | Export SIDOBA | en cours depuis juillet 2026 |
-| Décret n° 2026-376 | publié, vérifié sur Légifrance le 12/08/2026 |
+| Décret n° 2026-376 | décision du 13/05/2026, JO du 16/05 — **connu par sources secondaires, non consulté sur Légifrance** |
 | **Année blanche 2026** | confirmée — aucune incidence financière cette année |
-| Déploiement du modèle (secteur enfance) | **1ᵉʳ janvier 2027** |
+| Déploiement du modèle (secteur enfance) | **1ᵉʳ janvier 2027**, puis convergence progressive sur **8 ans** |
 
 ## L'architecture du modèle
 
@@ -48,8 +49,26 @@ L'outil de recueil est **SIDOBA**, qui remplace RAMSECE-PH, accessible via les A
 - **La trajectoire de convergence tarifaire 2027** n'est pas détaillée.
 - **La qualité des données de transport**, signalée comme insuffisante dès le recueil
   2025, n'a jamais fait l'objet d'une publication de résultats correctifs.
-- **Le périmètre adultes** a été annoncé en avril comme élargi pour la première fois,
-  sans confirmation ultérieure. À vérifier avant d'en tirer une conséquence.
+- ~~Le périmètre adultes~~ — **tranché le 19/08/2026** : voir ci-dessous. La mention
+  d'avril annonçant un élargissement aux adultes n'a jamais été confirmée et se
+  révèle trompeuse.
+
+## Ce qui te concerne — et ce qui ne te concerne pas encore
+
+**La première phase vise exclusivement les ESMS accompagnant des mineurs et jeunes
+adultes** orientés CDAPH. Les structures adultes — foyers d'hébergement, FAM, MAS —
+**ne sont pas concernées par ce déploiement**, contrairement à ce que la veille du
+13/04 laissait entendre en annonçant un « périmètre élargi aux ESMS adultes ». Cette
+annonce n'a jamais été confirmée ; la veille du 19/08 la contredit explicitement.
+
+Conséquence pratique : anticiper l'intégration future, sans traiter l'échéance de
+janvier 2027 comme si elle s'appliquait à ton établissement.
+
+**Un point RGPD à ne pas manquer.** Le décret prévoit une **conservation des données
+jusqu'à 10 ans** après collecte, dans SIDOBA. C'est un traitement à part entière : il
+suppose d'informer les personnes accompagnées et leurs représentants légaux de son
+existence, de sa finalité et de sa durée. À articuler avec la politique RGPD de la
+structure le moment venu.
 
 ## Deux points de vigilance pour un établissement
 
@@ -82,4 +101,4 @@ page répond en HTTP 200 à un simple curl). Les veilles le signalent au lieu de
 - **Socle et montée en charge** · [[2026-04-05_veille_SERAFIN-PH]] · [[2026-04-06_veille_SERAFIN-PH.fiche]] · [[2026-04-13_veille_SERAFIN-PH.fiche]] · [[2026-04-16_veille_SERAFIN-PH.fiche]] · [[2026-04-24_veille_SERAFIN-PH.fiche]] · [[2026-05-01_veille_SERAFIN-PH.fiche]] · [[2026-05-11_veille_SERAFIN-PH.fiche]]
 - **Période creuse** · [[2026-05-20_veille_SERAFIN-PH.fiche]] · [[2026-05-29_veille_SERAFIN-PH.fiche]] · [[2026-06-05_veille_SERAFIN-PH.fiche]]
 - **Élargissement des sources** · [[2026-06-17_veille_SERAFIN-PH.fiche]] · [[2026-06-24_veille_SERAFIN-PH.fiche]] · [[2026-07-01_veille_SERAFIN-PH.fiche]] · [[2026-07-08_veille_SERAFIN-PH.fiche]] · [[2026-07-15_veille_SERAFIN-PH.fiche]] · [[2026-07-22_veille_SERAFIN-PH.fiche]]
-- **Été** · [[2026-07-29_veille_SERAFIN-PH.fiche]] · [[2026-08-05_veille_SERAFIN-PH.fiche]] · [[2026-08-12_veille_SERAFIN-PH.fiche]]
+- **Été** · [[2026-07-29_veille_SERAFIN-PH.fiche]] · [[2026-08-05_veille_SERAFIN-PH.fiche]] · [[2026-08-12_veille_SERAFIN-PH.fiche]] · [[2026-08-19_veille_SERAFIN-PH.fiche]]
