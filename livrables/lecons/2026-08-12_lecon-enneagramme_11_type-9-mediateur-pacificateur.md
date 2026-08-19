@@ -35,5 +35,7 @@ La leçon relève un paradoxe utile : le 9 avec aile 8 est souvent l'un des prof
 
 - **⬅️ Précédente** · [[2026-08-05_lecon-enneagramme_10_type-8-chef-protecteur]]
   dont il est l'envers dans la triade instinctive
+- **➡️ Suivante** · [[2026-08-19_lecon-enneagramme_12_les-ailes-nuances-types-adjacents]]
+  les neuf types étant posés, le parcours passe aux dynamiques qui les relient — à commencer par les ailes
 - **🔗 Pont** · [[2026-06-17_lecon-enneagramme_03_trois-centres-intelligence]]
   avec ce type, les trois triades sont complètes : on peut relire les centres en connaissant les neuf occupants

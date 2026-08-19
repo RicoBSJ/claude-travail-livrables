@@ -96,7 +96,7 @@ le niveau national n'avait pas encore détaillé.
 page répond en HTTP 200 à un simple curl). Les veilles le signalent au lieu de conclure
 à une page morte — la distinction est correcte et vaut d'être maintenue.
 
-## Les 19 veilles
+## Les 20 veilles
 
 - **Socle et montée en charge** · [[2026-04-05_veille_SERAFIN-PH]] · [[2026-04-06_veille_SERAFIN-PH.fiche]] · [[2026-04-13_veille_SERAFIN-PH.fiche]] · [[2026-04-16_veille_SERAFIN-PH.fiche]] · [[2026-04-24_veille_SERAFIN-PH.fiche]] · [[2026-05-01_veille_SERAFIN-PH.fiche]] · [[2026-05-11_veille_SERAFIN-PH.fiche]]
 - **Période creuse** · [[2026-05-20_veille_SERAFIN-PH.fiche]] · [[2026-05-29_veille_SERAFIN-PH.fiche]] · [[2026-06-05_veille_SERAFIN-PH.fiche]]
