@@ -32,5 +32,7 @@ Ce que chaque tradition fait de cet écart est exposé sans trancher : le corpus
 
 - **⬅️ Précédente** · [[2026-08-10_lecon-astrologie-karmique_01_cadrage-postulats-auteurs]]
   dont elle applique la règle de distinction des registres
+- **➡️ Suivante** · [[2026-08-20_lecon-astrologie-karmique_03_noeuds-lunaires-astronomie-corpus]]
+  premier objet du corpus traité sur ces fondations : les nœuds sont les intersections de l'orbite lunaire avec l'écliptique posé ici
 - **🔗 Pont** · [[2026-06-10_lecon-enneagramme_02_origines-structure-symbole]]
   deux systèmes symboliques dont la leçon fondatrice date honnêtement l'origine et signale les limites de validité. Le contraste avec les exposés promotionnels de l'un et l'autre est instructif
