@@ -32,6 +32,8 @@ Le point le plus utile est le statut du sage. **C'est un horizon, pas un program
 
 - **⬅️ Précédente** · [[2026-08-06_lecon-stoicisme_09_vue-haut-sympatheia]]
   dont la perspective cosmique nourrit la question du progrès
+- **➡️ Suivante** · [[2026-08-20_lecon-stoicisme_11_adversite-deuil-colere-peur-echec]]
+  du principe au terrain : deuil, colère, peur et échec sont les situations où le progrès se vérifie
 - **🔗 Pont** · [[2026-06-10_lecon-stoicisme_02_fondations-trois-disciplines]]
   les trois disciplines d'Épictète y reviennent comme cadre pratique du progrès
 - **🔗 Pont** · [[2026-07-11_lecon-entretien-motivationnel_02_ambivalence-reflexe-correcteur]]
