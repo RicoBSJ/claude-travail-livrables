@@ -1,96 +1,129 @@
 // src/inventaire.ts — Inventaire typé des livrables (TypeScript)
-// Leçon 03 — TypeScript et structure de projet (14/08/2026)
+// Mis à jour leçon 04 (21/08/2026) :
+//   - fs.promises (async/await) remplace fs synchrone
+//   - date et slug extraits du NOM (écart n°3 résolu)
+//   - Livrable aligné sur la nouvelle interface de types.ts
 //
-// Lance (après compilation) : node dist/inventaire.js
-//
-// Lecture seule : ce script ne modifie aucun livrable.
+// Lance (après compilation) : npm run build && npm run inventaire:ts
 
-import * as fs from "node:fs";
-import * as path from "node:path";
-import type { Livrable, Categorie, Inventaire, DossierConfig } from "./types";
-
-// ── Configuration ──────────────────────────────────────────────────────────
+import * as fs   from 'node:fs/promises';
+import * as path from 'node:path';
+import type { Livrable, DossierConfig } from './types';
 
 // Le script compilé vit dans livrables/projets/appli-ia/dist/
 // On remonte de 4 niveaux pour atteindre la racine Claude_Travail/
-const RACINE: string = path.resolve(__dirname, "..", "..", "..", "..");
+const RACINE: string = path.resolve(__dirname, '..', '..', '..', '..');
 
-const EXTENSIONS: string[] = [".docx", ".pptx", ".pdf", ".md"];
+const CATEGORIES: Record<string, DossierConfig> = {
+  lecons:       { chemin: path.join(RACINE, 'livrables', 'lecons'),       extensions: ['.docx', '.md'] },
+  quiz:         { chemin: path.join(RACINE, 'livrables', 'quiz'),         extensions: ['.pptx'] },
+  infographies: { chemin: path.join(RACINE, 'livrables', 'infographies'), extensions: ['.pptx'] },
+  veilles:      { chemin: path.join(RACINE, 'sources',   'veille'),       extensions: ['.docx', '.md'] },
+  documents:    { chemin: path.join(RACINE, 'livrables', 'documents'),    extensions: ['.docx', '.pdf'] },
+  controles:    { chemin: path.join(RACINE, 'livrables', 'controles'),    extensions: ['.md', '.docx'] },
+};
 
-// Exclusions spec v1.2 :
-//   ~$…       → fichiers temporaires de verrouillage Office
-//   readme.md → décrit le dossier, n'est pas un livrable (écart n°4, résolu leçon 03)
-const PREFIXE_VERROU = "~$";
-const DOCS_DE_DOSSIER: string[] = ["readme.md"];
+const DOCS_DE_DOSSIER: string[] = ['readme.md'];
 
-const DOSSIERS: DossierConfig[] = [
-  { cle: "lecons",       chemin: path.join(RACINE, "livrables", "lecons") },
-  { cle: "quiz",         chemin: path.join(RACINE, "livrables", "quiz") },
-  { cle: "infographies", chemin: path.join(RACINE, "livrables", "infographies") },
-  { cle: "veilles",      chemin: path.join(RACINE, "sources",   "veille") },
-  { cle: "documents",    chemin: path.join(RACINE, "livrables", "documents") },
-  { cle: "controles",    chemin: path.join(RACINE, "livrables", "controles") },
-];
+// ── Helpers ────────────────────────────────────────────────────────────────
 
-// ── Logique métier ─────────────────────────────────────────────────────────
-
-function estLivrable(nom: string): boolean {
-  if (nom.startsWith(PREFIXE_VERROU)) return false;
-  if (DOCS_DE_DOSSIER.includes(nom.toLowerCase())) return false;
-  return EXTENSIONS.includes(path.extname(nom).toLowerCase());
+function extracterDate(nom: string): string | null {
+  const match = nom.match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : null;
 }
 
-function listerFichiers(dossier: string): Livrable[] {
-  if (!fs.existsSync(dossier)) return [];
-  const resultats: Livrable[] = [];
-  for (const entree of fs.readdirSync(dossier, { withFileTypes: true })) {
-    const complet = path.join(dossier, entree.name);
-    if (entree.isDirectory()) {
-      resultats.push(...listerFichiers(complet));
-    } else if (estLivrable(entree.name)) {
-      const stats = fs.statSync(complet);
-      resultats.push({
-        nom:     entree.name,
-        taille:  stats.size,
-        modifie: stats.mtime.toISOString().slice(0, 10),
+function extraerSlug(nom: string): string {
+  const { name } = path.parse(nom);
+  const match = name.match(/^\d{4}-\d{2}-\d{2}_(.+)$/);
+  return match ? match[1] : name;
+}
+
+function estLivrable(nom: string, extensions: string[]): boolean {
+  if (nom.startsWith('~$')) return false;
+  if (DOCS_DE_DOSSIER.includes(nom.toLowerCase())) return false;
+  return extensions.includes(path.extname(nom).toLowerCase());
+}
+
+// ── Inventaire async ───────────────────────────────────────────────────────
+
+async function inventorierDossier(
+  dossierPath: string,
+  extensions: string[],
+  recursif: boolean
+): Promise<Livrable[]> {
+  const livrables: Livrable[] = [];
+  let entrees;
+  try {
+    entrees = await fs.readdir(dossierPath, { withFileTypes: true });
+  } catch {
+    return livrables;
+  }
+  for (const entree of entrees) {
+    if (entree.isDirectory() && recursif) {
+      const sous = await inventorierDossier(
+        path.join(dossierPath, entree.name),
+        extensions,
+        true
+      );
+      livrables.push(...sous);
+    } else if (entree.isFile() && estLivrable(entree.name, extensions)) {
+      const fichierPath = path.join(dossierPath, entree.name);
+      let taille = 0;
+      try {
+        const stats = await fs.stat(fichierPath);
+        taille = stats.size;
+      } catch { /* inaccessible */ }
+      livrables.push({
+        nom:       entree.name,
+        date:      extracterDate(entree.name),
+        slug:      extraerSlug(entree.name),
+        taille,
+        extension: path.extname(entree.name).toLowerCase(),
       });
     }
   }
-  return resultats;
-}
-
-function construireInventaire(): Inventaire {
-  const categories: Inventaire = {};
-  for (const { cle, chemin } of DOSSIERS) {
-    const fichiers: Livrable[] = listerFichiers(chemin);
-    const octets: number = fichiers.reduce((s, f) => s + f.taille, 0);
-    const cat: Categorie = {
-      nombre:    fichiers.length,
-      taille_ko: Math.round(octets / 1024),
-      recents:   [...fichiers]
-        .sort((a, b) => (b.modifie > a.modifie ? 1 : -1))
-        .slice(0, 5),
-    };
-    categories[cle] = cat;
-  }
-  return categories;
+  return livrables;
 }
 
 // ── Affichage terminal ─────────────────────────────────────────────────────
 
-function formaterMo(ko: number): string {
-  return (ko / 1024).toFixed(1) + " Mo";
-}
+async function main(): Promise<void> {
+  console.log('Portail Livrables — inventaire TypeScript (leçon 04)\n');
 
-const data: Inventaire = construireInventaire();
+  let totalFichiers = 0;
+  let totalOctets   = 0;
 
-console.log("Portail Livrables — inventaire TypeScript\n");
-for (const [cle, cat] of Object.entries(data)) {
-  console.log(
-    `${cle.padEnd(14)} ${String(cat.nombre).padStart(3)} fichier(s)   ${formaterMo(cat.taille_ko)}`
-  );
-  for (const f of cat.recents) {
-    console.log(`   ${f.modifie}  ${f.nom}`);
+  for (const [cle, config] of Object.entries(CATEGORIES)) {
+    const estRecursif = cle === 'veilles';
+    const livrables   = await inventorierDossier(config.chemin, config.extensions, estRecursif);
+    const octets      = livrables.reduce((s, l) => s + l.taille, 0);
+    const ko          = Math.round(octets / 1024);
+
+    totalFichiers += livrables.length;
+    totalOctets   += octets;
+
+    console.log(`${cle.padEnd(14)} ${String(livrables.length).padStart(4)} fichier(s)   ${String(ko).padStart(7)} Ko`);
+
+    // Afficher les 3 premiers avec date + slug
+    const triés = [...livrables].sort((a, b) => {
+      if (a.date === null && b.date === null) return 0;
+      if (a.date === null) return 1;
+      if (b.date === null) return -1;
+      return b.date.localeCompare(a.date);
+    });
+    triés.slice(0, 3).forEach(l => {
+      const d = (l.date ?? '(sans date)').padEnd(12);
+      console.log(`   ${d}  ${l.slug}`);
+    });
+    if (livrables.length > 3) {
+      console.log(`   … et ${livrables.length - 3} autre(s)`);
+    }
+    console.log();
   }
-  console.log("");
+
+  const totalMo = (totalOctets / 1024 / 1024).toFixed(2);
+  console.log('─'.repeat(52));
+  console.log(`Total : ${totalFichiers} fichiers — ${totalMo} Mo`);
 }
+
+main().catch(console.error);
