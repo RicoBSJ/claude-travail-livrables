@@ -121,6 +121,13 @@ Aucune bibliothèque tierce n'est installée (devDependencies TypeScript uniquem
 
 ## Points en suspens
 
+- ⚠️ **Le document de la leçon 04 est à REGÉNÉRER (21/08/2026).** Le code ci-dessus est en place
+  et vérifié ; c'est le `.docx` qui était défectueux — trois jetons `<0/>` rendaient
+  `word/document.xml` non conforme et faisaient disparaître la check-list de vérification,
+  le tableau des erreurs fréquentes et toute la section Ressources. Le fichier a été retiré de
+  `livrables/lecons/`. **La prochaine exécution du job doit donc produire la leçon 04, pas la 05 :**
+  elle explique l'incrément déjà livré, sans retoucher au code.
+
 - **9 livrables sans date dans leur nom** (constaté le 08/08/2026) : quiz, infographies et
   documents antérieurs à la convention `YYYY-MM-DD_`. La spec v1.2 tranche : ne pas les exclure,
   les signaler (`date: null`) et les classer en fin de liste. À traiter côté interface (leçon 06).
