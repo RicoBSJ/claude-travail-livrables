@@ -34,7 +34,7 @@ La section sur les manques de l'IA prolonge ce constat avec trois travers reconn
 
 - **⬅️ Précédente** · [[2026-08-07_lecon-appli-ia_02_socle-web-premier-ecran]]
   dont les trois modules du navigateur (app.js, api.js, rendu.js) constituent le code que cette leçon commence à typer, et dont l'écart n°4 était resté ouvert
-- **➡️ Suivante** · [[2026-08-21_lecon-appli-ia_04_donnees-reelles-api-serveur]]
+- **➡️ Suivante** · [[2026-08-21_lecon-appli-ia_04_donnees-reelles-api-fichiers]]
   le typage posé ici sert de socle : `Livrable` s'enrichit de `date`, `slug` et `extension` quand la source des données passe du `mtime` au nom de fichier
 - **🔗 Pont** · [[2026-08-02_lecon-appli-ia_01_cadrage-specification]]
   une interface TypeScript est une spécification exécutable : ce que SPEC.md dit en français, l'interface le fait vérifier par le compilateur. Le fil du parcours — décider avant de générer — trouve ici sa forme technique
