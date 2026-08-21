@@ -128,6 +128,12 @@ Aucune bibliothèque tierce n'est installée (devDependencies TypeScript uniquem
 - **Périmètre tranché en leçon 01** : lecons, quiz, infographies, sources/veille, documents, controles.
   Extensions : `.docx`, `.pptx`, `.pdf`, `.md`.
 
+- **Branche 403 inatteignable** (vérifié le 21/08/2026) : le garde-fou path traversal de
+  `scripts/serveur.js` (ligne 238) est correct mais aucune requête HTTP ne l'atteint —
+  `new URL()` normalise les `..` et rien ne décode le pourcentage avant `path.resolve()`.
+  Testé sur quatre formes, dont `curl --path-as-is` : toutes renvoient 404. Protection de
+  défense en profondeur, à conserver ; à revoir en leçon 10 (sécurité).
+
 - **Chemin racine en dur** : tous les scripts remontent de 4 niveaux depuis `__dirname`.
   Fonctionnel mais cassant si le projet est déplacé. Dette assumée, à traiter en leçon 08.
 
