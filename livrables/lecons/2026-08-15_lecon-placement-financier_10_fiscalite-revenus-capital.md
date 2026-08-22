@@ -36,6 +36,8 @@ L'arbitrage se lit à la tranche marginale d'imposition. En dessous de 12,8 % de
 
 - **⬅️ Précédente** · [[2026-08-08_lecon-placement-financier_09_frais-impact-long-terme]]
   la leçon l'énonce elle-même : les frais et la fiscalité sont les deux leviers d'érosion silencieuse du rendement. Le premier se négocie, le second s'optimise par le choix de l'enveloppe — les deux se cumulent
+- **➡️ Suivante** · [[2026-08-22_lecon-placement-financier_11_epargne-salariale-pee-pereco-interessement-abondement]]
+  le contre-exemple du droit commun posé ici : l'épargne salariale échappe à l'IR à l'entrée comme à la sortie, seuls les prélèvements sociaux subsistant sur les gains
 - **🔗 Pont** · [[2026-07-11_lecon-placement-financier_05_enveloppes-francaises]]
   cette leçon donne enfin le chiffrage de ce que la leçon 05 posait en principe : une même somme sur les mêmes actifs ne rend pas pareil selon le contenant, précisément à cause de ces régimes dérogatoires
 - **🔗 Pont** · [[2026-07-25_lecon-placement-financier_07_per-preparation-retraite-fiscalite]]
