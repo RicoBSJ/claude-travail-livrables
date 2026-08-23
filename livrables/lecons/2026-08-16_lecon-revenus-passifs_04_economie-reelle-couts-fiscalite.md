@@ -36,6 +36,8 @@ Le point le plus contre-intuitif concerne le **micro-entrepreneur** : les cotisa
 
 - **⬅️ Précédente** · [[2026-08-09_lecon-revenus-passifs_03_trois-intrants-point-bascule]]
   qui modélisait les trois intrants et le point de bascule ; cette leçon applique l'économie réelle à ce modèle — combien il coûte vraiment, comment il est taxé, à quelle fréquence il échoue
+- **➡️ Suivante** · [[2026-08-23_lecon-revenus-passifs_05_produits-numeriques-affiliation]]
+  premier passage aux modèles nommés : le cadre posé ici sert de grille aux produits numériques et à l'affiliation, chiffres d'échec à l'appui
 - **🔗 Pont** · [[2026-08-15_lecon-placement-financier_10_fiscalite-revenus-capital]]
   les deux leçons traitent la même fiscalité à un jour d'intervalle et concordent, y compris sur la distinction 17,2 / 18,6 % qui avait dû être corrigée dans la seconde. À lire ensemble : l'une expose le régime, l'autre en montre l'effet sur un rendement affiché
 - **🔗 Pont** · [[2026-08-08_lecon-placement-financier_09_frais-impact-long-terme]]
