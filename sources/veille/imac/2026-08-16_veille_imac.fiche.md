@@ -29,5 +29,7 @@ C'est la veille à lire en premier si la décision d'achat se pose maintenant.
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-09_veille_imac.fiche]]
+- **➡️ Suivante** · [[2026-08-23_veille_imac.fiche]]
+  semaine silencieuse sur le renouvellement : l'échéance passe à six semaines, et deux promotions apparaissent
 - **🗂️ Dossier** · [[iMac_dossier.fiche]]
   historique des prix, échéance du renouvellement et limites de la veille
