@@ -4,7 +4,13 @@ date_creation: 2026-08-24
 date_veille: 2026-08-24
 veille: has-actualite
 statut: veille-active
-tags: [HAS, RBPP, ESSMS, médico-social, protection-enfance, évaluation-qualité]
+tags:
+  - veille/has-actualite
+  - theme/semaine-creuse
+  - theme/rbpp-a-venir
+  - theme/protection-enfance
+  - theme/evaluation-has
+  - theme/campagne-budgetaire
 ---
 
 # Veille HAS — Actualité du secteur social & médico-social
@@ -89,6 +95,21 @@ Semaine creuse : aucune publication HAS directement datée dans la fenêtre du 1
 | — | [HAS Actualités](https://www.has-sante.fr/jcms/fc_2874981/fr/actualites) — consultée, aucun élément nouveau dans la fenêtre | — |
 
 **Décompte : 4/5 sources documentaires exploitées (4 ✅ | 1 consultée sans apport | 0 ⛔)**
+
+---
+
+---
+
+## Notes liées
+
+- **⬅️ Précédente** · [[2026-08-17_veille_has-actualite]]
+  même configuration — semaine creuse, veille de remplacement produite faute de nouvelle RBPP à traiter. Elle butait sur deux pages HAS derrière authentification ; celle-ci n'a pas rencontré ce blocage
+- **🗂️ Dossier** · [[HAS-actualite_dossier.fiche]]
+  ce que ces notes de remplacement apportent cumulativement, et l'échéance du programme de travail HAS déjà manquée en juillet
+- **🔗 Pont** · [[2026-04-16_veille_rbpp_bilan-qualite-essms-2025.fiche]]
+  le bilan qualité du 15/04 est repris ici en rappel de contexte : c'est lui qui fournit les 10,5 % d'ESSMS satisfaisant les 18 critères impératifs, et le classement des points faibles
+- **🔗 Pont** · [[SERAFIN-PH_dossier.fiche]]
+  l'instruction budgétaire DGCS 2026/79 relève de la même mécanique de campagne tarifaire, sur un champ voisin — et comme SERAFIN-PH, elle ne concerne pas les foyers d'hébergement à ce stade
 
 ---
 

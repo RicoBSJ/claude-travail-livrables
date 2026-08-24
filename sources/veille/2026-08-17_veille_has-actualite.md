@@ -52,3 +52,12 @@ tags:
 - ✅ HAS — Appel à candidatures RBPP protection de l'enfance (09/07/2026, hors fenêtre)
 - ⛔ HAS — Lettres de cadrage RBPP en cours (page d'authentification)
 - ⛔ HAS — RBPP Habitat volet 3 (page d'authentification)
+
+---
+
+## Notes liées
+
+- **➡️ Suivante** · [[2026-08-24_veille_has-actualite]]
+  semaine creuse également, mais qui rappelle deux éléments de contexte utiles : le bilan qualité ESSMS et l'appel à candidatures RBPP dont la clôture approche
+- **🗂️ Dossier** · [[HAS-actualite_dossier.fiche]]
+  ce que les notes de remplacement du pipeline RBPP apportent cumulativement

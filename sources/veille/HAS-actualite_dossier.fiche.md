@@ -3,7 +3,7 @@ type: note-dossier
 date_creation: 2026-08-16
 veille: has-actualite
 statut: veille-active
-couverture: 2026-07-04 → 2026-08-10
+couverture: 2026-07-04 → 2026-08-24
 tags:
   - veille/has-actualite
   - dossier/synthese
@@ -13,7 +13,7 @@ tags:
 
 # HAS actualité — état du dossier
 
-Synthèse des **7 notes** produites du 4 juillet au 10 août 2026.
+Synthèse des **9 notes** produites du 4 juillet au 24 août 2026.
 
 Ces notes ont un statut particulier : elles sont générées **les semaines où le pipeline
 RBPP ne trouve aucune nouvelle recommandation** à traiter. Ce sont donc des veilles de
@@ -60,6 +60,16 @@ secteur passe d'une culture de moyens à une culture d'effets mesurés.
 visant à faciliter l'engagement des usagers — cohérent avec le fil de l'autodétermination
 qui traverse les RBPP récentes (TDI volet 2, Habitat volet 2, PPA dans le DUI).
 
+## Changement de format à partir du 17/08/2026
+
+Les sept premières notes ont été produites en `.docx` seul : le script a donc créé une
+fiche Obsidian à côté de chacune, d'où leur suffixe `.fiche`. Depuis le **17/08**, le
+pipeline produit **aussi un `.md`** — la veille EST alors sa propre note, sans fiche
+séparée. D'où deux formes de liens dans la liste ci-dessous, et une conséquence à
+connaître : ces notes en `.md` n'ont pas de section « Notes liées » générée
+automatiquement, et restent **orphelines dans le graphe** jusqu'à ce qu'on les relie à
+la main. Fait pour les notes du 17 et du 24/08 le 24/08/2026.
+
 ## Une échéance manquée
 
 Les **demandes d'inscription au programme de travail HAS 2027** se clôturaient le
@@ -67,11 +77,12 @@ Les **demandes d'inscription au programme de travail HAS 2027** se clôturaient 
 organismes du champ médico-social peuvent y soumettre des sujets — à anticiper pour le
 programme 2028.
 
-## Les 7 notes
+## Les 9 notes
 
 [[2026-07-04_veille_has-actualite.fiche]] · [[2026-07-06_veille_has-actualite.fiche]] ·
 [[2026-07-13_veille_has-actualite.fiche]] · [[2026-07-20_veille_has-actualite.fiche]] ·
 [[2026-07-27_veille_has-actualite.fiche]] · [[2026-08-03_veille_has-actualite.fiche]] ·
-[[2026-08-10_veille_has-actualite.fiche]]
+[[2026-08-10_veille_has-actualite.fiche]] ·
+[[2026-08-17_veille_has-actualite]] · [[2026-08-24_veille_has-actualite]]
 
 Voir aussi le catalogue des recommandations elles-mêmes : [[RBPP_dossier.fiche]]
