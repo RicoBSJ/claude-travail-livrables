@@ -36,6 +36,8 @@ Trois vignettes en ESSMS, dont un **double diagnostic** — déficience intellec
 
 - **⬅️ Précédente** · [[2026-08-14_lecon-psychopathologie_10_troubles-conduites-alimentaires]]
   continuité posée par la leçon : les TCA partagent avec les addictions le circuit de la récompense, le craving et la perte de contrôle. Le même mécanisme, élargi aux substances et aux comportements
+- **➡️ Suivante** · [[2026-08-24_lecon-psychopathologie_12_psychotraumatisme-tspt-trouble-dissociatif]]
+  l'autre face de la même clinique : la conduite addictive comme tentative d'autotraitement d'un psychotraumatisme, et la comorbidité TSPT / trouble de l'usage
 - **🔗 Pont** · [[2026-07-27_lecon-psychopathologie_07_troubles-psychotiques-schizophrenie]]
   cœur du diagnostic différentiel : distinguer une psychose cannabique transitoire d'une schizophrénie débutante, qui s'installe indépendamment de la consommation
 - **🔗 Pont** · [[2026-08-10_lecon-psychopathologie_09_troubles-neurodeveloppement-tsa-tdah-tdi]]
