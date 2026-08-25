@@ -35,6 +35,8 @@ Deux réserves honnêtes complètent le tableau. **Environ 25 % de la population
 
 - **⬅️ Précédente** · [[2026-08-11_lecon-hypnose_09_auto-hypnose-quotidien-ancrages]]
   l'ancrage y était présenté comme un conditionnement classique établi en transe ; la suggestion post-hypnotique en est le mécanisme général, dont l'ancrage est un cas particulier
+- **➡️ Suivante** · [[2026-08-25_lecon-hypnose_11_metaphores-therapeutiques-histoires]]
+  l'autre voie : au lieu d'instruire directement, envelopper la suggestion dans un récit. Complémentaires en pratique — mais la leçon 11 s'appuie sur des sources nettement plus faibles que les travaux INSERM cités ici
 - **🔗 Pont** · [[2026-07-05_lecon-hypnose_04_langage-hypnotique]]
   les quatre règles de formulation prolongent le modèle de Milton : c'est là que la qualité d'une suggestion se joue, bien avant la transe
 - **🔗 Pont** · [[2026-06-14_lecon-hypnose_01_intro-etat-hypnotique]]
