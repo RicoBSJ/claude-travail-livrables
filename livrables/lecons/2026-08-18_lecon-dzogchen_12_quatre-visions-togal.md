@@ -36,6 +36,8 @@ La leçon assortit son exposé d'un garde-fou explicite, et la formule mérite d
 
 - **⬅️ Précédente** · [[2026-08-14_lecon-dzogchen_11_rushen-separer-samsara-nirvana]]
   le rushen purifie le terrain ; les quatre visions supposent cette séparation comme socle. La leçon pose explicitement l'enchaînement
+- **➡️ Suivante** · [[2026-08-25_lecon-dzogchen_13_bardos-processus-mort]]
+  les mêmes visions, mais rencontrées au *chönyid bardo* : ce que le tögal exerce de son vivant, la mort l'impose. Le critère de reconnaissance ne change pas
 - **🔗 Pont** · [[2026-07-21_lecon-dzogchen_07_togal-franchissement-direct]]
   première approche du tögal, qui annonçait les quatre visions sans les détailler. Cette leçon en est le développement — à lire ensemble
 - **🔗 Pont** · [[2026-07-14_lecon-dzogchen_06_trekcho-coupe-a-travers]]
