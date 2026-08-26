@@ -35,6 +35,8 @@ Le cœur pratique est un **tableau synoptique des dix-huit combinaisons**, chaqu
 
 - **⬅️ Précédente** · [[2026-08-12_lecon-enneagramme_11_type-9-mediateur-pacificateur]]
   dernier des neuf types ; le parcours quitte ici la description des types pour les dynamiques qui les relient
+- **➡️ Suivante** · [[2026-08-26_lecon-enneagramme_13_fleches-integration-desintegration]]
+  la seconde dynamique, et son opposé : l'aile agit en permanence depuis un type adjacent, la flèche par intermittence vers un type éloigné
 - **🔗 Pont** · [[2026-06-10_lecon-enneagramme_02_origines-structure-symbole]]
   la leçon 02 posait l'avertissement sur la validité psychométrique du modèle ; le débat sur les ailes en est l'application à une notion précise, avec un auteur qui révise ses propres formulations
 - **🔗 Pont** · [[2026-06-17_lecon-enneagramme_03_trois-centres-intelligence]]
