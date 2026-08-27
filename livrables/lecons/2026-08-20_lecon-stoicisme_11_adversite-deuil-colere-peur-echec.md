@@ -37,6 +37,8 @@ Côté pratique, trois exercices en gradation — décomposer une émotion réce
 
 - **⬅️ Précédente** · [[2026-08-13_lecon-stoicisme_10_progres-moral-prokopton-sage]]
   le *prokoptôn* y était défini comme une direction, pas un palier ; cette leçon décrit le terrain où cette direction se vérifie — la crise comme moment de mise à l'épreuve
+- **➡️ Suivante** · [[2026-08-27_lecon-stoicisme_12_musonius-rufus-exercice-concret]]
+  le renversement : ici l'adversité est subie, chez Musonius elle est convoquée. La contrainte volontaire est la *premeditatio malorum* transposée dans le corps
 - **🔗 Pont** · [[2026-07-23_lecon-stoicisme_07_emotions-apatheia-premeditatio]]
   **la leçon dont celle-ci est l'application.** Les quatre passions primaires y sont théorisées et la *premeditatio malorum* exposée ; on la retrouve ici comme protocole matinal daté sur sept jours
 - **🔗 Pont** · [[2026-06-25_lecon-stoicisme_04_epictete-manuel]]
