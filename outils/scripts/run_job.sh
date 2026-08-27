@@ -67,6 +67,7 @@ case "$JOB_ID" in
   imac-veille)   BUDGET="3.50" ;;   # 10 sources (Apple ×6, 9to5Mac, Fnac/Darty) : a dépassé les 2 $ le 19/07/2026 (sauvé par le retry)
   rbpp-pipeline) BUDGET="4.00" ;;   # peut générer jusqu'à 3 livrables (veille + quiz 100 Q + infographie)
   controle-livrables) BUDGET="4.00" ;;   # contrôle toute la semaine : nombreux curl + remontées aux sources primaires
+  astrologie-karmique-lecon) BUDGET="3.00" ;;   # deux régimes de sources à croiser (astronomie institutionnelle + corpus) ; a dépassé les 2 $ le 27/08/2026 après le durcissement du prompt du 20/08
   *)             BUDGET="$BUDGET_DEFAULT" ;;
 esac
 echo "[budget] Plafond de coût pour $JOB_ID : ${BUDGET} \$" >> "$LOG"

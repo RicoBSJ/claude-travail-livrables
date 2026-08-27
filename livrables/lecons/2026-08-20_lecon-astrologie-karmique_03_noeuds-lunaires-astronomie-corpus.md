@@ -38,6 +38,8 @@ Ce qui est établi tient en une phrase : **les nœuds ne sont pas des corps cél
 
 - **⬅️ Précédente** · [[2026-08-13_lecon-astrologie-karmique_02_ciel-reel-ecliptique-zodiaque-precession]]
   qui posait l'écliptique et le choix du zodiaque tropical ; les nœuds sont définis par rapport à ce plan, la leçon n'aurait pas pu venir avant
+- **➡️ Suivante** · [[2026-08-27_lecon-astrologie-karmique_04_noeud-sud-acquis-signe-par-signe]]
+  première leçon d'interprétation, qui reprend d'elle-même les corrections de bibliographie faites ici — mais contredit la rétrogradation posée dans cette leçon en plaçant l'entrée en Verseau à 300° au lieu de 330°
 - **🔗 Pont** · [[2026-08-10_lecon-astrologie-karmique_01_cadrage-postulats-auteurs]]
   la règle d'attribution posée en ouverture est ici appliquée pour la première fois à un désaccord réel entre auteurs — Schulman, Spiller et Greene ne lisent pas le même objet
 - **🔗 Pont** · [[2026-08-19_lecon-enneagramme_12_les-ailes-nuances-types-adjacents]]
