@@ -164,6 +164,18 @@ if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/fiches_veille.py" ]; then
     || echo "⚠️ fiches_veille.py a échoué (sans conséquence sur le livrable)" >> "$LOG"
 fi
 
+# ---- Tableau de bord des jobs (informatif, JAMAIS bloquant) ----
+# Met à jour la colonne « Numéro de la dernière leçon » du classeur
+# livrables/documents/2026-08-09_Les 13 Jobs.xlsx. Le numéro est LU dans le nom du
+# dernier .docx du parcours, pas compté : un créneau manqué crée un trou de
+# numérotation, et compter donnerait alors un chiffre faux.
+# Idempotent : n'écrit le fichier que si une valeur a changé — donc pas de commit
+# parasite les jours où le job est sauté pour doublon.
+if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/maj_xlsx_jobs.py" ]; then
+  /usr/bin/python3 "$PROJECT/outils/scripts/maj_xlsx_jobs.py" >> "$LOG" 2>&1 \
+    || echo "⚠️ maj_xlsx_jobs.py a échoué (sans conséquence sur le livrable)" >> "$LOG"
+fi
+
 # ---- Audit du vault (informatif, JAMAIS bloquant) ----
 # Contrôle le nommage, la cohérence des fiches et l'intégrité des liens juste
 # avant la publication. Il n'interrompt rien et ne corrige rien : un faux
