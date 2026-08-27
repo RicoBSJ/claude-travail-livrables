@@ -104,11 +104,34 @@ while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
   # de réinitialisation donnée (souvent plusieurs heures plus tard) : un backoff de
   # 90s/180s n'y changera rien. Constaté le 19/07/2026 sur hypnose-lecon (3 tentatives
   # perdues, dimanche empilant 4 jobs de 7h03 à 9h03).
-  if tail -n +"$((LOG_MARK + 1))" "$LOG" | grep -qiE "hit your limit|usage limit|quota exceeded"; then
-    RESET_LINE="$(tail -n +"$((LOG_MARK + 1))" "$LOG" | grep -iE "hit your limit|usage limit|quota exceeded" | head -1)"
+  #
+  # ⚠️ ÉLARGISSEMENT DU 27/08/2026 : le motif d'origine ("hit your limit|usage limit|
+  # quota exceeded") ne couvrait PAS le libellé réellement renvoyé ce jour-là —
+  # "You're out of extra usage · resets 1pm (Europe/Paris)" — qui ne contient aucune
+  # de ces trois formes ("out of extra usage" ≠ "usage limit"). Résultat : le fail-fast
+  # n'a pas déclenché, les tentatives 2 et 3 d'astrologie-karmique-lecon ont été brûlées
+  # en 18 minutes face à un quota qui se rétablissait 3 heures plus tard.
+  # Motif volontairement restreint : il ne doit JAMAIS capturer un 403 de source
+  # bloquée (ATIH, Fnac, Darty…), qui est normal et géré par les prompts.
+  LIMIT_RE="hit your limit|usage limit|quota exceeded|out of (extra )?usage|resets [0-9]"
+  if tail -n +"$((LOG_MARK + 1))" "$LOG" | grep -qiE "$LIMIT_RE"; then
+    RESET_LINE="$(tail -n +"$((LOG_MARK + 1))" "$LOG" | grep -iE "$LIMIT_RE" | head -1)"
     echo "[limit] ⛔ LIMITE D'USAGE atteinte — arrêt des tentatives (le backoff ne peut pas la lever)." >> "$LOG"
     echo "[limit] 👉 $RESET_LINE" >> "$LOG"
     echo "[limit] 👉 Rejouer après réinitialisation : bash outils/scripts/rattrapage_jobs.sh $JOB_ID" >> "$LOG"
+    break
+  fi
+
+  # Fail-fast n°3 : plafond de coût dépassé. Rejouer à l'identique redonnera exactement
+  # le même résultat — le plafond ne bougera pas tout seul. Constaté le 27/08/2026 sur
+  # astrologie-karmique-lecon : la tentative 1 est morte sur "Exceeded USD budget (2)"
+  # après le durcissement du prompt du 20/08, qui a renchéri l'exécution.
+  # Le correctif est humain : relever la valeur dans le case BUDGET, plus haut dans ce
+  # script — d'où un message qui pointe l'endroit exact à modifier.
+  if tail -n +"$((LOG_MARK + 1))" "$LOG" | grep -qiE "Exceeded USD budget"; then
+    echo "[budget] ⛔ PLAFOND DE COÛT DÉPASSÉ (${BUDGET} \$) — arrêt des tentatives : rejouer à l'identique échouerait pareil." >> "$LOG"
+    echo "[budget] 👉 Relever la valeur pour ce job dans le 'case \$JOB_ID' de outils/scripts/run_job.sh (section BUDGET), puis : bash outils/scripts/rattrapage_jobs.sh $JOB_ID" >> "$LOG"
+    echo "[budget] 👉 Un dépassement récurrent signale souvent un prompt alourdi : vérifier les dernières modifications du job dans jobs_config.json." >> "$LOG"
     break
   fi
 
