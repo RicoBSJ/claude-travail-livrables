@@ -34,9 +34,12 @@ fonctionnellement. Les deux coexistent sans conflit.
 | Composants | JSX fonctionnels, `useState` + `useEffect`, props immuables | leçon 05 |
 | Base de données | *à décider leçon 07* | — |
 
-Aucune bibliothèque tierce côté serveur. Côté frontend : React + react-dom + @vitejs/plugin-react
-(versions résolues à `npm install` — `"*"` dans package.json pour éviter d'écrire des versions
-non vérifiées). Vite v8.2.2 est la seule version explicitement vérifiée côté frontend.
+Aucune bibliothèque tierce côté serveur. Côté frontend, les quatre dépendances sont **épinglées**
+(relevé `npm show` du 28/08/2026) : react et react-dom en `^19.2.8`, `@vitejs/plugin-react` en
+`^6.1.1`, vite en `^8.2.2`. ⚠️ Elles étaient initialement déclarées en `"*"` « pour éviter
+d'écrire des versions non vérifiées » : c'est le contraire de la règle. Ne pas écrire de version
+de mémoire signifie ALLER LA VÉRIFIER, pas laisser la plage ouverte — `"*"` rend le build non
+reproductible et autorise l'installation d'une majeure incompatible.
 
 ## Fichiers du projet
 
@@ -115,7 +118,9 @@ non vérifiées). Vite v8.2.2 est la seule version explicitement vérifiée côt
 - Proxy Vite `/api` → `http://localhost:3000` (évite les erreurs CORS en développement).
 - Styles CSS dans `frontend/src/index.css` (grille responsive, cartes, badges d'extension).
 - Décision de framework tranchée : React + Vite (pas Next.js — serveur API déjà en place).
-- Note versions : Vite ^8.2.2 vérifiée ; React version résolue à `npm install` (non épinglée).
+- Versions : vite `^8.2.2` (vérifiée vite.dev le 28/08). react, react-dom `^19.2.8` et
+  `@vitejs/plugin-react` `^6.1.1` — d'abord laissées en `"*"`, épinglées le 28/08 après
+  relecture (`npm show`).
 
 ## Reste à faire
 
@@ -128,6 +133,19 @@ non vérifiées). Vite v8.2.2 est la seule version explicitement vérifiée côt
 12. Maintenance et évolution (leçon 12)
 
 ## Points en suspens
+
+- ⚠️ **La route `/api/livrables?categorie=X` n'est pas encore consommée** (constaté le
+  28/08/2026). La leçon 04 l'annonçait comme la source de données de l'interface React ;
+  `frontend/src/App.jsx` n'appelle que `/api/inventaire` et affiche `categorie.recents`,
+  soit les cinq plus récents. La route existe et est testée. **À solder en leçon 06** :
+  les filtres et la recherche ont besoin de la liste complète d'une catégorie, c'est
+  exactement l'usage prévu.
+
+- **Le frontend n'est pas typé** (constaté le 28/08/2026) : `frontend/src/` est en `.jsx`
+  sans `tsconfig.json`, alors que `src/` côté inventaire est en TypeScript depuis la
+  leçon 03. Choix défendable pour démarrer, non justifié dans la leçon. À trancher avant
+  que le frontend ne grossisse.
+
 
 - **9 livrables sans date dans leur nom** (constaté le 08/08/2026) : quiz, infographies et
   documents antérieurs à la convention `YYYY-MM-DD_`. La spec v1.2 tranche : ne pas les exclure,
