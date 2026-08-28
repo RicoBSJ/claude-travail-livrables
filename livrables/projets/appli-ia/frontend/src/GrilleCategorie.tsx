@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import CarteLivrable from './CarteLivrable.jsx'
+import CarteLivrable from './CarteLivrable'
+import type { CategorieResumee, Livrable, ReponseLivrables } from './types'
 
 // Nombre de cartes affichées avant dépliage. Une catégorie peut contenir
 // plusieurs centaines de fichiers (232 leçons au 28/08/2026) : tout afficher
@@ -19,10 +20,19 @@ const APERCU = 12
 // global dans App : un composant qui possède son état est réutilisable et
 // testable seul. C'est aussi ce qui permet à une catégorie d'échouer sans
 // emporter les cinq autres.
-function GrilleCategorie({ nomCle, label, categorie }) {
-  const [livrables, setLivrables] = useState(null)
+interface Props {
+  nomCle: string
+  label: string
+  /** Compteurs issus de /api/inventaire — la liste, elle, est chargée ici. */
+  categorie: CategorieResumee
+}
+
+function GrilleCategorie({ nomCle, label, categorie }: Props) {
+  // useState<T | null> : le type doit inclure la valeur initiale, sinon TypeScript
+  // infère `null` seul et refuse ensuite le tableau.
+  const [livrables, setLivrables] = useState<Livrable[] | null>(null)
   const [chargement, setChargement] = useState(true)
-  const [erreur, setErreur] = useState(null)
+  const [erreur, setErreur] = useState<string | null>(null)
   const [deplie, setDeplie] = useState(false)
 
   // Dépendance [nomCle] : l'effet est rejoué si la catégorie change.
@@ -38,20 +48,26 @@ function GrilleCategorie({ nomCle, label, categorie }) {
         }
         return reponse.json()
       })
-      .then(donnees => {
+      .then((donnees: ReponseLivrables) => {
         if (annule) return
         setLivrables(donnees.livrables)
         setChargement(false)
       })
-      .catch(err => {
+      .catch((err: unknown) => {
         if (annule) return
-        setErreur(err.message)
+        // `catch` reçoit un unknown : on ne suppose pas que c'est une Error.
+        setErreur(err instanceof Error ? err.message : String(err))
         setChargement(false)
       })
 
     return () => { annule = true }   // fonction de nettoyage
   }, [nomCle])
 
+  // Note de typage (28/08/2026) : les conditions d'affichage testent `livrables !== null`
+  // et non `!chargement && !erreur`. Le compilateur ne peut pas déduire du second que le
+  // tableau est chargé — c'est un invariant que nous savions vrai, et que rien dans le
+  // code ne garantissait. Tester la donnée elle-même est à la fois plus sûr et plus clair.
+  //
   // État dérivé : calculé à chaque rendu à partir de l'état existant.
   // On ne le stocke PAS dans un useState — ce serait une donnée en double,
   // qu'il faudrait penser à resynchroniser à chaque changement.
@@ -76,11 +92,11 @@ function GrilleCategorie({ nomCle, label, categorie }) {
         </p>
       )}
 
-      {!chargement && !erreur && livrables.length === 0 && (
+      {livrables !== null && livrables.length === 0 && (
         <p className="vide">Aucun fichier dans cette catégorie.</p>
       )}
 
-      {!chargement && !erreur && livrables.length > 0 && (
+      {livrables !== null && livrables.length > 0 && (
         <>
           <div className="grille-cartes">
             {visibles.map(fichier => (

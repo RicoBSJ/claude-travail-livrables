@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import GrilleCategorie from './GrilleCategorie.jsx'
+import GrilleCategorie from './GrilleCategorie'
+import type { Inventaire } from './types'
 import './index.css'
 
 // Labels lisibles pour chaque clé de catégorie retournée par l'API.
 // L'API retourne { lecons: {...}, quiz: {...}, ... } — on traduit ici.
-const LABELS = {
+const LABELS: Record<string, string> = {
   lecons: 'Leçons',
   quiz: 'Quiz',
   infographies: 'Infographies',
@@ -18,9 +19,9 @@ function App() {
   //   inventaire  → les données reçues de l'API (null tant que non chargées)
   //   chargement  → true pendant la requête, false ensuite
   //   erreur      → message d'erreur ou null si tout va bien
-  const [inventaire, setInventaire]  = useState(null)
+  const [inventaire, setInventaire]  = useState<Inventaire | null>(null)
   const [chargement, setChargement]  = useState(true)
-  const [erreur, setErreur]          = useState(null)
+  const [erreur, setErreur]          = useState<string | null>(null)
 
   // useEffect avec [] : s'exécute UNE SEULE FOIS, au montage du composant.
   // Sans [], il s'exécuterait après CHAQUE re-render → boucle infinie.
@@ -35,12 +36,12 @@ function App() {
         }
         return reponse.json()
       })
-      .then(donnees => {
+      .then((donnees: Inventaire) => {
         setInventaire(donnees)
         setChargement(false)
       })
-      .catch(err => {
-        setErreur(err.message)
+      .catch((err: unknown) => {
+        setErreur(err instanceof Error ? err.message : String(err))
         setChargement(false)
       })
   }, [])
@@ -63,7 +64,13 @@ function App() {
     )
   }
 
-  // À ce stade, inventaire est un objet : { lecons: {...}, quiz: {...}, ... }
+  // À ce stade, chargement et erreur sont faux — mais TypeScript ne le déduit pas
+  // des deux `return` précédents. Ce garde explicite le lui apprend, et protège
+  // d'un vrai cas : une réponse 200 dont le corps serait `null`.
+  if (inventaire === null) {
+    return <p className="statut">Aucune donnée reçue.</p>
+  }
+
   const totalFichiers = Object.values(inventaire)
     .reduce((acc, cat) => acc + cat.nombre, 0)
 

@@ -25,14 +25,14 @@ fonctionnellement. Les deux coexistent sans conflit.
 
 | Élément | Choix | Décidé en |
 |---|---|---|
-| Langage | JavaScript (CommonJS) côté serveur/scripts + TypeScript côté `src/` | leçon 01 & 03 |
+| Langage | JavaScript (CommonJS) côté serveur/scripts + TypeScript côté `src/` **et `frontend/src/`** | leçon 01 & 03 · frontend typé le 28/08 |
 | Runtime | **Node.js v24 LTS** (vérifié nodejs.org le 14/08/2026) | leçon 01 |
 | TypeScript | **7.0.2** (vérifié npm show le 14/08/2026) + @types/node 26.2.0 | leçon 03 |
 | tsconfig | `target: ES2022`, `module: commonjs`, `strict: true`, sans `moduleResolution` (supprimé dans TS7) | leçon 03 |
 | Serveur HTTP | Module natif `node:http` — sans framework | leçon 02 |
 | Style asynchrone | `fs.promises` + `async/await` (remplace callbacks et méthodes Sync) | leçon 04 |
 | Framework d'interface | **React + Vite v8.2.2** (vérifié vite.dev le 28/08/2026) | leçon 05 |
-| Composants | JSX fonctionnels, `useState` + `useEffect`, props immuables | leçon 05 |
+| Composants | **TSX** fonctionnels, `useState` + `useEffect`, props typées par interface | leçon 05 |
 | Base de données | *à décider leçon 07* | — |
 
 Aucune bibliothèque tierce côté serveur. Côté frontend, les quatre dépendances sont **épinglées**
@@ -60,13 +60,16 @@ reproductible et autorise l'installation d'une majeure incompatible.
 | `public/style.css` | Feuille de style vanilla. |
 | `public/app.js` · `api.js` · `rendu.js` | Modules JS vanilla (leçon 02-03). |
 | `exercices/` | Artefacts pédagogiques leçon 01. |
-| `frontend/package.json` | **Nouveau leçon 05** — v0.5.0, type module, scripts dev/build/preview, Vite ^8.2.2 |
+| `frontend/package.json` | Leçon 05 — v0.5.0, type module, scripts `dev`/`build`/`preview`/`typecheck`, dépendances épinglées |
 | `frontend/vite.config.js` | **Nouveau leçon 05** — Plugin React + proxy `/api` → localhost:3000 |
 | `frontend/index.html` | **Nouveau leçon 05** — Point d'entrée Vite, monte `#root` |
-| `frontend/src/main.jsx` | **Nouveau leçon 05** — `createRoot` + `StrictMode` |
-| `frontend/src/App.jsx` | **Nouveau leçon 05** — Composant racine : fetch `/api/inventaire`, 3 états (inventaire/chargement/erreur) |
-| `frontend/src/GrilleCategorie.jsx` | **Nouveau leçon 05** — Affiche une catégorie + ses fichiers récents |
-| `frontend/src/CarteLivrable.jsx` | **Nouveau leçon 05** — Carte individuelle : ext, slug, date (ou null), taille |
+| `frontend/src/main.tsx` | Leçon 05, typé le 28/08 — `createRoot` + `StrictMode`, garde explicite sur `#root` |
+| `frontend/src/App.tsx` | Leçon 05, typé le 28/08 — Composant racine : fetch `/api/inventaire`, 3 états typés |
+| `frontend/src/GrilleCategorie.tsx` | Leçon 05, enrichi et typé le 28/08 — charge `/api/livrables?categorie=X`, dépliage à 12 cartes |
+| `frontend/src/types.ts` | **Nouveau 28/08** — contrat de l'API vu du navigateur : `Livrable`, `CategorieResumee`, `Inventaire`, `ReponseLivrables` |
+| `frontend/src/vite-env.d.ts` | **Nouveau 28/08** — déclare les imports gérés par Vite (CSS…) |
+| `frontend/tsconfig.json` | **Nouveau 28/08** — `strict`, `jsx: react-jsx`, `moduleResolution: bundler`, `noEmit` |
+| `frontend/src/CarteLivrable.tsx` | Leçon 05, typé le 28/08 — Carte individuelle : ext, slug, date (ou null), taille |
 | `frontend/src/index.css` | **Nouveau leçon 05** — Styles React : portail, en-tête, grille de cartes |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
@@ -125,7 +128,7 @@ reproductible et autorise l'installation d'une majeure incompatible.
 
 ## Ajouté hors leçon (28/08/2026)
 
-- `frontend/src/GrilleCategorie.jsx` : charge la liste complète de sa catégorie via
+- `frontend/src/GrilleCategorie.tsx` : charge la liste complète de sa catégorie via
   `/api/livrables?categorie=X` (route créée en leçon 04, jusque-là inutilisée). Quatre
   états locaux — `livrables`, `chargement`, `erreur`, `deplie` — un `useEffect` avec la
   dépendance `[nomCle]` et sa fonction de nettoyage, et un état **dérivé** pour les
@@ -133,9 +136,19 @@ reproductible et autorise l'installation d'une majeure incompatible.
 - `frontend/src/index.css` : styles `.statut-categorie` et `.bouton-deplier`.
 - `frontend/package.json` : dépendances épinglées — react et react-dom `^19.2.8`,
   `@vitejs/plugin-react` `^6.1.1`, vite `^8.2.2` (relevé `npm show` du 28/08).
-- Vérifié : `npm install` puis `npm run build` passent (18 modules, vite 8.2.2), le
-  portail affiche 12 cartes par catégorie puis la liste entière après dépliage —
-  232 leçons, 462 fichiers au total.
+- **Frontend typé** : `.jsx` → `.tsx`, ajout de `frontend/tsconfig.json`
+  (`strict: true`, `jsx: react-jsx`, `moduleResolution: bundler`),
+  `frontend/src/types.ts` (contrat de l'API vu du navigateur) et
+  `frontend/src/vite-env.d.ts` (déclare les imports CSS). Dépendances ajoutées :
+  typescript `^7.0.2` — la même version que côté serveur —, `@types/react` `^19.2.18`,
+  `@types/react-dom` `^19.2.5`. Script `typecheck` ajouté et branché dans `build`.
+- Le typage a trouvé trois défauts réels : l'import CSS non déclaré, et surtout deux
+  conditions d'affichage qui testaient `!chargement && !erreur` pour en déduire que
+  `livrables` était chargé — un invariant vrai en pratique, que rien dans le code ne
+  garantissait. Elles testent maintenant `livrables !== null`.
+- Vérifié : `npm run typecheck` au vert, `npm run build` passe (18 modules, vite 8.2.2),
+  le portail se charge sans erreur console — 6 catégories, 462 fichiers, 232 leçons après
+  dépliage, 25 fichiers en « date inconnue ».
 
 ## Reste à faire
 
@@ -150,13 +163,19 @@ reproductible et autorise l'installation d'une majeure incompatible.
 ## Points en suspens
 
 - ✅ ~~La route `/api/livrables?categorie=X` n'est pas consommée~~ — **soldé le 28/08/2026**
-  (voir « Ajouté hors leçon » ci-dessus). `GrilleCategorie.jsx` charge la liste complète de
+  (voir « Ajouté hors leçon » ci-dessus). `GrilleCategorie.tsx` charge la liste complète de
   sa catégorie ; la leçon 06 partira donc de données complètes.
 
-- **Le frontend n'est pas typé** (constaté le 28/08/2026) : `frontend/src/` est en `.jsx`
-  sans `tsconfig.json`, alors que `src/` côté inventaire est en TypeScript depuis la
-  leçon 03. Choix défendable pour démarrer, non justifié dans la leçon. À trancher avant
-  que le frontend ne grossisse.
+- ✅ ~~Le frontend n'est pas typé~~ — **soldé le 28/08/2026** : `frontend/src/` est en
+  `.tsx`, `strict: true`, `npm run typecheck` au vert et intégré au `build`.
+
+- ⚠️ **Deux contrats de données coexistent** (constaté le 28/08/2026 en typant le
+  frontend). `src/types.ts` déclare `Categorie` avec `recents` ET `livrables`
+  obligatoires — or aucune route ne renvoie cette forme : `/api/inventaire` omet
+  `livrables`, et `/api/livrables` renvoie une enveloppe `{ categorie, nombre,
+  livrables }`. Le frontend a donc son propre `frontend/src/types.ts`, qui décrit ce qui
+  circule réellement. **À réconcilier en leçon 08** (API et architecture) : le contrat
+  devrait être unique et partagé.
 
 
 - **9 livrables sans date dans leur nom** (constaté le 08/08/2026) : quiz, infographies et

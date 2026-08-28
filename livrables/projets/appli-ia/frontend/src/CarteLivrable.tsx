@@ -1,7 +1,13 @@
+import type { Livrable } from './types'
+
 // CarteLivrable affiche une carte pour un fichier.
-// Props reçues : fichier = { nom, date, slug, taille, extension }
-// date peut être null pour les fichiers hors convention de nommage.
-function CarteLivrable({ fichier }) {
+// La forme des props est décrite par une interface : le compilateur vérifie
+// désormais que chaque appelant passe bien un Livrable complet.
+interface Props {
+  fichier: Livrable
+}
+
+function CarteLivrable({ fichier }: Props) {
   const tailleKo = Math.round(fichier.taille / 1024)
 
   return (
