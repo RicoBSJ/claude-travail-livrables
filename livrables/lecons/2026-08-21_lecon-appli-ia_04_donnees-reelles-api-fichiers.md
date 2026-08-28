@@ -38,6 +38,8 @@ Une relecture complète a relevé quatre points de plus, corrigés le même jour
 
 - **⬅️ Précédente** · [[2026-08-14_lecon-appli-ia_03_typescript-structure-projet]]
   qui typait l'inventaire sans changer sa source de données ; cette leçon change la source — le nom de fichier devient la donnée d'autorité, et `Livrable` s'enrichit de `date`, `slug` et `extension`
+- **➡️ Suivante** · [[2026-08-28_lecon-appli-ia_05_interface-react-composants]]
+  l'interface React annoncée ici — mais qui **n'utilise pas** `/api/livrables?categorie=X` : elle consomme `/api/inventaire` et affiche toujours les cinq plus récents. La promesse faite en fin de cette leçon n'est pas tenue
 - **🔗 Pont** · [[2026-08-07_lecon-appli-ia_02_socle-web-premier-ecran]]
   le `serveur.js` écrit là en callbacks est ici réécrit en `async/await` — même comportement, lecture linéaire. C'est aussi la leçon où l'écart n°3 était né, faute de mieux que le `mtime`
 - **🔗 Pont** · [[2026-08-02_lecon-appli-ia_01_cadrage-specification]]
