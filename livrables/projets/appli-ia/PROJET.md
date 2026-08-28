@@ -8,24 +8,17 @@
 
 ## État de l'application
 
-**async/await en place, API enrichie — leçon 04 terminée et documentée (21/08/2026).**
+**React + Vite opérationnel — leçon 05 terminée et documentée (28/08/2026).**
 
-Le Portail Livrables tourne avec `node scripts/serveur.js` (port 3000, configurable via `PORT=N`).
-L'API expose désormais deux routes :
-- `/api/inventaire` — inventaire complet compatible avec le frontend (leçons 1-3)
-- `/api/livrables?categorie=X` — liste complète d'une catégorie (nouveau leçon 04)
+Le Portail Livrables dispose maintenant de deux couches distinctes :
+- **API (port 3000)** : `node scripts/serveur.js` — inchangé depuis la leçon 04
+- **Frontend React (port 5173 en dev)** : `cd frontend && npm install && npm run dev`
 
-Chaque livrable retourné par l'API contient maintenant `{ nom, date, slug, taille, extension }`.
+Le frontend React lit `/api/inventaire` via un proxy Vite et affiche les livrables en grille
+de cartes React, par catégorie. La décision de framework est tranchée : **React + Vite**.
 
-**Écart n°3 résolu (21/08/2026)** : la date affichée dans les cartes provient désormais du
-NOM du fichier (`extracterDate()`), et non du `mtime`. Les fichiers hors convention ont
-`date: null` — ils sont inclus dans l'inventaire, triés en fin de liste.
-
-**TypeScript** : `src/inventaire.ts` réécrit en async/await, `src/types.ts` mis à jour
-(Livrable enrichi : date, slug, extension). `npm run build && npm run inventaire:ts` reste fonctionnel.
-
-**Inventaire lors de la compilation de référence (14/08/2026)** : lecons 195 fichiers, quiz 19,
-infographies 38, veilles (dossier récursif), documents, controles 1.
+Interface vanilla (`public/`) toujours présente pour référence ; le frontend React la remplace
+fonctionnellement. Les deux coexistent sans conflit.
 
 ## Choix techniques arrêtés
 
@@ -37,11 +30,13 @@ infographies 38, veilles (dossier récursif), documents, controles 1.
 | tsconfig | `target: ES2022`, `module: commonjs`, `strict: true`, sans `moduleResolution` (supprimé dans TS7) | leçon 03 |
 | Serveur HTTP | Module natif `node:http` — sans framework | leçon 02 |
 | Style asynchrone | `fs.promises` + `async/await` (remplace callbacks et méthodes Sync) | leçon 04 |
-| Interface | HTML/CSS/JS vanilla — sans framework frontend (React/Vue à décider leçon 05) | leçon 02 |
-| Framework d'interface | *à décider leçon 05* | — |
+| Framework d'interface | **React + Vite v8.2.2** (vérifié vite.dev le 28/08/2026) | leçon 05 |
+| Composants | JSX fonctionnels, `useState` + `useEffect`, props immuables | leçon 05 |
 | Base de données | *à décider leçon 07* | — |
 
-Aucune bibliothèque tierce n'est installée (devDependencies TypeScript uniquement) : c'est délibéré.
+Aucune bibliothèque tierce côté serveur. Côté frontend : React + react-dom + @vitejs/plugin-react
+(versions résolues à `npm install` — `"*"` dans package.json pour éviter d'écrire des versions
+non vérifiées). Vite v8.2.2 est la seule version explicitement vérifiée côté frontend.
 
 ## Fichiers du projet
 
@@ -53,16 +48,22 @@ Aucune bibliothèque tierce n'est installée (devDependencies TypeScript uniquem
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store` |
 | `scripts/inventaire.js` | Inventaire terminal (JavaScript synchrone) — version d'origine. Lecture seule. |
 | `scripts/demo_recursivite.js` | Annexe pédagogique — même logique qu'inventaire.js, commentée. |
-| `scripts/serveur.js` | **Mis à jour leçon 04** — Serveur HTTP local (port 3000, `PORT` depuis env). async/await, `extracterDate()`, `extraerSlug()`. Route `/api/inventaire` (compat) + route `/api/livrables?categorie=X` (nouveau). |
-| `src/types.ts` | **Mis à jour leçon 04** — Interface `Livrable` enrichie (date, slug, extension). `Categorie` avec `livrables[]` complets. |
-| `src/inventaire.ts` | **Mis à jour leçon 04** — Version TypeScript async/await, extrait date + slug, affiche les 3 premiers avec date et slug. |
+| `scripts/serveur.js` | **Mis à jour leçon 04** — Serveur HTTP local (port 3000). async/await, `extracterDate()`, `extraerSlug()`. Routes `/api/inventaire` + `/api/livrables?categorie=X`. |
+| `src/types.ts` | **Mis à jour leçon 04** — Interface `Livrable` enrichie (date, slug, extension). |
+| `src/inventaire.ts` | **Mis à jour leçon 04** — Version TypeScript async/await. |
 | `dist/` | Généré par `npm run build` — Ne pas éditer. |
-| `public/index.html` | Page web du portail : grille de cartes, pied de page totaux. |
-| `public/style.css` | Feuille de style (94 lignes). |
-| `public/app.js` | Orchestration (`type="module"`). |
-| `public/api.js` | Accès aux données : `chargerInventaire()` → `/api/inventaire`. |
-| `public/rendu.js` | **Mis à jour leçon 04** — `f.date` remplace `f.modifie` (écart n°3 résolu). |
-| `exercices/` | Artefacts pédagogiques leçon 01. Hors application. |
+| `public/index.html` | Interface vanilla (leçon 02) — conservée pour référence. |
+| `public/style.css` | Feuille de style vanilla. |
+| `public/app.js` · `api.js` · `rendu.js` | Modules JS vanilla (leçon 02-03). |
+| `exercices/` | Artefacts pédagogiques leçon 01. |
+| `frontend/package.json` | **Nouveau leçon 05** — v0.5.0, type module, scripts dev/build/preview, Vite ^8.2.2 |
+| `frontend/vite.config.js` | **Nouveau leçon 05** — Plugin React + proxy `/api` → localhost:3000 |
+| `frontend/index.html` | **Nouveau leçon 05** — Point d'entrée Vite, monte `#root` |
+| `frontend/src/main.jsx` | **Nouveau leçon 05** — `createRoot` + `StrictMode` |
+| `frontend/src/App.jsx` | **Nouveau leçon 05** — Composant racine : fetch `/api/inventaire`, 3 états (inventaire/chargement/erreur) |
+| `frontend/src/GrilleCategorie.jsx` | **Nouveau leçon 05** — Affiche une catégorie + ses fichiers récents |
+| `frontend/src/CarteLivrable.jsx` | **Nouveau leçon 05** — Carte individuelle : ext, slug, date (ou null), taille |
+| `frontend/src/index.css` | **Nouveau leçon 05** — Styles React : portail, en-tête, grille de cartes |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
 ## Livré à la leçon 01 (02/08/2026)
@@ -84,7 +85,6 @@ Aucune bibliothèque tierce n'est installée (devDependencies TypeScript uniquem
 - Pied de page totaux dans `public/index.html`.
 - Séparation CSS → `public/style.css`.
 - Séparation JS → `public/app.js`, `public/api.js`, `public/rendu.js` (modules ES).
-- `app.js` refactorisé en trois modules (api / rendu / app).
 
 ## Livré à la leçon 03 (14/08/2026)
 
@@ -108,33 +108,44 @@ Aucune bibliothèque tierce n'est installée (devDependencies TypeScript uniquem
 - Mise à jour de `src/inventaire.ts` : async/await, affiche date + slug.
 - Mise à jour `package.json` v0.4.0.
 
+## Livré à la leçon 05 (28/08/2026)
+
+- Création de `frontend/` : application React + Vite v8.2.2.
+- Composants : `App.jsx` (état global + fetch), `GrilleCategorie.jsx`, `CarteLivrable.jsx`.
+- Proxy Vite `/api` → `http://localhost:3000` (évite les erreurs CORS en développement).
+- Styles CSS dans `frontend/src/index.css` (grille responsive, cartes, badges d'extension).
+- Décision de framework tranchée : React + Vite (pas Next.js — serveur API déjà en place).
+- Note versions : Vite ^8.2.2 vérifiée ; React version résolue à `npm install` (non épinglée).
+
 ## Reste à faire
 
-5. Interface — React ou Next.js (à décider leçon 05) — consommera `/api/livrables?categorie=X`
-6. Recherche et filtres (leçon 06)
+6. Recherche et filtres : champ de texte, filtres par catégorie et extension (leçon 06)
 7. Persistance (SQLite, leçon 07)
 8. API et architecture (leçon 08)
 9. Qualité, tests, débogage (leçon 09)
 10. Sécurité et données (RGPD, leçon 10)
-11. Mise en production (leçon 11)
+11. Mise en production : build Vite → fichiers statiques servis par Node.js (leçon 11)
 12. Maintenance et évolution (leçon 12)
 
 ## Points en suspens
 
 - **9 livrables sans date dans leur nom** (constaté le 08/08/2026) : quiz, infographies et
   documents antérieurs à la convention `YYYY-MM-DD_`. La spec v1.2 tranche : ne pas les exclure,
-  les signaler (`date: null`) et les classer en fin de liste. À traiter côté interface (leçon 06).
+  les signaler (`date: null`) et les classer en fin de liste. Traité côté interface en leçon 06.
 
 - **Périmètre tranché en leçon 01** : lecons, quiz, infographies, sources/veille, documents, controles.
   Extensions : `.docx`, `.pptx`, `.pdf`, `.md`.
 
-- **Branche 403 inatteignable** (vérifié le 21/08/2026) : le garde-fou path traversal de
-  `scripts/serveur.js` (ligne 238) est correct mais aucune requête HTTP ne l'atteint —
-  `new URL()` normalise les `..` et rien ne décode le pourcentage avant `path.resolve()`.
-  Testé sur quatre formes, dont `curl --path-as-is` : toutes renvoient 404. Protection de
-  défense en profondeur, à conserver ; à revoir en leçon 10 (sécurité).
+- **Branche 403 inatteignable** (vérifié le 21/08/2026) : garde-fou path traversal correct mais
+  non atteignable via HTTP normal. Protection de défense en profondeur à revoir en leçon 10.
 
 - **Chemin racine en dur** : tous les scripts remontent de 4 niveaux depuis `__dirname`.
   Fonctionnel mais cassant si le projet est déplacé. Dette assumée, à traiter en leçon 08.
 
-- **Le choix du framework d'interface** (leçon 05) dépendra des besoins révélés par les leçons 03 et 04.
+- **Versions React non épinglées** : `package.json` de frontend/ utilise `"*"` pour react et
+  react-dom — la version installée dépend de la date d'installation. À figer en leçon 11 (mise
+  en production) une fois que les versions sont connues et validées.
+
+- **Interface vanilla coexistante** : `public/` reste présent et fonctionnel. Le port 3000
+  sert encore les fichiers statiques vanilla si on navigue sur http://localhost:3000. La leçon 11
+  tranchera : servir le build React depuis le serveur Node.js et retirer l'interface vanilla.

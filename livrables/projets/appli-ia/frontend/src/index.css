@@ -1,0 +1,117 @@
+/* Portail Livrables — styles React (leçon 05) */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #f0f4f8;
+  color: #1f2937;
+}
+
+.portail {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+
+/* ── En-tête ──────────────────────────────────────────────── */
+.en-tete {
+  background: #1b3a6b;
+  color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.en-tete h1 { font-size: 1.8rem; }
+.sous-titre  { margin-top: 0.5rem; opacity: 0.85; font-size: 0.95rem; }
+
+/* ── Section catégorie ────────────────────────────────────── */
+.categorie {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.categorie-en-tete {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+.categorie-en-tete h2 {
+  font-size: 1.1rem;
+  color: #1b3a6b;
+  font-weight: bold;
+}
+.badge {
+  background: #eef2f7;
+  color: #1b3a6b;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.taille { font-size: 0.8rem; color: #6b7280; margin-left: auto; }
+
+/* ── Grille de cartes ────────────────────────────────────── */
+.grille-cartes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+/* ── Carte individuelle ──────────────────────────────────── */
+.carte {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.7rem;
+  background: #fafafa;
+  font-size: 0.85rem;
+}
+.carte-ext {
+  display: inline-block;
+  background: #1b3a6b;
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  margin-bottom: 0.4rem;
+  font-family: monospace;
+}
+.carte-slug {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 0.3rem;
+}
+.carte-date        { color: #4b5563; font-size: 0.78rem; }
+.carte-date--null  { color: #9ca3af; font-style: italic; }
+.carte-taille      { color: #9ca3af; font-size: 0.75rem; margin-top: 0.3rem; }
+
+/* ── États de chargement / erreur ────────────────────────── */
+.statut        { text-align: center; padding: 2rem; color: #6b7280; }
+.statut.erreur {
+  color: #dc2626;
+  background: #fef2f2;
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+.vide { color: #9ca3af; font-style: italic; font-size: 0.9rem; }
+
+/* ── Pied de page ────────────────────────────────────────── */
+.pied-de-page {
+  text-align: center;
+  padding: 1.5rem;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  margin-top: 1rem;
+}
