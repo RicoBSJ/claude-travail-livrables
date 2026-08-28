@@ -115,3 +115,27 @@ body {
   font-size: 0.8rem;
   margin-top: 1rem;
 }
+/* ── Liste complète par catégorie (ajouté le 28/08/2026) ─── */
+/* Chaque catégorie charge sa liste entière via /api/livrables ;
+   ces états locaux sont distincts de .statut, qui couvre l'app entière. */
+.statut-categorie {
+  color: #6b7280;
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+}
+.statut-categorie.erreur { color: #dc2626; }
+
+.bouton-deplier {
+  display: block;
+  margin: 0.75rem auto 0;
+  padding: 0.45rem 1.1rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: #1b3a6b;
+  background: #eef2f7;
+  border: 1px solid #c7d3e3;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.bouton-deplier:hover  { background: #e2e9f2; }
+.bouton-deplier:focus-visible { outline: 2px solid #1b3a6b; outline-offset: 2px; }

@@ -14,8 +14,9 @@ Le Portail Livrables dispose maintenant de deux couches distinctes :
 - **API (port 3000)** : `node scripts/serveur.js` — inchangé depuis la leçon 04
 - **Frontend React (port 5173 en dev)** : `cd frontend && npm install && npm run dev`
 
-Le frontend React lit `/api/inventaire` via un proxy Vite et affiche les livrables en grille
-de cartes React, par catégorie. La décision de framework est tranchée : **React + Vite**.
+Le frontend React lit `/api/inventaire` (compteurs par catégorie) **et**
+`/api/livrables?categorie=X` (liste complète de chaque catégorie) via un proxy Vite, et
+affiche les livrables en grille de cartes, dépliables au-delà de 12. La décision de framework est tranchée : **React + Vite**.
 
 Interface vanilla (`public/`) toujours présente pour référence ; le frontend React la remplace
 fonctionnellement. Les deux coexistent sans conflit.
@@ -122,6 +123,20 @@ reproductible et autorise l'installation d'une majeure incompatible.
   `@vitejs/plugin-react` `^6.1.1` — d'abord laissées en `"*"`, épinglées le 28/08 après
   relecture (`npm show`).
 
+## Ajouté hors leçon (28/08/2026)
+
+- `frontend/src/GrilleCategorie.jsx` : charge la liste complète de sa catégorie via
+  `/api/livrables?categorie=X` (route créée en leçon 04, jusque-là inutilisée). Quatre
+  états locaux — `livrables`, `chargement`, `erreur`, `deplie` — un `useEffect` avec la
+  dépendance `[nomCle]` et sa fonction de nettoyage, et un état **dérivé** pour les
+  cartes visibles. Dépliage à partir de `APERCU = 12` cartes.
+- `frontend/src/index.css` : styles `.statut-categorie` et `.bouton-deplier`.
+- `frontend/package.json` : dépendances épinglées — react et react-dom `^19.2.8`,
+  `@vitejs/plugin-react` `^6.1.1`, vite `^8.2.2` (relevé `npm show` du 28/08).
+- Vérifié : `npm install` puis `npm run build` passent (18 modules, vite 8.2.2), le
+  portail affiche 12 cartes par catégorie puis la liste entière après dépliage —
+  232 leçons, 462 fichiers au total.
+
 ## Reste à faire
 
 6. Recherche et filtres : champ de texte, filtres par catégorie et extension (leçon 06)
@@ -134,12 +149,9 @@ reproductible et autorise l'installation d'une majeure incompatible.
 
 ## Points en suspens
 
-- ⚠️ **La route `/api/livrables?categorie=X` n'est pas encore consommée** (constaté le
-  28/08/2026). La leçon 04 l'annonçait comme la source de données de l'interface React ;
-  `frontend/src/App.jsx` n'appelle que `/api/inventaire` et affiche `categorie.recents`,
-  soit les cinq plus récents. La route existe et est testée. **À solder en leçon 06** :
-  les filtres et la recherche ont besoin de la liste complète d'une catégorie, c'est
-  exactement l'usage prévu.
+- ✅ ~~La route `/api/livrables?categorie=X` n'est pas consommée~~ — **soldé le 28/08/2026**
+  (voir « Ajouté hors leçon » ci-dessus). `GrilleCategorie.jsx` charge la liste complète de
+  sa catégorie ; la leçon 06 partira donc de données complètes.
 
 - **Le frontend n'est pas typé** (constaté le 28/08/2026) : `frontend/src/` est en `.jsx`
   sans `tsconfig.json`, alors que `src/` côté inventaire est en TypeScript depuis la

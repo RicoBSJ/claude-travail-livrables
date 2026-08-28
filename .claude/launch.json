@@ -2,10 +2,11 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "portail-livrables",
-      "runtimeExecutable": "node",
-      "runtimeArgs": ["livrables/projets/appli-ia/scripts/serveur.js"],
-      "port": 3000
+      "name": "portail-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "livrables/projets/appli-ia/frontend",
+      "port": 5173
     }
   ]
 }
