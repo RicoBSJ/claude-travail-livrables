@@ -37,6 +37,8 @@ Après la fiscalité de droit commun vue en leçon 10, l'épargne salariale est 
 
 - **⬅️ Précédente** · [[2026-08-15_lecon-placement-financier_10_fiscalite-revenus-capital]]
   qui pose le droit commun à 31,4 % ; l'épargne salariale est le contre-exemple le plus net du parcours — exonération d'IR à l'entrée comme à la sortie, seuls les prélèvements sociaux subsistant sur les gains
+- **➡️ Suivante** · [[2026-08-29_lecon-placement-financier_12_obligations-fonds-obligataires]]
+  du contenant au contenu : les fonds obligataires sont précisément les supports « prudents » proposés dans le PEE et le PERECO vus ici
 - **🔗 Pont** · [[2026-07-25_lecon-placement-financier_07_per-preparation-retraite-fiscalite]]
   le PERECO est le PER dans sa version collective : même logique de déduction à l'entrée et de blocage jusqu'à la retraite, mais avec un abondement employeur que le PER individuel n'a pas
 - **🔗 Pont** · [[2026-07-11_lecon-placement-financier_05_enveloppes-francaises]]
