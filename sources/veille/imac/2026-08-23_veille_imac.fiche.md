@@ -33,5 +33,7 @@ Le comparatif Windows reste stable : **500 à 940 € d'écart** avec le HP Omni
 
 - **⬅️ Précédente** · [[2026-08-16_veille_imac.fiche]]
   qui datait le renouvellement à octobre d'après Gurman ; cette semaine n'ajoute rien sur ce point et se contente de rapprocher l'échéance
+- **➡️ Suivante** · [[2026-08-30_veille_imac.fiche]]
+  la semaine qui tranche : Gurman confirme le M6 en 2 nm. Mais le tableau de prix s'effondre — consomac.fr, la source qui alimentait celui-ci, n'y est plus consultée
 - **🗂️ Dossier** · [[iMac_dossier.fiche]]
   historique des prix, échéance du renouvellement et limites de la veille — c'est lui qui conserve le relevé à 1 499 € du 09/08
