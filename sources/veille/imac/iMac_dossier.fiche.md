@@ -39,7 +39,7 @@ E.Leclerc au 09/08, soit −17 % par rapport à l'Apple Store.
 | 25/06/2026 | **1 799 €** | hausse de +300 €, identifiée seulement le 26/07 |
 | 09/08/2026 | 1 799 € | mais **1 499 € chez Amazon / E.Leclerc** (−17 %) |
 | 23/08/2026 | 1 799 € | **1 699,99 € chez Amazon** — l'offre à 1 499 € n'est plus relevée |
-| 30/08/2026 | ⚠️ non lu | **aucun prix lisible** — 4 configs sur 5 en échec, consomac.fr non consultée |
+| 30/08/2026 | 1 799 € | **1 499 € de retour** en coloris Bleu (−17 %) — relevé consomac.fr du jour, après correction de la note qui n'avait consulté aucune source de prix |
 | Reconditionné Apple | dès **1 519 €** | 8 cœurs ; 1 689 € en 10 cœurs 16 Go |
 
 ## Ce que dit le calendrier
