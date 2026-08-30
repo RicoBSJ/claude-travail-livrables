@@ -40,7 +40,8 @@ appli-ia-lecon|3|8|5
 placement-financier-lecon|3|8|6
 hypnose-lecon|3|9|2
 astrologie-karmique-lecon|33|9|4
-controle-livrables|3|11|0"
+controle-livrables|3|11|0
+ai-act-veille|3|9|5"
 
 echo "=== Installation des agents launchd Claude_Travail ==="
 echo ""

@@ -68,6 +68,7 @@ case "$JOB_ID" in
   rbpp-pipeline) BUDGET="4.00" ;;   # peut générer jusqu'à 3 livrables (veille + quiz 100 Q + infographie)
   controle-livrables) BUDGET="4.00" ;;   # contrôle toute la semaine : nombreux curl + remontées aux sources primaires
   astrologie-karmique-lecon) BUDGET="3.00" ;;   # deux régimes de sources à croiser (astronomie institutionnelle + corpus) ; a dépassé les 2 $ le 27/08/2026 après le durcissement du prompt du 20/08
+  ai-act-veille) BUDGET="3.00" ;;   # 7 sources socle + textes EUR-Lex + curl de chaque lien ; la note du 29/08 comptait 14 URL pour 20 Ko
   *)             BUDGET="$BUDGET_DEFAULT" ;;
 esac
 echo "[budget] Plafond de coût pour $JOB_ID : ${BUDGET} \$" >> "$LOG"
