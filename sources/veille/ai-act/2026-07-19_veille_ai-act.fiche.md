@@ -29,3 +29,5 @@ Et l'observation la plus fine de tout le dossier (IAPP, 15/07) : **les échéanc
 - **⬅️ Précédente** · [[2026-07-13_veille_ai-act.fiche]]
 - **🗂️ Dossier** · [[AI-Act_dossier.fiche]]
   calendrier consolidé des échéances et ce qui concerne un ESSMS
+- **➡️ Suivante** · [[2026-08-29_veille_ai-act.fiche]]
+  reprise hors job six semaines plus tard, qui corrige **cinq points de cette édition** sur sources primaires et documente l'échéance du 2 août

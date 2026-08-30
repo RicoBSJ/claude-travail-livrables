@@ -3,7 +3,7 @@ type: note-dossier
 date_creation: 2026-08-16
 veille: ai-act
 statut: veille-archive
-couverture: 2026-06-08 → 2026-07-19
+couverture: 2026-06-08 → 2026-08-29
 tags:
   - veille/ai-act
   - dossier/synthese
@@ -13,8 +13,8 @@ tags:
 
 # AI Act — état du dossier
 
-Synthèse des **12 veilles** produites du 8 juin au 19 juillet 2026 — quotidiennes la
-première semaine, puis hebdomadaires.
+Synthèse des **13 veilles** produites du 8 juin au 29 août 2026 — quotidiennes la
+première semaine, puis hebdomadaires, puis une reprise ponctuelle le 29/08.
 
 > ⚠️ **Parcours archivé.** Le job a été supprimé le 20/07/2026, soit **quatorze jours
 > avant l'échéance du 2 août** qu'il suivait depuis deux mois. Les informations
@@ -81,7 +81,33 @@ source avant de s'appuyer dessus :
 2. la publication des **lignes directrices conjointes RGPD / AI Act** ;
 3. l'état de la **transposition française**.
 
-## Les 12 veilles
+## Le trou est comblé — note du 29/08/2026
+
+L'avertissement ci-dessus tenait à ceci : le job avait été arrêté quatorze jours avant
+l'échéance du 2 août. **Une note produite le 29/08, hors job, couvre la période du
+19 juillet au 29 août** et documente cette échéance. Ce qu'elle apporte :
+
+| Point | État au 29/08/2026 |
+|---|---|
+| **AI Act en application** | depuis le **2 août 2026** — exécution engagée par le Bureau de l'IA et les autorités nationales |
+| **Sanctions actives** | 15 M€ ou 3 % du CA mondial (transparence, GPAI) · **35 M€ ou 7 %** (pratiques interdites) |
+| **Texte de simplification** | **règlement (UE) 2026/1744** du 8 juillet, JOUE du 24, en vigueur le 27 — c'est la référence à citer |
+| Reports confirmés | annexe III au 2 décembre 2027 · annexe I au 2 août 2028 |
+| Prochaine échéance | **2 décembre 2026** — fin de la transition art. 50 §2 et nouvelles interdictions |
+| Autorités françaises | **toujours pas désignées** — DDADUE en navette ; ne suspend aucune obligation |
+
+**Les deux points exigibles maintenant pour un ESSMS** : la **reconnaissance des émotions
+au travail** est sanctionnable depuis le 2 août (vérifier les analyses de sentiment des
+outils de transcription de réunion, souvent activées par défaut), et la **littératie IA**
+de l'article 4 est exécutoire — une trace de formation est requise pour les
+professionnels utilisateurs.
+
+**Ce qui ne relève PAS de l'article 50** : un compte-rendu ou une évaluation rédigés avec
+l'aide d'une IA puis relus et validés par un professionnel. L'édition du 19 juillet
+laissait entendre le contraire ; celle du 29 août la corrige, lignes directrices de la
+Commission du 20 juillet à l'appui.
+
+## Les 13 veilles
 
 **Quotidiennes** · [[2026-06-08_veille_ai-act.fiche]] · [[2026-06-09_veille_ai-act.fiche]] ·
 [[2026-06-10_veille_ai-act.fiche]] · [[2026-06-11_veille_ai-act.fiche]] ·
@@ -90,3 +116,5 @@ source avant de s'appuyer dessus :
 **Hebdomadaires** · [[2026-06-14_veille_ai-act.fiche]] · [[2026-06-21_veille_ai-act.fiche]] ·
 [[2026-06-28_veille_ai-act.fiche]] · [[2026-07-05_veille_ai-act.fiche]] ·
 [[2026-07-13_veille_ai-act.fiche]] · [[2026-07-19_veille_ai-act.fiche]]
+
+**Reprise hors job** · [[2026-08-29_veille_ai-act.fiche]]
