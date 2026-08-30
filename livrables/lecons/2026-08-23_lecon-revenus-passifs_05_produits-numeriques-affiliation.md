@@ -36,6 +36,8 @@ Première leçon d'application du parcours : le cadre analytique de la n°04 —
 
 - **⬅️ Précédente** · [[2026-08-16_lecon-revenus-passifs_04_economie-reelle-couts-fiscalite]]
   qui posait le cadre — coûts réels, maintenance, fiscalité — que cette leçon applique pour la première fois à des modèles nommés
+- **➡️ Suivante** · [[2026-08-30_lecon-revenus-passifs_06_placements-etf-dividendes-scpi]]
+  l'autre famille : le capital placé plutôt que l'effort créatif. ETF distribuants, SCPI et locatif nu, avec la même exigence de chiffres d'échec et de fiscalité réelle
 - **🔗 Pont** · [[2026-08-09_lecon-revenus-passifs_03_trois-intrants-point-bascule]]
   les calculs de rentabilité de l'exercice 1 sont un point de bascule chiffré sur un cas concret : 27 ventes par mois pour 500 € nets, et un taux horaire qui tombe de 75 € à 44 € dès qu'on suppose une montée en charge réaliste
 - **🔗 Pont** · [[2026-07-26_lecon-revenus-passifs_01_definition-mythes]]
