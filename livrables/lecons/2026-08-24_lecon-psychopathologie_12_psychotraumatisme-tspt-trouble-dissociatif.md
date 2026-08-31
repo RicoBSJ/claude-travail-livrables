@@ -38,6 +38,8 @@ La leçon s'ouvre sur la phrase qui commande tout le reste : **le trauma n'est p
 
 - **⬅️ Précédente** · [[2026-08-17_lecon-psychopathologie_11_addictions-troubles-usage-substances]]
   la leçon pose elle-même le lien : les conduites addictives sont fréquemment une tentative d'autotraitement du trauma. La comorbidité TSPT / trouble de l'usage éclaire sous un autre angle le double diagnostic vu la semaine dernière
+- **➡️ Suivante** · [[2026-08-31_lecon-psychopathologie_13_troubles-neurocognitifs-vieillissement]]
+  le miroir de celle-ci : la mémoire qui s'efface au lieu de la mémoire qui envahit. Et le même impératif de ligne de base — évaluer le déclin par rapport au fonctionnement antérieur de la personne
 - **🔗 Pont** · [[2026-08-10_lecon-psychopathologie_09_troubles-neurodeveloppement-tsa-tdah-tdi]]
   **piège d'acronyme à connaître** : le TDI de la leçon 09 est le trouble du développement intellectuel, celui de la leçon 12 le trouble dissociatif de l'identité. Deux sens dans le même parcours — à écrire en entier dans toute transmission écrite
 - **🔗 Pont** · [[2026-07-27_lecon-psychopathologie_07_troubles-psychotiques-schizophrenie]]
