@@ -69,6 +69,7 @@ case "$JOB_ID" in
   controle-livrables) BUDGET="4.00" ;;   # contrôle toute la semaine : nombreux curl + remontées aux sources primaires
   astrologie-karmique-lecon) BUDGET="3.00" ;;   # deux régimes de sources à croiser (astronomie institutionnelle + corpus) ; a dépassé les 2 $ le 27/08/2026 après le durcissement du prompt du 20/08
   ai-act-veille) BUDGET="3.00" ;;   # 7 sources socle + textes EUR-Lex + curl de chaque lien ; la note du 29/08 comptait 14 URL pour 20 Ko
+  dzogchen-lecon) BUDGET="3.00" ;;  # relevé préventivement le 01/09/2026 : le durcissement du même jour impose une recherche de littérature savante en plus des sources du socle, et la consultation de textes traduits sur les leçons de corpus (15, 16, 18). Même profil qu'astrologie-karmique, qui a dépassé les 2 $ une semaine après son propre durcissement
   *)             BUDGET="$BUDGET_DEFAULT" ;;
 esac
 echo "[budget] Plafond de coût pour $JOB_ID : ${BUDGET} \$" >> "$LOG"
