@@ -37,6 +37,8 @@ Suite directe de la leçon 10, et le contraste est bien posé : **la suggestion 
 
 - **⬅️ Précédente** · [[2026-08-18_lecon-hypnose_10_suggestion-post-hypnotique]]
   la leçon pose elle-même l'opposition : instruction directe contre suggestion enveloppée. Elles sont présentées comme complémentaires, mais leur régime de preuve ne l'est pas — l'une s'appuyait sur des travaux INSERM datés, l'autre sur des sites de praticiens
+- **➡️ Suivante** · [[2026-09-01_lecon-hypnose_12_hypnose-douleur-usages-documentes]]
+  **le redressement** : zéro site commercial sur six références, rapport INSERM en tête — celui ajouté ici le 25/08 — et un pont pro qui écarte tout usage sur les personnes accompagnées au lieu de proposer d'agir sur une équipe
 - **🔗 Pont** · [[2026-07-05_lecon-hypnose_04_langage-hypnotique]]
   la métaphore est le modèle de Milton porté à l'échelle du récit entier : même principe d'imprécision volontaire, laissant l'auditeur remplir les blancs avec son propre contenu
 - **🔗 Pont** · [[2026-07-11_lecon-entretien-motivationnel_02_ambivalence-reflexe-correcteur]]
