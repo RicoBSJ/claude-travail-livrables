@@ -39,6 +39,8 @@ Le mot *bardo* signifie « entre les deux » — tout état de transition. Les s
 
 - **⬅️ Précédente** · [[2026-08-18_lecon-dzogchen_12_quatre-visions-togal]]
   la leçon pose elle-même l'enchaînement : les quatre visions du tögal sont ce que le mourant rencontre dans le chönyid bardo. Même critère de part et d'autre — ce n'est pas ce qui apparaît qui compte, c'est ce qui est reconnu
+- **➡️ Suivante** · [[2026-09-01_lecon-dzogchen_14_corps-arc-en-ciel-sources-recits]]
+  la voie de dissolution qui n'entre pas dans les bardos décrits ici. Le pont pro y tient enfin — aucune RBPP invoquée faute de texte à citer —, mais Achard, ajouté ici le 25/08, y manque sur le seul sujet dont il a écrit la monographie
 - **🔗 Pont** · [[2026-07-21_lecon-dzogchen_07_togal-franchissement-direct]]
   déités paisibles puis courroucées : les formes du bardo sont celles du tögal. Ce qui s'y joue est la même chose qu'en pratique — ne pas réifier ce qui émane de sa propre nature
 - **🔗 Pont** · [[2026-06-23_lecon-dzogchen_03_la-base-gzhi]]
