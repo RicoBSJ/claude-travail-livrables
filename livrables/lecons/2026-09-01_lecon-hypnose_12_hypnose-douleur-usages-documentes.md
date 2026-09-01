@@ -17,6 +17,8 @@ tags:
   - auteur/hilgard
   - source/inserm
   - source/cochrane
+  - alerte/corrige
+  - correction/2026-09-01
 ---
 
 # 2026-09-01_lecon-hypnose_12_hypnose-douleur-usages-documentes
@@ -31,7 +33,7 @@ Le registre métaphorique de la leçon 11 appliqué au somatique — et sur **le
 
 **Le cœur théorique est la distinction entre les deux composantes de la douleur** — la nociception d'un côté, la souffrance de l'autre — et le fait que **l'hypnose agit surtout sur la seconde**. L'expérience de Hilgard le montre élégamment : sous hypnose, la main dans l'eau glacée, les sujets ne signalent pas de douleur verbalement mais répondent par un canal dissocié — le *hidden observer* — qu'une partie d'eux la ressent encore. *Ce n'est pas une suppression du signal mais une modulation de son traitement.* La neuro-imagerie converge avec la leçon 10 : c'est le **cortex cingulaire antérieur**, siège de la composante affective, dont l'activité diminue. Le tableau des indications gradue honnêtement — élevé pour l'hypnosédation chirurgicale et le côlon irritable, **faible à modéré** pour l'obstétrique.
 
-**Et le pont pro s'est complètement retourné.** Là où la leçon 11 proposait d'user du récit face à une équipe « en résistance », celle-ci **écarte d'emblée tout usage sur les personnes accompagnées** — la douleur relève du protocole médical et des professionnels habilités — et ne garde qu'un bénéfice d'observation : comprendre que la douleur a une composante affective distincte aide à repérer la détresse chez **des personnes qui ne verbalisent pas facilement**. Avec la formule qui borne exactement : *« un repère d'observation clinique utile, pas un outil thérapeutique »*. Restent quelques coquilles — « la référence française de référence », « focalisiation », « Identifie-tu », et *Guéguen* pour Gueguen, l'autrice du rapport INSERM.
+**Et le pont pro s'est complètement retourné.** Là où la leçon 11 proposait d'user du récit face à une équipe « en résistance », celle-ci **écarte d'emblée tout usage sur les personnes accompagnées** — la douleur relève du protocole médical et des professionnels habilités — et ne garde qu'un bénéfice d'observation : comprendre que la douleur a une composante affective distincte aide à repérer la détresse chez **des personnes qui ne verbalisent pas facilement**. Avec la formule qui borne exactement : *« un repère d'observation clinique utile, pas un outil thérapeutique »*. **Quatre coquilles corrigées le 01/09/2026**, avec journal — dont la seule qui comptait : *Guéguen* pour **Juliette Gueguen**, l'autrice du rapport INSERM. Sans accent, et le prénom a été ajouté : c'est la source la plus citée de la leçon, la référence doit rester trouvable. Les trois autres étaient de forme — « la référence française de référence », « focalisiation », « Identifie-tu ».
 
 ## Notes liées
 
