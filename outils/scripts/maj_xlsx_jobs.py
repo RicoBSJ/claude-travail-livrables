@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Met à jour la colonne « Numéro de la dernière leçon » du tableau des 13 jobs.
+"""Met à jour la colonne « Numéro de la dernière leçon » du tableau des jobs.
 
 Le numéro n'est pas compté : il est LU dans le nom du dernier fichier produit
 (`YYYY-MM-DD_lecon-<parcours>_NN_slug.docx`), puis on retient le maximum. Compter
@@ -25,7 +25,7 @@ from pathlib import Path
 RACINE = Path(__file__).resolve().parent.parent.parent
 CONFIG = RACINE / "jobs_config.json"
 LECONS = RACINE / "livrables" / "lecons"
-CLASSEUR = RACINE / "livrables" / "documents" / "2026-08-09_Les 13 Jobs.xlsx"
+CLASSEUR = RACINE / "livrables" / "documents" / "2026-08-09_Les 14 Jobs.xlsx"
 
 EN_TETE = "Numéro de la dernière leçon"
 SANS_OBJET = "—"          # jobs qui ne produisent pas de leçon (veilles, contrôle)
