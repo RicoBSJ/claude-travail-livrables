@@ -237,7 +237,16 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 ### B. Planificateur système (launchd) — **app fermée, autonomie réelle** ✅
 - Un agent launchd par job (`~/Library/LaunchAgents/com.claudetravail.<job_id>.plist`) exécute les jobs **même Claude Code fermé**.
 - Chaîne : agent launchd → `outils/scripts/run_job.sh <job_id>` → `claude -p` headless (lit `jobs_config.json`, exécute le job).
-- Modèle forcé : **sonnet** · **plafond de coût par-job** (défini dans `run_job.sh`, modifiable) : `rbpp-pipeline` **4 $**, `imac-veille` **3,50 $**, tous les autres jobs **2 $** (défaut). Les jobs multi-sources dépassaient le plafond fixe de 2 $ → `claude -p` sortait en erreur, les 3 tentatives échouaient et le créneau hebdo était perdu (ex. RGPD du 05/07/2026, iMac du 19/07/2026).
+- Modèle forcé : **sonnet** · **plafond de coût par-job** — `run_job.sh` est la **source de vérité** (bloc `case "$JOB_ID"`), ce tableau n'en est que le reflet :
+
+  | Plafond | Jobs |
+  |---|---|
+  | **4 $** | `rbpp-pipeline` · `controle-livrables` |
+  | **3,50 $** | `imac-veille` |
+  | **3 $** | `ai-act-veille` · `astrologie-karmique-lecon` · `dzogchen-lecon` · `hypnose-lecon` |
+  | **2 $** (défaut) | les 7 autres |
+
+  Un dépassement fait sortir `claude -p` en erreur, brûle les 3 tentatives et perd le créneau hebdo (RGPD du 05/07/2026, iMac du 19/07/2026, astrologie-karmique du 27/08/2026). **Règle empirique** : tout durcissement de prompt qui ajoute des vérifications coûte plus cher que le plafond hérité — relever dans la foulée plutôt qu'après l'échec (fait le 01/09/2026 pour `dzogchen-lecon` et `hypnose-lecon`). Chaque ligne du `case` porte en commentaire la raison de son relèvement.
 - **Retry intégré** : jusqu'à **3 tentatives** (backoff 90s → 180s) en cas d'échec transitoire (timeout réseau/API au réveil du Mac). Un skip pour doublon (exit 0) n'est jamais retenté. Sans ce garde-fou, un job hebdo qui rate son unique créneau perdait 7 jours.
 - ⚙️ **Authentification headless (jeton longue durée)** : le jeton OAuth du **Keychain** (login de l'app) expire ~chaque semaine et **ne se rafraîchit pas** en contexte launchd → **401 sur tous les jobs** (panne réelle du 09→15/07/2026). Solution : générer un jeton longue durée via `claude setup-token` (adossé à l'abonnement Pro, sans facturation API) et le placer dans **`outils/scripts/claude_auth.env`** (gitignoré, `chmod 600`, modèle : `claude_auth.env.example`). `run_job.sh` le source automatiquement (`CLAUDE_CODE_OAUTH_TOKEN`, ou à défaut `ANTHROPIC_API_KEY`). **Fail-fast** : sur une erreur d'auth (401), le runner arrête immédiatement les tentatives (inutile de réessayer un échec non transitoire) et logue la marche à suivre.
 - launchd **rattrape** une tâche manquée au réveil du Mac (mieux que crontab). Mac éteint = tâche sautée.
@@ -260,11 +269,30 @@ bash outils/scripts/run_job.sh revenus-passifs-lecon   # test manuel d'un job
 bash outils/scripts/teardown_launchd.sh           # tout désactiver
 ```
 
-**Horaires (= champ `cron`) :** revenus-passifs-lecon (dim. 7h03) · imac-veille (dim. 8h03) · hypnose-lecon (mar 9h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · appli-ia-lecon (ven 8h03) · placement-financier-lecon (sam 8h03) · astrologie-karmique-lecon (jeu 9h33) · controle-livrables (dim. 11h03).
+**Horaires (= champ `cron`) — 14 jobs :** revenus-passifs-lecon (dim. 7h03) · imac-veille (dim. 8h03) · controle-livrables (dim. 11h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · hypnose-lecon (mar 9h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · astrologie-karmique-lecon (jeu 9h33) · appli-ia-lecon (ven 8h03) · ai-act-veille (ven 9h03) · placement-financier-lecon (sam 8h03).
+
+> Le tableau de suivi `livrables/documents/2026-08-09_Les 14 Jobs.xlsx` reprend ces créneaux et une colonne **« Numéro de la dernière leçon »**, tenue automatiquement par `outils/scripts/maj_xlsx_jobs.py` (appelé par `run_job.sh` après chaque job réussi). Le numéro est **lu** dans le nom du dernier `.docx`, jamais compté : un créneau manqué crée un trou de numérotation. ⚠️ Le chemin du classeur est **codé en dur** dans le script, qui sort en `return 0` s'il ne le trouve pas — renommer le fichier sans mettre le script à jour fige la colonne en silence.
 
 > Historique : `astrologie-karmique-lecon` (créé le 10/08/2026) reprend le créneau de `entretien-motivationnel-lecon`, supprimé le même jour. Les **11 leçons d'entretien motivationnel** déjà produites (`lecon-entretien-motivationnel_01` à `_11`) sont conservées dans `livrables/lecons/`.
 >
 > Garde-fous spécifiques à ce parcours : les données astronomiques se vérifient **exclusivement** auprès de sources d'astronomie (IMCCE, Observatoire de Paris, NASA), jamais d'un site d'astrologie ; toute affirmation d'interprétation est **attribuée à son auteur** (Schulman, Spiller, Greene) ; chaque leçon comporte un encadré distinguant fait observable, convention du corpus et état de la recherche ; **aucun usage professionnel** n'est suggéré — le parcours est un intérêt personnel et ne touche jamais à l'accompagnement des personnes.
+
+### Garde-fous des prompts de leçon — cinq familles (01/09/2026)
+
+Les **sept parcours perso** (`dzogchen`, `enneagramme`, `psychopathologie`, `placement-financier`, `hypnose`, `stoicisme`, `revenus-passifs`) rangent leurs garde-fous dans la même structure, dans `jobs_config.json` :
+
+| Famille | Ce qu'elle protège |
+|---|---|
+| **A** — ce que tu affirmes | citations mot pour mot · attributions · chiffres officiels · précision affichée · sources discordantes · régime de l'énoncé (fait / position d'auteur / récit de tradition) |
+| **B** — d'où tu le tiens | hiérarchie des sources · chercher avant de conclure à la rareté · ne pas décrire une page non ouverte · thème textuel = sources textuelles · test `curl` de chaque lien |
+| **C** — cohérence de la leçon | corrigés conformes à la théorie de leur propre leçon · rendez-vous annoncés par les leçons précédentes |
+| **D** — le pont pro | nommer une RBPP par **titre exact + date**, ou se taire · ne jamais inventer une formulation HAS/ANESM · ne jamais fonder une posture pro sur la doctrine du parcours |
+| **E** — relecture | une question par famille avant génération, puis signaler au récapitulatif les affirmations non sourcées, les discordances tranchées et les pages non ouvertes |
+
+- **Chaque règle porte son incident daté réel** — c'est ce qui la rend applicable. Ne jamais ajouter une règle « par symétrie » avec un autre parcours : sans cas constaté, elle se noie dans les autres.
+- Les familles ne sont pas peuplées uniformément : `dzogchen` a 15 règles, `revenus-passifs` 10 (dont 5 en A, sur les chiffres et les prédictions), les quatre parcours de doctrine 7.
+- **`astrologie-karmique-lecon` garde ses garde-fous propres** (voir ci-dessus) et n'est pas encore passé aux familles.
+- Les prompts de veille et de projet (`rbpp-pipeline`, `imac-veille`, `serafin-ph-veille`, `ai-act-veille`, `appli-ia-lecon`, `controle-livrables`) conservent leurs garde-fous spécifiques.
 
 **Veille hebdomadaire à sous-dossier dédié dans `sources/veille/` :** `iMac/` (veille marché comparative tout-en-un : iMac M4/M5 + PC Windows équivalents) — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent). L'auto-push couvre tout `sources/veille/` (récursif).
 
