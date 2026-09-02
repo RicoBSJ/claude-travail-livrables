@@ -3,19 +3,21 @@ type: note-dossier
 date_creation: 2026-08-16
 veille: serafin-ph
 statut: veille-active
-couverture: 2026-04-05 → 2026-08-26
+couverture: 2026-04-05 → 2026-09-02
 tags:
   - veille/serafin-ph
   - dossier/synthese
   - theme/modele-tarifaire
   - theme/recueil-ph-2026
   - theme/sidoba
+  - theme/decret-2026-376
+  - source/legifrance
 ---
 
 # SERAFIN-PH — état du dossier
 
-Note de synthèse construite à partir des **21 veilles hebdomadaires** produites entre
-le 5 avril et le 26 août 2026. Les veilles disent ce qui bouge une semaine donnée ;
+Note de synthèse construite à partir des **22 veilles hebdomadaires** produites entre
+le 5 avril et le 2 septembre 2026. Les veilles disent ce qui bouge une semaine donnée ;
 cette note dit **où en est le dossier**, ce qu'aucune d'elles ne donne d'un bloc.
 
 ## Ce qui est acquis
@@ -27,7 +29,7 @@ cette note dit **où en est le dossier**, ce qu'aucune d'elles ne donne d'un blo
 | Recueil PH 2026, phase 1 (caractéristiques des places) | **lancée le 30 mars 2026** (comité stratégique du 23/03), courue sur avril — ce qui explique la divergence mars/avril des veilles |
 | Recueil PH 2026, phase 2 (indicateurs de modulation) | terminée, mai 2026 |
 | Export SIDOBA | en cours depuis juillet 2026 |
-| Décret n° 2026-376 | décision du 13/05/2026, JO du 16/05 — **connu par sources secondaires, non consulté sur Légifrance** |
+| **Décret n° 2026-376 du 13 mai 2026** | **consulté sur Légifrance le 02/09/2026** — JORF n° 0114 du 16/05. Titre exact : *fixant les conditions de transmission des données nécessaires au calcul de la dotation globale de financement mentionnée à l'article 90 de la loi n° 2025-1403 du 30 décembre 2025 de financement de la sécurité sociale pour 2026*. Jusqu'au 02/09, le dossier n'en connaissait le numéro que par sources secondaires |
 | **Année blanche 2026** | confirmée — aucune incidence financière cette année |
 | Déploiement du modèle (secteur enfance) | **1ᵉʳ janvier 2027**, puis convergence progressive sur **8 ans** |
 
@@ -75,16 +77,32 @@ point de ce dossier qui appelle une action datée, même pour un établissement 
 adultes** orientés CDAPH. Les structures adultes — foyers d'hébergement, FAM, MAS —
 **ne sont pas concernées par ce déploiement**, contrairement à ce que la veille du
 13/04 laissait entendre en annonçant un « périmètre élargi aux ESMS adultes ». Cette
-annonce n'a jamais été confirmée ; la veille du 19/08 la contredit explicitement.
+annonce n'a jamais été confirmée ; la veille du 19/08 la contredit explicitement. Le
+décret n° 2026-376 le **verrouille au niveau réglementaire** : son article 1ᵉʳ vise les
+seuls ESMS du 2° du I de l'article L. 312-1 du CASF, mineurs et jeunes adultes. Un foyer
+d'hébergement pour adultes n'entre pas dans ce périmètre — ce n'est plus une lecture de
+communiqué, c'est le texte.
 
 Conséquence pratique : anticiper l'intégration future, sans traiter l'échéance de
 janvier 2027 comme si elle s'appliquait à ton établissement.
 
-**Un point RGPD à ne pas manquer.** Le décret prévoit une **conservation des données
-jusqu'à 10 ans** après collecte, dans SIDOBA. C'est un traitement à part entière : il
-suppose d'informer les personnes accompagnées et leurs représentants légaux de son
-existence, de sa finalité et de sa durée. À articuler avec la politique RGPD de la
-structure le moment venu.
+**Le volet RGPD, article par article** — lu sur Légifrance le 02/09/2026, ce que ni les
+veilles ni ce dossier n'avaient pu faire jusque-là. Le décret crée un traitement de
+données à caractère personnel placé sous la **responsabilité conjointe de la DGCS et de
+la CNSA** : c'est à elles que les droits s'exercent, pas à l'établissement collecteur.
+
+| Article | Contenu |
+|---|---|
+| **Art. 1ᵉʳ, I** | périmètre : les ESMS du **2° du I de l'article L. 312-1 du CASF**, accueillant des **mineurs ou jeunes adultes** handicapés sur orientation CDAPH |
+| **Art. 2** | quatre catégories : identification et FINESS · caractérisation de la structure (capacité, type de déficience, jours d'ouverture) · données d'activité (files actives, ETP, personnes à déficience associée) · qualité et coordination |
+| **Art. 4, I** | conservation **dix ans maximum à compter de la collecte** — mais les **données techniques et de traçabilité ne sont conservées qu'un an**, nuance qu'aucune source secondaire ne rapportait |
+| **Art. 5** | droits d'**accès**, de **rectification** et de **limitation** applicables ; **droit d'opposition écarté** sur le fondement de l'article 23 du RGPD |
+
+C'est un traitement à part entière : il suppose d'informer les personnes accompagnées et
+leurs représentants légaux de son existence, de sa finalité et de sa durée, et
+d'informer les instances représentatives du personnel. L'écartement du droit
+d'opposition est une **obligation réglementaire, pas un choix du gestionnaire** — c'est
+ce qu'il faut pouvoir expliquer si la question est posée.
 
 ## Deux points de vigilance pour un établissement
 
@@ -111,13 +129,22 @@ ARS régionales, fédérations — a produit plus d'information que les trois so
 nationales suivies pendant deux mois. L'**ARS Bretagne** a documenté un calendrier que
 le niveau national n'avait pas encore détaillé.
 
+**La traçabilité des liens a lâché deux semaines de suite**, et c'est instructif sur la
+façon de corriger. La note du 26/08 affichait trois « sources primaires » en bleu
+souligné sans aucun lien ni adresse en clair ; corrigée dans le document, adresses
+retrouvées et testées. Sept jours plus tard, la note du 02/09 ne contenait de nouveau
+aucun lien cliquable, et publiait une adresse CNSA tronquée — donc en 404 — tout en la
+marquant « ✅ Consultée ». **La correction avait porté sur le livrable, pas sur le prompt
+du job** : le prompt a été durci le 02/09 (publier l'URL exactement testée, poser de
+vrais liens, et recompter les relations externes dans le .docx avant de confirmer).
+
 **L'ATIH est inaccessible aux robots depuis le 17/06** (403 persistant, alors que la
 page répond en HTTP 200 à un simple curl). Les veilles le signalent au lieu de conclure
 à une page morte — la distinction est correcte et vaut d'être maintenue.
 
-## Les 21 veilles
+## Les 22 veilles
 
 - **Socle et montée en charge** · [[2026-04-05_veille_SERAFIN-PH]] · [[2026-04-06_veille_SERAFIN-PH.fiche]] · [[2026-04-13_veille_SERAFIN-PH.fiche]] · [[2026-04-16_veille_SERAFIN-PH.fiche]] · [[2026-04-24_veille_SERAFIN-PH.fiche]] · [[2026-05-01_veille_SERAFIN-PH.fiche]] · [[2026-05-11_veille_SERAFIN-PH.fiche]]
 - **Période creuse** · [[2026-05-20_veille_SERAFIN-PH.fiche]] · [[2026-05-29_veille_SERAFIN-PH.fiche]] · [[2026-06-05_veille_SERAFIN-PH.fiche]]
 - **Élargissement des sources** · [[2026-06-17_veille_SERAFIN-PH.fiche]] · [[2026-06-24_veille_SERAFIN-PH.fiche]] · [[2026-07-01_veille_SERAFIN-PH.fiche]] · [[2026-07-08_veille_SERAFIN-PH.fiche]] · [[2026-07-15_veille_SERAFIN-PH.fiche]] · [[2026-07-22_veille_SERAFIN-PH.fiche]]
-- **Été** · [[2026-07-29_veille_SERAFIN-PH.fiche]] · [[2026-08-05_veille_SERAFIN-PH.fiche]] · [[2026-08-12_veille_SERAFIN-PH.fiche]] · [[2026-08-19_veille_SERAFIN-PH.fiche]] · [[2026-08-26_veille_SERAFIN-PH.fiche]]
+- **Été** · [[2026-07-29_veille_SERAFIN-PH.fiche]] · [[2026-08-05_veille_SERAFIN-PH.fiche]] · [[2026-08-12_veille_SERAFIN-PH.fiche]] · [[2026-08-19_veille_SERAFIN-PH.fiche]] · [[2026-08-26_veille_SERAFIN-PH.fiche]] · [[2026-09-02_veille_SERAFIN-PH.fiche]]
