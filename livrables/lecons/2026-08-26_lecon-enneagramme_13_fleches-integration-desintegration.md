@@ -36,6 +36,8 @@ Le point conceptuel est bien tenu : **une flèche ne change pas le type**, elle 
 
 - **⬅️ Précédente** · [[2026-08-19_lecon-enneagramme_12_les-ailes-nuances-types-adjacents]]
   la leçon pose elle-même l'opposition : l'aile agit en permanence depuis un type adjacent, la flèche par intermittence vers un type éloigné. Même réserve de validité dans les deux cas, et le même auteur qui révise ses formulations
+- **➡️ Suivante** · [[2026-09-02_lecon-enneagramme_14_niveaux-developpement-riso-hudson]]
+  l'autre axe : la flèche dit vers quel type on se déplace, le niveau à quel degré de santé on fonctionne dans le sien. Mais deux correctifs apportés ici le 26/08 n'y sont pas repris — le caveat sur les sites commerciaux, et la chasse aux anglicismes
 - **🔗 Pont** · [[2026-06-10_lecon-enneagramme_02_origines-structure-symbole]]
   troisième leçon d'affilée où l'avertissement sur la validité du modèle trouve à s'appliquer. Le parcours tient sa ligne : exposer le système de l'intérieur sans jamais le présenter comme démontré
 - **🔗 Pont** · [[2026-08-20_lecon-stoicisme_11_adversite-deuil-colere-peur-echec]]
