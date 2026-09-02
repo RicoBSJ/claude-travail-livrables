@@ -33,6 +33,8 @@ Document source : [[2026-08-26_veille_SERAFIN-PH.docx]]
 
 - **⬅️ Précédente** · [[2026-08-19_veille_SERAFIN-PH.fiche]]
   qui identifiait enfin la base légale (art. 90 de la LFSS 2026) et tranchait le périmètre enfants. Celle-ci n'ajoute rien sur ces deux points mais complète le volet budgétaire, absent jusqu'ici
+- **➡️ Suivante** · [[2026-09-02_veille_SERAFIN-PH.fiche]]
+  **la récidive** : le job reproduit à sept jours le défaut de liens corrigé ici, une adresse CNSA publiée en 404 alors qu'elle est marquée « consultée ». Elle apporte en revanche le décret n° 2026-376 enfin consulté sur Légifrance
 - **🗂️ Dossier** · [[SERAFIN-PH_dossier.fiche]]
   mis à jour d'après cette veille : instruction 2026/80, articulation CPOM / EPRD, et explication de la divergence mars/avril sur la phase 1 du recueil
 - **🔗 Pont** · [[2026-08-24_veille_has-actualite]]
