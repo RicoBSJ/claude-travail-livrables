@@ -36,6 +36,8 @@ Première leçon consacrée à un auteur qui **n'a rien écrit**, et c'est le po
 
 - **⬅️ Précédente** · [[2026-08-20_lecon-stoicisme_11_adversite-deuil-colere-peur-echec]]
   le renversement est explicite : la leçon 11 traite l'adversité subie, Musonius l'organise. Même matière, posture inverse — et le journal du soir prolonge directement l'anatomie de l'émotion vue là
+- **➡️ Suivante** · [[2026-09-03_lecon-stoicisme_13_zenon-chrysippe-ancien-portique]]
+  **le correctif du pont pro, sept jours plus tard** : plus aucune RBPP invoquée, et la leçon écrit noir sur blanc qu'elle ne s'appuie sur aucune recommandation identifiée. Elle remonte aussi aux fondateurs du système que Musonius appliquait
 - **🔗 Pont** · [[2026-06-25_lecon-stoicisme_04_epictete-manuel]]
   **la filiation directe** : Épictète fut l'élève de Musonius, et c'est par lui que cet enseignement oral a traversé les siècles. Le *Manuel* est lui-même des notes prises par un élève, Arrien — deux fois le même mode de transmission
 - **🔗 Pont** · [[2026-07-23_lecon-stoicisme_07_emotions-apatheia-premeditatio]]
