@@ -37,6 +37,8 @@ Première leçon d'interprétation du parcours — les douze positions du Nœud 
 
 - **⬅️ Précédente** · [[2026-08-20_lecon-astrologie-karmique_03_noeuds-lunaires-astronomie-corpus]]
   qui posait la géométrie et la rétrogradation des nœuds — et c'est précisément elle que contredit l'erreur des 300°. Ses corrections de bibliographie, elles, ont été reprises spontanément
+- **➡️ Suivante** · [[2026-09-03_lecon-astrologie-karmique_05_noeud-nord-croissance-signe-par-signe]]
+  l'autre moitié du tableau : les douze positions du Nœud Nord, qui répondent axe par axe à celles lues ici. Elle ajoute une section « ce que la recherche a testé » et sépare la bibliographie en régimes A et B
 - **🔗 Pont** · [[2026-08-13_lecon-astrologie-karmique_02_ciel-reel-ecliptique-zodiaque-precession]]
   le calcul en cause est une pure convention tropicale : les bornes de signe à 300° et 330° découlent du découpage en douze secteurs de 30° depuis le point vernal, indépendamment des constellations réelles
 - **🔗 Pont** · [[2026-08-10_lecon-astrologie-karmique_01_cadrage-postulats-auteurs]]
