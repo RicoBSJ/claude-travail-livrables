@@ -2,30 +2,37 @@
 type: note-dossier
 date_creation: 2026-08-16
 veille: ai-act
-statut: veille-archive
-couverture: 2026-06-08 → 2026-08-29
+statut: veille-active
+couverture: 2026-06-08 → 2026-09-04
 tags:
   - veille/ai-act
   - dossier/synthese
   - theme/digital-omnibus
   - theme/article-50
+  - theme/litteratie-ia
+  - theme/echeance-2-decembre-2026
+  - source/ai-act-service-desk
 ---
 
 # AI Act — état du dossier
 
-Synthèse des **13 veilles** produites du 8 juin au 29 août 2026 — quotidiennes la
-première semaine, puis hebdomadaires, puis une reprise ponctuelle le 29/08.
+Synthèse des **14 veilles** produites du 8 juin au 4 septembre 2026 — quotidiennes la
+première semaine, puis hebdomadaires, une interruption de six semaines, une reprise
+ponctuelle le 29/08, et le job de nouveau planifié depuis le 30/08.
 
-> ⚠️ **Parcours archivé.** Le job a été supprimé le 20/07/2026, soit **quatorze jours
-> avant l'échéance du 2 août** qu'il suivait depuis deux mois. Les informations
-> ci-dessous s'arrêtent donc au 19/07 et n'ont pas été revérifiées depuis.
+> ✅ **Parcours réactivé.** Le job avait été supprimé le 20/07/2026, quatorze jours avant
+> l'échéance du 2 août qu'il suivait depuis deux mois. Il a été **recréé le 30/08/2026**
+> (vendredi 9h03, plafond 3 $) et a produit sa première note le **04/09**. Le trou de
+> couverture du 19/07 au 29/08 est comblé par la note hors job du 29/08 ; tout ce qui
+> précède le 19/07 dans ce dossier reste daté de la première période et doit être lu
+> comme tel.
 
 ## Le calendrier consolidé
 
 | Échéance | Ce qui s'applique |
 |---|---|
 | **2 août 2026** | gouvernance · modèles à usage général (GPAI) · **transparence, article 50** |
-| **2 décembre 2026** | marquage lisible par machine des contenus générés · interdiction des outils de « nudification » et de génération de CSAM |
+| **2 décembre 2026** | **article 50(2)** — fin du délai transitoire pour les fournisseurs d'IA générative commercialisée avant le 2/08/2026 · interdiction des hypertrucages sexuels non consentis et des contenus pédocriminels *(ligne vérifiée le 04/09/2026 sur l'AI Act Service Desk ; la formulation antérieure de ce dossier, « marquage lisible par machine des contenus générés », ne figure pas sur la source officielle)* |
 | **2 août 2027** | sandboxes réglementaires nationales |
 | **2 décembre 2027** | systèmes à haut risque, **annexe III** (autonomes) — reportés de 16 mois |
 | **2 août 2028** | systèmes à haut risque, **annexe I** (IA embarquée dans des produits réglementés) |
@@ -77,9 +84,16 @@ pédagogie autant que de conformité.
 Le dossier s'arrête avant l'échéance principale. Trois points sont à reprendre à la
 source avant de s'appuyer dessus :
 
-1. l'application effective de l'**article 50** depuis le 2 août 2026 ;
-2. la publication des **lignes directrices conjointes RGPD / AI Act** ;
-3. l'état de la **transposition française**.
+1. ~~l'application effective de l'**article 50** depuis le 2 août 2026~~ — **tranché** :
+   en application, sanctions actives, cadrage du périmètre stabilisé (voir ci-dessous) ;
+2. les **lignes directrices conjointes RGPD / AI Act** — partiellement couvert : la mise à
+   jour CNIL du **17/08/2026** clarifie l'articulation (application simultanée pour les
+   systèmes à haut risque traitant des données personnelles ; le déployeur peut s'appuyer
+   sur l'AIPD du fournisseur, art. 26 et 27). Les lignes directrices conjointes annoncées
+   le 18/06 n'ont toujours pas paru ;
+3. ~~l'état de la **transposition française**~~ — **suivi** : autorités nationales
+   toujours non désignées au 04/09/2026, volet numérique du DDADUE en navette
+   parlementaire. Cette absence ne suspend aucune obligation.
 
 ## Le trou est comblé — note du 29/08/2026
 
@@ -107,7 +121,33 @@ l'aide d'une IA puis relus et validés par un professionnel. L'édition du 19 ju
 laissait entendre le contraire ; celle du 29 août la corrige, lignes directrices de la
 Commission du 20 juillet à l'appui.
 
-## Les 13 veilles
+## Le calendrier vérifié à la source — note du 04/09/2026
+
+Première note du job réactivé, et la première dont la **chronologie complète a été
+recoupée ligne à ligne** sur la page officielle de l'**AI Act Service Desk**
+(ai-act-service-desk.ec.europa.eu, consultée le 04/09/2026). Les cinq jalons du tableau
+ci-dessus sont confirmés, y compris le rattachement du 2 décembre 2026 à l'**article
+50(2)** et ses deux volets. C'est désormais la référence à citer pour toute question de
+calendrier — pas une reconstitution à partir d'articles de presse.
+
+**Source définitivement écartée** : `artificialintelligenceact.eu` (Future of Life
+Institute) est rendue côté client en JavaScript et n'est pas extractible en headless.
+Constaté en juillet **et** en août 2026 ; la note du 04/09 porte l'instruction explicite
+**« ne plus tenter »**. Ne pas la réintroduire dans une liste de sources.
+
+**État des sources au 04/09/2026** : 3 exploitées avec contenu repris · 2 consultées sans
+nouveauté · 1 en 403 contournée par le PDF (`data.consilium.europa.eu`, vérifié 200) ·
+1 morte — sur 7 tentées. EUR-Lex n'a pas été interrogée directement lors de cette
+exécution, la note le déclare.
+
+⚠️ **Réserve sur la section « Analyses & gouvernance »** de cette note : elle repose sur
+quatre articles IAPP dont **aucun corps n'a été lu** — deux sont réservés aux abonnés, et
+la note précise que même les deux librement accessibles n'ont pas été reproduits. Les
+thèmes sont annoncés « d'après le titre ». Les impacts ESSMS qui s'y adossent tiennent par
+eux-mêmes, mais leur justification affichée n'est qu'un intitulé : ne pas les citer comme
+si un contenu avait été analysé.
+
+## Les 14 veilles
 
 **Quotidiennes** · [[2026-06-08_veille_ai-act.fiche]] · [[2026-06-09_veille_ai-act.fiche]] ·
 [[2026-06-10_veille_ai-act.fiche]] · [[2026-06-11_veille_ai-act.fiche]] ·
@@ -118,3 +158,5 @@ Commission du 20 juillet à l'appui.
 [[2026-07-13_veille_ai-act.fiche]] · [[2026-07-19_veille_ai-act.fiche]]
 
 **Reprise hors job** · [[2026-08-29_veille_ai-act.fiche]]
+
+**Job réactivé** · [[2026-09-04_veille_ai-act.fiche]]
