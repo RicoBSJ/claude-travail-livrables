@@ -34,6 +34,8 @@ Document source : [[2026-08-29_veille_ai-act.docx]]
 
 - **⬅️ Précédente** · [[2026-07-19_veille_ai-act.fiche]]
   la dernière avant la suppression du job — et celle dont la présente note corrige cinq points. À lire dans cet ordre pour voir ce qu'une relecture à six semaines rattrape
+- **➡️ Suivante** · [[2026-09-04_veille_ai-act.fiche]]
+  **la première note du job une fois recréé**, et elle relit celle-ci sans y trouver d'inexactitude. Elle reprend le cadrage de l'article 50 à l'identique et ajoute la chronologie complète, vérifiée sur l'AI Act Service Desk
 - **🗂️ Dossier** · [[AI-Act_dossier.fiche]]
   qui relevait que le parcours avait été arrêté quatorze jours avant l'échéance qu'il suivait. Cette note referme ce constat : le 2 août est passé, et documenté
 - **🔗 Pont** · [[RGPD_dossier.fiche]]
