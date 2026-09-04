@@ -52,14 +52,16 @@ function GrilleCategorie({ nomCle, label, categorie, filtreLivrable }: Props) {
   }, [nomCle])
 
   // ── Filtrage via useMemo ────────────────────────────────────────────────
-  // livablesFiltres est recalculé SEULEMENT si livrables ou filtreLivrable changent.
+  // livrablesFiltres est recalculé SEULEMENT si livrables ou filtreLivrable changent.
   // Sans useMemo, il serait recalculé à chaque re-render, y compris ceux déclenchés
-  // par d'autres états internes — ce qui sur 232 leçons représente du travail inutile.
+  // par d'autres états internes — ce qui, sur les 250 fichiers indexés dans la catégorie
+  // « Leçons » au 04/09/2026 (125 leçons .docx et 125 fiches .md, l'inventaire indexant les
+  // deux extensions), représente du travail inutile.
   //
   // filtreLivrable est une fonction créée dans App à chaque render d'App.
   // Sa référence change à chaque frappe dans le champ de recherche — c'est voulu :
   // on veut que useMemo recalcule quand les critères changent.
-  const livrablesFiltes = useMemo(() => {
+  const livrablesFiltres = useMemo(() => {
     if (livrables === null) return null
     return livrables.filter(filtreLivrable)
   }, [livrables, filtreLivrable])
@@ -72,14 +74,14 @@ function GrilleCategorie({ nomCle, label, categorie, filtreLivrable }: Props) {
   }, [filtreLivrable])
 
   // État dérivé : les cartes visibles, après filtre et dépliage
-  const visibles = livrablesFiltes === null
+  const visibles = livrablesFiltres === null
     ? []
-    : (deplie ? livrablesFiltes : livrablesFiltes.slice(0, APERCU))
-  const reste = livrablesFiltes === null ? 0 : livrablesFiltes.length - APERCU
+    : (deplie ? livrablesFiltres : livrablesFiltres.slice(0, APERCU))
+  const reste = livrablesFiltres === null ? 0 : livrablesFiltres.length - APERCU
 
   // Si aucun livrable ne correspond au filtre : masquer la section entière.
   // C'est plus propre qu'afficher "0 résultat(s)" pour chaque catégorie vide.
-  if (livrablesFiltes !== null && livrablesFiltes.length === 0) {
+  if (livrablesFiltres !== null && livrablesFiltres.length === 0) {
     return null
   }
 
@@ -88,8 +90,8 @@ function GrilleCategorie({ nomCle, label, categorie, filtreLivrable }: Props) {
       <div className="categorie-en-tete">
         <h2>{label}</h2>
         <span className="badge">
-          {livrablesFiltes !== null
-            ? livrablesFiltes.length + ' résultat(s)'
+          {livrablesFiltres !== null
+            ? livrablesFiltres.length + ' résultat(s)'
             : categorie.nombre + ' fichier(s)'}
         </span>
         <span className="taille">{categorie.taille_ko} Ko au total</span>

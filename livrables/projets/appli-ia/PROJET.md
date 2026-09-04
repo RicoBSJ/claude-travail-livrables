@@ -10,6 +10,14 @@
 
 **React + Vite avec recherche et filtres — leçon 06 terminée et documentée (04/09/2026).**
 
+> **Corrigé le 04/09/2026, après relecture.** La variable de la liste filtrée s'appelait `livrablesFiltes`
+> (sans le « r ») dans `GrilleCategorie.tsx` — dix occurrences, plus un commentaire qui l'orthographiait encore
+> autrement. Le fichier compilait et `npm run typecheck` passait : un identifiant mal orthographié mais cohérent
+> avec lui-même échappe à TypeScript comme au lint. Renommé en `livrablesFiltres`, dans le code et dans la leçon.
+> Le commentaire annonçant « 232 leçons » comptait en réalité les fichiers de la catégorie — l'inventaire indexe
+> `.docx` et `.md`, donc les fiches Obsidian : 125 leçons pour 125 fiches au 04/09/2026. `package.json` passe
+> par ailleurs en 0.6.0, resté en 0.5.0 depuis la leçon 05.
+
 Le Portail Livrables dispose de deux couches distinctes :
 - **API (port 3000)** : `node scripts/serveur.js` — inchangé depuis la leçon 04
 - **Frontend React (port 5173 en dev)** : `cd frontend && npm install && npm run dev`
