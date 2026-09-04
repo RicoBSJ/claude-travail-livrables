@@ -39,6 +39,8 @@ Le choix annoncé en leçon 04 est tranché : **React + Vite**, dans un dossier 
 
 - **⬅️ Précédente** · [[2026-08-21_lecon-appli-ia_04_donnees-reelles-api-fichiers]]
   qui construisait `/api/livrables?categorie=X` *en annonçant* qu'elle serait la source de la nouvelle interface. C'est la leçon à relire pour mesurer l'écart : la route existe, elle est testée, et le frontend l'ignore
+- **➡️ Suivante** · [[2026-09-04_lecon-appli-ia_06_recherche-filtres]]
+  la recherche et les filtres se branchent sur la grille construite ici, sans rien casser — `typecheck` passe toujours. Elle fait aussi casser volontairement les dépendances de `useMemo` pour montrer un bug que TypeScript ne voit pas
 - **🔗 Pont** · [[2026-08-14_lecon-appli-ia_03_typescript-structure-projet]]
   le frontend était en `.jsx` sans `tsconfig.json`, alors que la leçon 03 avait typé l'inventaire — **régression réparée le 28/08** : quatre composants en `.tsx`, `strict: true`, `typecheck` branché dans le `build`. Et le typage a confirmé l'avertissement de cette leçon-là : `Categorie` dans `src/types.ts` déclare une forme qu'**aucune route ne renvoie**. TypeScript fait confiance aux déclarations, jamais aux données
 - **🔗 Pont** · [[2026-08-07_lecon-appli-ia_02_socle-web-premier-ecran]]
