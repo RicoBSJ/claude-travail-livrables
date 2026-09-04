@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react'
+// App.tsx — mis à jour leçon 06 (04/09/2026)
+// Ajout : état des filtres, useMemo pour les listes dérivées, BarreRecherche.
+
+import { useState, useEffect, useMemo } from 'react'
 import GrilleCategorie from './GrilleCategorie'
-import type { Inventaire } from './types'
+import BarreRecherche from './BarreRecherche'
+import type { Inventaire, Livrable } from './types'
 import './index.css'
 
 // Labels lisibles pour chaque clé de catégorie retournée par l'API.
-// L'API retourne { lecons: {...}, quiz: {...}, ... } — on traduit ici.
 const LABELS: Record<string, string> = {
   lecons: 'Leçons',
   quiz: 'Quiz',
@@ -14,17 +17,52 @@ const LABELS: Record<string, string> = {
   controles: 'Contrôles',
 }
 
+// Extensions reconnues dans le portail — sert à peupler le <select> Format.
+// L'ordre reflète la fréquence d'apparition plutôt que l'ordre alphabétique.
+const EXTENSIONS_CONNUES = ['.docx', '.pptx', '.pdf', '.md']
+
+// Normalise une chaîne pour la recherche : minuscules, sans accents.
+// Cela permet de taper "lecon" et de trouver "leçon", ou "education" pour "éducation".
+function normaliser(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFD')           // décompose les caractères accentués
+    .replace(/[\u0300-\u036f]/g, '') // supprime les diacritiques
+}
+
+// Teste si un livrable correspond aux trois filtres actifs.
+// Exportée ici pour être réutilisable et testable unitairement en leçon 09.
+export function matcheFiltres(
+  livrable: Livrable,
+  recherche: string,
+  extension: string
+): boolean {
+  // Filtre par extension (exact)
+  if (extension !== '' && livrable.extension !== extension) return false
+
+  // Filtre par texte : on cherche dans le nom ET dans le slug normalisés.
+  if (recherche !== '') {
+    const cible = normaliser(livrable.nom + ' ' + livrable.slug)
+    if (!cible.includes(normaliser(recherche))) return false
+  }
+
+  return true
+}
+
 function App() {
-  // Trois variables d'état :
-  //   inventaire  → les données reçues de l'API (null tant que non chargées)
-  //   chargement  → true pendant la requête, false ensuite
-  //   erreur      → message d'erreur ou null si tout va bien
+  // ── État des données ────────────────────────────────────────────────────
   const [inventaire, setInventaire]  = useState<Inventaire | null>(null)
   const [chargement, setChargement]  = useState(true)
   const [erreur, setErreur]          = useState<string | null>(null)
 
+  // ── État des filtres ────────────────────────────────────────────────────
+  // Trois variables d'état distinctes plutôt qu'un objet unique : chaque
+  // setState ne re-rend que les composants qui lisent cette valeur.
+  const [recherche, setRecherche]           = useState('')
+  const [categorieActive, setCategorieActive] = useState('')
+  const [extensionActive, setExtensionActive] = useState('')
+
   // useEffect avec [] : s'exécute UNE SEULE FOIS, au montage du composant.
-  // Sans [], il s'exécuterait après CHAQUE re-render → boucle infinie.
   useEffect(() => {
     fetch('/api/inventaire')
       .then(reponse => {
@@ -46,8 +84,31 @@ function App() {
       })
   }, [])
 
-  // Rendu conditionnel selon l'état courant.
-  // React affiche ce que la fonction retourne — rien d'autre.
+  // ── Données dérivées avec useMemo ───────────────────────────────────────
+  // La liste des catégories à afficher dépend du filtre catégorieActive.
+  // useMemo recalcule seulement si inventaire ou categorieActive changent —
+  // pas à chaque frappe dans le champ texte, par exemple.
+  const categoriesVisibles = useMemo(() => {
+    if (inventaire === null) return []
+    if (categorieActive === '') return Object.keys(inventaire)
+    return Object.keys(inventaire).filter(cle => cle === categorieActive)
+  }, [inventaire, categorieActive])
+
+  // Compteur global de résultats : somme des fichiers correspondant aux filtres
+  // dans toutes les catégories visibles. Cette valeur n'est disponible qu'ici
+  // car GrilleCategorie charge ses propres données.
+  // On s'appuie sur les compteurs de l'inventaire (pas sur les listes chargées
+  // par GrilleCategorie) — approximation acceptable : l'inventaire agrège tout.
+  // La valeur exacte par catégorie est affichée dans chaque GrilleCategorie.
+  const totalFichiers = useMemo(() => {
+    if (inventaire === null) return 0
+    return categoriesVisibles.reduce(
+      (acc, cle) => acc + inventaire[cle].nombre,
+      0
+    )
+  }, [inventaire, categoriesVisibles])
+
+  // ── Rendu conditionnel ─────────────────────────────────────────────────
   if (chargement) {
     return <p className="statut">Chargement de l'inventaire…</p>
   }
@@ -64,34 +125,55 @@ function App() {
     )
   }
 
-  // À ce stade, chargement et erreur sont faux — mais TypeScript ne le déduit pas
-  // des deux `return` précédents. Ce garde explicite le lui apprend, et protège
-  // d'un vrai cas : une réponse 200 dont le corps serait `null`.
   if (inventaire === null) {
     return <p className="statut">Aucune donnée reçue.</p>
   }
-
-  const totalFichiers = Object.values(inventaire)
-    .reduce((acc, cat) => acc + cat.nombre, 0)
 
   return (
     <div className="portail">
       <header className="en-tete">
         <h1>Portail Livrables</h1>
         <p className="sous-titre">
-          {Object.keys(inventaire).length} catégorie(s) · {totalFichiers} fichier(s)
+          {Object.keys(inventaire).length} catégorie(s) ·{' '}
+          {Object.values(inventaire).reduce((a, c) => a + c.nombre, 0)} fichier(s)
         </p>
       </header>
 
+      {/* Barre de recherche — composant contrôlé, état dans App */}
+      <BarreRecherche
+        valeurRecherche={recherche}
+        categorieActive={categorieActive}
+        extensionActive={extensionActive}
+        categories={Object.keys(inventaire)}
+        labels={LABELS}
+        extensions={EXTENSIONS_CONNUES}
+        onRecherche={setRecherche}
+        onCategorie={setCategorieActive}
+        onExtension={setExtensionActive}
+        nombreResultats={totalFichiers}
+      />
+
       <main className="contenu">
-        {Object.entries(inventaire).map(([cle, categorie]) => (
+        {categoriesVisibles.map(cle => (
           <GrilleCategorie
             key={cle}
             nomCle={cle}
             label={LABELS[cle] !== undefined ? LABELS[cle] : cle}
-            categorie={categorie}
+            categorie={inventaire[cle]}
+            // On passe une fonction de filtre, pas les valeurs brutes.
+            // GrilleCategorie peut ainsi filtrer sa propre liste sans
+            // connaître la logique métier — c'est la responsabilité d'App.
+            filtreLivrable={(liv: Livrable) =>
+              matcheFiltres(liv, recherche, extensionActive)
+            }
           />
         ))}
+
+        {categoriesVisibles.length === 0 && (
+          <p className="statut">
+            Aucune catégorie ne correspond aux filtres actifs.
+          </p>
+        )}
       </main>
 
       <footer className="pied-de-page">

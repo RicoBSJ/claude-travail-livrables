@@ -107,6 +107,66 @@ body {
 }
 .vide { color: #9ca3af; font-style: italic; font-size: 0.9rem; }
 
+/* ── Barre de recherche / filtres (leçon 06) ──────────────── */
+.barre-recherche {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  background: white;
+  border-radius: 8px;
+  padding: 0.85rem 1.2rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.barre-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1b3a6b;
+  white-space: nowrap;
+}
+.barre-input {
+  flex: 1 1 180px;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid #c7d3e3;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: #1f2937;
+  background: #f8fafc;
+}
+.barre-input:focus { outline: 2px solid #1b3a6b; outline-offset: 1px; }
+.barre-select {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid #c7d3e3;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: #1f2937;
+  background: #f8fafc;
+  cursor: pointer;
+}
+.barre-select:focus { outline: 2px solid #1b3a6b; outline-offset: 1px; }
+.barre-resultats {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+.barre-reset {
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.82rem;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.barre-reset:hover { background: #fee2e2; }
+.barre-reset:focus-visible { outline: 2px solid #dc2626; outline-offset: 2px; }
+
 /* ── Pied de page ────────────────────────────────────────── */
 .pied-de-page {
   text-align: center;

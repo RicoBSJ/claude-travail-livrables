@@ -8,18 +8,17 @@
 
 ## État de l'application
 
-**React + Vite opérationnel — leçon 05 terminée et documentée (28/08/2026).**
+**React + Vite avec recherche et filtres — leçon 06 terminée et documentée (04/09/2026).**
 
-Le Portail Livrables dispose maintenant de deux couches distinctes :
+Le Portail Livrables dispose de deux couches distinctes :
 - **API (port 3000)** : `node scripts/serveur.js` — inchangé depuis la leçon 04
 - **Frontend React (port 5173 en dev)** : `cd frontend && npm install && npm run dev`
 
-Le frontend React lit `/api/inventaire` (compteurs par catégorie) **et**
-`/api/livrables?categorie=X` (liste complète de chaque catégorie) via un proxy Vite, et
-affiche les livrables en grille de cartes, dépliables au-delà de 12. La décision de framework est tranchée : **React + Vite**.
-
-Interface vanilla (`public/`) toujours présente pour référence ; le frontend React la remplace
-fonctionnellement. Les deux coexistent sans conflit.
+Le frontend React affiche désormais une barre de recherche + filtres par catégorie et extension.
+La logique de filtrage est centralisée dans `App.tsx` (composant contrôlé) et transmise à
+`GrilleCategorie.tsx` via une prop de type fonction (`filtreLivrable`). Le filtrage en mémoire
+utilise `useMemo` pour éviter les recalculs inutiles. La normalisation NFD rend la recherche
+insensible aux accents (« lecon » trouve « leçon »).
 
 ## Choix techniques arrêtés
 
@@ -32,7 +31,8 @@ fonctionnellement. Les deux coexistent sans conflit.
 | Serveur HTTP | Module natif `node:http` — sans framework | leçon 02 |
 | Style asynchrone | `fs.promises` + `async/await` (remplace callbacks et méthodes Sync) | leçon 04 |
 | Framework d'interface | **React + Vite v8.2.2** (vérifié vite.dev le 28/08/2026) | leçon 05 |
-| Composants | **TSX** fonctionnels, `useState` + `useEffect`, props typées par interface | leçon 05 |
+| Composants | **TSX** fonctionnels, `useState` + `useEffect` + `useMemo`, props typées par interface | leçon 05-06 |
+| Filtrage | Composant contrôlé + prop fonction + useMemo + normalisation NFD | leçon 06 |
 | Base de données | *à décider leçon 07* | — |
 
 Aucune bibliothèque tierce côté serveur. Côté frontend, les quatre dépendances sont **épinglées**
@@ -64,13 +64,14 @@ reproductible et autorise l'installation d'une majeure incompatible.
 | `frontend/vite.config.js` | **Nouveau leçon 05** — Plugin React + proxy `/api` → localhost:3000 |
 | `frontend/index.html` | **Nouveau leçon 05** — Point d'entrée Vite, monte `#root` |
 | `frontend/src/main.tsx` | Leçon 05, typé le 28/08 — `createRoot` + `StrictMode`, garde explicite sur `#root` |
-| `frontend/src/App.tsx` | Leçon 05, typé le 28/08 — Composant racine : fetch `/api/inventaire`, 3 états typés |
-| `frontend/src/GrilleCategorie.tsx` | Leçon 05, enrichi et typé le 28/08 — charge `/api/livrables?categorie=X`, dépliage à 12 cartes |
+| `frontend/src/App.tsx` | **Mis à jour leçon 06** — Composant racine : état des filtres (recherche, catégorieActive, extensionActive), useMemo sur categoriesVisibles et totalFichiers, fonction matcheFiltres exportée |
+| `frontend/src/BarreRecherche.tsx` | **Nouveau leçon 06** — Composant contrôlé : champ texte + 2 <select> + compteur résultats + bouton reset |
+| `frontend/src/GrilleCategorie.tsx` | **Mis à jour leçon 06** — reçoit prop `filtreLivrable`, applique useMemo sur la liste filtrée, useEffect pour replier quand le filtre change |
+| `frontend/src/CarteLivrable.tsx` | Leçon 05, typé le 28/08 — Carte individuelle : ext, slug, date (ou null), taille |
 | `frontend/src/types.ts` | **Nouveau 28/08** — contrat de l'API vu du navigateur : `Livrable`, `CategorieResumee`, `Inventaire`, `ReponseLivrables` |
 | `frontend/src/vite-env.d.ts` | **Nouveau 28/08** — déclare les imports gérés par Vite (CSS…) |
 | `frontend/tsconfig.json` | **Nouveau 28/08** — `strict`, `jsx: react-jsx`, `moduleResolution: bundler`, `noEmit` |
-| `frontend/src/CarteLivrable.tsx` | Leçon 05, typé le 28/08 — Carte individuelle : ext, slug, date (ou null), taille |
-| `frontend/src/index.css` | **Nouveau leçon 05** — Styles React : portail, en-tête, grille de cartes |
+| `frontend/src/index.css` | **Mis à jour leçon 06** — Ajout styles `.barre-recherche`, `.barre-label`, `.barre-input`, `.barre-select`, `.barre-resultats`, `.barre-reset` |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
 ## Livré à la leçon 01 (02/08/2026)
@@ -150,9 +151,21 @@ reproductible et autorise l'installation d'une majeure incompatible.
   le portail se charge sans erreur console — 6 catégories, 462 fichiers, 232 leçons après
   dépliage, 25 fichiers en « date inconnue ».
 
+## Livré à la leçon 06 (04/09/2026)
+
+- Nouveau composant `frontend/src/BarreRecherche.tsx` : composant contrôlé avec champ de texte libre,
+  menu Catégorie, menu Format (extension), compteur de résultats, bouton « Effacer les filtres ».
+- Mise à jour `frontend/src/App.tsx` : 3 nouveaux états (`recherche`, `categorieActive`, `extensionActive`),
+  fonction `matcheFiltres` (exportée, testable), `useMemo` sur `categoriesVisibles` et `totalFichiers`,
+  normalisation NFD pour la recherche insensible aux accents.
+- Mise à jour `frontend/src/GrilleCategorie.tsx` : nouvelle prop `filtreLivrable: (livrable: Livrable) => boolean`,
+  `useMemo` sur la liste filtrée, `useEffect([filtreLivrable])` pour replier automatiquement quand le filtre change,
+  masquage de la section entière si aucun résultat.
+- Mise à jour `frontend/src/index.css` : styles `.barre-recherche`, `.barre-input`, `.barre-select`,
+  `.barre-resultats`, `.barre-reset`.
+
 ## Reste à faire
 
-6. Recherche et filtres : champ de texte, filtres par catégorie et extension (leçon 06)
 7. Persistance (SQLite, leçon 07)
 8. API et architecture (leçon 08)
 9. Qualité, tests, débogage (leçon 09)
@@ -169,6 +182,9 @@ reproductible et autorise l'installation d'une majeure incompatible.
 - ✅ ~~Le frontend n'est pas typé~~ — **soldé le 28/08/2026** : `frontend/src/` est en
   `.tsx`, `strict: true`, `npm run typecheck` au vert et intégré au `build`.
 
+- ✅ ~~Recherche et filtres absents~~ — **soldé le 04/09/2026** (leçon 06) : barre de
+  recherche textuelle (NFD), filtres catégorie et extension, useMemo, prop fonction.
+
 - ⚠️ **Deux contrats de données coexistent** (constaté le 28/08/2026 en typant le
   frontend). `src/types.ts` déclare `Categorie` avec `recents` ET `livrables`
   obligatoires — or aucune route ne renvoie cette forme : `/api/inventaire` omet
@@ -177,10 +193,9 @@ reproductible et autorise l'installation d'une majeure incompatible.
   circule réellement. **À réconcilier en leçon 08** (API et architecture) : le contrat
   devrait être unique et partagé.
 
-
 - **9 livrables sans date dans leur nom** (constaté le 08/08/2026) : quiz, infographies et
   documents antérieurs à la convention `YYYY-MM-DD_`. La spec v1.2 tranche : ne pas les exclure,
-  les signaler (`date: null`) et les classer en fin de liste. Traité côté interface en leçon 06.
+  les signaler (`date: null`) et les classer en fin de liste. Traité côté interface depuis leçon 05.
 
 - **Périmètre tranché en leçon 01** : lecons, quiz, infographies, sources/veille, documents, controles.
   Extensions : `.docx`, `.pptx`, `.pdf`, `.md`.
@@ -191,10 +206,12 @@ reproductible et autorise l'installation d'une majeure incompatible.
 - **Chemin racine en dur** : tous les scripts remontent de 4 niveaux depuis `__dirname`.
   Fonctionnel mais cassant si le projet est déplacé. Dette assumée, à traiter en leçon 08.
 
-- **Versions React non épinglées** : `package.json` de frontend/ utilise `"*"` pour react et
-  react-dom — la version installée dépend de la date d'installation. À figer en leçon 11 (mise
-  en production) une fois que les versions sont connues et validées.
-
 - **Interface vanilla coexistante** : `public/` reste présent et fonctionnel. Le port 3000
   sert encore les fichiers statiques vanilla si on navigue sur http://localhost:3000. La leçon 11
   tranchera : servir le build React depuis le serveur Node.js et retirer l'interface vanilla.
+
+- **Compteur de résultats dans BarreRecherche** : affiche le nombre de fichiers dans les
+  catégories visibles d'après les compteurs de `/api/inventaire`, pas le nombre exact de
+  résultats après filtre textuel (ces données vivent dans GrilleCategorie, pas dans App).
+  Approximation acceptable en l'état ; à améliorer si on remonte les compteurs vers App
+  en leçon 08.
