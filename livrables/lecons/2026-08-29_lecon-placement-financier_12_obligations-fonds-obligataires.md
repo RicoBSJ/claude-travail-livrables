@@ -36,6 +36,8 @@ Après les enveloppes, une classe d'actifs — et la continuité est bien trouv�
 
 - **⬅️ Précédente** · [[2026-08-22_lecon-placement-financier_11_epargne-salariale-pee-pereco-interessement-abondement]]
   la leçon le dit bien : les fonds obligataires sont les supports « prudents » proposés dans les PEE et PERECO qu'on vient d'étudier. On passe du contenant au contenu
+- **➡️ Suivante** · [[2026-09-05_lecon-placement-financier_13_etf-gestion-indicielle]]
+  les ETF généralisent à toutes les classes d'actifs le principe du fonds obligataire vu ici. Mais elle conclut à tort que le MSCI World n'est pas éligible au PEA, alors qu'elle décrit elle-même la réplication synthétique qui le rend possible
 - **🔗 Pont** · [[2026-08-15_lecon-placement-financier_10_fiscalite-revenus-capital]]
   le tableau fiscal reprend exactement le régime posé là — PFU à 31,4 %, exception à 29,2 % pour l'assurance-vie et les PEL/CEL, option barème globale. Trois leçons de suite qui concordent sur les taux 2026, ce qui n'allait pas de soi
 - **🔗 Pont** · [[2026-08-08_lecon-placement-financier_09_frais-impact-long-terme]]
