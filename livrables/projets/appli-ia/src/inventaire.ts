@@ -27,12 +27,12 @@ const DOCS_DE_DOSSIER: string[] = ['readme.md'];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function extracterDate(nom: string): string | null {
+function extraireDate(nom: string): string | null {
   const match = nom.match(/^(\d{4}-\d{2}-\d{2})/);
   return match ? match[1] : null;
 }
 
-function extraerSlug(nom: string): string {
+function extraireSlug(nom: string): string {
   const { name } = path.parse(nom);
   const match = name.match(/^\d{4}-\d{2}-\d{2}_(.+)$/);
   return match ? match[1] : name;
@@ -75,8 +75,8 @@ async function inventorierDossier(
       } catch { /* inaccessible */ }
       livrables.push({
         nom:       entree.name,
-        date:      extracterDate(entree.name),
-        slug:      extraerSlug(entree.name),
+        date:      extraireDate(entree.name),
+        slug:      extraireSlug(entree.name),
         taille,
         extension: path.extname(entree.name).toLowerCase(),
       });

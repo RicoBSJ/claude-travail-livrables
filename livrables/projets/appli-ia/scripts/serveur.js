@@ -6,7 +6,7 @@
 //
 // Changements leçon 04 :
 //   - async/await remplace les callbacks imbriqués (fs.promises)
-//   - extracterDate() et extraerSlug() extraient les métadonnées du nom de fichier
+//   - extraireDate() et extraireSlug() extraient les métadonnées du nom de fichier
 //   - Résout l'écart n°3 : date issue du NOM, pas du mtime
 //   - PORT configurable via variable d'environnement
 //   - Nouvelle route /api/livrables?categorie=X pour accès ciblé
@@ -50,7 +50,7 @@ const DOCS_DE_DOSSIER = ['readme.md'];
  *   "2026-08-21_lecon-appli-ia_04_donnees.docx" → "2026-08-21"
  *   "quiz_rbpp_bientraitance.pptx"               → null
  */
-function extracterDate(nom) {
+function extraireDate(nom) {
   const match = nom.match(/^(\d{4}-\d{2}-\d{2})/);
   return match ? match[1] : null;
 }
@@ -63,7 +63,7 @@ function extracterDate(nom) {
  *   "2026-08-21_lecon-appli-ia_04_donnees.docx" → "lecon-appli-ia_04_donnees"
  *   "quiz_rbpp_bientraitance.pptx"               → "quiz_rbpp_bientraitance"
  */
-function extraerSlug(nom) {
+function extraireSlug(nom) {
   const { name } = path.parse(nom);
   const match = name.match(/^\d{4}-\d{2}-\d{2}_(.+)$/);
   return match ? match[1] : name;
@@ -115,8 +115,8 @@ async function inventorierDossier(dossierPath, extensions, recursif) {
       }
       livrables.push({
         nom:       entree.name,
-        date:      extracterDate(entree.name),   // null si hors convention
-        slug:      extraerSlug(entree.name),
+        date:      extraireDate(entree.name),   // null si hors convention
+        slug:      extraireSlug(entree.name),
         taille,
         extension: path.extname(entree.name).toLowerCase(),
       });

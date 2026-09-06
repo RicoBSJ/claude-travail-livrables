@@ -15,6 +15,9 @@ tags:
   - notion/event-loop
   - notion/query-params
   - notion/variable-environnement
+  - theme/identifiant-mal-orthographie
+  - alerte/corrige
+  - correction/2026-09-06
   - projet/portail-livrables
 ---
 
@@ -33,6 +36,12 @@ La théorie va au bon endroit : **pourquoi** Node est asynchrone, boucle d'évé
 **J'ai exécuté l'étape 4 (« CASSER ») plutôt que de la croire — un des quatre résultats annoncés était faux, corrigé dans le document le 21/08/2026.** Le paramètre manquant et la catégorie inconnue renvoient bien **400**, la route inconnue **404**, et l'API répond correctement (215 leçons, `date` et `slug` conformes). Mais la tentative de *path traversal* `curl 'http://localhost:3000/../../etc/passwd'` était annoncée en **403** et retourne **404** — y compris avec `--path-as-is`, donc ce n'est pas curl qui normalise, et les formes encodées (`%2e%2e`, `..%2f`) ne changent rien. La cause est en amont : `new URL()` réduit le chemin à `/etc/passwd`, qui reste sous `DOSSIER_PUBLIC` et échoue à la lecture avant d'atteindre le garde-fou. **La branche 403 de la ligne 238 n'est donc atteignable par aucune requête HTTP en l'état** — le garde-fou est correct, c'est l'exercice qui ne l'exerçait pas. La correction ajoute au document l'explication technique et ce que le cas enseigne : **un garde-fou inatteignable reste utile**, il couvre le jour où la couche d'avant changera.
 
 Une relecture complète a relevé quatre points de plus, corrigés le même jour. Le plus gênant est l'indice de l'étape « PRÉDIRE » : `ls livrables/lecons/*.docx | wc -l` donne **107** quand l'API en retourne **~214**, la catégorie étant déclarée `['.docx', '.md']` — **une prédiction fausse d'un facteur 2 dans l'exercice dont le principe est justement de prédire puis vérifier**. Ensuite, la dépréciation d'`url.parse()`, annoncée « depuis v11, marquée Legacy » : le tableau *History* officiel montre une trajectoire en zigzag — dépréciée en v11, **révoquée en v14.17/v15.13** (« Legacy » était justement l'état *non* déprécié), redocumentée en v18.13/v19, puis *application deprecation* en **v24.0.0**, la version que le projet fait tourner. Enfin 276 lignes et non 277, et un avertissement ajouté sur l'écart entre la doc citée (v26.7.0) et le runtime local (v24.15.0). **Les quatre plages d'extraits citées, elles, sont exactes** — vérifiées une à une.
+
+**Le défaut : deux fonctions sœurs, deux racines fautives différentes.** Elles s'appelaient `extracterDate()` et `extra**er**Slug()`. **« extraer » est de l'espagnol** — le verbe français est *extraire* — et **« extracter » n'existe pas** davantage. Deux fonctions faisant le même genre de travail portaient donc deux orthographes inventées, différentes l'une de l'autre. Le code compilait, `npm run build` passait, le lint ne disait rien : **les identifiants étaient cohérents avec eux-mêmes**, ce qu'aucun contrôle automatique ne voit. Renommées en `extraireDate()` / `extraireSlug()` en **14 emplacements** — `scripts/serveur.js`, `src/inventaire.ts`, `PROJET.md` et la leçon. **Vérifié après renommage** : `npm run build` passe, `dist/` régénéré sans résidu, `node dist/inventaire.js` s'exécute, et le serveur relancé répond sur ses deux routes — `/api/livrables?categorie=controles` retourne bien 4 livrables avec dates et slugs extraits du nom.
+
+**C'est exactement le défaut qui a donné la règle 11** (`livrablesFiltes`, leçon 06, 04/09) — mais **cette occurrence est antérieure de deux semaines et demie**. La règle a été écrite sur la seconde occurrence sans que la première soit vue ; elle dormait dans le code depuis le 21/08.
+
+**Ce qui est exact, et remarquablement.** L'historique de dépréciation d'`url.parse()` est juste **ligne par ligne** face au tableau *History* de la doc : dépréciation en **v11.0.0**, **révocation** en v14.17.0 / v15.13.0 avec retour à « Legacy », dépréciation documentaire en v18.13.0 / v19.0.0, *application deprecation* en **v24.0.0**, et le libellé *« 0 - Deprecated: Use the WHATWG URL API instead »* **mot pour mot**. La leçon a raison d'écrire que cette histoire *« est moins linéaire qu'on ne le dit »* plutôt que de répéter que l'API est dépréciée. Et un réflexe qu'on ne trouve nulle part ailleurs dans le corpus : elle **distingue la version qu'elle lit de celle qu'elle exécute** — *« nodejs.org publie la documentation de la version courante, ici v26.7.0, alors que ce projet tourne sur v24.15.0 (LTS) »*.
 
 ## Notes liées
 

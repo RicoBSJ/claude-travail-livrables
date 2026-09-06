@@ -60,7 +60,7 @@ reproductible et autorise l'installation d'une majeure incompatible.
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store` |
 | `scripts/inventaire.js` | Inventaire terminal (JavaScript synchrone) — version d'origine. Lecture seule. |
 | `scripts/demo_recursivite.js` | Annexe pédagogique — même logique qu'inventaire.js, commentée. |
-| `scripts/serveur.js` | **Mis à jour leçon 04** — Serveur HTTP local (port 3000). async/await, `extracterDate()`, `extraerSlug()`. Routes `/api/inventaire` + `/api/livrables?categorie=X`. |
+| `scripts/serveur.js` | **Mis à jour leçon 04** — Serveur HTTP local (port 3000). async/await, `extraireDate()`, `extraireSlug()`. Routes `/api/inventaire` + `/api/livrables?categorie=X`. |
 | `src/types.ts` | **Mis à jour leçon 04** — Interface `Livrable` enrichie (date, slug, extension). |
 | `src/inventaire.ts` | **Mis à jour leçon 04** — Version TypeScript async/await. |
 | `dist/` | Généré par `npm run build` — Ne pas éditer. |
@@ -115,7 +115,7 @@ reproductible et autorise l'installation d'une majeure incompatible.
 ## Livré à la leçon 04 (21/08/2026)
 
 - Réécriture de `scripts/serveur.js` en `fs.promises` + async/await.
-- Ajout de `extracterDate()` et `extraerSlug()` — extraction depuis le nom de fichier.
+- Ajout de `extraireDate()` et `extraireSlug()` — extraction depuis le nom de fichier.
 - Résolution de l'écart n°3 : tri par date du NOM, `date: null` pour les fichiers hors convention.
 - `PORT` depuis variable d'environnement (`process.env.PORT || 3000`).
 - Nouvelle route `/api/livrables?categorie=X` — liste complète avec `new URL()` pour query params.
