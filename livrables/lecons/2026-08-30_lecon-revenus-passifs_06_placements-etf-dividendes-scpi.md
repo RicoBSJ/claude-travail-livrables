@@ -38,6 +38,8 @@ L'autre famille de revenus passifs, après les produits numériques : **le capit
 
 - **⬅️ Précédente** · [[2026-08-23_lecon-revenus-passifs_05_produits-numeriques-affiliation]]
   l'opposition est explicite : là un fort effort créatif et peu de capital, ici l'inverse. Les deux leçons partagent la même méthode — chiffres d'échec, travail caché, fiscalité, signaux d'arnaque
+- **➡️ Suivante** · [[2026-09-06_lecon-revenus-passifs_07_automatisations-no-code-micro-saas-agents-ia]]
+  l'autre extrémité du spectre : des modèles fondés sur la compétence et le temps, non sur le capital. Toute l'arithmétique y est juste, mais deux chiffres de la même source s'y contredisent à deux lignes d'écart
 - **🔗 Pont** · [[2026-08-01_lecon-placement-financier_08_immobilier-scpi-pierre-papier]]
   **les deux parcours traitent les SCPI à un mois d'écart.** Celui-ci insiste sur les frais d'entrée de 5 à 12 % ; celui-là ajoute ce qui manquait — la performance globale négative de 2024, que le seul taux de distribution masque
 - **🔗 Pont** · [[2026-08-15_lecon-placement-financier_10_fiscalite-revenus-capital]]
