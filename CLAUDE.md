@@ -242,10 +242,10 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
   | Plafond | Jobs |
   |---|---|
   | **4 $** | `imac-veille` · `rbpp-pipeline` · `controle-livrables` |
-  | **3 $** | `ai-act-veille` · `appli-ia-lecon` · `astrologie-karmique-lecon` · `dzogchen-lecon` · `enneagramme-lecon` · `hypnose-lecon` · `placement-financier-lecon` · `revenus-passifs-lecon` · `serafin-ph-veille` · `stoicisme-lecon` |
-  | **2 $** (défaut) | `psychopathologie-lecon` |
+  | **3 $** | `ai-act-veille` · `appli-ia-lecon` · `astrologie-karmique-lecon` · `dzogchen-lecon` · `enneagramme-lecon` · `hypnose-lecon` · `placement-financier-lecon` · `psychopathologie-lecon` · `revenus-passifs-lecon` · `serafin-ph-veille` · `stoicisme-lecon` |
+  | **2 $** (défaut) | *aucun* |
 
-  Cumul : **44 $/semaine**. `psychopathologie-lecon` est désormais le **seul prompt jamais durci** — donc le seul dont on ignore ce qu'il laisse passer.
+  Cumul : **45 $/semaine**. Depuis le 06/09/2026, **les 14 jobs ont un plafond explicite** : plus aucun ne tourne au défaut. Les 14 prompts portent tous au moins une règle née d'un incident daté qui leur est propre.
 
   Un dépassement fait sortir `claude -p` en erreur, brûle les 3 tentatives et perd le créneau hebdo (RGPD du 05/07/2026, iMac du 19/07/2026, astrologie-karmique du 27/08/2026). **Règle empirique** : tout durcissement de prompt qui ajoute des vérifications coûte plus cher que le plafond hérité — relever dans la foulée plutôt qu'après l'échec (fait le 01/09/2026 pour `dzogchen-lecon` et `hypnose-lecon`). Chaque ligne du `case` porte en commentaire la raison de son relèvement.
 - **Retry intégré** : jusqu'à **3 tentatives** (backoff 90s → 180s) en cas d'échec transitoire (timeout réseau/API au réveil du Mac). Un skip pour doublon (exit 0) n'est jamais retenté. Sans ce garde-fou, un job hebdo qui rate son unique créneau perdait 7 jours.
@@ -292,7 +292,8 @@ Les **sept parcours perso** (`dzogchen`, `enneagramme`, `psychopathologie`, `pla
 
 - **Chaque règle porte son incident daté réel** — c'est ce qui la rend applicable. Ne jamais ajouter une règle « par symétrie » avec un autre parcours : sans cas constaté, elle se noie dans les autres.
 - **Une règle sans test mécanique ne tient pas**, et un test mécanique mal écrit est pire qu'aucun test : il valide. Deux occurrences, toutes deux dans des garde-fous que je venais d'écrire — `grep -c` sur un `.rels` d'une seule ligne (02/09, renvoie 1 pour 1 lien comme pour 20) et un `grep` sur un pourcentage nu (06/09 : « 30% » et « 15% » figurent bien dans la page, appliqués à tout autre chose, et auraient authentifié un tableau fabriqué). Un test se vérifie **sur le cas qui l'a motivé** avant d'être écrit dans un prompt.
-- Les familles ne sont pas peuplées uniformément : `dzogchen` a 15 règles, `revenus-passifs` 15 depuis le 06/09 (dont 8 en A, sur les chiffres, les tableaux, les prix et les prédictions), les quatre parcours de doctrine 7.
+- **Une structure vide n'est pas un garde-fou.** `psychopathologie` portait les cinq familles depuis le 27/08, mais ses règles étaient génériques ou empruntées à d'autres parcours (l'incident B1 venait de l'ennéagramme, les incidents D du dzogchen et du stoïcisme) : aucune ne venait de ses propres défauts. Vérifier la présence des familles ne dit rien ; **la question est de savoir quelle règle porte un incident de CE parcours**.
+- Les familles ne sont pas peuplées uniformément : `dzogchen` a 15 règles, `revenus-passifs` 15 depuis le 06/09 (dont 8 en A, sur les chiffres, les tableaux, les prix et les prédictions), `psychopathologie` 12 depuis le 06/09 (régime de l'énoncé clinique, hiérarchie des sources, soft-200 HAS, grille de la leçon, double datation ANESM/HAS), les trois autres parcours de doctrine 7.
 - **Le régime des chiffres groupés (06/09/2026)** : `revenus-passifs` porte les règles nées de la leçon 07 — **A3 bis** un tableau se recopie ligne à ligne (bornes comprises), **A6** deux chiffres sur la même grandeur se confrontent, **A7** un prix commercial s'écrit avec sa condition, **B2** un titre n'est pas un contenu, **B3** une page refusée à WebFetch se retente en `curl` avec un en-tête navigateur. Elles généralisent aux **ensembles** de chiffres ce que l'A1 bis de `placement-financier` (05/09) dit des citations : *un chiffre exact posé à côté d'un chiffre fabriqué authentifie l'ensemble*.
 - **`astrologie-karmique-lecon` garde ses garde-fous propres** (voir ci-dessus) et n'est pas encore passé aux familles.
 - Les prompts de veille et de projet (`rbpp-pipeline`, `imac-veille`, `serafin-ph-veille`, `ai-act-veille`, `appli-ia-lecon`, `controle-livrables`) conservent leurs garde-fous spécifiques.
