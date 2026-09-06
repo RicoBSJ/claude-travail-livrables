@@ -64,7 +64,7 @@ RETRY_DELAYS=(90 180)   # attente (s) avant les tentatives 2 et 3
 # échouent et le créneau (hebdo) est perdu. On relève le plafond au cas par cas.
 BUDGET_DEFAULT="2.00"
 case "$JOB_ID" in
-  imac-veille)   BUDGET="3.50" ;;   # 10 sources (Apple ×6, 9to5Mac, Fnac/Darty) : a dépassé les 2 $ le 19/07/2026 (sauvé par le retry)
+  imac-veille)   BUDGET="4.00" ;;   # 10 sources (Apple ×6, 9to5Mac, Fnac/Darty) : a dépassé les 2 $ le 19/07/2026 (sauvé par le retry). Relevé de 3,50 à 4 $ le 06/09/2026 : le durcissement du même jour ajoute le relevé intégral de la page Refurb (8 lignes iMac au 06/09, la note n'en prenait que 2), le passage par consomac.fr comme source de prix, et la vérification d'attribution du calendrier M6 (ce que Gurman dit vs ce qu'un site déduit). L'allègement du périmètre — 3 configurations lisibles au lieu de 5 CTO illisibles — joue en sens inverse, d'où un relèvement d'un demi-dollar seulement
   rbpp-pipeline) BUDGET="4.00" ;;   # peut générer jusqu'à 3 livrables (veille + quiz 100 Q + infographie)
   controle-livrables) BUDGET="4.00" ;;   # contrôle toute la semaine : nombreux curl + remontées aux sources primaires
   astrologie-karmique-lecon) BUDGET="3.00" ;;   # deux régimes de sources à croiser (astronomie institutionnelle + corpus) ; a dépassé les 2 $ le 27/08/2026 après le durcissement du prompt du 20/08
