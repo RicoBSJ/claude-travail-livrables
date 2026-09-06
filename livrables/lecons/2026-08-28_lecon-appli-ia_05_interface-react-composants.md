@@ -16,7 +16,10 @@ tags:
   - notion/jsx
   - notion/proxy-cors
   - projet/portail-livrables
-  - alerte/a-corriger
+  - theme/fichiers-vs-lecons
+  - theme/comportement-runtime-non-verifie
+  - alerte/corrige
+  - correction/2026-09-06
 ---
 
 # 2026-08-28_lecon-appli-ia_05_interface-react-composants
@@ -34,6 +37,12 @@ Le choix annoncé en leçon 04 est tranché : **React + Vite**, dans un dossier 
 **La seconde dette est soldée aussi : le frontend est typé.** Quatre composants passés en `.tsx`, `strict: true`, `typecheck` branché dans le `build`. **Le typage a trouvé trois erreurs réelles** — l'import CSS non déclaré, et surtout deux conditions qui testaient `!chargement && !erreur` pour en déduire que la liste était chargée : vrai en pratique, garanti par rien. Elles testent maintenant `livrables !== null`. Le compilateur n'a pas signalé un bug qui plantait aujourd'hui, il a signalé **une hypothèse implicite**. Il a aussi mis au jour que `src/types.ts` déclare `Categorie` avec `recents` **et** `livrables` obligatoires, forme qu'aucune des deux routes ne renvoie — réconciliation renvoyée à la leçon 08.
 
 **Et le garde-fou des versions a été contourné, pas respecté.** Vite est correctement traité : `^8.2.2`, annoncé comme vérifié le 28/08 — je l'ai confirmé, c'est bien la version courante. Mais `frontend/package.json` déclare **`"react": "*"`, `"react-dom": "*"` et `"@vitejs/plugin-react": "*"`**. Trois dépendances sur quatre en plage totalement ouverte. La règle du parcours dit de ne jamais écrire une version de mémoire ; y échapper en n'écrivant **aucune** version est pire qu'une version périmée — le build cesse d'être reproductible, et un `npm install` dans six mois peut ramener une majeure incompatible. **Corrigé le 28/08** : les trois dépendances sont épinglées — React et React-DOM en `^19.2.8`, `@vitejs/plugin-react` en `^6.1.1`, versions relevées avec `npm show`. La leçon le dit maintenant à l'endroit où l'on installe, et `PROJET.md` a été aligné : il justifiait le `"*"` par « pour éviter d'écrire des versions non vérifiées », ce qui inverse la règle — **ne pas écrire de version de mémoire veut dire aller la vérifier**.
+
+**Défaut 1 — « 232 leçons » comptait des fichiers, et le libellé apparaissait trois fois.** Au 28/08, `livrables/lecons/` contenait **117 `.docx` et 117 `.md`** : **117 leçons pour 232 fichiers indexés**. Le nombre était juste, le libellé faux. Et la même leçon écrit correctement *« Afficher les 220 autres **fichiers** »* quelques lignes plus haut — le bon mot d'un côté, le mauvais de l'autre, sur le même nombre. C'est le défaut qui a donné la **règle 10** le 04/09 à partir de la leçon 06 : **cette occurrence est antérieure d'une semaine.** Ma première passe de correction n'en avait vu que deux sur trois ; la troisième se cachait dans la section « Dette soldée ».
+
+**Défaut 2 — la règle des hooks était juste, la description de son échec ne l'était pas.** La leçon écrivait que le hook conditionnel *« crashera silencieusement en production »* et que cette syntaxe *« lance React Error Boundary »*. Deux affirmations sur le comportement d'un runtime, **étayées par aucune des quatre sources**, et **que je n'ai pas pu reproduire** : un test avec React 19.2.8 et `renderToString` rend sans erreur, parce qu'un rendu serveur remonte le composant à chaque fois. Une Error Boundary ne se « lance » pas non plus — c'est un composant qui **intercepte**, s'il existe. Les deux passages renvoient désormais à ce qui est documenté sur react.dev, cité mot pour mot. **Troisième leçon du parcours avec ce motif**, après les deux pièges de la leçon 02 — et à chaque fois dans la section « Ce que l'IA rate ».
+
+**Ce qui est intact.** La liste *« null, undefined et false ne rendent rien »* est exacte **et complète** : le `0` en est justement absent, alors que c'est lui qui avait corrompu le `.docx` de la leçon 04. Virtual DOM, majuscule des composants, `className`, racine unique, tableau de dépendances : conformes. Et le journal du 28/08 sur l'épinglage reste l'un des meilleurs passages du parcours — laisser `"*"` dans un `package.json` ne respecte pas le garde-fou interdisant d'écrire une version de mémoire, il le **contourne**, et c'est pire.
 
 ## Notes liées
 
