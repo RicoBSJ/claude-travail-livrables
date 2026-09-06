@@ -30,6 +30,8 @@ Document source : [[2026-08-30_veille_imac.docx]]
 
 ## Notes liées
 
+- **➡️ Suivante** · [[2026-09-06_veille_imac.fiche]]
+  les deux réparations de cette semaine tiennent — consomac est exploitée, la luminosité est revenue à 500 nits — mais aucune n'est inscrite au prompt, et le périmètre CTO produit un tableau vide pour la cinquième semaine. La note du 06/09 en identifie enfin la cause : les 5 configurations sont codées en dur dans `jobs_config.json`
 - **⬅️ Précédente** · [[2026-08-23_veille_imac.fiche]]
   qui donnait des prix complets grâce à consomac.fr et suivait les configurations standard. Les deux acquis sont perdus cette semaine, alors que l'information sur le M6, elle, progresse nettement
 - **🗂️ Dossier** · [[iMac_dossier.fiche]]
