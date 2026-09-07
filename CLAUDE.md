@@ -241,11 +241,11 @@ Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de v
 
   | Plafond | Jobs |
   |---|---|
-  | **4 $** | `imac-veille` · `rbpp-pipeline` · `controle-livrables` |
-  | **3 $** | `ai-act-veille` · `appli-ia-lecon` · `astrologie-karmique-lecon` · `dzogchen-lecon` · `enneagramme-lecon` · `hypnose-lecon` · `placement-financier-lecon` · `psychopathologie-lecon` · `revenus-passifs-lecon` · `serafin-ph-veille` · `stoicisme-lecon` |
+  | **4 $** | `imac-veille` · `psychopathologie-lecon` · `rbpp-pipeline` · `controle-livrables` |
+  | **3 $** | `ai-act-veille` · `appli-ia-lecon` · `astrologie-karmique-lecon` · `dzogchen-lecon` · `enneagramme-lecon` · `hypnose-lecon` · `placement-financier-lecon` · `revenus-passifs-lecon` · `serafin-ph-veille` · `stoicisme-lecon` |
   | **2 $** (défaut) | *aucun* |
 
-  Cumul : **45 $/semaine**. Depuis le 06/09/2026, **les 14 jobs ont un plafond explicite** : plus aucun ne tourne au défaut. Les 14 prompts portent tous au moins une règle née d'un incident daté qui leur est propre.
+  Cumul : **46 $/semaine** (depuis le passage de `psychopathologie-lecon` à 4 $ le 07/09/2026). Depuis le 06/09/2026, **les 14 jobs ont un plafond explicite** : plus aucun ne tourne au défaut. Les 14 prompts portent tous au moins une règle née d'un incident daté qui leur est propre.
 
   Un dépassement fait sortir `claude -p` en erreur, brûle les 3 tentatives et perd le créneau hebdo (RGPD du 05/07/2026, iMac du 19/07/2026, astrologie-karmique du 27/08/2026). **Règle empirique** : tout durcissement de prompt qui ajoute des vérifications coûte plus cher que le plafond hérité — relever dans la foulée plutôt qu'après l'échec (fait le 01/09/2026 pour `dzogchen-lecon` et `hypnose-lecon`). Chaque ligne du `case` porte en commentaire la raison de son relèvement.
 - **Retry intégré** : jusqu'à **3 tentatives** (backoff 90s → 180s) en cas d'échec transitoire (timeout réseau/API au réveil du Mac). Un skip pour doublon (exit 0) n'est jamais retenté. Sans ce garde-fou, un job hebdo qui rate son unique créneau perdait 7 jours.
