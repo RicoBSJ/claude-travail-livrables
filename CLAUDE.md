@@ -27,7 +27,7 @@ Claude_Travail/
 │   ├── tnmp/               ← fichiers Excel TNmP
 │   ├── qvct/               ← documents QVCT
 │   └── veille/             ← veilles produites (SERAFIN, RBPP, HAS, ESSMS…)
-│       └── imac/ (actif) · ai-act/ · rgpd/ (archives, jobs supprimés le 20/07/2026)
+│       └── imac/ · ai-act/ (actifs) · rgpd/ (archive, job supprimé le 25/07/2026)
 │
 ├── livrables/              ← SORTIES
 │   ├── lecons/             ← leçons Word hebdomadaires (parcours d'apprentissage)
@@ -302,7 +302,9 @@ Les **sept parcours perso** (`dzogchen`, `enneagramme`, `psychopathologie`, `pla
 - **`astrologie-karmique-lecon` garde ses garde-fous propres** (voir ci-dessus) et n'est pas encore passé aux familles.
 - Les prompts de veille et de projet (`rbpp-pipeline`, `imac-veille`, `serafin-ph-veille`, `ai-act-veille`, `appli-ia-lecon`, `controle-livrables`) conservent leurs garde-fous spécifiques.
 
-**Veille hebdomadaire à sous-dossier dédié dans `sources/veille/` :** `iMac/` (veille marché comparative tout-en-un : iMac en vente + génération à venir + PC Windows équivalents) — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent). L'auto-push couvre tout `sources/veille/` (récursif).
+**Veilles hebdomadaires à sous-dossier dédié dans `sources/veille/` :** `iMac/` (veille marché comparative tout-en-un : iMac en vente + génération à venir + PC Windows équivalents) — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent) — et `ai-act/` (règlement IA européen), toutes deux **actives**. L'auto-push couvre tout `sources/veille/` (récursif).
+
+> **`ai-act-veille` a été supprimé puis recréé — le dossier `ai-act/` n'est pas une archive.** Le job a été supprimé par le commit `7d143c2` du **25/07/2026** en même temps que `rgpd-veille` (dernier livrable de chacun : 19/07/2026), puis **recréé le 30/08/2026** (commit `a30f73c`) sur le créneau du **vendredi 9h03**, avec un plafond de 3 $. Seul `rgpd/` reste une archive. Le trou de six semaines dans `sources/veille/ai-act/` (19/07 → 29/08) n'est donc pas un créneau manqué : c'est la période où le job n'existait pas. ⚠️ **La suppression avait été documentée ici, pas la recréation** — d'où une contradiction interne d'une semaine (07/09/2026), le fichier décrivant comme archive un dossier alimenté par l'un des 14 jobs actifs listés trois sections plus bas. Toute création, suppression ou recréation de job se répercute dans CE fichier **et** dans `jobs_config.json` : les deux se relisent ensemble.
 
 > ⚠️ **Un périmètre codé en dur se périme en silence (06/09/2026).** Le prompt `imac-veille` suivait 5 configurations à 24/32 Go de RAM — des CTO que seul le configurateur Apple vend, en JavaScript donc illisible en headless : **tableau vide cinq semaines de suite** (09/08 → 06/09), sans que rien ne signale la cause. Il annonçait en outre « la SORTIE FUTURE de l'iMac **M5** » alors que toutes les sources parlaient du **M6** depuis le 23/08 — le job corrigeait de lui-même chaque semaine, ce qui masquait le défaut. Corrigé : 3 configurations réellement vendues, `consomac.fr` nommée comme source de prix lisible en headless, et une **règle de bascule de génération** (quand le M6 sort, il devient la génération suivie et le M4 la sortante). **Règle générale** : tout périmètre nominatif inscrit dans un prompt (configurations, versions, produits, millésimes) doit porter sa condition de péremption et l'instruction de basculer — sinon il survit à son objet, et un livrable qui se répare tout seul chaque semaine cache le prompt qui ne se répare jamais.
 
