@@ -86,116 +86,13 @@ Claude_Travail/
 
 ---
 
-## Quiz PowerPoint
+## Quiz et infographies PowerPoint
 
-- ~100 questions QCM par quiz
-- Alternance stricte : slide question / slide réponse
-- Slide question : question + 4 propositions (A, B, C, D)
-- Slide réponse : bonne réponse mise en évidence + explication courte
-- Style : fond bleu marine `#1B3A6B`, texte blanc, police Calibri
-- Couverture équilibrée de l'ensemble du document source
-- Niveau adapté aux professionnels du médico-social
-- Livrable → `livrables/quiz/`
+Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `livrables/infographies/`.
 
-### Script type (pptxgenjs)
-```javascript
-const pptx = require("pptxgenjs");
-const fs = require("fs");
-
-// Charger les questions depuis un JSON généré au préalable
-const questions = JSON.parse(fs.readFileSync("questions.json", "utf8"));
-
-let pres = new pptx.default();
-pres.layout = "LAYOUT_WIDE"; // 16:9
-
-questions.forEach((q, i) => {
-  // Slide question
-  let slideQ = pres.addSlide();
-  slideQ.background = { color: "1B3A6B" };
-  slideQ.addText(`Q${i + 1}. ${q.question}`, {
-    x: 0.5, y: 0.5, w: "90%", fontSize: 24, color: "FFFFFF", bold: true
-  });
-  q.options.forEach((opt, j) => {
-    slideQ.addText(`${["A", "B", "C", "D"][j]}. ${opt}`, {
-      x: 0.5, y: 2 + j * 0.8, w: "90%", fontSize: 18, color: "FFFFFF"
-    });
-  });
-
-  // Slide réponse
-  let slideR = pres.addSlide();
-  slideR.background = { color: "1B3A6B" };
-  slideR.addText(`✅ Réponse : ${q.answer}`, {
-    x: 0.5, y: 0.5, w: "90%", fontSize: 24, color: "00FF99", bold: true
-  });
-  slideR.addText(q.explanation, {
-    x: 0.5, y: 2, w: "90%", fontSize: 18, color: "FFFFFF"
-  });
-});
-
-pres.writeFile({ fileName: "livrables/quiz/quiz_output.pptx" });
-console.log("✅ Quiz généré avec succès.");
-```
+> 📄 **Format, style, script type et les deux règles critiques (dimensions négatives, géométrie elliptique) sont dans `outils/templates/REGLES_PPTX.md`** — à lire avant toute génération PPTX. Ces deux règles viennent de bugs qui rendaient le fichier inouvrable par PowerPoint. Le prompt de `rbpp-pipeline` porte l'instruction explicite de lire ce fichier, puisqu'il n'est plus chargé à chaque session.
 
 ---
-
-## Infographies PowerPoint (format pétale)
-
-- Fleur avec 6 à 8 pétales selon le nombre de thèmes
-- Disposition radiale, centrée, pétales symétriques
-- Fond blanc, couleurs distinctes par pétale (palette harmonieuse)
-- Police Calibri, format 16:9
-- Titre au centre de la fleur
-- Livrable → `livrables/infographies/`
-
-### ⚠️ Règle critique 1 — Lignes de connexion radiales (dimensions positives)
-
-PowerPoint refuse d'ouvrir un PPTX si une forme a une dimension négative (`cx="-..."`).
-Lors du dessin de lignes du centre vers des pétales positionnés à gauche ou au-dessus,
-`w = x2 - x1` ou `h = y2 - y1` peut devenir négatif.
-
-**Toujours utiliser ce helper** :
-```javascript
-function addLine(slide, x1, y1, x2, y2, color, width = 2) {
-  const x = Math.min(x1, x2);
-  const y = Math.min(y1, y2);
-  const w = Math.max(Math.abs(x2 - x1), 0.01);
-  const h = Math.max(Math.abs(y2 - y1), 0.01);
-  slide.addShape("line", {
-    x, y, w, h,
-    line: { color, width },
-    flipH: x2 < x1,
-    flipV: y2 < y1
-  });
-}
-```
-
-### ⚠️ Règle critique 2 — Géométrie elliptique (éviter les chevauchements)
-
-Slide LAYOUT_WIDE = 13.33 × 7.5". Plus large que haut → disposition CIRCULAIRE génère du
-chevauchement avec titre/footer. Utiliser une ELLIPSE (Rx > Ry).
-
-**Paramètres validés** pour 6 à 8 pétales :
-```javascript
-const CX = 6.665, CY = 4.10;       // centre légèrement décalé
-const Rx = 3.40, Ry = 2.00;        // ellipse : Rx > Ry
-const R_CENTER = 1.05;              // cercle central
-const PETALE_W = 2.40, PETALE_H = 1.30;  // pétales compacts
-
-// Zones occupées :
-// Titre principal     : y ∈ [0.20, 0.75]  (fontSize 28)
-// Sous-titre          : y ∈ [0.78, 1.10]  (fontSize 16)
-// Zone pétales/centre : y ∈ [1.20, 7.00]
-// Pied de page        : y ∈ [7.15, 7.40]  (fontSize 10)
-```
-
-**Vérification post-génération** :
-```bash
-unzip -p [fichier].pptx ppt/slides/slide1.xml | grep -c '<a:ext cx="-'
-# doit retourner 0
-```
-
----
-
 ## Documents Word
 
 - Style professionnel, structuré avec titres et sous-titres
@@ -225,103 +122,19 @@ unzip -p [fichier].pptx ppt/slides/slide1.xml | grep -c '<a:ext cx="-'
 
 ---
 
-## Jobs planifiés — Double mécanisme (session + système macOS)
+## Jobs planifiés
 
-Tous les jobs récurrents sont définis dans **`jobs_config.json`** (source de vérité unique : `id`, `cron`, `prompt`…). Deux moyens de les exécuter automatiquement :
+14 jobs hebdomadaires tournent en autonomie via **launchd** (app fermée) : agent launchd → `outils/scripts/run_job.sh <job_id>` → `claude -p` headless.
 
-### A. Planificateur de session (CronCreate) — Claude Code ouvert
-- Skill **`/restaurer-jobs`** : recrée tous les crons de la session depuis `jobs_config.json`.
-- Limites : crons liés à la session (disparaissent à la fermeture), auto-expiration à 7 jours, ne se déclenchent que si l'app est **ouverte et idle**.
-- Usage : `/restaurer-jobs` au démarrage de session.
+- **`jobs_config.json` est la source de vérité unique** des jobs (`id`, `cron`, `livrable`, `prompt`). `run_job.sh` en extrait le seul prompt du job : le fichier n'entre plus en contexte.
+- **`run_job.sh` est la source de vérité des plafonds de coût** (bloc `case "$JOB_ID"`). Cumul actuel : **46 $/semaine** — une somme de plafonds, *pas* une dépense (voir `outils/scripts/JOBS.md`).
+- **L'auto-push suit une liste blanche stricte** — `sources/veille/` + `livrables/{lecons,quiz,infographies,projets,controles,documents}`. **Jamais `git add -A`** : `contexte/`, `sources/rbpp`, `sources/tnmp`, `sources/qvct`, `en_cours/`, `ressources/`, `outils/` et `NotebookLM/` restent hors publication automatique.
+- **Après toute modification de `jobs_config.json`** : `bash outils/scripts/setup_launchd.sh` (le script refuse de tourner si un job est en vol, et `--force` passe outre).
+- Toute création, suppression ou recréation de job se répercute **ici et dans `jobs_config.json`** : les deux se relisent ensemble.
 
-### B. Planificateur système (launchd) — **app fermée, autonomie réelle** ✅
-- Un agent launchd par job (`~/Library/LaunchAgents/com.claudetravail.<job_id>.plist`) exécute les jobs **même Claude Code fermé**.
-- Chaîne : agent launchd → `outils/scripts/run_job.sh <job_id>` → `claude -p` headless (lit `jobs_config.json`, exécute le job).
-- Modèle forcé : **sonnet** · **plafond de coût par-job** — `run_job.sh` est la **source de vérité** (bloc `case "$JOB_ID"`), ce tableau n'en est que le reflet :
-
-  | Plafond | Jobs |
-  |---|---|
-  | **4 $** | `imac-veille` · `psychopathologie-lecon` · `rbpp-pipeline` · `controle-livrables` |
-  | **3 $** | `ai-act-veille` · `appli-ia-lecon` · `astrologie-karmique-lecon` · `dzogchen-lecon` · `enneagramme-lecon` · `hypnose-lecon` · `placement-financier-lecon` · `revenus-passifs-lecon` · `serafin-ph-veille` · `stoicisme-lecon` |
-  | **2 $** (défaut) | *aucun* |
-
-  Cumul : **46 $/semaine** (depuis le passage de `psychopathologie-lecon` à 4 $ le 07/09/2026). Depuis le 06/09/2026, **les 14 jobs ont un plafond explicite** : plus aucun ne tourne au défaut. Les 14 prompts portent tous au moins une règle née d'un incident daté qui leur est propre.
-
-  Un dépassement fait sortir `claude -p` en erreur, brûle les 3 tentatives et perd le créneau hebdo (RGPD du 05/07/2026, iMac du 19/07/2026, astrologie-karmique du 27/08/2026). **Règle empirique** : tout durcissement de prompt qui ajoute des vérifications coûte plus cher que le plafond hérité — relever dans la foulée plutôt qu'après l'échec (fait le 01/09/2026 pour `dzogchen-lecon` et `hypnose-lecon`). Chaque ligne du `case` porte en commentaire la raison de son relèvement.
-- **Retry intégré** : jusqu'à **3 tentatives** (backoff 90s → 180s) en cas d'échec transitoire (timeout réseau/API au réveil du Mac). Un skip pour doublon (exit 0) n'est jamais retenté. Sans ce garde-fou, un job hebdo qui rate son unique créneau perdait 7 jours.
-- ⚙️ **Authentification headless (jeton longue durée)** : le jeton OAuth du **Keychain** (login de l'app) expire ~chaque semaine et **ne se rafraîchit pas** en contexte launchd → **401 sur tous les jobs** (panne réelle du 09→15/07/2026). Solution : générer un jeton longue durée via `claude setup-token` (adossé à l'abonnement Pro, sans facturation API) et le placer dans **`outils/scripts/claude_auth.env`** (gitignoré, `chmod 600`, modèle : `claude_auth.env.example`). `run_job.sh` le source automatiquement (`CLAUDE_CODE_OAUTH_TOKEN`, ou à défaut `ANTHROPIC_API_KEY`). **Fail-fast** : sur une erreur d'auth (401), le runner arrête immédiatement les tentatives (inutile de réessayer un échec non transitoire) et logue la marche à suivre.
-- launchd **rattrape** une tâche manquée au réveil du Mac (mieux que crontab). Mac éteint = tâche sautée.
-- ⚙️ **Prérequis d'exécution à l'heure (veille macOS)** : un job **ne s'exécute PAS pendant la veille** — il n'est rattrapé qu'au réveil, et le Mac peut se rendormir avant un job de milieu de matinée (les créneaux s'étalent de dim 7h03 à jeu 9h33). Sur un iMac de bureau toujours branché, désactiver la veille système sur secteur pour que tous les jobs tournent à l'heure : `sudo pmset -c sleep 0 displaysleep 20` (l'écran s'éteint quand même ; vérifier avec `pmset -g custom` ; revenir en arrière avec `sudo pmset -c sleep 30`). Ce sont des **LaunchAgents** → **la session utilisateur doit rester ouverte** (ils ne tournent pas sur l'écran de connexion). Mac totalement éteint = jobs sautés (`poweron` non garanti sur tous les modèles).
-- ✅ **Tous les jobs sont 100% headless** : aucune dépendance Chrome MCP. Les sources dynamiques/bloquées (ATIH, listing HAS) sont récupérées via **WebSearch + WebFetch** ; toute source inaccessible est marquée ⛔ et le job continue.
-
-**Scripts (`outils/scripts/`) :**
-| Script | Rôle |
-|--------|------|
-| `run_job.sh <job_id>` | Exécute un job en headless (logs → `outils/scripts/logs/`). **Injecte le prompt du job directement** (extrait de `jobs_config.json` par python3) au lieu de faire lire les 332 Ko du fichier à Claude, et **mesure le coût réel** via `--output-format json` → ligne `[mesure]` dans le log + une ligne par tentative dans `logs/mesures_couts.csv`. Puis **auto-commit + push** des livrables si succès (portée stricte, liste blanche explicite : `sources/veille/` (récursif) + `livrables/{lecons,quiz,infographies,projets,controles,documents}` ; jamais `git add -A` ; SSH non-interactif via `GIT_SSH_COMMAND`). **Push durci** : `git rebase --abort` propre si le `pull --rebase` échoue (évite de bloquer les jobs suivants), **3 tentatives de push** avec backoff réseau, et log du nombre de commits en avance sur `origin/main` en cas d'échec |
-| `rattrapage_jobs.sh [job_id…]` | Rejoue une liste de jobs manqués via `run_job.sh` (anti-doublon de chaque job actif → aucun doublon). Sans argument : liste par défaut (`revenus-passifs-lecon` + `stoicisme-lecon`, `appli-ia-lecon`, `placement-financier-lecon`, `astrologie-karmique-lecon`) |
-| `setup_launchd.sh` | Génère + charge tous les agents depuis la liste `JOBS` (idempotent ; relancer après modif d'horaire). **Refuse de tourner si un job est en vol** (07/09/2026) : `launchctl unload` tuerait le processus en cours — le script détecte tout `run_job.sh` actif et tout agent `claudetravail` portant un PID, et sort en erreur. `--force` passe outre en connaissance de cause |
-| `teardown_launchd.sh` | Décharge + supprime tous les agents |
-
-**Commandes utiles :**
-```bash
-launchctl list | grep claudetravail        # voir les agents actifs
-bash outils/scripts/setup_launchd.sh              # (ré)installer / mettre à jour
-bash outils/scripts/run_job.sh revenus-passifs-lecon   # test manuel d'un job
-bash outils/scripts/teardown_launchd.sh           # tout désactiver
-```
-
-**Horaires (= champ `cron`) — 14 jobs :** revenus-passifs-lecon (dim. 7h03) · imac-veille (dim. 8h03) · controle-livrables (dim. 11h03) · psychopathologie-lecon (lun 8h03) · rbpp-pipeline (lun 8h30) · dzogchen-lecon (mar 8h03) · hypnose-lecon (mar 9h03) · serafin-ph-veille (mer 8h03) · enneagramme-lecon (mer 9h03) · stoicisme-lecon (jeu 8h03) · astrologie-karmique-lecon (jeu 9h33) · appli-ia-lecon (ven 8h03) · ai-act-veille (ven 9h03) · placement-financier-lecon (sam 8h03).
-
-> Le tableau de suivi `livrables/documents/2026-08-09_Les 14 Jobs.xlsx` reprend ces créneaux et une colonne **« Numéro de la dernière leçon »**, tenue automatiquement par `outils/scripts/maj_xlsx_jobs.py` (appelé par `run_job.sh` après chaque job réussi). Le numéro est **lu** dans le nom du dernier `.docx`, jamais compté : un créneau manqué crée un trou de numérotation. ⚠️ Le chemin du classeur est **codé en dur** dans le script, qui sort en `return 0` s'il ne le trouve pas — renommer le fichier sans mettre le script à jour fige la colonne en silence.
-
-> Historique : `astrologie-karmique-lecon` (créé le 10/08/2026) reprend le créneau de `entretien-motivationnel-lecon`, supprimé le même jour. Les **11 leçons d'entretien motivationnel** déjà produites (`lecon-entretien-motivationnel_01` à `_11`) sont conservées dans `livrables/lecons/`.
->
-> Garde-fous spécifiques à ce parcours : les données astronomiques se vérifient **exclusivement** auprès de sources d'astronomie (IMCCE, Observatoire de Paris, NASA), jamais d'un site d'astrologie ; toute affirmation d'interprétation est **attribuée à son auteur** (Schulman, Spiller, Greene) ; chaque leçon comporte un encadré distinguant fait observable, convention du corpus et état de la recherche ; **aucun usage professionnel** n'est suggéré — le parcours est un intérêt personnel et ne touche jamais à l'accompagnement des personnes.
-
-### Garde-fous des prompts de leçon — cinq familles (01/09/2026)
-
-Les **sept parcours perso** (`dzogchen`, `enneagramme`, `psychopathologie`, `placement-financier`, `hypnose`, `stoicisme`, `revenus-passifs`) rangent leurs garde-fous dans la même structure, dans `jobs_config.json` :
-
-| Famille | Ce qu'elle protège |
-|---|---|
-| **A** — ce que tu affirmes | citations mot pour mot · attributions · chiffres officiels · précision affichée · sources discordantes · régime de l'énoncé (fait / position d'auteur / récit de tradition) |
-| **B** — d'où tu le tiens | hiérarchie des sources · chercher avant de conclure à la rareté · ne pas décrire une page non ouverte · thème textuel = sources textuelles · test `curl` de chaque lien |
-| **C** — cohérence de la leçon | corrigés conformes à la théorie de leur propre leçon · rendez-vous annoncés par les leçons précédentes |
-| **D** — le pont pro | nommer une RBPP par **titre exact + date**, ou se taire · ne jamais inventer une formulation HAS/ANESM · ne jamais fonder une posture pro sur la doctrine du parcours |
-| **E** — relecture | une question par famille avant génération, puis signaler au récapitulatif les affirmations non sourcées, les discordances tranchées et les pages non ouvertes |
-
-- **Chaque règle porte son incident daté réel** — c'est ce qui la rend applicable. Ne jamais ajouter une règle « par symétrie » avec un autre parcours : sans cas constaté, elle se noie dans les autres.
-- **Une règle sans test mécanique ne tient pas**, et un test mécanique mal écrit est pire qu'aucun test : il valide. Deux occurrences, toutes deux dans des garde-fous que je venais d'écrire — `grep -c` sur un `.rels` d'une seule ligne (02/09, renvoie 1 pour 1 lien comme pour 20) et un `grep` sur un pourcentage nu (06/09 : « 30% » et « 15% » figurent bien dans la page, appliqués à tout autre chose, et auraient authentifié un tableau fabriqué). Un test se vérifie **sur le cas qui l'a motivé** avant d'être écrit dans un prompt.
-- **Une structure vide n'est pas un garde-fou.** `psychopathologie` portait les cinq familles depuis le 27/08, mais ses règles étaient génériques ou empruntées à d'autres parcours (l'incident B1 venait de l'ennéagramme, les incidents D du dzogchen et du stoïcisme) : aucune ne venait de ses propres défauts. Vérifier la présence des familles ne dit rien ; **la question est de savoir quelle règle porte un incident de CE parcours**.
-- Les familles ne sont pas peuplées uniformément : `dzogchen` a 15 règles, `revenus-passifs` 15 depuis le 06/09 (dont 8 en A, sur les chiffres, les tableaux, les prix et les prédictions), `psychopathologie` **21 depuis le 07/09** — la plus fournie des sept — avec **11 contrôles mécaniques** en famille E (régime de l'énoncé clinique, hiérarchie des sources, soft-200 HAS, grille de la leçon, double datation ANESM/HAS, puis les cinq règles d'attribution nées de la leçon 15), les trois autres parcours de doctrine 7.
-- **Le régime des attributions (07/09/2026)** : `psychopathologie` porte cinq règles nées de la leçon 15 — **A3 bis** un tableau se recopie ligne à ligne et l'ordre annoncé se vérifie, **A4** un superlatif est une affirmation sur tout l'ensemble et exige que la source classe, **A5** un outil porte ses propres auteurs et non ceux de son voisinage sur la page, **B5** toute source nommée dans le texte figure dans la liste des URL testées, **B6** une affirmation négative se cherche avant de s'écrire (sur la page où l'institution recense ses propres publications), **B7** une page n'est source que de ce qu'elle contient — le mot se cherche au `grep` avant d'écrire « (Source X) ». L'A3 bis reprend mot pour mot celle de `revenus-passifs` du 06/09 : cette fois elle a son propre incident, elle n'est donc plus ajoutée « par symétrie ».
-
-> ⚠️ **Un garde-fou ne protège que le geste qu'il nomme (07/09/2026).** Second point de mesure sur `psychopathologie`. La leçon 15 — sujet le plus sensible du parcours — n'a produit **aucune citation fabriquée, aucun chiffre sans dénominateur, aucune source morte**, et a écrit ses propres contrôles C1/C2 dans les corrigés : les huit règles du 06/09 ont tenu **partout où elles nomment un geste précis**. Ses quatre défauts sont tous des défauts d'**attribution** : un document HAS nommé, daté et caractérisé sans figurer dans les six URL de la leçon ; une absence affirmée sans être cherchée, qui masquait la RBPP ANESM 2014/2018 dont la partie IV traite précisément du sujet ; deux matériaux voisins sur une page soudés en une seule filiation ; un tableau de 10 lignes réduit à 5 puis annoncé « les plus élevés » alors que deux lignes omises dépassaient la dernière retenue. **Le paragraphe fautif portait pourtant son propre avertissement** — « ce paragraphe ne constitue pas une recommandation HAS et ne doit pas être présenté comme tel » : il protégeait la prose du paragraphe, pas la citation à l'intérieur. Un avertissement de portée générale ne remplace jamais un contrôle qui nomme un geste et fournit son test.
-
-- **Le régime des chiffres groupés (06/09/2026)** : `revenus-passifs` porte les règles nées de la leçon 07 — **A3 bis** un tableau se recopie ligne à ligne (bornes comprises), **A6** deux chiffres sur la même grandeur se confrontent, **A7** un prix commercial s'écrit avec sa condition, **B2** un titre n'est pas un contenu, **B3** une page refusée à WebFetch se retente en `curl` avec un en-tête navigateur. Elles généralisent aux **ensembles** de chiffres ce que l'A1 bis de `placement-financier` (05/09) dit des citations : *un chiffre exact posé à côté d'un chiffre fabriqué authentifie l'ensemble*.
-- **`astrologie-karmique-lecon` garde ses garde-fous propres** (voir ci-dessus) et n'est pas encore passé aux familles.
-- Les prompts de veille et de projet (`rbpp-pipeline`, `imac-veille`, `serafin-ph-veille`, `ai-act-veille`, `appli-ia-lecon`, `controle-livrables`) conservent leurs garde-fous spécifiques.
-
-**Veilles hebdomadaires à sous-dossier dédié dans `sources/veille/` :** `iMac/` (veille marché comparative tout-en-un : iMac en vente + génération à venir + PC Windows équivalents) — 1 CR Word/semaine, déduplication sur la date du jour, règle anti-redondance (CR allégé 🟢 si aucune nouveauté depuis le CR précédent) — et `ai-act/` (règlement IA européen), toutes deux **actives**. L'auto-push couvre tout `sources/veille/` (récursif).
-
-> **`ai-act-veille` a été supprimé puis recréé — le dossier `ai-act/` n'est pas une archive.** Le job a été supprimé par le commit `7d143c2` du **25/07/2026** en même temps que `rgpd-veille` (dernier livrable de chacun : 19/07/2026), puis **recréé le 30/08/2026** (commit `a30f73c`) sur le créneau du **vendredi 9h03**, avec un plafond de 3 $. Seul `rgpd/` reste une archive. Le trou de six semaines dans `sources/veille/ai-act/` (19/07 → 29/08) n'est donc pas un créneau manqué : c'est la période où le job n'existait pas. ⚠️ **La suppression avait été documentée ici, pas la recréation** — d'où une contradiction interne d'une semaine (07/09/2026), le fichier décrivant comme archive un dossier alimenté par l'un des 14 jobs actifs listés trois sections plus bas. Toute création, suppression ou recréation de job se répercute dans CE fichier **et** dans `jobs_config.json` : les deux se relisent ensemble.
-
-> ⚠️ **Un périmètre codé en dur se périme en silence (06/09/2026).** Le prompt `imac-veille` suivait 5 configurations à 24/32 Go de RAM — des CTO que seul le configurateur Apple vend, en JavaScript donc illisible en headless : **tableau vide cinq semaines de suite** (09/08 → 06/09), sans que rien ne signale la cause. Il annonçait en outre « la SORTIE FUTURE de l'iMac **M5** » alors que toutes les sources parlaient du **M6** depuis le 23/08 — le job corrigeait de lui-même chaque semaine, ce qui masquait le défaut. Corrigé : 3 configurations réellement vendues, `consomac.fr` nommée comme source de prix lisible en headless, et une **règle de bascule de génération** (quand le M6 sort, il devient la génération suivie et le M4 la sortante). **Règle générale** : tout périmètre nominatif inscrit dans un prompt (configurations, versions, produits, millésimes) doit porter sa condition de péremption et l'instruction de basculer — sinon il survit à son objet, et un livrable qui se répare tout seul chaque semaine cache le prompt qui ne se répare jamais.
-
-> 💰 **« 46 $/semaine » est une somme de plafonds, pas une dépense (07/09/2026).** Jusqu'à cette date, aucun log n'enregistrait ce qu'un job avait réellement consommé : seule la ligne `[budget] Plafond…` y figurait. Et sur un abonnement Pro le montant n'est **pas une facture** — la [doc officielle](https://code.claude.com/docs/en/costs) précise que « Claude Max and Pro subscribers have usage included in their subscription, so the session cost figure isn't relevant for billing purposes » et que Claude Code « computes the dollar figure locally from token counts at list price ». Ce qui est réellement consommé, c'est le **quota du plan** (fenêtre de 5 h + fenêtre hebdomadaire). Baisser les plafonds ne réduirait donc rien : ça ferait seulement échouer des jobs.
->
-> **Étape 0 — mesurer (07/09/2026).** `run_job.sh` passe `--output-format json` et journalise `total_cost_usd`, `usage`, `num_turns` et `duration_ms` (champs vérifiés sur la v2.1.92 installée, pas supposés) : une ligne `[mesure]` par tentative dans le log, et une ligne par tentative dans **`outils/scripts/logs/mesures_couts.csv`** — gitignoré comme le reste des logs, donc local. Le texte du récapitulatif du modèle continue d'être écrit dans le log comme avant, pour que **les trois fail-fast (auth, limite d'usage, plafond) gardent prise** ; testé sur les trois cas, y compris la sortie non-JSON. Après trois semaines, ce CSV donnera la ligne de base qui manquait pour juger tout durcissement.
->
-> ⚡ **Levier 1 — le job ne lit plus `jobs_config.json` (07/09/2026).** Le runner disait « Lis le fichier `jobs_config.json`, trouve le job dont l'id est X ». Le fichier fait **332 358 octets sur 119 lignes** : il entrait donc **en entier** en contexte, et Claude Code « sends your full conversation with every request, and each time Claude uses tools it sends another request carrying that batch of tool results » — ces 332 Ko étaient réémis à **chaque tour**, pour un prompt utile de **~22 Ko en moyenne** (soit ~14× de trop, multiplié par le nombre de tours). Désormais python3 extrait le seul prompt du job et le runner l'injecte dans l'invocation. **`jobs_config.json` reste la source de vérité unique** — il est simplement lu par python3, gratuitement, au lieu de Claude. Aucun fichier dérivé, donc **aucune péremption possible** : c'est ce qui distingue ce correctif du périmètre codé en dur de l'iMac. Vérifié de bout en bout avec un faux `claude` : l'argument `-p` fait 49 151 caractères, contient bien le prompt du job, et ne mentionne plus `jobs_config`.
->
-> ⚠️ **À vérifier** : la doc indique que l'application effective de `--max-budget-usd` « require[s] Claude Code v2.1.217 or later ». La version installée est **2.1.92** — le flag existe bien dans son `--help`, mais son comportement exact n'est pas garanti.
-
-> ⚠️ **Recharger launchd tue le job qui tourne (07/09/2026).** `setup_launchd.sh` décharge puis recharge **les 14 agents**, et `launchctl unload` tue le processus en cours de l'agent déchargé. Incident : `rbpp-pipeline`, démarré à 8h30, avait écrit son livrable à 8h35 ; un `setup_launchd.sh` lancé à 8h37 — dans la foulée d'un durcissement de prompt — l'a tué avant `maj_xlsx_jobs.py` et avant l'auto-commit/push. **Le symptôme ne ressemble pas à une panne** : `launchctl list` affiche exit 0, le livrable existe et est complet, le log s'arrête simplement sans ligne de fin, et rien ne signale que la publication n'a pas eu lieu — le défaut ne s'est vu que par un fichier temporaire resté dans `en_cours/`. Les 14 créneaux s'étalent de dim. 7h03 à jeu. 9h33 et un job dure ~10 min : la fenêtre de collision n'est pas étroite. Le garde-fou est désormais **dans le script** ; la consigne ci-dessous s'entend donc « quand aucun job ne tourne ».
->
-> Règle : après tout ajout/modif de job dans `jobs_config.json`, relancer `bash outils/scripts/setup_launchd.sh` pour synchroniser launchd. Les logs `outils/scripts/logs/` et `node_modules` sont gitignorés.
+> 📄 **Tout le reste — horaires des 14 créneaux, plafonds détaillés et leurs justifications, authentification headless, retry, veille macOS, garde-fous des cinq familles, et l'historique daté des incidents — est dans `outils/scripts/JOBS.md`.** Lis-le avant toute intervention sur la planification, les prompts de job ou les coûts.
 
 ---
-
 ## NotebookLM
 
 5 notebooks thématiques, chacun avec un Notebook Guide dédié à coller dans l'interface.
