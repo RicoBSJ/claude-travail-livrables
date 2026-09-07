@@ -82,18 +82,126 @@ case "$JOB_ID" in
 esac
 echo "[budget] Plafond de coût pour $JOB_ID : ${BUDGET} \$" >> "$LOG"
 
+# ============================================================================
+# LEVIER 1 (07/09/2026) — LE JOB NE LIT PLUS jobs_config.json
+#
+# Avant : le prompt disait « Lis le fichier jobs_config.json, trouve le job dont
+# l'id est X ». Le fichier fait 332 358 OCTETS sur 119 lignes : il entrait
+# donc EN ENTIER en contexte, puis était réémis à chaque tour (Claude Code renvoie
+# toute la conversation à chaque requête, et chaque appel d'outil en ajoute une).
+# Un job n'utilise en moyenne que ~22 000 octets de ce fichier : ~14× de trop,
+# multiplié par le nombre de tours.
+#
+# Maintenant : python3 extrait ici le seul prompt du job et il est injecté
+# directement dans l'invocation. jobs_config.json reste la SOURCE DE VÉRITÉ
+# UNIQUE — il est simplement lu par python3 (gratuit) au lieu de Claude (coûteux).
+# Aucun fichier dérivé à maintenir, donc aucune péremption possible.
+# ============================================================================
+JOB_PROMPT="$(/usr/bin/python3 - "$PROJECT/jobs_config.json" "$JOB_ID" <<'PYEOF'
+import json, sys
+cfg = json.load(open(sys.argv[1], encoding='utf-8'))
+jobs = cfg['jobs'] if isinstance(cfg, dict) and 'jobs' in cfg else cfg
+m = [j for j in jobs if j.get('id') == sys.argv[2]]
+if not m:
+    sys.exit(3)
+p = m[0].get('prompt', '')
+if not p.strip():
+    sys.exit(4)
+sys.stdout.write(p)
+PYEOF
+)"
+if [ -z "$JOB_PROMPT" ]; then
+  echo "[config] ⛔ Prompt introuvable ou vide pour le job \"$JOB_ID\" dans jobs_config.json — arrêt." >> "$LOG"
+  echo "[config] 👉 Vérifier l'id et le champ \"prompt\" : python3 -c \"import json;print([j['id'] for j in json.load(open('$PROJECT/jobs_config.json'))['jobs']])\"" >> "$LOG"
+  exit 1
+fi
+CFG_SIZE=$(wc -c < "$PROJECT/jobs_config.json" | tr -d ' ')
+echo "[contexte] Prompt du job injecté directement : ${#JOB_PROMPT} octets — jobs_config.json (${CFG_SIZE} octets) N'entre PAS en contexte." >> "$LOG"
+
+PREAMBULE="Tu es dans le projet Claude_Travail ($PROJECT). Exécute INTÉGRALEMENT le prompt du job \"$JOB_ID\" reproduit ci-dessous (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon.
+
+════════ PROMPT DU JOB $JOB_ID ════════
+$JOB_PROMPT"
+
+# Fichier de mesure (étape 0) — une ligne par tentative, en-tête créé une seule fois.
+MESURES="$PROJECT/outils/scripts/logs/mesures_couts.csv"
+[ -f "$MESURES" ] || echo "horodatage,job,tentative,exit,cout_usd,plafond_usd,tours,duree_ms,duree_api_ms,in,out,cache_read,cache_write,stop_reason,prompt_octets,config_octets" > "$MESURES"
+
 EXIT=1
 ATTEMPT=1
 while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
   echo "--- Tentative $ATTEMPT/$MAX_ATTEMPTS — $(date '+%H:%M:%S') ---" >> "$LOG"
   LOG_MARK=$(wc -l < "$LOG")   # repère : lignes du log AVANT cette tentative (pour scanner sa seule sortie)
-  /usr/local/bin/claude -p "Tu es dans le projet Claude_Travail ($PROJECT). Lis le fichier jobs_config.json, trouve le job dont l'id est \"$JOB_ID\", puis exécute INTÉGRALEMENT le contenu de son champ \"prompt\" (toutes les étapes, sans en raccourcir aucune). Respecte la vérification des doublons propre au job. Note : le MCP Chrome n'est pas disponible en mode headless — si une source l'exige, signale-la comme inaccessible (⛔) et continue avec les autres. À la fin, affiche un récapitulatif du livrable produit, ou indique que le job s'est arrêté pour cause de doublon." \
+  # ÉTAPE 0 (07/09/2026) — MESURER LE COÛT RÉEL.
+  # Jusqu'ici les logs n'enregistraient que le PLAFOND : le « 46 $/semaine » du
+  # projet était une somme de plafonds, jamais une dépense constatée. --output-format
+  # json renvoie total_cost_usd, usage, num_turns et duration_ms (champs vérifiés sur
+  # la v2.1.92 installée). La sortie passe donc par un fichier temporaire : on en
+  # extrait le texte du récapitulatif (écrit dans le log comme avant, pour que les
+  # trois fail-fast ci-dessous continuent de le scanner) ET les métriques.
+  # ⚠️ Sur un abonnement Pro, ce montant n'est pas une facture : Claude Code le calcule
+  # localement au prix catalogue. Il sert de mesure relative, pour comparer avant/après.
+  RAW="$(mktemp -t claudejob)"
+  /usr/local/bin/claude -p "$PREAMBULE" \
     --permission-mode bypassPermissions \
     --add-dir "$PROJECT" \
     --model sonnet \
     --max-budget-usd "$BUDGET" \
-    >> "$LOG" 2>&1
+    --output-format json \
+    > "$RAW" 2>&1
   EXIT=$?
+
+  /usr/bin/python3 - "$RAW" "$LOG" "$MESURES" "$JOB_ID" "$ATTEMPT" "$EXIT" "$BUDGET" "${#JOB_PROMPT}" "$CFG_SIZE" <<'PYEOF'
+import json, sys, datetime
+raw_p, log_p, csv_p, job, att, exit_code, budget, psize, csize = sys.argv[1:10]
+raw = open(raw_p, encoding='utf-8', errors='replace').read()
+log = open(log_p, 'a', encoding='utf-8')
+try:
+    d = json.loads(raw)
+except Exception:
+    # Sortie non-JSON (crash, message d'erreur brut) : on la recopie telle quelle
+    # pour que les fail-fast puissent y chercher leurs motifs.
+    log.write(raw if raw.endswith('\n') else raw + '\n')
+    log.close()
+    sys.exit(0)
+
+# 1. le texte du modèle, comme avant le passage au JSON
+res = d.get('result')
+if isinstance(res, str) and res.strip():
+    log.write(res.rstrip() + '\n')
+
+# 2. les champs de diagnostic, pour que les fail-fast gardent prise sur eux
+diag = ' | '.join(f"{k}={d[k]}" for k in ('is_error', 'subtype', 'stop_reason', 'terminal_reason') if d.get(k) not in (None, ''))
+if diag:
+    log.write(f"[diagnostic] {diag}\n")
+
+# 3. la mesure
+u = d.get('usage') or {}
+def tok(*names):
+    for n in names:
+        v = u.get(n)
+        if isinstance(v, (int, float)):
+            return int(v)
+    return 0
+cost = d.get('total_cost_usd')
+ti, to = tok('input_tokens'), tok('output_tokens')
+cr, cw = tok('cache_read_input_tokens'), tok('cache_creation_input_tokens')
+turns, dur, dur_api = d.get('num_turns', ''), d.get('duration_ms', ''), d.get('duration_api_ms', '')
+if isinstance(cost, (int, float)):
+    pct = f" ({cost / float(budget) * 100:.0f} % du plafond)" if float(budget) else ""
+    log.write(f"[mesure] coût réel {cost:.4f} $ / plafond {budget} ${pct} | {turns} tours | {dur} ms | "
+              f"in {ti} · out {to} · cache-read {cr} · cache-write {cw}\n")
+else:
+    log.write("[mesure] ⚠️ total_cost_usd absent de la sortie JSON — mesure indisponible pour cette tentative.\n")
+log.close()
+
+with open(csv_p, 'a', encoding='utf-8') as f:
+    f.write(','.join(str(x) for x in [
+        datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), job, att, exit_code,
+        cost if isinstance(cost, (int, float)) else '', budget, turns, dur, dur_api,
+        ti, to, cr, cw, str(d.get('stop_reason', '')).replace(',', ';'), psize, csize]) + '\n')
+PYEOF
+  rm -f "$RAW"
 
   if [ "$EXIT" -eq 0 ]; then
     [ "$ATTEMPT" -gt 1 ] && echo "[retry] ✅ Succès à la tentative $ATTEMPT." >> "$LOG"
