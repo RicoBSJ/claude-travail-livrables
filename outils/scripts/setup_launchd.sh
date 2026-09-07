@@ -27,6 +27,43 @@ LOG_DIR="$PROJECT/outils/scripts/logs"
 mkdir -p "$AGENTS_DIR" "$LOG_DIR"
 chmod +x "$RUNNER"
 
+# ------------------------------------------------------------------
+# GARDE-FOU — ne jamais recharger pendant qu'un job tourne (07/09/2026)
+#
+# "launchctl unload" TUE le processus en cours de l'agent déchargé.
+# Incident du 07/09/2026 : rbpp-pipeline démarré à 8h30 avait écrit son
+# livrable à 8h35 ; un setup_launchd.sh lancé à 8h37 l'a tué avant
+# maj_xlsx_jobs.py et avant l'auto-commit/push. Symptôme trompeur :
+# "launchctl list" affiche exit 0, le livrable existe, le log s'arrête
+# sans ligne de fin, et rien ne signale que la publication n'a pas eu lieu.
+# ------------------------------------------------------------------
+EN_VOL=""
+
+# a) le runner lui-même (couvre aussi un lancement manuel)
+for PID in $(pgrep -f "outils/scripts/run_job.sh" 2>/dev/null); do
+  [ "$PID" = "$$" ] && continue
+  EN_VOL="${EN_VOL}  • PID ${PID} : $(ps -o args= -p "$PID" 2>/dev/null | head -c 120)\n"
+done
+
+# b) les agents launchd dont la 1re colonne est un PID (et non "-")
+while read -r PID _STATUS LABEL; do
+  case "$PID" in
+    ''|*[!0-9]*) continue ;;
+  esac
+  EN_VOL="${EN_VOL}  • agent ${LABEL} (PID ${PID})\n"
+done < <(launchctl list 2>/dev/null | grep "$LABEL_PREFIX")
+
+if [ -n "$EN_VOL" ] && [ "$1" != "--force" ]; then
+  echo "⛔ REFUS : un job est en cours d'exécution."
+  printf "%b" "$EN_VOL"
+  echo ""
+  echo "Recharger maintenant le tuerait avant son auto-commit/push."
+  echo "Attends la fin du job (les leçons durent ~10 min), puis relance."
+  echo "Pour passer outre en connaissance de cause : bash $0 --force"
+  exit 1
+fi
+
+
 # job_id | minute | hour | weekday (vide = quotidien)
 JOBS="revenus-passifs-lecon|3|7|0
 imac-veille|3|8|0
