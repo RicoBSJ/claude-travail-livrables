@@ -10,7 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "docx": "^9.6.1",
+    "docx": "^9.7.1",
     "pdf-parse": "^1.1.1",
     "pptxgenjs": "^4.0.1"
   }
