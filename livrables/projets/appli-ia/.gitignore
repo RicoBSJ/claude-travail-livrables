@@ -3,3 +3,9 @@ node_modules/
 *.log
 dist/
 .DS_Store
+
+# Base de cache SQLite — reconstruite par scripts/indexer.js, jamais versionnée
+# (publiée par erreur le 11/09/2026, commit 678cc01 — retirée du suivi le même jour)
+portail.db
+portail.db-shm
+portail.db-wal

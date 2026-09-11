@@ -216,11 +216,21 @@ reproductible et autorise l'installation d'une majeure incompatible.
   livrables }`. Le frontend a donc son propre `frontend/src/types.ts`, qui décrit ce qui
   circule réellement. **À réconcilier en leçon 08** (API et architecture).
 
-- **9 livrables sans date dans leur nom** (constaté le 08/08/2026) : quiz, infographies et
-  documents antérieurs à la convention `YYYY-MM-DD_`. La spec v1.2 tranche : ne pas les exclure,
-  les signaler (`date: null`) et les classer en fin de liste. Traité côté interface depuis leçon 05.
-  Dans portail.db, ils apparaissent avec `date = NULL` et sont exclus de la route `/api/db/search`
-  seulement si le filtre porte sur `date IS NOT NULL` (non obligatoire pour la recherche textuelle).
+- **66 lignes à `date = NULL` sur 520** (remesuré le 11/09/2026 — la note disait « 9 » depuis
+  le 08/08/2026, sans avoir jamais été revérifiée). Le diagnostic d'origine était faux, pas
+  seulement le chiffre : **53 de ces 66 fichiers PORTENT une date dans leur nom**, simplement pas
+  en tête. Les quiz et les infographies suivent la convention `quiz_[type]_[slug]_YYYY-MM-DD.pptx`
+  prescrite par CLAUDE.md — date en **fin** de nom — tandis que `extraireDate()` n'ancre que le
+  début (`/^(\d{4}-\d{2}-\d{2})/`). Ce sont donc **les 19 quiz et les 37 infographies en
+  totalité** qui basculent à `NULL`, par construction du motif et non par ancienneté. Seuls **13**
+  fichiers n'ont réellement aucune date, dont 6 notes `_dossier.fiche.md` qui n'en ont pas à avoir.
+  La spec v1.2 tranche : ne pas les exclure, les signaler (`date: null`) et les classer en fin de
+  liste. Traité côté interface depuis leçon 05.
+  **Conséquences à traiter en leçon 08** : la requête 2 de `requetes.js` (`WHERE date IS NOT NULL`)
+  travaille sur **454 lignes sur 520** et n'affichera jamais un quiz ni une infographie ; le
+  Challenge « 3 mois les plus productifs » calcule une productivité dont tous les PPTX sont absents ;
+  et l'index `idx_categorie_date` est sans effet pour ces deux catégories. Le correctif est un
+  second motif dans `extraireDate()` (date en fin de nom), pas une exclusion.
 
 - **Périmètre tranché en leçon 01** : lecons, quiz, infographies, sources/veille, documents, controles.
   Extensions : `.docx`, `.pptx`, `.pdf`, `.md`.
@@ -240,8 +250,15 @@ reproductible et autorise l'installation d'une majeure incompatible.
   résultats après filtre textuel (ces données vivent dans GrilleCategorie, pas dans App).
   Approximation acceptable en l'état ; à améliorer en leçon 08 (remontée des compteurs).
 
-- **portail.db non versionné** : le fichier est une base de cache, il n'a pas à être commité.
-  Ajouter `portail.db` au `.gitignore` en leçon 08 lors du passage en revue de la configuration Git.
+- ✅ ~~**portail.db non versionné** : ajouter `portail.db` au `.gitignore` en leçon 08~~ —
+  **soldé le 11/09/2026, en urgence**. La leçon 07 avait posé le diagnostic ET reporté le correctif
+  d'une semaine : entre les deux, l'auto-push du job a publié sur le dépôt public `portail.db`
+  (126 976 o), `portail.db-shm` (32 768 o) et `portail.db-wal` (commit `678cc01`). La liste blanche
+  de `run_job.sh` prend `livrables/projets` en entier, sans filtre d'extension. Aucune fuite de
+  périmètre — l'indexeur ne scanne que les six dossiers déjà publiables — mais un binaire de cache
+  produit un diff illisible chaque semaine, et les fichiers `-shm`/`-wal` ne doivent jamais être
+  versionnés. Les trois sont désormais dans le `.gitignore` du projet et retirés du suivi.
+  **Leçon générale : un défaut constaté pendant une exécution qui publie ne se reporte pas.**
 
 - **La recherche SQL LIKE n'est pas accentuée** : contrairement à la recherche NFD du frontend,
   LIKE dans SQLite est sensible à la casse et aux accents par défaut. "lecon" ne trouve pas "leçon".
