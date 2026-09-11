@@ -8,6 +8,9 @@ numero: 2
 statut: parcours-actif
 tags:
   - parcours/appli-ia
+  - alerte/corrige
+  - correction/2026-09-11
+  - theme/source-non-citee
   - registre/technique
   - techno/html-css-js
   - techno/node-http
@@ -31,6 +34,8 @@ Document source : [[2026-08-07_lecon-appli-ia_02_socle-web-premier-ecran.docx]]
 **Le défaut : le bon conseil, la mauvaise raison — pour la seconde fois dans la même section.** Le piège n°1 écrivait qu'une requête `GET /../../../etc/passwd` *« pourrait lire n'importe quel fichier du système »*. Les clients HTTP **normalisent les segments `..` avant d'émettre**, conformément à la RFC 3986 §5.2.4. Mesuré sur un serveur Node d'essai : avec `curl` standard, le serveur reçoit `req.url = "/etc/passwd"` — les `..` ont déjà disparu ; il faut `--path-as-is` pour qu'il reçoive `"/../../../etc/passwd"`. L'attaque est réelle, mais elle passe par un client brut ou un encodage. **Le garde-fou `path.resolve()` + `startsWith()` reste indispensable** : seule sa justification par l'exemple était fausse.
 
 **Et c'est exactement le même motif que le piège n°2, corrigé le 09/08.** Là, *« ça casse sur Windows »* était faux, la vraie raison étant la normalisation. Ici, l'exemple d'attaque est faux, la vraie raison étant le client brut. **Deux fois de suite, dans la section « Ce que l'IA rate »** — celle qui prétend apprendre à repérer les affirmations non vérifiées sur le comportement d'un système, et qui en concentre le plus. Le garde-fou n°7 du prompt le dit déjà (*« relis spécifiquement cette section »*) ; cette relecture le confirme une seconde fois.
+
+**Défaut 3 — la pièce maîtresse du raisonnement n'avait pas d'adresse (relevé et corrigé le 11/09/2026).** La correction du 06/09 est excellente sur le fond : elle remplace un exemple d'attaque trompeur — *« une requête GET /../../../etc/passwd pourrait lire n'importe quel fichier »* — par le mécanisme réel, les clients HTTP normalisant les segments `..` avant d'émettre la requête. Mais elle appuie ce mécanisme sur **« la RFC 3986 section 5.2.4 », citée deux fois, sans le moindre lien**, alors que les quatre Ressources de la leçon sont MDN et nodejs.org. Le lecteur ne pouvait pas vérifier la pièce maîtresse. **C'est la forme exacte du défaut corrigé le même 06/09 sur la leçon 01** — « Cloud Security Alliance » et « OX Security » nommés sans URL : *une correction qui améliore le fond peut introduire un défaut de source*. **Corrigé** : l'adresse est ajoutée aux Ressources et le renvoi du corps nomme la section — RFC 3986, section 5.2.4 « Remove Dot Segments ». Le choix de l'adresse applique la règle 15 du parcours : `rfc-editor.org/rfc/rfc3986` **redirige** vers `/info/rfc3986/`, c'est donc `datatracker.ietf.org/doc/html/rfc3986#section-5.2.4` qui est citée — 200 à son adresse même, ancre comprise, 126 355 caractères utiles, section 5.2.4 portant bien le titre annoncé. Et la distinction est désormais écrite : **la norme source l'algorithme, la mesure source le comportement** — que les clients l'appliquent avant d'émettre, la leçon ne l'emprunte à personne, elle l'a mesuré au `curl` le 06/09.
 
 ## Notes liées
 

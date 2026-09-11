@@ -8,6 +8,9 @@ numero: 4
 statut: parcours-actif
 tags:
   - parcours/appli-ia
+  - alerte/corrige
+  - correction/2026-09-11
+  - theme/fraicheur-des-versions
   - registre/pro
   - techno/node
   - techno/fs-promises
@@ -42,6 +45,10 @@ Une relecture complète a relevé quatre points de plus, corrigés le même jour
 **C'est exactement le défaut qui a donné la règle 11** (`livrablesFiltes`, leçon 06, 04/09) — mais **cette occurrence est antérieure de deux semaines et demie**. La règle a été écrite sur la seconde occurrence sans que la première soit vue ; elle dormait dans le code depuis le 21/08.
 
 **Ce qui est exact, et remarquablement.** L'historique de dépréciation d'`url.parse()` est juste **ligne par ligne** face au tableau *History* de la doc : dépréciation en **v11.0.0**, **révocation** en v14.17.0 / v15.13.0 avec retour à « Legacy », dépréciation documentaire en v18.13.0 / v19.0.0, *application deprecation* en **v24.0.0**, et le libellé *« 0 - Deprecated: Use the WHATWG URL API instead »* **mot pour mot**. La leçon a raison d'écrire que cette histoire *« est moins linéaire qu'on ne le dit »* plutôt que de répéter que l'API est dépréciée. Et un réflexe qu'on ne trouve nulle part ailleurs dans le corpus : elle **distingue la version qu'elle lit de celle qu'elle exécute** — *« nodejs.org publie la documentation de la version courante, ici v26.7.0, alors que ce projet tourne sur v24.15.0 (LTS) »*.
+
+**Trois provenances précisées, aucune erreur de fond (relevé et corrigé le 11/09/2026).** Le test d'attribution a signalé deux relevés *« Node.js v26.7.0, 21/08/2026 »* sur `nodejs.org/api/fs.html#promises-api` et `nodejs.org/api/url.html#the-whatwg-url-api`. Mesuré : les deux pages répondent 200, affichent **v26.8.2**, et le v26.7.0 en a disparu. Le relevé du 21/08 était juste ; il a vieilli en trois semaines. Troisième point : la leçon écrit que *« ce projet tourne sur Node.js v24.15.0 »* sans dire d'où vient ce numéro — ce n'est pas une lecture de documentation mais une mesure de la machine. **Corrigé** : les deux lignes portent leur revérification et sa raison, et la provenance locale est écrite (`node -v` le 21/08/2026 ; **v24.18.1** au 11/09/2026, la ligne LTS avançant aussi).
+
+**Et cette leçon fait mieux que la règle qui l'a suivie.** Le test signalait ces points, mais la leçon portait déjà l'explication, écrite le 21/08 : *« nodejs.org publie la documentation de la version COURANTE, ici v26.7.0, alors que ce projet tourne sur Node.js v24.15.0 »*. **Elle distingue la version qu'elle LIT de celle qu'elle EXÉCUTE** — un réflexe absent partout ailleurs dans le corpus, et qui est l'esprit même du garde-fou sur les versions. Ce qui manquait n'était pas la compréhension : c'était la date de revérification et la provenance de la mesure locale. C'est aussi ce cas qui a fait ajouter au test la catégorie **dérive documentée** : sans elle, un document correctement re-daté restait rouge pour toujours — et un test qu'on ne peut pas ramener au vert finit par n'être plus lu.
 
 ## Notes liées
 
