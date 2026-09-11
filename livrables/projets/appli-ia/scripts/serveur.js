@@ -1,27 +1,29 @@
 // scripts/serveur.js — Serveur HTTP local du Portail Livrables
 // Leçon 04 — Données réelles : l'API qui connaît vos fichiers (21/08/2026)
+// Leçon 07 — Ajout de la route /api/db/search (11/09/2026)
 //
 // Lance : node scripts/serveur.js
 // Ou sur un autre port : PORT=8080 node scripts/serveur.js
 //
-// Changements leçon 04 :
-//   - async/await remplace les callbacks imbriqués (fs.promises)
-//   - extraireDate() et extraireSlug() extraient les métadonnées du nom de fichier
-//   - Résout l'écart n°3 : date issue du NOM, pas du mtime
-//   - PORT configurable via variable d'environnement
-//   - Nouvelle route /api/livrables?categorie=X pour accès ciblé
-//   - URL parsée avec new URL() pour accès aux query params
+// Routes :
+//   GET /api/inventaire              → inventaire complet (scan filesystem)
+//   GET /api/livrables?categorie=X   → liste complète d'une catégorie
+//   GET /api/db/search?q=terme       → recherche textuelle dans portail.db (SQLite)
+//   GET /                            → public/index.html
+//   GET /style.css, /app.js, …       → fichiers statiques
 
 'use strict';
-const http  = require('node:http');
-const fs    = require('node:fs/promises');    // API Promise — plus de callbacks
-const path  = require('node:path');
-const { URL } = require('node:url');
+const http     = require('node:http');
+const fs       = require('node:fs/promises');
+const path     = require('node:path');
+const { URL }  = require('node:url');
+const Database = require('better-sqlite3');
 
 // ── Configuration ──────────────────────────────────────────────────────────
 
 // PORT peut être injecté par l'environnement : PORT=8080 node scripts/serveur.js
-const PORT = process.env.PORT || 3000;
+const PORT    = process.env.PORT || 3000;
+const DB_PATH = path.join(__dirname, '..', 'portail.db');
 
 // Le script vit dans livrables/projets/appli-ia/scripts/
 // On remonte de 4 niveaux pour atteindre la racine Claude_Travail/
@@ -202,6 +204,40 @@ async function gererRequete(req, res) {
       reponse[cle] = { nombre: cat.nombre, taille_ko: cat.taille_ko, recents: cat.recents };
     }
     res.end(JSON.stringify(reponse, null, 2));
+    return;
+  }
+
+  // ── Route : recherche SQLite ───────────────────────────────────────────
+  // Requiert que node scripts/indexer.js ait été lancé au préalable.
+  if (chemin === '/api/db/search') {
+    const q = urlParsee.searchParams.get('q') || '';
+    if (q.trim().length < 2) {
+      res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ erreur: 'Le terme de recherche doit faire au moins 2 caractères.' }));
+      return;
+    }
+    try {
+      const db = new Database(DB_PATH, { readonly: true });
+      const resultats = db.prepare(`
+        SELECT categorie, nom, date, slug, extension,
+               ROUND(taille / 1024.0, 1) AS taille_ko
+        FROM livrables
+        WHERE slug LIKE @motif
+        ORDER BY date DESC NULLS LAST
+        LIMIT 50
+      `).all({ motif: '%' + q + '%' });
+      db.close();
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ terme: q, resultats }, null, 2));
+    } catch (err) {
+      const estAbsente = err.message && err.message.includes('no such table');
+      const estManquant = err.code === 'SQLITE_CANTOPEN';
+      const message = (estAbsente || estManquant)
+        ? 'La base portail.db n\'existe pas encore. Lance d\'abord : node scripts/indexer.js'
+        : 'Erreur de base de données : ' + err.message;
+      res.writeHead(503, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ erreur: message }));
+    }
     return;
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "portail-livrables",
-  "version": "0.4.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Consultation des livrables produits par les jobs Claude_Travail",
   "type": "commonjs",
@@ -8,6 +8,8 @@
     "inventaire": "node scripts/inventaire.js",
     "demo-recursivite": "node scripts/demo_recursivite.js",
     "serveur": "node scripts/serveur.js",
+    "indexer": "node scripts/indexer.js",
+    "requetes": "node scripts/requetes.js",
     "build": "tsc",
     "inventaire:ts": "node dist/inventaire.js"
   },
@@ -17,5 +19,8 @@
   "devDependencies": {
     "@types/node": "^26.2.0",
     "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3"
   }
 }

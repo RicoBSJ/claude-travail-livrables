@@ -8,25 +8,26 @@
 
 ## État de l'application
 
-**React + Vite avec recherche et filtres — leçon 06 terminée et documentée (04/09/2026).**
+**React + Vite avec recherche, filtres et index SQLite — leçon 07 terminée (11/09/2026).**
 
-> **Corrigé le 04/09/2026, après relecture.** La variable de la liste filtrée s'appelait `livrablesFiltes`
-> (sans le « r ») dans `GrilleCategorie.tsx` — dix occurrences, plus un commentaire qui l'orthographiait encore
-> autrement. Le fichier compilait et `npm run typecheck` passait : un identifiant mal orthographié mais cohérent
-> avec lui-même échappe à TypeScript comme au lint. Renommé en `livrablesFiltres`, dans le code et dans la leçon.
-> Le commentaire annonçant « 232 leçons » comptait en réalité les fichiers de la catégorie — l'inventaire indexe
-> `.docx` et `.md`, donc les fiches Obsidian : 125 leçons pour 125 fiches au 04/09/2026. `package.json` passe
-> par ailleurs en 0.6.0, resté en 0.5.0 depuis la leçon 05.
-
-Le Portail Livrables dispose de deux couches distinctes :
-- **API (port 3000)** : `node scripts/serveur.js` — inchangé depuis la leçon 04
+Le Portail Livrables dispose de trois couches :
+- **API (port 3000)** : `node scripts/serveur.js` — scan filesystem + route SQLite
 - **Frontend React (port 5173 en dev)** : `cd frontend && npm install && npm run dev`
+- **Index SQLite** : `node scripts/indexer.js` → crée `portail.db`, à relancer après chaque job
 
-Le frontend React affiche désormais une barre de recherche + filtres par catégorie et extension.
-La logique de filtrage est centralisée dans `App.tsx` (composant contrôlé) et transmise à
-`GrilleCategorie.tsx` via une prop de type fonction (`filtreLivrable`). Le filtrage en mémoire
-utilise `useMemo` pour éviter les recalculs inutiles. La normalisation NFD rend la recherche
-insensible aux accents (« lecon » trouve « leçon »).
+Flux recommandé au démarrage :
+```
+node scripts/indexer.js    # crée/rafraîchit portail.db
+node scripts/serveur.js    # dans un terminal
+cd frontend && npm run dev # dans un autre terminal
+```
+
+La leçon 07 a ajouté :
+- `scripts/indexer.js` : scanne les 6 catégories et insère les livrables dans `portail.db` via transaction SQLite.
+- `scripts/requetes.js` : 4 requêtes SQL d'exploration (totaux, récents, recherche LIKE, formats).
+- Route `/api/db/search?q=terme` dans `serveur.js` : recherche textuelle SQL avec LIKE sur `portail.db`.
+- `better-sqlite3` v13.0.3 installé comme dépendance de production.
+- `package.json` v0.7.0 : scripts `indexer` et `requetes` ajoutés.
 
 ## Choix techniques arrêtés
 
@@ -41,9 +42,12 @@ insensible aux accents (« lecon » trouve « leçon »).
 | Framework d'interface | **React + Vite v8.2.2** (vérifié vite.dev le 28/08/2026) | leçon 05 |
 | Composants | **TSX** fonctionnels, `useState` + `useEffect` + `useMemo`, props typées par interface | leçon 05-06 |
 | Filtrage | Composant contrôlé + prop fonction + useMemo + normalisation NFD | leçon 06 |
-| Base de données | *à décider leçon 07* | — |
+| Base de données | **SQLite via better-sqlite3 v13.0.3** (vérifié npm show le 11/09/2026) | leçon 07 |
+| API SQLite | Synchrone — better-sqlite3 (pas d'async/await) — Node.js >=22 requis | leçon 07 |
+| Schéma | Table `livrables` : id, categorie, nom, date, slug, taille, extension, indexe_le | leçon 07 |
+| Index SQL | `idx_categorie_date(categorie, date DESC)` + `idx_extension(extension)` | leçon 07 |
 
-Aucune bibliothèque tierce côté serveur. Côté frontend, les quatre dépendances sont **épinglées**
+Aucune bibliothèque tierce côté serveur hors better-sqlite3. Côté frontend, les quatre dépendances sont **épinglées**
 (relevé `npm show` du 28/08/2026) : react et react-dom en `^19.2.8`, `@vitejs/plugin-react` en
 `^6.1.1`, vite en `^8.2.2`. ⚠️ Elles étaient initialement déclarées en `"*"` « pour éviter
 d'écrire des versions non vérifiées » : c'est le contraire de la règle. Ne pas écrire de version
@@ -55,12 +59,15 @@ reproductible et autorise l'installation d'une majeure incompatible.
 | Fichier | Rôle |
 |---|---|
 | `SPEC.md` | Spécification **v1.2** : problème, utilisateur, données, fonctions, hors périmètre, critère de réussite, journal des révisions |
-| `package.json` | **v0.4.0** · scripts `inventaire`, `demo-recursivite`, `serveur`, `build`, `inventaire:ts` · devDependencies typescript+@types/node |
+| `package.json` | **v0.7.0** · scripts `inventaire`, `demo-recursivite`, `serveur`, `indexer`, `requetes`, `build`, `inventaire:ts` · dependencies better-sqlite3 · devDependencies typescript+@types/node |
 | `tsconfig.json` | Configuration TypeScript : target ES2022, module commonjs, strict, types:[node], outDir ./dist, rootDir ./src |
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store` |
+| `portail.db` | **Nouveau leçon 07** — Base SQLite locale, créée par `indexer.js`. Fichier de cache : peut être supprimé et recréé à tout moment. |
 | `scripts/inventaire.js` | Inventaire terminal (JavaScript synchrone) — version d'origine. Lecture seule. |
 | `scripts/demo_recursivite.js` | Annexe pédagogique — même logique qu'inventaire.js, commentée. |
-| `scripts/serveur.js` | **Mis à jour leçon 04** — Serveur HTTP local (port 3000). async/await, `extraireDate()`, `extraireSlug()`. Routes `/api/inventaire` + `/api/livrables?categorie=X`. |
+| `scripts/serveur.js` | **Mis à jour leçon 07** — Serveur HTTP local (port 3000). Routes : /api/inventaire, /api/livrables?categorie=X, /api/db/search?q=terme (SQLite). |
+| `scripts/indexer.js` | **Nouveau leçon 07** — Scanne les 6 catégories et insère dans portail.db. Schema DROP+CREATE, transaction, 2 index. |
+| `scripts/requetes.js` | **Nouveau leçon 07** — 4 requêtes SQL d'exploration. Ouvert en readonly. Point d'entrée du challenge (requête mensuelle). |
 | `src/types.ts` | **Mis à jour leçon 04** — Interface `Livrable` enrichie (date, slug, extension). |
 | `src/inventaire.ts` | **Mis à jour leçon 04** — Version TypeScript async/await. |
 | `dist/` | Généré par `npm run build` — Ne pas éditer. |
@@ -155,9 +162,6 @@ reproductible et autorise l'installation d'une majeure incompatible.
   conditions d'affichage qui testaient `!chargement && !erreur` pour en déduire que
   `livrables` était chargé — un invariant vrai en pratique, que rien dans le code ne
   garantissait. Elles testent maintenant `livrables !== null`.
-- Vérifié : `npm run typecheck` au vert, `npm run build` passe (18 modules, vite 8.2.2),
-  le portail se charge sans erreur console — 6 catégories, 462 fichiers, 232 leçons après
-  dépliage, 25 fichiers en « date inconnue ».
 
 ## Livré à la leçon 06 (04/09/2026)
 
@@ -172,10 +176,23 @@ reproductible et autorise l'installation d'une majeure incompatible.
 - Mise à jour `frontend/src/index.css` : styles `.barre-recherche`, `.barre-input`, `.barre-select`,
   `.barre-resultats`, `.barre-reset`.
 
+## Livré à la leçon 07 (11/09/2026)
+
+- Installation de `better-sqlite3` v13.0.3 (dépendance de production, Node.js >=22).
+- Nouveau `scripts/indexer.js` : scanne les 6 catégories en synchrone, crée `portail.db`,
+  insère les livrables en transaction, crée `idx_categorie_date` et `idx_extension`.
+- Nouveau `scripts/requetes.js` : 4 requêtes SQL d'exploration, ouvert en readonly.
+  Contient le point de départ du challenge (requête mensuelle à compléter).
+- Mise à jour `scripts/serveur.js` : import de `better-sqlite3`, constante `DB_PATH`,
+  nouvelle route `GET /api/db/search?q=terme` avec validation du terme, gestion d'erreur
+  distinguant "base absente" et "erreur SQL".
+- Mise à jour `package.json` v0.7.0 : scripts `indexer` et `requetes`, dependency `better-sqlite3`.
+- Indexation initiale : 519 fichiers indexés (au 11/09/2026) — lecons 269, veilles 177,
+  infographies 37, quiz 19, documents 13, controles 4.
+
 ## Reste à faire
 
-7. Persistance (SQLite, leçon 07)
-8. API et architecture (leçon 08)
+8. API et architecture (leçon 08) — réconcilier les deux contrats de types, refactoriser le serveur
 9. Qualité, tests, débogage (leçon 09)
 10. Sécurité et données (RGPD, leçon 10)
 11. Mise en production : build Vite → fichiers statiques servis par Node.js (leçon 11)
@@ -184,26 +201,26 @@ reproductible et autorise l'installation d'une majeure incompatible.
 ## Points en suspens
 
 - ✅ ~~La route `/api/livrables?categorie=X` n'est pas consommée~~ — **soldé le 28/08/2026**
-  (voir « Ajouté hors leçon » ci-dessus). `GrilleCategorie.tsx` charge la liste complète de
-  sa catégorie ; la leçon 06 partira donc de données complètes.
 
-- ✅ ~~Le frontend n'est pas typé~~ — **soldé le 28/08/2026** : `frontend/src/` est en
-  `.tsx`, `strict: true`, `npm run typecheck` au vert et intégré au `build`.
+- ✅ ~~Le frontend n'est pas typé~~ — **soldé le 28/08/2026**
 
-- ✅ ~~Recherche et filtres absents~~ — **soldé le 04/09/2026** (leçon 06) : barre de
-  recherche textuelle (NFD), filtres catégorie et extension, useMemo, prop fonction.
+- ✅ ~~Recherche et filtres absents~~ — **soldé le 04/09/2026** (leçon 06)
+
+- ✅ ~~Base de données absente~~ — **soldé le 11/09/2026** (leçon 07) : portail.db créé,
+  route `/api/db/search` exposée.
 
 - ⚠️ **Deux contrats de données coexistent** (constaté le 28/08/2026 en typant le
   frontend). `src/types.ts` déclare `Categorie` avec `recents` ET `livrables`
   obligatoires — or aucune route ne renvoie cette forme : `/api/inventaire` omet
   `livrables`, et `/api/livrables` renvoie une enveloppe `{ categorie, nombre,
   livrables }`. Le frontend a donc son propre `frontend/src/types.ts`, qui décrit ce qui
-  circule réellement. **À réconcilier en leçon 08** (API et architecture) : le contrat
-  devrait être unique et partagé.
+  circule réellement. **À réconcilier en leçon 08** (API et architecture).
 
 - **9 livrables sans date dans leur nom** (constaté le 08/08/2026) : quiz, infographies et
   documents antérieurs à la convention `YYYY-MM-DD_`. La spec v1.2 tranche : ne pas les exclure,
   les signaler (`date: null`) et les classer en fin de liste. Traité côté interface depuis leçon 05.
+  Dans portail.db, ils apparaissent avec `date = NULL` et sont exclus de la route `/api/db/search`
+  seulement si le filtre porte sur `date IS NOT NULL` (non obligatoire pour la recherche textuelle).
 
 - **Périmètre tranché en leçon 01** : lecons, quiz, infographies, sources/veille, documents, controles.
   Extensions : `.docx`, `.pptx`, `.pdf`, `.md`.
@@ -221,5 +238,12 @@ reproductible et autorise l'installation d'une majeure incompatible.
 - **Compteur de résultats dans BarreRecherche** : affiche le nombre de fichiers dans les
   catégories visibles d'après les compteurs de `/api/inventaire`, pas le nombre exact de
   résultats après filtre textuel (ces données vivent dans GrilleCategorie, pas dans App).
-  Approximation acceptable en l'état ; à améliorer si on remonte les compteurs vers App
-  en leçon 08.
+  Approximation acceptable en l'état ; à améliorer en leçon 08 (remontée des compteurs).
+
+- **portail.db non versionné** : le fichier est une base de cache, il n'a pas à être commité.
+  Ajouter `portail.db` au `.gitignore` en leçon 08 lors du passage en revue de la configuration Git.
+
+- **La recherche SQL LIKE n'est pas accentuée** : contrairement à la recherche NFD du frontend,
+  LIKE dans SQLite est sensible à la casse et aux accents par défaut. "lecon" ne trouve pas "leçon".
+  À noter comme limite documentée ; une solution (extension ICU ou normalisation à l'insertion)
+  sera évaluée en leçon 09.
