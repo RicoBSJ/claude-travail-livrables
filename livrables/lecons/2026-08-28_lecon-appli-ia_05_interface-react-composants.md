@@ -20,6 +20,9 @@ tags:
   - theme/comportement-runtime-non-verifie
   - alerte/corrige
   - correction/2026-09-06
+  - correction/2026-09-11
+  - alerte/puces-vides
+  - theme/source-non-citee
 ---
 
 # 2026-08-28_lecon-appli-ia_05_interface-react-composants
@@ -44,12 +47,20 @@ Le choix annoncé en leçon 04 est tranché : **React + Vite**, dans un dossier 
 
 **Ce qui est intact.** La liste *« null, undefined et false ne rendent rien »* est exacte **et complète** : le `0` en est justement absent, alors que c'est lui qui avait corrompu le `.docx` de la leçon 04. Virtual DOM, majuscule des composants, `className`, racine unique, tableau de dépendances : conformes. Et le journal du 28/08 sur l'épinglage reste l'un des meilleurs passages du parcours — laisser `"*"` dans un `package.json` ne respecte pas le garde-fou interdisant d'écrire une version de mémoire, il le **contourne**, et c'est pire.
 
+**Défaut 3 — quinze puces vides, dans cinq listes annoncées : deux relectures ne l'avaient pas vu (relevé et corrigé le 11/09/2026).** Le document portait **quinze puces sans aucun texte** : trois dans « État du projet après la leçon 04 — repris de `PROJET.md` », qui n'en montrait que **deux sur cinq** ; **quatre sous « Ce que l'IA fait bien »**, c'est-à-dire la **colonne entière** — la section promettait un bien/mal et ne livrait que le mal ; quatre sous « Contrôles visuels dans le navigateur » ; quatre sous « Leçon 06 ajoutera ». Signature identique à l'octet sur les quinze : un `<w:p>` de 372 octets, style `ListParagraph`, numérotation intacte, `<w:t xml:space="default"/>` auto-fermant. **Pourquoi personne ne l'a vu** : le contrôle d'intégrité de l'étape 5 bis, né des `<0/>` de la leçon 04, ne vérifiait que XML bien formé / balises invalides / au moins un lien — il répondait `OK` sur ce fichier ; et à la lecture, une puce vide ressemble à une respiration. Le défaut a été découvert le 11/09 en auditant la leçon 07, qui en portait huit ; la mesure étendue au parcours donne **01/02/03/06 à zéro, 05 à quinze sur trente-huit, 07 à huit sur vingt-sept**. Le contrôle compte désormais les puces vides et refuse le document. **Les quinze sont remplies** : les trois premières relues dans l'historique du dépôt (`f8dcd3c`, l'état réel au 21/08 — l'amorce dit « repris de `PROJET.md` », je ne les ai pas inventées), les quatre de « Leçon 06 ajoutera » écrites d'après ce que la 06 a **réellement** livré le 04/09 (recherche NFD, deux filtres, composant contrôlé, `useMemo`), et les huit restantes — perdues — réécrites à la date du 11/09. Les contrôles visuels sont rédigés en **propriétés** avec une commande de recoupement, pas en nombres : c'est la règle 10 du parcours, née de l'incident des « 232 leçons » de ce document même.
+
+**Défaut 4 — deux affirmations justes rattachées à la mauvaise page (relevé le 11/09/2026, non corrigé).** Le contenu est exact dans les deux cas ; c'est l'attribution qui ne tient pas. ① **La citation de la règle des hooks, ajoutée par la correction du 06/09** — *« Don't call Hooks inside loops, conditions, nested functions, or try / catch / finally blocks »* — est verbatim, mais elle ne figure sur **aucune des quatre pages listées en Ressources**. Elle vit sur `react.dev/reference/rules/rules-of-hooks` (200, **6 018 caractères utiles**, mesuré), que la leçon ne cite pas : le journal du 06/09 écrit « sur react.dev, section Rules of Hooks » — une attribution au site, pas à une page. ② **La configuration du proxy Vite**, `changeOrigin: true` compris, est correcte et documentée sur `vite.dev/config/server-options` — alors que le commentaire du fichier et le libellé de la ressource désignent `vite.dev/guide/`, qui ne contient **ni « proxy », ni « changeOrigin », ni le numéro 8.2.2** qu'on lui attribue (**9 766 caractères utiles**, mesurés). Les versions, elles, viennent bien de `npm show`, comme la leçon le dit ailleurs. C'est **la règle 13 du parcours, écrite le 06/09 — le jour même de la correction qui a introduit le premier des deux défauts**.
+
+**Ce qui a été revérifié le 11/09 et tient.** Les quatre URL répondent **200 sans redirection** (14 303 · 9 766 · 26 204 · 42 073 caractères utiles). Les versions annoncées sont celles **réellement installées**, lues dans `node_modules` : react et react-dom **19.2.8**, `@vitejs/plugin-react` **6.1.1**, vite **8.2.2**. L'extrait de `vite.config.js` reproduit dans la leçon est **identique au fichier sur le disque**. `npm run build` passe dans `frontend/` : `tsc --noEmit` au vert puis **19 modules** transformés par vite 8.2.2 — le 19 confirmant la note de fraîcheur ajoutée le 06/09.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-21_lecon-appli-ia_04_donnees-reelles-api-fichiers]]
   qui construisait `/api/livrables?categorie=X` *en annonçant* qu'elle serait la source de la nouvelle interface. C'est la leçon à relire pour mesurer l'écart : la route existe, elle est testée, et le frontend l'ignore
 - **➡️ Suivante** · [[2026-09-04_lecon-appli-ia_06_recherche-filtres]]
   la recherche et les filtres se branchent sur la grille construite ici, sans rien casser — `typecheck` passe toujours. Elle fait aussi casser volontairement les dépendances de `useMemo` pour montrer un bug que TypeScript ne voit pas
+- **🔗 Pont** · [[2026-09-11_lecon-appli-ia_07_persistance-sqlite]]
+  **c'est en auditant celle-là que le défaut d'ici a été trouvé.** Huit puces vides sur vingt-sept, même signature à l'octet près, et le même contrôle répondant `OK` sur les deux. La 07 a servi de révélateur : sans elle, les quinze puces de la 05 tenaient depuis quinze jours
 - **🔗 Pont** · [[2026-08-14_lecon-appli-ia_03_typescript-structure-projet]]
   le frontend était en `.jsx` sans `tsconfig.json`, alors que la leçon 03 avait typé l'inventaire — **régression réparée le 28/08** : quatre composants en `.tsx`, `strict: true`, `typecheck` branché dans le `build`. Et le typage a confirmé l'avertissement de cette leçon-là : `Categorie` dans `src/types.ts` déclare une forme qu'**aucune route ne renvoie**. TypeScript fait confiance aux déclarations, jamais aux données
 - **🔗 Pont** · [[2026-08-07_lecon-appli-ia_02_socle-web-premier-ecran]]
