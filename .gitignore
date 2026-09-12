@@ -36,3 +36,6 @@ journal/
 # Caches Python des scripts outils
 __pycache__/
 *.pyc
+
+# Passage courant de non_regression.sh (la référence, elle, est suivie)
+outils/scripts/non_regression/courant/
