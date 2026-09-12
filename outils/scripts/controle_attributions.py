@@ -3,7 +3,8 @@
 """controle_attributions.py — test d'attribution des pages, commun à tous les parcours.
 
 Usage : /usr/bin/python3 outils/scripts/controle_attributions.py <chemin du .docx>
-Sort en 0 si aucun problème bloquant, en 1 sinon (et en 2 si le fichier est illisible).
+Sort en 0 si aucun problème bloquant, en 1 sinon, en 2 si le fichier est illisible, en 3 si rien
+ne bloque mais qu'une vérification a été IMPOSSIBLE (page non lue, 0 octet) — un 3 n'est pas un 0.
 
 Copie CANONIQUE, extraite verbatim du bloc embarqué dans le prompt appli-ia-lecon
 (jobs_config.json) le 12/09/2026 — même contenu, même validation : dix-sept cas
@@ -11,7 +12,8 @@ connus, dans les deux sens, sous env -i. Historique des treize défauts du test
 et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ le
 12/09/2026, la passe A cesse d'ignorer un site nu cité comme source sans aucune page listée ;
 ⑮ le même jour, un guillemet droit collé à un chiffre (27") n'ouvre plus une citation ;
-⑯ A4 ignore les lignes de décompte (« Sources : 6 ✅ … ») et lit « LDLC.com » comme un domaine.
+⑯ A4 ignore les lignes de décompte (« Sources : 6 ✅ … ») et lit « LDLC.com » comme un domaine ;
+⑰ une page non lue (0 octet) ne prouve pas une absence : NON VERIFIABLE, exit 3, jamais INTERDIT.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -299,12 +301,22 @@ for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{25,300}?)\s*(?:»|(?<!\d)\")"
     c = re.split(r"\s+[\u2014-]\s+(?=[A-Z\u00c0-\u00dd][^.]{2,60}$)", c)[0].strip()
     if len(c.split()) >= 8:
         cits.add(c)
+# ⑰ (12/09/2026) une page qui n'a PAS PU ETRE LUE (0 octet : reseau, mur, delai) n'est pas une
+#    page qui ne porte pas la phrase. nodejs.org/en/download repondait 0 octet, et C2 concluait
+#    « cette page NE la porte PAS » sur le vide. Sur une page non lue on ne conclut rien :
+#    NON VERIFIABLE, compte a part, exit 3 s'il ne reste que cela.
+non_lues = [u for u in urls if u not in non_textuels and not bruts.get(u)
+            and not re.search(r"://(?:localhost|127\.0\.0\.1)", u)]      # les adresses locales du projet ne sont pas des pages
 print("\nB. CITATIONS ANGLAISES DE 8 MOTS OU PLUS : %d" % len(cits))
 ko_b = 0
+non_verif = 0
 for c in sorted(cits):
     u, how = ou_trouve(c)
     if u:
         print("   OK      %s\n             -> %s (%s)" % (c[:76], u, how))
+    elif non_lues:
+        non_verif += 1
+        print("   NON VERIFIABLE %s\n             -> sur aucune page LUE ; %d page(s) non lue(s)" % (c[:76], len(non_lues)))
     else:
         ko_b += 1
         print("   ABSENTE %s\n             -> sur AUCUNE page listee" % c[:76])
@@ -381,6 +393,10 @@ for mv in re.finditer(r"\bv?(\d+\.\d+\.\d+)\b", corps):
     if not cibles or (dom, chemin, v) in vus:
         continue
     vus.add((dom, chemin, v))
+    if all(not bruts.get(u) for u in cibles):
+        non_verif += 1          # ⑰ : toutes les pages de ce domaine sont restees vides
+        print("   NON VERIFIABLE %-10s pres de %-38s -> page(s) non lue(s) (0 octet) : on ne conclut rien" % (v, dom + chemin))
+        continue
     motif = re.compile(r"(?<![\d.,])" + re.escape(v) + r"(?![\d.,])")
     motif_v = re.compile(r"(?<![\d.])v" + re.escape(v) + r"(?![\d.])")
     porte = [u for u in cibles
@@ -467,8 +483,12 @@ if non_textuels:
 print("\n>>> PASSES INERTES SUR CE DOCUMENT : %s"
       % ("; ".join(inertes) if inertes else "aucune — les quatre ont mordu"))
 print(">>> Une passe inerte n'est PAS une passe reussie : elle n'a rien cherche.")
+if non_lues:
+    print(">>> PAGES NON LUES (0 octet) : %d — %s" % (len(non_lues), "; ".join(non_lues)))
+    print(">>> Rien n'a pu etre verifie sur elles : relance plus tard, ou verifie a la main.")
 pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + ko_b + ko_c2
-print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + B + C2)" % pb)
+print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + B + C2)%s"
+      % (pb, " — et %d verification(s) IMPOSSIBLE(S), pages non lues" % non_verif if non_verif else ""))
 print("          %d valeur(s) chiffree(s) a relire en D — a la main, D n'est pas bloquant"
       % ko_d)
-sys.exit(1 if pb else 0)
+sys.exit(1 if pb else (3 if non_verif else 0))
