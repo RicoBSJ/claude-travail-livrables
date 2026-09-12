@@ -24,6 +24,8 @@ Le PPA est présenté comme **la pierre angulaire de la démarche qualité en ES
 
 L'apport structurant est la décomposition en **sept phases séquentielles et itératives** — premiers contacts, analyse de la situation, co-construction, décision, mise en œuvre, co-évaluation, rédaction. La synthèse de 2012 en extrait les points clés pour les équipes de terrain.
 
+**Source nommée sans adresse, corrigée le 12/09/2026.** Relevé par les passes A2/A4 du contrôle d'attribution (harnais de `non_regression.sh` étendu à ces passes) : la ligne « Sources : ANESM — … · HAS — Note de cadrage … » nommait quatre références sans aucune adresse ; les deux pages HAS sont liées, et la note de cadrage est re-datée : validée le 6 mai 2025, publiée le 12 mai 2025, non « avril 2025 ». Contenu inchangé sauf mention contraire ; journal des corrections dans le document.
+
 ## Notes liées
 
 - **🗂️ Dossier** · [[RBPP_dossier.fiche]]

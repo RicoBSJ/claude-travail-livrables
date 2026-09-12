@@ -24,6 +24,8 @@ Le rapport explore **trois scénarios prospectifs à l'horizon 2050** et concern
 
 La position de la HAS mérite d'être retenue telle quelle : ces technologies sont envisagées **en complément et non en substitution des professionnels**. C'est la formule sur laquelle s'appuyer si la question se pose en établissement.
 
+**Source nommée sans adresse, corrigée le 12/09/2026.** Relevé par les passes A2/A4 du contrôle d'attribution (harnais de `non_regression.sh` étendu à ces passes) : « Source : HAS — Rapport d'analyse prospective 2026 » nommait le rapport sans page ; la page HAS (p_3996266) est ajoutée et liée. Contenu inchangé sauf mention contraire ; journal des corrections dans le document.
+
 ## Notes liées
 
 - **🗂️ Dossier** · [[RBPP_dossier.fiche]]

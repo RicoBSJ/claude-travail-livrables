@@ -38,6 +38,8 @@ Document source : [[2026-09-09_veille_SERAFIN-PH.docx]]
 
 **Troisième mesure de coût du projet, et la plus économe.** **0,4298 $ pour un plafond de 3 $ — 14 %**, en **9 tours** et 3 min 41 s, une seule tentative. Les trois relevés depuis lundi : dzogchen 0,78 $, hypnose 0,74 $, SERAFIN 0,43 $ — tous entre 14 % et 26 % de leur plafond. **Il est trop tôt pour en conclure que les plafonds sont trop hauts** : trois jobs, aucune ligne de base antérieure, et aucune semaine chargée dans l'échantillon — celle-ci est précisément une semaine creuse, qui coûte forcément moins.
 
+**Source nommée sans adresse, corrigée le 12/09/2026.** Relevé par les passes A2/A4 du contrôle d'attribution (harnais de `non_regression.sh` étendu à ces passes) : « Source : CNSA — « SERAFIN-PH : Préparation du recueil… » » sans domaine ; cnsa.fr ajouté et lié (entrée complétée dans le journal existant). Contenu inchangé sauf mention contraire ; journal des corrections dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-09-02_veille_SERAFIN-PH.fiche]]

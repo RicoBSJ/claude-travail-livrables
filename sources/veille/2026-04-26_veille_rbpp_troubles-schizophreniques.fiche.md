@@ -24,6 +24,8 @@ Les chiffres cités posent l'enjeu : la schizophrénie touche **0,43 % de la pop
 
 L'objectif affiché est double : améliorer la précocité diagnostique et standardiser les outils d'évaluation fonctionnelle — ces derniers étant précisément ce sur quoi se construisent les projets d'accompagnement en ESSMS.
 
+**Source nommée sans adresse, corrigée le 12/09/2026.** Relevé par les passes A2/A4 du contrôle d'attribution (harnais de `non_regression.sh` étendu à ces passes) : « DSM-5-TR / CIM-11 » nommés dans le tableau des outils sans aucune adresse (0 lien dans la note) ; rubrique Ressources ajoutée avec la page du manuel de l'APA et la classification en ligne de l'OMS. Contenu inchangé sauf mention contraire ; journal des corrections dans le document.
+
 ## Notes liées
 
 - **🗂️ Dossier** · [[RBPP_dossier.fiche]]

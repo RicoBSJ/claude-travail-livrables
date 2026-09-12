@@ -25,6 +25,8 @@ Deux Windows avec prix réellement lus sur LDLC : HP OmniStudio à 1 899,95 € 
 
 Précision utile : **la version OLED de l'iMac est développée mais n'accompagnera pas ce modèle M6.**
 
+**Source nommée sans adresse, corrigée le 12/09/2026.** Relevé par les passes A2/A4 du contrôle d'attribution (harnais de `non_regression.sh` étendu à ces passes) : « Source : MacRumors, Juli Clover — publié le 27 juillet 2026 » sans domaine ; macrumors.com ajouté et lié à l'article. Contenu inchangé sauf mention contraire ; journal des corrections dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-07-26_veille_imac.fiche]]

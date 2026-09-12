@@ -27,6 +27,8 @@ La mise à jour de novembre 2025 intègre la **loi n° 2025-1057 sur la définit
 
 Un Volet 2 est annoncé, portant sur les outils et pratiques ciblés.
 
+**Source nommée sans adresse, corrigée le 12/09/2026.** Relevé par les passes A2/A4 du contrôle d'attribution (harnais de `non_regression.sh` étendu à ces passes) : la ligne d'en-tête « Source : HAS — Validé CSMS le 14 janvier 2025… » ne portait pas l'adresse ; la page HAS (p_3590098) est ajoutée et liée. Contenu inchangé sauf mention contraire ; journal des corrections dans le document.
+
 ## Notes liées
 
 - **🗂️ Dossier** · [[RBPP_dossier.fiche]]
