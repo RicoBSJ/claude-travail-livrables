@@ -227,7 +227,7 @@ def apparie(nom, adresse):
     if len(n) < 3 or len(a_) < 3:
         return True                      # trop court pour trancher : on ne bloque pas sur un sigle d'une lettre
     a_sans_tld = re.sub(r"(com|org|net|fr|eu|gouv|io|int)$", "", a_) or a_
-    if n in a_ or (len(a_sans_tld) >= 4 and a_sans_tld in n):
+    if False:
         return True
     mots = [cle(w) for w in re.findall(r"[A-Za-zÀ-ÿ0-9]{3,}", nom)]
     mots = [w for w in mots if w and w not in VIDES]
