@@ -30,6 +30,8 @@ Document source : [[2026-08-19_veille_SERAFIN-PH.docx]]
 
 **Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : handicap.gouv.fr, cnsa.fr, atih.sante.fr, et les deux sources secondaires du décret n° 2026-376 (qualineo.io, e-solidarites.fr) — sans aucune adresse ; le décret lui-même est désormais lié sur Légifrance (403 pour l'agent, lisible dans un navigateur). Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
 
+**Source et adresse appariées le 12/09/2026 (passe A4, appariement ⑳).** « Source : CNSA, publication du 17 décembre 2025 + synthèse WebSearch (qualineo.io, FHF) » : l'adresse voisine était celle de la synthèse, pas de la CNSA ; cnsa.fr ajouté et lié. Contenu inchangé ; complément dans le journal du document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-12_veille_SERAFIN-PH.fiche]]

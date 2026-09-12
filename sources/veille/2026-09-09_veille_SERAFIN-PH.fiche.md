@@ -40,6 +40,8 @@ Document source : [[2026-09-09_veille_SERAFIN-PH.docx]]
 
 **Source nommée sans adresse, corrigée le 12/09/2026.** Relevé par les passes A2/A4 du contrôle d'attribution (harnais de `non_regression.sh` étendu à ces passes) : « Source : CNSA — « SERAFIN-PH : Préparation du recueil… » » sans domaine ; cnsa.fr ajouté et lié (entrée complétée dans le journal existant). Contenu inchangé sauf mention contraire ; journal des corrections dans le document.
 
+**Source et adresse appariées le 12/09/2026 (passe A4, appariement ⑳).** « Source : Comité stratégique SERAFIN-PH — réunion du 02/07/2025 » sans adresse sur la ligne (handicap.gouv.fr en prose deux lignes plus bas) ; domaine ajouté et lié à la page du comité. Contenu inchangé ; complément dans le journal du document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-09-02_veille_SERAFIN-PH.fiche]]

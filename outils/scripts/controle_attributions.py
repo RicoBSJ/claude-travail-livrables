@@ -16,6 +16,8 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
 ⑰ une page non lue (0 octet) ne prouve pas une absence : NON VERIFIABLE, exit 3, jamais INTERDIT ;
 ⑲ A4 lit les libellés des liens imprimés par extract_docx (« Nexem → nexem.fr/… ») : un lien sans domaine
    dans son libellé est quand même une adresse donnée au lecteur ;
+⑳ A4 APPARIE la source nommée à l'adresse voisine (« Nexem » ↔ nexem.fr, alias d'institutions) : sur la
+   même ligne la proximité suffit, sur les lignes suivantes le nom doit répondre à l'adresse ;
 ⑱ une page vide est retentée deux fois (5 s, 15 s) avant d'être déclarée non lue.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
@@ -186,6 +188,52 @@ for m in IDENT.finditer(avant_res):
 #     lien ; la page existait, la date etait un horodatage d'impression, un dimanche).
 #    Une ligne « Source : » qui nomme quelque chose doit porter un domaine, sur elle-meme
 #    ou sur les deux lignes qui la suivent (le lien est souvent a la ligne).
+# ⑳ (12/09/2026) APPARIEMENT : une adresse dans la fenetre ne suffit plus, il faut qu'elle soit CELLE
+#    de la source nommee. Sur la meme ligne, la proximite vaut appariement (l'auteur a mis l'adresse
+#    a cote du nom). Sur les deux lignes suivantes, le lien ou le domaine doit repondre au nom :
+#    « Nexem » ↔ nexem.fr, « Le Media Social » ↔ lemediasocial.fr, « CNSA » ↔ cnsa.fr — ou par un
+#    alias d'institution (ANESM et HAS publient sur has-sante.fr, l'OMS sur who.int, le CEPD sur
+#    edpb.europa.eu). Avant ⑳, « Source : Nexem » suivie d'un lien vers lemediasocial.fr passait.
+ALIAS = {"anesm": ("hassante",), "has": ("hassante",), "hautautoritedesante": ("hassante",),
+         "oms": ("whoint", "icdwhoint"), "who": ("whoint",), "apa": ("psychiatryorg",),
+         "cepd": ("edpbeuropaeu",), "edpb": ("edpbeuropaeu",), "cnil": ("cnilfr",),
+         "commissioneuropeenne": ("europaeu",), "commission": ("europaeu",), "conseildelue": ("consiliumeuropaeu",),
+         "cjue": ("curiaeuropaeu",), "legifrance": ("legifrancegouvfr",), "cnsa": ("cnsafr",),
+         "dgcs": ("socialgouvfr", "handicapgouvfr"), "ministere": ("gouvfr",), "atih": ("atihsantefr",),
+         "amf": ("amffranceorg",), "insee": ("inseefr",), "bloomberg": ("bloombergcom",), "gurman": ("bloombergcom",),
+         "serafin": ("handicapgouvfr", "cnsafr"), "serafinph": ("handicapgouvfr", "cnsafr"),
+         "pubmed": ("ncbinlmnihgov",), "pubmedcentral": ("ncbinlmnihgov",), "pmc": ("ncbinlmnihgov",)}
+def cle(t):
+    t = t.lower()
+    for a_, b_ in (("é", "e"), ("è", "e"), ("ê", "e"), ("à", "a"), ("ô", "o"), ("î", "i"), ("ç", "c"), ("ù", "u"), ("û", "u")):
+        t = t.replace(a_, b_)
+    return re.sub(r"[^a-z0-9]", "", t)
+def nom_source(reste):
+    """le premier segment de ce qui suit « Source : » : « HAS (Haute Autorité…) — Validé… » -> « HAS »"""
+    seg = re.split(r"\s[—–]\s|\s-\s|[,;·(:\[]|\s\d{1,2}/\d{1,2}/\d{2,4}", reste.strip(), 1)[0].strip()
+    return seg
+# mots qui ne designent pas une source : « page principale CNSA » repond a cnsa.fr par « cnsa », pas par « page »
+VIDES = {"page", "principale", "comite", "strategique", "publication", "reunion", "communique", "rapport", "note",
+         "guide", "source", "sources", "via", "resume", "article", "decret", "loi", "journal", "officiel", "annonce",
+         "site", "dossier", "fiche", "les", "des", "une", "sur", "pour", "dans", "avec", "par", "primaire", "secondaire",
+         "officielle", "consultee", "consulte", "cadrage", "recommandation", "actualites", "actualite", "news", "blog",
+         "espace", "portail", "plateforme", "presse", "service", "direction", "agence", "ministere"}
+def apparie(nom, adresse):
+    """le nom repond-il a l'adresse (domaine ou libelle de lien) ? Par la cle entiere, par un de ses mots
+    (« ARS Bretagne » ↔ bretagne.ars.sante.fr), ou par un alias d'institution."""
+    est_url = "://" in adresse or re.match(DOM, adresse, re.I)
+    a_ = cle(re.sub(r"^https?://(?:www\.)?", "", adresse).split("/")[0] if est_url else adresse)
+    n = cle(nom)
+    if len(n) < 3 or len(a_) < 3:
+        return True                      # trop court pour trancher : on ne bloque pas sur un sigle d'une lettre
+    a_sans_tld = re.sub(r"(com|org|net|fr|eu|gouv|io|int)$", "", a_) or a_
+    if n in a_ or (len(a_sans_tld) >= 4 and a_sans_tld in n):
+        return True
+    mots = [cle(w) for w in re.findall(r"[A-Za-zÀ-ÿ0-9]{3,}", nom)]
+    mots = [w for w in mots if w and w not in VIDES]
+    if any(w in a_ for w in mots):
+        return True
+    return any(al in a_ for al in ALIAS.get(n, ()) + sum((ALIAS.get(w, ()) for w in mots), ()))
 lignes = avant_res.split("\n")
 src_sans_adresse = []
 for idx, l in enumerate(lignes):
@@ -198,19 +246,45 @@ for idx, l in enumerate(lignes):
     # ⑯ (12/09/2026) une ligne de DECOMPTE (« Sources : 6 ✅ exploitées · 9 ⛔ ») ne nomme rien
     if re.match(r"\s*\d{1,2}\s*(?:/\s*\d{1,2})?\s*(?:[✅⚠️⛔]|sources?|exploit|tent|consult|accessibl|list[ée])", m.group(1)):
         continue
-    fenetre = " ".join(lignes[idx: idx + 3])
-    # ⑯ casse ignoree : « Source : LDLC.com » portait bien son domaine
-    if re.search(DOM, fenetre, re.I) or re.search(r"https?://", fenetre):
+    # la LIGNE LOGIQUE : un lien pose au milieu d'une ligne la coupe en trois a l'extraction
+    #    (« Source : CNSA, » / « cnsa.fr » / « — publication… ») ; on recolle les libelles de liens et
+    #    les morceaux qui s'ouvrent par une ponctuation de continuation
+    logique, j = l, idx + 1
+    while j < len(lignes) and (lignes[j].strip() in libelles_lies
+                               or (lignes[j].strip()[:1] in ("—", "–", ")", ",", "(", "·", ";") and lignes[j].strip())):
+        logique += " " + lignes[j].strip(); j += 1
+    nom = nom_source(m.group(1))
+    def adresses(z, sans=""):
+        c_ = re.findall(DOM, z, re.I) + re.findall(r"https?://[^\s)]+", z)
+        c_ += [lib for lib in libelles_lies if lib not in sans and re.search(r"(?<![A-Za-zÀ-ÿ])" + re.escape(lib) + r"(?![A-Za-zÀ-ÿ])", z)]
+        return c_
+    # 1. les adresses SUR LA LIGNE LOGIQUE, puis 2. celles des deux lignes suivantes : dans les deux cas
+    #    l'une d'elles doit REPONDRE AU NOM (⑳). « Source : page principale CNSA … à verifier sur
+    #    legifrance.gouv.fr » porte un domaine, mais pas celui de la source nommee.
+    sur_ligne = adresses(logique, sans=nom)
+    suite = " ".join(lignes[j: j + 2])
+    candidats = sur_ligne if sur_ligne else adresses(suite)
+    if not candidats:
+        src_sans_adresse.append(l.strip()[:120])
         continue
-    # ⑲ un lien dont le libelle n'a pas de domaine (« Nexem ») vaut une adresse, s'il est dans la fenetre
-    if any(re.search(r"(?<![A-Za-zÀ-ÿ])" + re.escape(lib) + r"(?![A-Za-zÀ-ÿ])", fenetre) for lib in libelles_lies):
+    # l'appariement ne s'applique qu'a une source NOMMEE : une description (« classification adaptee
+    # d'un guide generaliste »), une reference d'article (« Hyndych A, Koval K (2025) » — le DOI est
+    # verifie en A3) ou une source declaree NON consultee (« newsletter Gurman — non consultee, reprise
+    # d'apres macrumors.com ») se contentent d'une adresse voisine
+    nommee = bool(re.search(r"(?<![\w])[A-ZÀ-Ý][\wÀ-ÿ-]+", nom))
+    article = bool(re.match(r"[A-ZÀ-Ý][a-zà-ÿ-]+\s+[A-Z]{1,2}\b", nom))
+    #    (la mention « non consultee » doit porter sur LA source nommee : avant le premier « ; »,
+    #     sinon « CNSA … ; source primaire (legifrance) non consultee » exempterait la CNSA)
+    if not nommee or article or NON_CONSULT.search(m.group(1).split(";")[0][:160]):
         continue
-    src_sans_adresse.append(l.strip()[:120])
+    if any(apparie(nom, c_) for c_ in candidats):
+        continue
+    src_sans_adresse.append("%s   [nomme « %s », mais les adresses voisines sont : %s]" % (l.strip()[:90], nom[:40], ", ".join(candidats)[:80]))
 print("A2. NOMS D'AUTORITE SANS AUCUNE ADRESSE :")
 for a in sorted(sans_adresse):
     print("      INTERDIT", a, "- nommee comme source, sans adresse dans les Ressources")
 print("      (aucun)" if not sans_adresse else "")
-print("A4. LIGNES « Source : » QUI NOMMENT SANS LIER (aucun domaine sur la ligne ni les deux suivantes) :")
+print("A4. LIGNES « Source : » QUI NOMMENT SANS LIER (aucune adresse sur la ligne, ni adresse APPARIEE au nom sur les deux suivantes) :")
 for l in src_sans_adresse:
     print("      INTERDIT", l)
 print("      (aucune)" if not src_sans_adresse else "")
