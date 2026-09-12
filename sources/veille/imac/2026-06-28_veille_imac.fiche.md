@@ -26,6 +26,8 @@ Côté Windows, le HP OmniStudio X 27 4K (Core Ultra 7, 32 Go, 1 To) est disponi
 
 Information de calendrier : 9to5Mac annonce quatre Mac attendus d'ici fin 2026, dont l'iMac M5 avec de nouvelles couleurs.
 
+**Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 5/8 » — la liste compte six ✅ et deux ⛔ : 6/8. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-21_veille_imac.fiche]]

@@ -22,6 +22,8 @@ Sur le fond, une précision de calendrier : les rumeurs évoquent un prototype (
 
 Conseil pratique retenu : à l'approche d'un renouvellement, surveiller le reconditionné Apple (souvent −15 %) et arbitrer selon l'urgence du besoin.
 
+**Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 2/6 » — la liste compte quatre entrées (deux ✅, deux ⛔) ; les deux autres pages tentées ne sont nommées nulle part. L'en-tête dit désormais « 2/4 listées » et signale deux tentatives non consignées. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-07-05_veille_imac.fiche]]

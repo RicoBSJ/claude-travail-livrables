@@ -23,6 +23,8 @@ Le constat est net et se confirmera toute l'année : à configuration comparable
 
 Concurrent le plus direct identifié : **HP OmniStudio X 27** (Core Ultra 5/7, 16-32 Go, 512 Go) dès ~1 190 €. Alternatives Lenovo et MSI. Le haut de gamme Windows (Yoga AIO i Aura, 32″ 4K OLED 165 Hz) sort du périmètre suivi.
 
+**Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 6/7 accessibles » — la liste compte six entrées dont une ⛔ : 5/6. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-14_veille_imac.fiche]]

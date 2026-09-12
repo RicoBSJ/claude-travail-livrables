@@ -23,6 +23,8 @@ Prix Apple stables, entrée de gamme (8 cœurs, 16 Go, 256 Go) à **1 499 €**.
 
 La veille pose d'emblée sa limite méthodologique : les cinq configurations suivies (24 et 32 Go) sont des options **CTO — sur mesure**, jamais vendues en stock chez les revendeurs. Les prix affichés sont des **estimations** à partir du tarif Apple et du barème d'options, la page du configurateur n'ayant pas pu être lue automatiquement.
 
+**Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 4/5 accessibles » — la liste compte quatre entrées dont une ⛔ : 3/4. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
+
 ## Notes liées
 
 - **➡️ Suivante** · [[2026-06-21_veille_imac.fiche]]

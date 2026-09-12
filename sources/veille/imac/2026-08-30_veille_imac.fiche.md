@@ -28,6 +28,8 @@ Document source : [[2026-08-30_veille_imac.docx]]
 
 **Régression de périmètre, enfin** : les configurations suivies redeviennent 24 Go et 32 Go, que le dossier signale depuis le **09/08** comme disponibles en CTO seulement, invendues par les revendeurs. La veille du 23/08 avait justement basculé sur les configurations standard, où des prix existent.
 
+**Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 4/9 sources exploitées » — cinq ✅, quatre ⛔ et deux pages consultées sans élément repris : 5/11. Troisième entrée du journal de cette note. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
+
 ## Notes liées
 
 - **➡️ Suivante** · [[2026-09-06_veille_imac.fiche]]

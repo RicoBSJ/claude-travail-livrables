@@ -28,6 +28,8 @@ Et un signal d'exécution : **retard généralisé de transposition** dans les �
 
 Le calendrier consolidé : haut risque autonome décembre 2027, embarqué août 2028, **mais Article 50 maintenu à décembre 2026**.
 
+**Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « Sources accessibles : 5/7 » — la liste compte quatre ✅ et trois ⛔ ; même écart les 14/06 et 28/06. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-14_veille_ai-act.fiche]]

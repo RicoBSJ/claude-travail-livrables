@@ -29,6 +29,8 @@ Deux promotions relevées : l'entrée de gamme (8C, 16 Go, 256 Go) à **1 699,99
 
 Le comparatif Windows reste stable : **500 à 940 € d'écart** avec le HP OmniStudio X 27 (Core Ultra 7, 32 Go, 4K, 27") face à l'iMac 24 Go / 512 Go.
 
+**Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 5 ✅ » — la rubrique compte sept sources ✅ 200 (huit pages, Boulanger en comptant deux). Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-16_veille_imac.fiche]]

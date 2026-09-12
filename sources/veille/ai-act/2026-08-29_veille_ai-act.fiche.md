@@ -30,6 +30,8 @@ Document source : [[2026-08-29_veille_ai-act.docx]]
 
 **Le cadrage de l'article 50 est ce qui a le plus de valeur pratique.** L'obligation de divulgation du déployeur vise trois cas : hypertrucages, textes d'intérêt public publiés sans revue humaine, et reconnaissance des émotions ou catégorisation biométrique. **Un compte-rendu ou une évaluation rédigés avec l'aide d'une IA puis relus et validés par un professionnel n'entrent pas dans ce champ** — en revanche une page d'actualités alimentée automatiquement ou un chatbot pour les familles, oui. La note reste prudente là où il faut : les « premiers dialogues de conformité du Bureau de l'IA » sont donnés comme **non confirmés sur les canaux officiels**, à traiter comme un signal de posture. Décompte des sources assumé (7 ✅ + 3 ⚠️ sur 10), avec les inaccessibles nommées. J'ai testé quatre des URL clés, dont le règlement au JOUE : toutes répondent.
 
+**Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 7✅ + 3⚠️ / 10 » — la rubrique compte huit pages lues, trois via extraits et deux non accessibles : « 8✅ + 3⚠️ + 2⛔ / 13 ». Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-07-19_veille_ai-act.fiche]]

@@ -26,6 +26,8 @@ L'**interdiction explicite des outils de nudification et de génération de CSAM
 
 Curiosité utile : une étude CNIL/EHESS révèle que **les citoyens perçoivent tous les systèmes d'IA comme présentant un risque modéré, indépendamment de leur niveau réel** — ce qui interroge la pédagogie du règlement fondé, précisément, sur des niveaux de risque.
 
+**Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « Sources accessibles : 5/7 » — la liste compte quatre ✅ et trois ⛔ ; même écart les 14/06 et 21/06. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-21_veille_ai-act.fiche]]
