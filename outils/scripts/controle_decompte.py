@@ -37,7 +37,10 @@ Ce que le test ACCEPTE : X (ouvertes) = ✅, ou ✅ + repli, ou ✅ + repli + co
   ⛔+⚠️ quand la note écrit « ⛔/⚠️ », ou l'un de ceux-là + consultées sans symbole.
   Chaque acquittement exige une somme EXACTE : rien n'est arrondi, rien n'est « proche ».
 Un lien posé au milieu d'une ligne la coupe en trois à l'extraction (« … (», « domaine », «) — … ») :
-  le test recolle ces morceaux avant de lire — constaté le 12/09/2026 après l'ajout de douze liens.
+  le test recolle ces morceaux avant de lire — constaté le 12/09/2026 après l'ajout de douze liens ;
+  une ligne courte (≤ 80) qui s'ouvre par « (» est la suite de la précédente (« village-justice.com » /
+  « (non consultée…) ») — courte seulement : une longue remarque recollée à un nom en fait une ligne
+  de décompte aux yeux du test (ai-act 11/09, « … du 29/08 sans sa source »), et l'entrée disparaît.
 Ce que le test NE LIT PAS : une source qui en cache deux (« A & B — non consultées » compte
   1 + le nombre de « & »), un décompte par domaine quand la liste est par page — lis la
   ligne « liste » qu'il imprime avant de croire son verdict.
@@ -56,7 +59,7 @@ t = t.replace("\ufe0f", "")   # ⚠ = U+26A0 + sélecteur U+FE0F : sans ce retra
 lignes = []
 for l in t.split("\n"):
     # un lien posé au milieu d'une phrase la coupe en trois lignes à l'extraction : on recolle
-    if lignes and (lignes[-1].rstrip().endswith("(") or l.lstrip().startswith(")")):
+    if lignes and (lignes[-1].rstrip().endswith("(") or l.lstrip().startswith(")") or (l.lstrip().startswith("(") and len(l.strip()) <= 80)):
         lignes[-1] = lignes[-1].rstrip() + l.lstrip()
     else:
         lignes.append(l)

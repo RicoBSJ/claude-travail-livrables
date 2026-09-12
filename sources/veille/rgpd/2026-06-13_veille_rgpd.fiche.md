@@ -22,6 +22,8 @@ Reprise en compte rendu complet. L'EDPB étend le **Comité de supervision coord
 
 La sanction IQVIA est datée précisément du 28/05 et son motif reformulé : **réutilisation insuffisamment transparente** de données de santé. C'est la transparence, pas la sécurité, qui est en cause — distinction qui compte pour un établissement qui réutiliserait des données d'accompagnement.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : village-justice.com ⛔, nommée trois fois sans adresse ; la page de listage répond 200 à un navigateur. Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-12_veille_rgpd.fiche]]

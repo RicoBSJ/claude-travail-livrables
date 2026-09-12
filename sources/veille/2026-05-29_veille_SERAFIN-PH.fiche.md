@@ -18,6 +18,8 @@ Document source : [[2026-05-29_veille_SERAFIN-PH.docx]]
 
 Semaine creuse. Aucune publication nouvelle. Les hypothèses de surveillance sont reconduites, augmentées d'une seule : les précisions attendues sur la **trajectoire de convergence tarifaire 2027**.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : handicap.gouv.fr, cnsa.fr, atih.sante.fr — sans aucune adresse dans le document. Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-05-20_veille_SERAFIN-PH.fiche]]

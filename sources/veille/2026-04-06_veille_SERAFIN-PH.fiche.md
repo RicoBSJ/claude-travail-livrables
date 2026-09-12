@@ -25,6 +25,8 @@ Veille de référence du dossier — tout le socle y est posé, et les suivantes
 
 **Recueil PH 2026** en deux phases : mars (caractéristiques des places) et mai (indicateurs de modulation). Nouvel outil **SIDOBA**, en remplacement de RAMSECE-PH. Point capital pour un directeur d'établissement : **2026 est une année blanche**, sans incidence financière — le déploiement effectif est prévu pour 2027, avec des simulations d'impact individualisées par ESSMS d'ici là.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : handicap.gouv.fr, cnsa.fr, atih.sante.fr — nommés en tableau et en pied de note, sans aucune adresse dans le document. Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-04-05_veille_SERAFIN-PH]]

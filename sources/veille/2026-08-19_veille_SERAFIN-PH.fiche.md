@@ -28,6 +28,8 @@ Document source : [[2026-08-19_veille_SERAFIN-PH.docx]]
 
 **Le décret n° 2026-376 gagne sa date et son contenu** : décision du 13 mai 2026, publication au JO du 16 mai. Il encadre la transmission des données de calcul des dotations — identification de la structure, capacités par modalité, files actives, ETP, qualité et coordination — via SIDOBA, avec une **conservation maximale de 10 ans** qui appelle une articulation RGPD explicite. La veille signale honnêtement que le décret est cité **par sources secondaires** (qualineo.io, e-solidarites.fr) et **n'a pas été consulté sur Légifrance**. Elle précise enfin la trajectoire : entrée en vigueur au 1ᵉʳ janvier 2027, puis **convergence progressive sur huit ans**.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : handicap.gouv.fr, cnsa.fr, atih.sante.fr, et les deux sources secondaires du décret n° 2026-376 (qualineo.io, e-solidarites.fr) — sans aucune adresse ; le décret lui-même est désormais lié sur Légifrance (403 pour l'agent, lisible dans un navigateur). Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-12_veille_SERAFIN-PH.fiche]]

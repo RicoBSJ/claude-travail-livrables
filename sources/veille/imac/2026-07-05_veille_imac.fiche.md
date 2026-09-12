@@ -20,6 +20,8 @@ Semaine calme, un seul apport concret mais utile : les configurations **recondit
 
 C'est la seule voie d'accès aux configurations hautes sans passer par le CTO Apple au prix fort. Le reste est stable — écart Mac/Windows toujours de 600 à 800 €.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : ledenicheur.fr, nommée en source du tableau de prix sans adresse — et une fausse alerte du contrôle corrigée au passage (⑮ : les pouces 27" lus comme des guillemets). Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-28_veille_imac.fiche]]

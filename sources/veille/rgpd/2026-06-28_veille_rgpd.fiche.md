@@ -24,6 +24,8 @@ Alerte concrète de la CNIL (24/06) : après une violation, **les victimes sont 
 
 L'EDPB met à jour son digest sur le **droit d'opposition (art. 21) et le droit à l'effacement (art. 17)**.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : village-justice.com ⛔, nommée sans adresse ; la page répond 200 à un navigateur. Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-21_veille_rgpd.fiche]]

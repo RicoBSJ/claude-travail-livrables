@@ -9,7 +9,8 @@ Copie CANONIQUE, extraite verbatim du bloc embarqué dans le prompt appli-ia-lec
 (jobs_config.json) le 12/09/2026 — même contenu, même validation : dix-sept cas
 connus, dans les deux sens, sous env -i. Historique des treize défauts du test
 et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ le
-12/09/2026, la passe A cesse d'ignorer un site nu cité comme source sans aucune page listée.
+12/09/2026, la passe A cesse d'ignorer un site nu cité comme source sans aucune page listée ;
+⑮ le même jour, un guillemet droit collé à un chiffre (27") n'ouvre plus une citation.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -273,7 +274,10 @@ OUTILS = re.compile(r"\b(the|of|a|an|is|are|was|were|to|in|on|that|this|with|not
                     r"|between|during|while|about|there|these|those|them|he|she|they)\b",
                     re.I)
 cits = set()
-for m in re.finditer(r"[«\"]\s*([^»\"]{25,300}?)\s*[»\"]", corps):
+# ⑮ (12/09/2026) un guillemet droit colle a un chiffre est un POUCE (« 27" QHD »), pas une citation :
+#    sur la veille iMac du 05/07, deux tailles d'ecran encadraient une ligne de tableau, lue comme
+#    une citation anglaise de 8 mots « absente des pages ». Ouverture et fermeture non precedees d'un chiffre.
+for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{25,300}?)\s*(?:»|(?<!\d)\")", corps):
     c = re.sub(r"\s+", " ", m.group(1)).strip()
     if len(c.split()) < 8:                      continue
     if re.search(r"[<>{}=;]|//|…", c):     continue

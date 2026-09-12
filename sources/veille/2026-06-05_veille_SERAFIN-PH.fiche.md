@@ -21,6 +21,8 @@ Semaine sans publication, mais **la veille produit ici son observation la plus u
 
 C'est le premier signe d'un décalage entre le calendrier annoncé et son exécution — exactement ce qu'une veille doit repérer, et que la simple répétition des sources ne montre pas.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : handicap.gouv.fr, cnsa.fr, atih.sante.fr — sans aucune adresse dans le document. Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-05-29_veille_SERAFIN-PH.fiche]]

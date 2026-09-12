@@ -19,6 +19,8 @@ Document source : [[2026-05-01_veille_SERAFIN-PH.docx]]
 
 Rien de neuf sur le fond. La veille précise l'intention politique affichée : **éviter les baisses de financement** et favoriser l'évolution organisationnelle des structures, plutôt que de redistribuer à enveloppe constante.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : handicap.gouv.fr, cnsa.fr, atih.sante.fr — sans aucune adresse dans le document. Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-04-24_veille_SERAFIN-PH.fiche]]

@@ -21,6 +21,8 @@ Document source : [[2026-07-01_veille_SERAFIN-PH.docx]]
 
 La stabilisation du modèle tarifaire est annoncée pour fin 2026.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : handicap.gouv.fr, cnsa.fr, atih.sante.fr — sans aucune adresse dans le document. Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-24_veille_SERAFIN-PH.fiche]]

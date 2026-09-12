@@ -27,6 +27,8 @@ L'ancrage juridique est rappelé précisément : loi 2002-2 et ses sept outils, 
 
 Dimension numérique : DUI interopérables au titre du Ségur, alimentation possible de Mon espace santé, intégration d'un PPA harmonisé dans le CI-SIS. Les éditeurs de logiciels référencés Ségur font partie des cibles.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : « has-sante.fr (p_3604128) » — le guide PPA/DUI, nommé sans adresse. Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **🗂️ Dossier** · [[RBPP_dossier.fiche]]

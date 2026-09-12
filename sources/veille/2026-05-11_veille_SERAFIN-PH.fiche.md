@@ -19,6 +19,8 @@ Document source : [[2026-05-11_veille_SERAFIN-PH.docx]]
 
 Seul apport de la semaine, mais concret : l'ATIH a mis à jour sa **FAQ le 14/05/2025** et met à disposition le **replay d'un webinaire d'appui au recueil** (07/05/2025). Ressources utiles pour préparer la campagne 2026.
 
+**Sources nommées sans adresse, liées le 12/09/2026.** Note antérieure aux règles de lien des prompts, relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : handicap.gouv.fr, cnsa.fr, atih.sante.fr — sans aucune adresse dans le document. Liens posés sur chaque mention, contenu inchangé, journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-05-01_veille_SERAFIN-PH.fiche]]
