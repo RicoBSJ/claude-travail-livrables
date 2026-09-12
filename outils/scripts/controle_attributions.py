@@ -8,7 +8,8 @@ Sort en 0 si aucun problème bloquant, en 1 sinon (et en 2 si le fichier est ill
 Copie CANONIQUE, extraite verbatim du bloc embarqué dans le prompt appli-ia-lecon
 (jobs_config.json) le 12/09/2026 — même contenu, même validation : dix-sept cas
 connus, dans les deux sens, sous env -i. Historique des treize défauts du test
-et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026).
+et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ le
+12/09/2026, la passe A cesse d'ignorer un site nu cité comme source sans aucune page listée.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -31,6 +32,10 @@ jrn = corps.find("Journal des corrections")
 if jrn != -1:
     corps = corps[:jrn]
 urls = sorted(set(re.findall(r"https?://[^\s)]+", entete)))
+# ⑭ une adresse ecrite EN CLAIR dans le corps (cellule « URL » d'un tableau, ligne « Source : https://… »)
+#    est une adresse donnee au lecteur, meme sans lien cliquable : elle compte comme listee
+urls_texte = sorted(set(re.findall(r"https?://[^\s)>\]»]+", corps)))
+urls = sorted(set(urls) | set(urls_texte))
 
 # ── A. une page nommee dans le CORPS doit etre listee en Ressources
 #    (on s'arrete avant la section Ressources : apres, tout est un libelle de lien)
@@ -47,30 +52,63 @@ avant_res = corps[:res] if res != -1 else corps
 #    (serveur.js, package.json, index.css...) par une liste de TLD reels.
 TLD = (r"com|org|net|fr|dev|io|gov|edu|uk|au|ca|ch|be|de|es|it|eu|info|int|co"
        r"|ai|app|me|tv|us|nl|se|no|jp|cn|in|ru|br|za|nz|at|dk|fi|pl|pt|gr|il|tsadra")
-DOM = r"(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:" + TLD + r")"
-doms_res = set(re.findall(r"^(?:https?://)?(" + DOM + r")",
-                          "\n".join(urls), re.M))
+# ⑭ (12/09/2026) borne de mot des deux cotes et casse ignoree : sans elles, « Amazon.fr »
+#    donnait « mazon.fr », « err.message » donnait « err.me », « path.setAttribute » « path.se » —
+#    tous invisibles tant que les sites nus non listes etaient ignores. Et « www. » est neutralise.
+DOM = r"(?<![A-Za-z0-9-])(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:" + TLD + r")(?![A-Za-z0-9-])"
+def sans_www(d):
+    return re.sub(r"^www\.", "", d.lower())
+doms_res = set(sans_www(d) for d in re.findall(r"^(?:https?://)?(" + DOM + r")",
+                                               "\n".join(urls), re.M | re.I))
 CODE = re.compile(r"curl|wget|\bPOST\b|\bGET\b|fetch\s*\(|\bbash\b|endpoint"
                   r"|x-api-key|Authorization|Content-Type|cl\u00e9 API|api[_ ]?key"
                   r"|URL\s*:|RSS|header|requests\.|axios|npm |npx ", re.I)
 SOURCE = re.compile(r"source|consult|v\u00e9rifi|d'apr\u00e8s|selon|documentation"
                     r"|r\u00e9f\u00e9rence|cit\u00e9e?s?\b", re.I)
-nues, orphelines = set(), set()
-for m in re.finditer(r"(" + DOM + r")((?:/[A-Za-z0-9._~:/#@!$&*+,;=%-]*)?)", avant_res):
-    dom, chemin = m.group(1), m.group(2).rstrip("./,;:)")
-    if dom not in doms_res and not chemin:
-        continue          # domaine simplement mentionne, jamais cite comme source
+# ⑭ un site nu est « cite comme source » s'il est ATTRIBUE — un mot d'attribution juste AVANT
+#    (« source : », « selon », « d'apres », « issu de », « via », « consulte sur »), sans point entre
+#    les deux, ou juste APRES (« X, consultes », « X (sources secondaires) ») — et non s'il est donne
+#    en CONSIGNE au lecteur (« verifiez sur », « va la verifier », « releve la position sur astro.com »)
+#    ni declare NON consulte (« decret non consulte sur legifrance ») : une consigne n'attribue rien.
+#    « sans point entre les deux » = sans FIN DE PHRASE (« . » suivi d'un blanc) : les points d'un
+#    domaine voisin (« Sources : handicap.gouv.fr ✅ | cnsa.fr ») ne coupent pas la liste.
+ATTRIB_AVANT = re.compile(r"(?:sources?\s*(?:primaires?|secondaires?|officielles?)?\s*:|\bsources?\s+\d+\s*[—:-]"
+                          r"|\bselon\b|d['’]apr[eè]s|\bissus?\s+de|\bcit[ée]e?s?\s+(?:via|sur|dans)"
+                          r"|\brelev[ée]e?s?\s+(?:sur|chez)|\bconsult[ée]e?s?\b)(?:(?!\.\s).){0,60}$", re.I | re.S)
+ATTRIB_APRES = re.compile(r"(?:(?!\.\s).){0,40}?\b(?:consult[ée]e?s?\b|cit[ée]e?s?\b|sources?\s+secondaires?)", re.I | re.S)
+NON_CONSULT = re.compile(r"\b(?:non|pas|jamais)\s+consult", re.I)
+IMPER = re.compile(r"\b(?:vérifie[rz]?|consultez|relève[rz]?|cherche[rz]?|va\s+(?:la\s+|le\s+)?vérifier"
+                   r"|à\s+vérifier|utilise[rz]?|ouvre[rz]?|teste[rz]?|rends-toi)\b", re.I)
+def attribue(avant, apres):
+    av = avant[-80:]
+    if ATTRIB_AVANT.search(av) and not NON_CONSULT.search(av[-60:]) and not IMPER.search(av[-60:]):
+        return True
+    return bool(ATTRIB_APRES.match(apres[:40])) and not NON_CONSULT.search(apres[:40])
+def liste(dom):
+    """le domaine, ou l'un de ses sous-domaines, a une page listee"""
+    return dom in doms_res or any(d.endswith("." + dom) for d in doms_res)
+nues, orphelines, sites_non_listes = set(), set(), set()
+for m in re.finditer(r"(" + DOM + r")((?:/[A-Za-z0-9._~:/#@!$&*+,;=%-]*)?)", avant_res, re.I):
+    dom, chemin = sans_www(m.group(1)), m.group(2).rstrip("./,;:)")
     ctx = avant_res[max(0, m.start() - 120): m.end() + 120]
+    if not liste(dom) and not chemin:
+        # ⑭ (12/09/2026) un domaine nu cite COMME SOURCE dont AUCUNE page n'est listee etait
+        #    ignore en silence, alors que la meme source nommee avec un chemin bloquait :
+        #    nommer moins precisement faisait passer le test. Meme exigence pour les deux.
+        if not CODE.search(ctx) and attribue(avant_res[max(0, m.start() - 80):m.start()], avant_res[m.end():m.end() + 40]):
+            sites_non_listes.add(dom)
+        continue          # sinon : domaine simplement mentionne, jamais cite comme source
     if (dom.startswith("api.") or re.search(r"\.(sh|ps1|bat)$", chemin)
             or CODE.search(ctx)) and not SOURCE.search(ctx):
         continue          # valeur de configuration, pas une source (regle 11)
     if not chemin:
         nues.add(dom)
     else:
-        nus = [re.sub(r"^https?://(?:www\.)?", "", u) for u in urls]
-        court = re.sub(r"^www\.", "", dom) + chemin
+        nus = [re.sub(r"^https?://(?:www\.)?", "", u.lower()) for u in urls]
+        court = (dom + chemin).lower()
         seg = [x for x in chemin.split("/") if x][-1:] or [""]
-        meme_dom = [u for u in nus if u.startswith(re.sub(r"^www\.", "", dom))]
+        seg = [seg[0].lower()]
+        meme_dom = [u for u in nus if u.startswith(dom)]
         if not any(court in u for u in nus) and not any(seg[0] and seg[0] in u
                                                         for u in meme_dom):
             orphelines.add(dom + chemin)
@@ -81,7 +119,11 @@ print("   pages citees dans le corps et ABSENTES des Ressources :")
 for o in sorted(orphelines):
     print("      INTERDIT", o)
 print("      (aucune)" if not orphelines else "")
-print("   attributions au SITE NU, a preciser en page :",
+print("   sites cites comme source dont AUCUNE page n'est listee (meme exigence qu'une page) :")
+for o in sorted(sites_non_listes):
+    print("      INTERDIT", o)
+print("      (aucun)" if not sites_non_listes else "")
+print("   attributions au SITE NU, a preciser en page (une page du site est listee) :",
       sorted(nues) if nues else "(aucune)")
 
 # ── A2. AUTORITE NOMMEE SANS ADRESSE : une norme citee est une source citee
@@ -416,7 +458,7 @@ if non_textuels:
 print("\n>>> PASSES INERTES SUR CE DOCUMENT : %s"
       % ("; ".join(inertes) if inertes else "aucune — les quatre ont mordu"))
 print(">>> Une passe inerte n'est PAS une passe reussie : elle n'a rien cherche.")
-pb = len(orphelines) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + ko_b + ko_c2
+pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + ko_b + ko_c2
 print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + B + C2)" % pb)
 print("          %d valeur(s) chiffree(s) a relire en D — a la main, D n'est pas bloquant"
       % ko_d)
