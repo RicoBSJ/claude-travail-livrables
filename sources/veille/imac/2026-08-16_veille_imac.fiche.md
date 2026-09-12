@@ -26,6 +26,8 @@ Prix de base toujours à 1 799 € depuis la hausse du 25/06. Configurations 24 
 
 C'est la veille à lire en premier si la décision d'achat se pose maintenant.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : « darty.com/boulanger.com » collait deux sites en un faux chemin — séparés et liés (Darty 403, Boulanger sans réponse pour l'agent, pages indexées). Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-09_veille_imac.fiche]]

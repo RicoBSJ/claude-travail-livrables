@@ -18,6 +18,8 @@ Document source : [[2026-06-24_veille_SERAFIN-PH.docx]]
 
 Peu d'éléments neufs. Le blocage de l'ATIH se confirme (403 persistant), les données sont reconstituées par recherche. Le modèle tarifaire est annoncé « en finalisation » pour fin 2026.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : trois chemins abrégés (« …serafin-ph », « …PH-2026 ») et trois sites, treize liens posés. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-17_veille_SERAFIN-PH.fiche]]

@@ -26,6 +26,8 @@ L'**instruction 2026/80** relative à la campagne budgétaire et aux enveloppes 
 
 L'**ARS Bretagne** publie un calendrier régional qui confirme la phase de juillet — première fois qu'une source régionale documente ce que le national n'a pas encore détaillé. La FHF publie de son côté un accompagnement au recueil.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : six chemins abrégés, sept sites (dont ARS Bretagne, Bulletins officiels, FHF, e-solidarites), vingt-deux liens ; la ligne « Source : ARS Bretagne + CNSA » reçoit ses domaines. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-07-15_veille_SERAFIN-PH.fiche]]

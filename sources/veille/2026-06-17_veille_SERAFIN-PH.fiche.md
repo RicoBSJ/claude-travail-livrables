@@ -24,6 +24,8 @@ L'échéance se précise : déploiement du modèle de financement pour le secteu
 
 À noter aussi, et cela durera : **l'ATIH devient inaccessible (403)**, la veille bascule sur WebSearch et le signale.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : trois sites et le chemin ATIH, plus qualineo.io, dix-sept liens posés. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-05_veille_SERAFIN-PH.fiche]]

@@ -40,6 +40,8 @@ Document source : [[2026-07-09_veille_rbpp_vie-quotidienne-enfants-3-11-ans-pe.d
 
 **Note de production.** Ce livrable est celui que le job `rbpp-pipeline` du 07/09 avait écrit à 8h35 avant d'être **tué à 8h37** par un rechargement de launchd, avant son auto-commit. Il a été publié à la main le même jour après relecture intégrale, et c'est cet incident qui a fait ajouter au script le garde-fou qui refuse désormais de recharger les agents quand un job est en vol. Le document lui-même n'a pas souffert de l'interruption : elle est survenue après l'écriture.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : « has-sante.fr/rbpp-sms » — le lien pointait bien vers le catalogue des RBPP, mais son texte visible était une adresse inventée ; texte remplacé, lien inchangé. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **🗂️ Dossier** · [[RBPP_dossier.fiche]]

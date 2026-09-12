@@ -10,7 +10,8 @@ Copie CANONIQUE, extraite verbatim du bloc embarqué dans le prompt appli-ia-lec
 connus, dans les deux sens, sous env -i. Historique des treize défauts du test
 et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ le
 12/09/2026, la passe A cesse d'ignorer un site nu cité comme source sans aucune page listée ;
-⑮ le même jour, un guillemet droit collé à un chiffre (27") n'ouvre plus une citation.
+⑮ le même jour, un guillemet droit collé à un chiffre (27") n'ouvre plus une citation ;
+⑯ A4 ignore les lignes de décompte (« Sources : 6 ✅ … ») et lit « LDLC.com » comme un domaine.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -77,7 +78,7 @@ ATTRIB_AVANT = re.compile(r"(?:sources?\s*(?:primaires?|secondaires?|officielles
                           r"|\bselon\b|d['’]apr[eè]s|\bissus?\s+de|\bcit[ée]e?s?\s+(?:via|sur|dans)"
                           r"|\brelev[ée]e?s?\s+(?:sur|chez)|\bconsult[ée]e?s?\b)(?:(?!\.\s).){0,60}$", re.I | re.S)
 ATTRIB_APRES = re.compile(r"(?:(?!\.\s).){0,40}?\b(?:consult[ée]e?s?\b|cit[ée]e?s?\b|sources?\s+secondaires?)", re.I | re.S)
-NON_CONSULT = re.compile(r"\b(?:non|pas|jamais)\s+consult", re.I)
+NON_CONSULT = re.compile(r"\b(?:non|pas|jamais)\s+(?:été\s+)?consult", re.I)   # « n'a pas ete consulte » aussi
 IMPER = re.compile(r"\b(?:vérifie[rz]?|consultez|relève[rz]?|cherche[rz]?|va\s+(?:la\s+|le\s+)?vérifier"
                    r"|à\s+vérifier|utilise[rz]?|ouvre[rz]?|teste[rz]?|rends-toi)\b", re.I)
 def attribue(avant, apres):
@@ -180,8 +181,12 @@ for idx, l in enumerate(lignes):
                  r"|officielles?|mobilis[ée]e?s?))*\s*:\s*(.*)$", l)
     if not m or not m.group(1).strip():
         continue                          # en-tete nu : le lien vient dessous
+    # ⑯ (12/09/2026) une ligne de DECOMPTE (« Sources : 6 ✅ exploitées · 9 ⛔ ») ne nomme rien
+    if re.match(r"\s*\d{1,2}\s*(?:/\s*\d{1,2})?\s*(?:[✅⚠️⛔]|sources?|exploit|tent|consult|accessibl|list[ée])", m.group(1)):
+        continue
     fenetre = " ".join(lignes[idx: idx + 3])
-    if re.search(DOM, fenetre) or re.search(r"https?://", fenetre):
+    # ⑯ casse ignoree : « Source : LDLC.com » portait bien son domaine
+    if re.search(DOM, fenetre, re.I) or re.search(r"https?://", fenetre):
         continue
     src_sans_adresse.append(l.strip()[:120])
 print("A2. NOMS D'AUTORITE SANS AUCUNE ADRESSE :")

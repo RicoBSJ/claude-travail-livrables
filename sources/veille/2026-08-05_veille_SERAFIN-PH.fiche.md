@@ -19,6 +19,8 @@ Document source : [[2026-08-05_veille_SERAFIN-PH.docx]]
 
 Semaine creuse déclarée. Un détail technique mérite d'être noté : **l'ATIH répond HTTP 200 en curl mais bloque WebFetch en 403** — la page existe, c'est l'accès automatisé qui est filtré. La veille le documente au lieu de conclure à une page morte.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : cnsa.fr et Légifrance liés, les deux lignes « Source : CNSA — page principale » reçoivent leurs domaines ; et un fait retouché : « décret publié au JO le 13 mai » — le 13 mai est la date de l'acte, la publication est du 16 mai 2026. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-07-29_veille_SERAFIN-PH.fiche]]

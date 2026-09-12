@@ -18,6 +18,8 @@ Document source : [[2026-07-29_veille_SERAFIN-PH.docx]]
 
 Semaine creuse : toutes les sources consultées renvoient à des publications hors fenêtre. Aucun élément nouveau.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : six chemins dont quatre inventés (« cnsa.fr/actualites/recueil-ph-2026 », « fhf.fr/serafin-ph-recueil-2026 »…) remplacés par le début des vrais chemins, et quatre sites — vingt-deux liens. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-07-22_veille_SERAFIN-PH.fiche]]

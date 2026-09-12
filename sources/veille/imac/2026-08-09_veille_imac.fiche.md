@@ -24,6 +24,8 @@ Reconditionné Apple : 8 cœurs dès 1 519 €, 10 cœurs 16 Go dès 1 689 € �
 
 **Constat de périmètre important** : les cinq configurations suivies depuis juin (24 et 32 Go) **ne correspondent plus à l'offre Apple standard** (16/24 Go). Le suivi porte en partie sur des configurations qui ne se vendent qu'en CTO, inaccessibles sans navigateur.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : le configurateur Apple et Fnac.com ⛔ (fiche iMac M4 a16684819, 403 anti-robot pour l'agent — règle 6). Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-02_veille_imac.fiche]]

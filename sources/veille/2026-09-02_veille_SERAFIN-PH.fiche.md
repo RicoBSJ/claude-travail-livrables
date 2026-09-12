@@ -30,6 +30,8 @@ Document source : [[2026-09-02_veille_SERAFIN-PH.docx]]
 
 **Sur le fond, rien de neuf, et c'est l'information.** Le calendrier tient : recueil PH 2026 clos le 3 juillet, export et simulations CNSA en cours depuis juillet, transmission aux ARS attendue au dernier trimestre, déploiement au 1ᵉʳ janvier 2027 pour les ESMS enfants et jeunes adultes, convergence sur huit ans, 2026 restant une **année blanche** sans incidence financière. Pour ton foyer d'hébergement, le point de vigilance n° 6 redit ce que le dossier avait tranché le 19/08 et qu'il faut continuer de tenir : **le déploiement 2027 ne couvre pas le secteur adultes**, dont le calendrier n'est pas fixé publiquement. La seule échéance qui t'engage vraiment reste celle du 26/08 — la section 6.2 de l'instruction DGCS n° 2026/80 et son cadre EPRD au 1ᵉʳ janvier 2027 **ou** à la signature du CPOM, la date la plus proche étant retenue.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : sept chemins complets et cinq sites, vingt liens. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-26_veille_SERAFIN-PH.fiche]]

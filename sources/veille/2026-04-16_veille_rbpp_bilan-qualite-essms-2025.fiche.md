@@ -26,6 +26,8 @@ Le point le plus alarmant concerne la **prévention de la maltraitance : 41 % de
 
 Ces chiffres sont à connaître avant toute évaluation : ils disent à la fois ce que les évaluateurs regardent en priorité et où le secteur échoue le plus souvent.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : deux pages HAS (communiqué p_3946562, catalogue p_3229902) et le site, cinq liens. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **🗂️ Dossier** · [[RBPP_dossier.fiche]]

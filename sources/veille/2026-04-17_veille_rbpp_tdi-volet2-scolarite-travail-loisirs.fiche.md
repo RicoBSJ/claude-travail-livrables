@@ -25,6 +25,8 @@ La définition retenue du TDI — anciennement déficience intellectuelle — co
 
 **Public exactement ciblé sur ton établissement** : professionnels de foyer de vie, FAM, MAS, SAVS, SAMSAH accompagnant des adultes avec TDI. La recommandation s'inscrit dans la dynamique d'inclusion et d'autodétermination portée par la Convention ONU.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : deux pages HAS (p_3741239, p_3237847) nommées sans lien. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **🗂️ Dossier** · [[RBPP_dossier.fiche]]

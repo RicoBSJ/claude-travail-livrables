@@ -24,6 +24,8 @@ Deux apports. La Commission publie le **Cloud Sovereignty Framework** et propose
 
 Et l'observation la plus fine de tout le dossier (IAPP, 15/07) : **les échéances bougent, les questionnaires non**. Malgré le report réglementaire, les services achats maintiennent leur pression sur les fournisseurs via des questionnaires de gouvernance IA. **La première contrainte réelle viendra des clients, avant les régulateurs.**
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : artificialintelligenceact.eu/analyses/ ⛔ nommée sans lien — répond 200 à un navigateur (règle 10), liée, ⛔ conservé. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-07-13_veille_ai-act.fiche]]

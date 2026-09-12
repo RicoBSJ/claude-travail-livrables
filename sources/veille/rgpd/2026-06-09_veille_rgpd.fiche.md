@@ -28,6 +28,8 @@ Outil directement utile : la CNIL publie une **grille pour qualifier les acteurs
 
 Les méthodologies de référence **MR-001 et MR-003** sur la recherche en santé sont mises à jour et élargies.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : « CNIL — Actualités (cnil.fr/fr/actualites) » nommait la page consultée sans la lier. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **➡️ Suivante** · [[2026-06-11_veille_rgpd.fiche]]

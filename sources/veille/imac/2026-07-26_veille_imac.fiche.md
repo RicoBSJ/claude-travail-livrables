@@ -27,6 +27,8 @@ MacRumors confirme le 22/07 qu'Apple **a terminé le développement du prochain 
 
 Windows : quatre modèles 27″ Core Ultra 7 / 32 Go / 1 To confirmés chez LDLC entre 1 399 € et 1 999 €.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : apple.com/fr (configurateur iMac) et plare.fr (article du 19/06/2026 retrouvé et daté). Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-07-19_veille_imac.fiche]]

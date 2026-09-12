@@ -19,6 +19,8 @@ Document source : [[2026-04-16_veille_SERAFIN-PH.docx]]
 
 Reprise du socle sans élément neuf. Un seul ajout utile : la page ATIH consacrée au recueil PH 2026 **n'est pas encore ouverte**, la veille bascule donc sur la page 2025 et le signale. Ouverture estimée à l'automne 2026.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : une page nommée trois fois par son chemin pour dire qu'elle n'existe pas (« atih.sante.fr/recueil-national-ph-2026 », 404 encore le 12/09) — reformulée sans chemin. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-04-13_veille_SERAFIN-PH.fiche]]

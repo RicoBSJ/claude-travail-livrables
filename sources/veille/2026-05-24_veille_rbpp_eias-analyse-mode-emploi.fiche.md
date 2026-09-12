@@ -24,6 +24,8 @@ Le constat qui justifie la mise à jour est frappant : **environ la moitié des 
 
 Directement utile : c'est exactement ce que produit — ou ne produit pas — un signalement saisi dans un outil de gestion des événements indésirables. Le guide dit comment passer d'une déclaration descriptive à une analyse exploitable.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : la page HAS p_3293652, nommée deux fois sans lien. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **🗂️ Dossier** · [[RBPP_dossier.fiche]]

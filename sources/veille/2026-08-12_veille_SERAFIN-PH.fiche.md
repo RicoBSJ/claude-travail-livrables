@@ -21,6 +21,8 @@ Document source : [[2026-08-12_veille_SERAFIN-PH.docx]]
 
 Aucun élément nouveau sur juillet-août par ailleurs ; l'ATIH reste bloquée.
 
+**Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : six chemins (dont le décret sur Légifrance et la campagne de financement ATIH) et quatre sites, seize liens. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-05_veille_SERAFIN-PH.fiche]]
