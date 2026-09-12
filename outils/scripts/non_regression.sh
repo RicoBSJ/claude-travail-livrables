@@ -8,6 +8,11 @@
 #                                               trois témoins à citations — long, dépend du réseau (exit 3 = relancer).
 #   outils/scripts/non_regression.sh --accepter enregistre le passage courant comme nouvelle référence, APRÈS avoir
 #                                               lu le diff et compris chaque changement de verdict.
+#   outils/scripts/non_regression.sh --docs f…  mode DOCUMENTS (quelques secondes) : pour chaque .docx donné, passes
+#                                               A/A2/A3/A4 et, pour une veille, décompte ; comparé à la référence du
+#                                               document — un document ne doit pas régresser, un document nouveau doit
+#                                               être à 0 bloquant. C'est ce que le hook lance quand un push touche des
+#                                               livrables ou des veilles (les jobs publient par là).
 #
 # Sort en 0 si aucun verdict n'a changé, en 1 sinon (ou si un témoin ne sort plus en 1). Les documents nouveaux
 # depuis la référence sont signalés, pas comparés : un job qui publie ne crée pas une régression.
@@ -24,6 +29,40 @@ CUR="$NR/courant"
 PY=/usr/bin/python3
 mkdir -p "$CUR"
 MODE="${1:-}"
+
+# ── 0. mode documents : quelques .docx, comparés un à un à la référence
+if [ "$MODE" = "--docs" ]; then
+  shift; STATUT=0
+  [ $# -eq 0 ] && { echo "  (aucun document)"; exit 0; }
+  env -i $PY - "$ROOT/outils/scripts/controle_attributions.py" "$@" > "$CUR/docs_A.tsv" <<'PYH'
+import sys, io, contextlib
+src = open(sys.argv[1], encoding="utf-8").read()
+code = src[src.index("import sys, re, html, subprocess"):src.index("# ── aspiration des pages")]
+for f in sys.argv[2:]:
+    sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__"}
+    with contextlib.redirect_stdout(out):
+        try: exec(code, g)
+        except SystemExit as e: print("EXIT", e)
+    orph = sorted(g.get("orphelines", set())); snl = sorted(g.get("sites_non_listes", set()))
+    a2 = sorted(g.get("sans_adresse", set())); a3 = sorted(g.get("mal_formes", set())); a4 = list(g.get("src_sans_adresse", []))
+    print("%s\t%d\t%s" % (f.split("/")[-1], len(orph) + len(snl) + len(a2) + len(a3) + len(a4), " ; ".join(orph + snl + a2 + a3 + a4)[:300]))
+PYH
+  while IFS=$'\t' read -r nom n detail; do
+    ref=$(awk -F'\t' -v n="$nom" '$1==n{print $2}' "$REF/passe_A.tsv" 2>/dev/null)
+    if [ -z "$ref" ]; then etat="nouveau"; ref=0; else etat="référence $ref"; fi
+    if [ "$n" -gt "$ref" ]; then echo "  ✗ $nom : $n bloquant(s) ($etat) — $detail"; STATUT=1
+    else echo "  ✓ $nom : $n bloquant(s) ($etat)"; fi
+  done < "$CUR/docs_A.tsv"
+  for f in "$@"; do
+    case "$f" in */sources/veille/*|sources/veille/*)
+      env -i $PY "$ROOT/outils/scripts/controle_decompte.py" "$f" > "$CUR/doc_dec.txt" 2>&1; rc=$?
+      nom="${f#*sources/veille/}"; ref=$(awk -F'\t' -v n="$nom" '$2==n{print $1}' "$REF/decompte.tsv" 2>/dev/null)
+      if [ "$rc" = "1" ] && [ "${ref:-0}" != "1" ]; then echo "  ✗ $nom : décompte INCOHÉRENT (exit 1) — $(tail -1 "$CUR/doc_dec.txt")"; STATUT=1
+      else echo "  ✓ $nom : décompte exit $rc"; fi;;
+    esac
+  done
+  exit $STATUT
+fi
 
 # ── 1. passes A, A2, A3, A4 des attributions, sans aspiration : le fichier est exécuté jusqu'au marqueur « # ── aspiration »
 echo "▶ Passes A/A2/A3/A4 (attributions, sans aspiration) sur leçons + veilles…"
