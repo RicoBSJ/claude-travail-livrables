@@ -14,6 +14,8 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
 ⑮ le même jour, un guillemet droit collé à un chiffre (27") n'ouvre plus une citation ;
 ⑯ A4 ignore les lignes de décompte (« Sources : 6 ✅ … ») et lit « LDLC.com » comme un domaine ;
 ⑰ une page non lue (0 octet) ne prouve pas une absence : NON VERIFIABLE, exit 3, jamais INTERDIT ;
+⑲ A4 lit les libellés des liens imprimés par extract_docx (« Nexem → nexem.fr/… ») : un lien sans domaine
+   dans son libellé est quand même une adresse donnée au lecteur ;
 ⑱ une page vide est retentée deux fois (5 s, 15 s) avant d'être déclarée non lue.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
@@ -37,6 +39,15 @@ jrn = corps.find("Journal des corrections")
 if jrn != -1:
     corps = corps[:jrn]
 urls = sorted(set(re.findall(r"https?://[^\s)]+", entete)))
+# ⑲ (12/09/2026) les LIBELLÉS des liens : extract_docx imprime « libellé → cible » ; un libellé sans
+#    domaine (« Nexem ») est quand meme une adresse donnee au lecteur — A4 doit le savoir
+libelles_lies = set()
+for l in entete.split("\n"):
+    if " → http" in l:
+        lib = l.rsplit(" → ", 1)[0].strip()
+        # un libelle generique (« ici », « lien », « source ») acquitterait n'importe quelle fenetre
+        if len(lib) >= 4 and lib.lower() not in ("lien", "voir", "page", "site", "source", "sources", "cliquer", "ici"):
+            libelles_lies.add(lib)
 # ⑭ une adresse ecrite EN CLAIR dans le corps (cellule « URL » d'un tableau, ligne « Source : https://… »)
 #    est une adresse donnee au lecteur, meme sans lien cliquable : elle compte comme listee
 urls_texte = sorted(set(re.findall(r"https?://[^\s)>\]»]+", corps)))
@@ -190,6 +201,9 @@ for idx, l in enumerate(lignes):
     fenetre = " ".join(lignes[idx: idx + 3])
     # ⑯ casse ignoree : « Source : LDLC.com » portait bien son domaine
     if re.search(DOM, fenetre, re.I) or re.search(r"https?://", fenetre):
+        continue
+    # ⑲ un lien dont le libelle n'a pas de domaine (« Nexem ») vaut une adresse, s'il est dans la fenetre
+    if any(re.search(r"(?<![A-Za-zÀ-ÿ])" + re.escape(lib) + r"(?![A-Za-zÀ-ÿ])", fenetre) for lib in libelles_lies):
         continue
     src_sans_adresse.append(l.strip()[:120])
 print("A2. NOMS D'AUTORITE SANS AUCUNE ADRESSE :")
