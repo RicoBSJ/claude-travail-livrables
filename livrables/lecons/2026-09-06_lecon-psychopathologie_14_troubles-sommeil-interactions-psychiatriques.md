@@ -36,6 +36,8 @@ Document source : [[2026-09-06_lecon-psychopathologie_14_troubles-sommeil-intera
 
 **Un point signalé et non corrigé.** Deux corrigés renvoient au *« tableau §6 »* pour des données que ce tableau n'affiche pas — la comparaison d'hypersomnie entre schizophrénie et bipolarité, et le *« retard de phase trois fois plus fréquent »*. **Les deux sont exacts** : je les ai retrouvés mot pour mot dans l'étude de 2019 (*« hypersomnia was more frequent among individuals with SCZ, and delayed sleep phase disorder was three times more common »*). Ils viennent de la bonne source, mais pas du tableau vers lequel le renvoi pointe. J'avais soupçonné les deux d'être fabriqués : **je me trompais**.
 
+**Précision du 12/09/2026.** Les deux lignes *« Source : »* — les recommandations HAS/SFTG de 2006 et l'article de PLOS Mental Health de 2025 — nommaient leurs documents avec leurs références complètes sans porter d'adresse dans la phrase. Les deux adresses figuraient dans les ressources ; elles sont désormais aussi dans les phrases, et l'article porte son DOI (10.1371/journal.pmen.0000531, cohérent avec l'URL citée).
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-31_lecon-psychopathologie_13_troubles-neurocognitifs-vieillissement]]

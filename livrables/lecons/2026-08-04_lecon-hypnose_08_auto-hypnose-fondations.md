@@ -30,6 +30,8 @@ Une première auto-induction simple est proposée en fin de leçon.
 
 Le rappel de sécurité est cette fois catégorique : **jamais au volant, jamais dans une situation exigeant la vigilance**.
 
+**Précision du 12/09/2026.** La ligne *« Source : PubMed Central, recherche self-hypnosis, consulté le 04/08/2026 »* nommait et datait sans porter d'adresse — relevée par la passe A4 du contrôle d'attribution. L'adresse figurait dans les ressources ; elle est désormais aussi dans la phrase, avec une réserve que la leçon ne faisait pas : *« plus de 17 000 articles »* est un compte de résultats de recherche à une date donnée, pas une donnée stable.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-07-28_lecon-hypnose_07_sortie-transe-securite]]

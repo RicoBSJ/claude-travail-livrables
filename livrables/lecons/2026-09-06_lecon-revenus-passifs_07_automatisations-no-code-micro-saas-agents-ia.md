@@ -21,6 +21,7 @@ tags:
   - correction/2026-09-06
   - correction/2026-09-11
   - theme/source-non-citee
+  - correction/2026-09-12
 ---
 
 # 2026-09-06_lecon-revenus-passifs_07_automatisations-no-code-micro-saas-agents-ia
@@ -42,6 +43,8 @@ Document source : [[2026-09-06_lecon-revenus-passifs_07_automatisations-no-code-
 **Défaut relevé et corrigé le 11/09/2026 — la source primaire était nommée, jamais publiée.** Le test d'attribution des pages, passé sur les dix parcours, n'a trouvé qu'un seul défaut dans tout le corpus, et c'est ici. Le corps écrit *« grille relevée sur **la source primaire** stripe.com/fr/pricing le 06/09/2026 »*, puis en tire quatre taux — 1,5 % + 0,25 € (cartes standard EEE), 2,8 % (premium EEE), 2,5 % (britanniques), 3,15 % (internationales) — qui alimentent **les quatre calculs de l'exercice de rentabilité**. Et la page ne figurait dans **aucune des huit ressources**. *Nommer une source, c'est s'engager à la rendre vérifiable ; la nommer « primaire » redouble cet engagement.* **Circonstance aggravante** : c'est sur cette page que s'appuie la **correction ④ du journal du 06/09**, celle qui rectifiait un taux repris d'un comparatif tiers — **la source qui a servi à corriger n'avait pas été publiée**. Le journal d'origine note lui-même, à propos de la version fautive : *« La leçon écrivait pourtant elle-même qu'il fallait vérifier sur stripe.com/fr/pricing : la consigne était rédigée, pas appliquée. »* Elle a fini par être appliquée ; ce qui manquait encore était l'adresse. **Corrigé** : la page est ajoutée au groupe « coûts des outils no-code » avec sa date de test propre — les huit autres portent le 06/09, celle-ci le 11/09 — et retestée à cette occasion : **HTTP 200, 44 506 caractères utiles**, les valeurs citées y figurent (`1,5` · `2,8` · `0,25` · `EEE`). Le renvoi du corps signale que l'adresse manquait.
 
 **Ce que le contrôle ne peut pas faire ici, et qui est dit.** Le PDF de l'AMF est une ressource légitime, mais **aucun test automatique n'y confirmera une citation** : il est désormais déclaré non analysable, et la vérification reste manuelle. Trois passes du contrôle sont par ailleurs **inertes** sur ce document — pas de citation anglaise, pas de numéro de version. Le `403` d'economie.gouv.fr, lui, est correctement signalé depuis l'origine comme un blocage anti-robot et non comme une page morte.
+
+**Précision du 12/09/2026.** Le *« rapport OpinionWay pour AMF (octobre 2024), testé et accessible (HTTP 200) »* affirmait un test sur une page dont l'adresse ne figurait nulle part. Vérifié : il existe — *« Social Media Intelligence : arnaques à l'investissement sur le web »*, OpinionWay pour l'AMF, octobre 2024, 200, 5 346 caractères utiles. Ajouté aux ressources (dixième lien), adresse dans la phrase.
 
 ## Notes liées
 
