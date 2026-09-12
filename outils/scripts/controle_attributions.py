@@ -13,7 +13,8 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
 12/09/2026, la passe A cesse d'ignorer un site nu cité comme source sans aucune page listée ;
 ⑮ le même jour, un guillemet droit collé à un chiffre (27") n'ouvre plus une citation ;
 ⑯ A4 ignore les lignes de décompte (« Sources : 6 ✅ … ») et lit « LDLC.com » comme un domaine ;
-⑰ une page non lue (0 octet) ne prouve pas une absence : NON VERIFIABLE, exit 3, jamais INTERDIT.
+⑰ une page non lue (0 octet) ne prouve pas une absence : NON VERIFIABLE, exit 3, jamais INTERDIT ;
+⑱ une page vide est retentée deux fois (5 s, 15 s) avant d'être déclarée non lue.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -21,7 +22,7 @@ huit mots ou plus cherchées dans les pages · C/C2 numéros de version (C2 bloq
 à moins de 80 caractères d'un domaine cité) · D valeurs chiffrées, à relire.
 Lis toujours la ligne « PASSES INERTES » : une passe inerte n'a rien cherché.
 """
-import sys, re, html, subprocess
+import sys, re, html, subprocess, time
 
 DOCX = sys.argv[1]
 EXTRACT = "/Users/utilisateur/kDrive/Claude_Travail/outils/scripts/extract_docx.py"
@@ -218,10 +219,23 @@ for u in urls:
     #    Une exception deguisee en resultat est le pire etat possible d'un test.
     #    (crash attrape le 11/09/2026 sur la lecon psychopathologie n°15, qui cite un
     #     PDF de la HAS en troisieme ressource.)
-    brut = subprocess.run(["curl", "-s", "-L", "--max-time", "30", "-A",
-                           "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-                           " (KHTML, like Gecko) Chrome/126 Safari/537.36", u],
-                          capture_output=True).stdout
+    # ⑱ (12/09/2026) RETRY : une page a 0 octet est retentee, deux fois, apres 5 puis 15 s —
+    #    reseau qui flanche, delai depasse, mur qui cede a la deuxieme demande. Le 12/09 au soir,
+    #    nodejs.org, MDN, code.claude.com puis neuf pages d'imac 06/09 sont revenues vides
+    #    en une seule passe alors qu'elles repondaient le matin. Un retry qui rend une page
+    #    est un retry ; un retry qui rend encore du vide reste NON VERIFIABLE (⑰) — jamais
+    #    un « la page ne porte pas ». Le nombre d'essais est imprime avec la page.
+    brut, essais = b"", 0
+    for attente in (0, 5, 15):
+        if attente:
+            time.sleep(attente)
+        essais += 1
+        brut = subprocess.run(["curl", "-s", "-L", "--max-time", "30", "-A",
+                               "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+                               " (KHTML, like Gecko) Chrome/126 Safari/537.36", u],
+                              capture_output=True).stdout
+        if brut or re.search(r"://(?:localhost|127\.0\.0\.1)", u):
+            break
     if brut[:4] == b"%PDF" or u.lower().endswith(".pdf"):
         non_textuels.append(u)
         print("     %s : PDF (%d octets) — NON ANALYSE par ce test, verification a la main"
@@ -235,7 +249,12 @@ for u in urls:
     pages[u] = re.sub(r"[^a-z0-9]+", "", r.lower())
     textes[u] = r
     bruts[u] = raw
-    note = "  <-- SOUS 3000 : facade, ou page rendue en JS ? regarde le brut" if utile < 3000 else ""
+    locale = bool(re.search(r"://(?:localhost|127\.0\.0\.1)", u))
+    if not raw:
+        note = "  <-- adresse locale du projet, non aspiree" if locale else "  <-- VIDE apres %d essais : NON LUE, rien ne sera conclu sur elle (⑰)" % essais
+    else:
+        note = ("  <-- SOUS 3000 : facade, ou page rendue en JS ? regarde le brut" if utile < 3000 else "") \
+               + ("  [obtenue au %de essai]" % essais if essais > 1 else "")
     print("     %s : %d car. utiles / %d octets bruts%s" % (u, utile, len(raw), note))
 
 def ou_trouve(aiguille):
