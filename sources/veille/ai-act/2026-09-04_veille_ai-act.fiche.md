@@ -31,6 +31,8 @@ Document source : [[2026-09-04_veille_ai-act.docx]]
 
 **La limite est l'envers de sa qualité.** La section « Analyses & gouvernance » repose sur quatre articles IAPP dont **aucun corps n'a été lu** — la note le dit quatre fois, honnêtement. Mais les impacts ESSMS s'appuient ensuite dessus : *« l'article IAPP du 02/09 rappelle la pertinence de ce périmètre »* pour les chatbots médicaux, *« l'article IAPP du 03/09 rappelle les enjeux de propriété intellectuelle »*. Une recommandation professionnelle adossée à un titre reste une recommandation adossée à un titre, même quand elle est par ailleurs sensée. Les conseils tiennent d'eux-mêmes — recenser les outils conversationnels, vérifier la politique d'attribution du prestataire — mais leur justification affichée est plus mince qu'elle n'en a l'air. Reste une coquille : *« chatbot famililles »*.
 
+**Source nommée sans adresse, corrigée le 12/09/2026.** Relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : artificialintelligenceact.eu était listée ⛔ sans lien et déclarée « source morte, ne plus tenter » ; le site répond 200 à un navigateur (16 376 caractères) — lien posé, « ne plus tenter » retiré, ⛔ conservé. Et la ligne « Source : AI Act Service Desk » sous les échéances porte désormais le domaine de la page liée. Formulation d'origine dans le journal des corrections du document.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-29_veille_ai-act.fiche]]

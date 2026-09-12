@@ -32,6 +32,8 @@ Document source : [[2026-08-30_veille_imac.docx]]
 
 **Liens ajoutés le 12/09/2026.** Le contrôle des attributions (`outils/scripts/controle_attributions.py`, passe A) a relevé que les deux pages Apple ⛔ étaient nommées sans lien, et la ligne « Source primaire : Gurman / Bloomberg » nommait la source du fait principal sans lien et sans dire qu'elle n'avait pas été lue (newsletter payante) : elle le dit désormais et renvoie aux trois relais liés. C'est la règle 6 du prompt : seuls 404 et 5xx interdisent le lien. Journal du document complété.
 
+**Source nommée sans adresse, corrigée le 12/09/2026.** Relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : consomac.fr, source de la section de prix reconstruite le 30/08, était nommée sans lien et absente de la liste des sources — lien posé, ajoutée aux exploitées, décompte porté de 5/11 à 6/12 (entrée 5 du journal). Formulation d'origine dans le journal des corrections du document.
+
 ## Notes liées
 
 - **➡️ Suivante** · [[2026-09-06_veille_imac.fiche]]

@@ -27,6 +27,8 @@ Elle donne aussi les **signaux d'alerte** permettant de reconnaître une arnaque
 
 Le cadre déontologique est explicite et rappelé à chaque leçon : contenu éducatif, jamais de conseil ; le conseil en investissement est en France une activité réglementée (statut CIF, registre ORIAS).
 
+**Source nommée sans adresse, corrigée le 12/09/2026.** Relevée par la passe A du contrôle d'attribution (règle ⑭ : un site cité comme source sans aucune page listée bloque comme une page) : la section Mythes attribuait un ordre de grandeur aux « retours d'expérience de la communauté Indie Hackers (indiehackers.com) » sans aucune adresse : lien posé, ressource n°8 ajoutée, affirmation inchangée. Formulation d'origine dans le journal des corrections du document.
+
 ## Notes liées
 
 - **➡️ Suivante** · [[2026-08-02_lecon-revenus-passifs_02_grandes-familles-panorama]]
