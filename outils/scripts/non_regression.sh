@@ -9,7 +9,10 @@
 #   outils/scripts/non_regression.sh --accepter enregistre le passage courant comme nouvelle référence, APRÈS avoir
 #                                               lu le diff et compris chaque changement de verdict.
 #
-# Sort en 0 si aucun verdict n'a changé, en 1 sinon (ou si un témoin ne sort plus en 1).
+# Sort en 0 si aucun verdict n'a changé, en 1 sinon (ou si un témoin ne sort plus en 1). Les documents nouveaux
+# depuis la référence sont signalés, pas comparés : un job qui publie ne crée pas une régression.
+# Hook : outils/scripts/hooks/pre-push lance ce script avant tout push qui touche un contrôle commun
+# (installation : git config core.hooksPath outils/scripts/hooks).
 # Règle (JOBS.md, 12/09/2026) : toute retouche de controle_attributions.py ou controle_decompte.py se rejoue ici,
 # dans les deux sens, et le diff des verdicts se lit — pas seulement le décompte. Dix-huit défauts ont été trouvés
 # en rejouant, aucun en relisant.
@@ -66,11 +69,17 @@ if [ "$MODE" = "--accepter" ]; then
   echo "▶ Référence enregistrée ($(cat "$REF/date.txt"))."
 elif [ -f "$REF/passe_A.tsv" ]; then
   echo "▶ Diff avec la référence du $(cat "$REF/date.txt") :"
-  D1=$(diff <(cut -f1,2 "$REF/passe_A.tsv") <(cut -f1,2 "$CUR/passe_A.tsv"))
-  D2=$(diff "$REF/decompte.tsv" "$CUR/decompte.tsv")
+  # seuls les documents présents dans LES DEUX passages sont comparés : un document nouveau (un job vient
+  # de publier) ou disparu n'est pas une régression — il est listé à part
+  D1=$(join -t$'\t' -j1 <(cut -f1,2 "$REF/passe_A.tsv" | sort) <(cut -f1,2 "$CUR/passe_A.tsv" | sort) | awk -F'\t' '$2!=$3{printf "    %s : %s → %s bloquant(s)\n",$1,$2,$3}')
+  D2=$(join -t$'\t' -j1 <(awk -F'\t' '{print $2"\t"$1}' "$REF/decompte.tsv" | sort) <(awk -F'\t' '{print $2"\t"$1}' "$CUR/decompte.tsv" | sort) | awk -F'\t' '$2!=$3{printf "    %s : exit %s → %s\n",$1,$2,$3}')
+  NOUV=$(comm -13 <(cut -f1 "$REF/passe_A.tsv" | sort) <(cut -f1 "$CUR/passe_A.tsv" | sort) | wc -l | tr -d ' ')
+  DISP=$(comm -23 <(cut -f1 "$REF/passe_A.tsv" | sort) <(cut -f1 "$CUR/passe_A.tsv" | sort) | wc -l | tr -d ' ')
+  [ "$NOUV" != "0" ] && echo "  ($NOUV document(s) nouveau(x) depuis la référence — non comparés, --accepter pour les y inscrire)"
+  [ "$DISP" != "0" ] && echo "  ($DISP document(s) de la référence absent(s) du corpus)"
   if [ -z "$D1" ] && [ -z "$D2" ]; then echo "  ✓ aucun verdict n'a changé"; else
-    [ -n "$D1" ] && { echo "  passe A (document, bloquants) :"; echo "$D1" | sed 's/^/    /'; }
-    [ -n "$D2" ] && { echo "  décompte (exit, veille) :"; echo "$D2" | sed 's/^/    /'; }
+    [ -n "$D1" ] && { echo "  passes A/A2/A3/A4 :"; echo "$D1"; }
+    [ -n "$D2" ] && { echo "  décompte :"; echo "$D2"; }
     echo "  → lis chaque ligne ; si le changement est voulu et compris : non_regression.sh --accepter"
     STATUT=1
   fi
