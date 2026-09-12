@@ -30,6 +30,8 @@ Document source : [[2026-08-30_veille_imac.docx]]
 
 **Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 4/9 sources exploitées » — cinq ✅, quatre ⛔ et deux pages consultées sans élément repris : 5/11. Troisième entrée du journal de cette note. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
 
+**Liens ajoutés le 12/09/2026.** Le contrôle des attributions (`outils/scripts/controle_attributions.py`, passe A) a relevé que les deux pages Apple ⛔ étaient nommées sans lien, et la ligne « Source primaire : Gurman / Bloomberg » nommait la source du fait principal sans lien et sans dire qu'elle n'avait pas été lue (newsletter payante) : elle le dit désormais et renvoie aux trois relais liés. C'est la règle 6 du prompt : seuls 404 et 5xx interdisent le lien. Journal du document complété.
+
 ## Notes liées
 
 - **➡️ Suivante** · [[2026-09-06_veille_imac.fiche]]

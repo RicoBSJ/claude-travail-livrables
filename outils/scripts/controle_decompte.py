@@ -36,6 +36,8 @@ Ce que le test ACCEPTE : X (ouvertes) = ✅, ou ✅ + repli, ou ✅ + repli + co
   symbole ; Y (tentées) = total des entrées ; un nombre devant ⛔ ou ⚠️ = ce symbole, ou
   ⛔+⚠️ quand la note écrit « ⛔/⚠️ », ou l'un de ceux-là + consultées sans symbole.
   Chaque acquittement exige une somme EXACTE : rien n'est arrondi, rien n'est « proche ».
+Un lien posé au milieu d'une ligne la coupe en trois à l'extraction (« … (», « domaine », «) — … ») :
+  le test recolle ces morceaux avant de lire — constaté le 12/09/2026 après l'ajout de douze liens.
 Ce que le test NE LIT PAS : une source qui en cache deux (« A & B — non consultées » compte
   1 + le nombre de « & »), un décompte par domaine quand la liste est par page — lis la
   ligne « liste » qu'il imprime avant de croire son verdict.
@@ -51,7 +53,13 @@ if "=== TEXTE COMPLET" not in t:
 t = t[t.index("=== TEXTE COMPLET"):]
 t = t.split("Journal des corrections")[0]        # le journal cite volontairement les anciens comptes
 t = t.replace("\ufe0f", "")   # ⚠ = U+26A0 + sélecteur U+FE0F : sans ce retrait, une classe [⚠] coupe le symbole en deux
-lignes = t.split("\n")
+lignes = []
+for l in t.split("\n"):
+    # un lien posé au milieu d'une phrase la coupe en trois lignes à l'extraction : on recolle
+    if lignes and (lignes[-1].rstrip().endswith("(") or l.lstrip().startswith(")")):
+        lignes[-1] = lignes[-1].rstrip() + l.lstrip()
+    else:
+        lignes.append(l)
 
 SYM = "✅⚠⛔"
 R_START = re.compile(r"^[•\-–·\d.)\s]*([✅⚠⛔])(?:\s*/\s*([✅⚠⛔]))?\s*(.*)$")
@@ -184,13 +192,21 @@ if start is not None:
     if fin_sur_titre and toks and toks[-1][0] == "STAT" and R_START.match(toks[-1][2]) and not R_START.match(toks[-1][2]).group(3).strip():
         toks.pop()                                # un symbole NU juste avant le titre qui ferme la liste est l'emoji de ce titre
     # orientation : le statut précède-t-il le nom (« ✅ » puis « CNIL — … ») ou le suit-il (tableau nom · URL · « ✅ Accessible ») ?
-    i_stat = next((i for i, tk in enumerate(toks) if tk[0] == "STAT" and tk[1] != "autres"), None)
-    i_name = next((i for i, tk in enumerate(toks) if tk[0] == "NAME"), None)
-    apres = i_stat is not None and i_name is not None and i_name < i_stat
-    if apres:
-        for tk in toks:
-            if tk[0] == "STAT" and tk[1] == "autres":
-                tk[0] = "SKIP"      # dans un tableau, « Consultée — … » est la remarque d'une ligne, pas un statut
+    #   calculée PAR GROUPE (sous-titre) : un groupe « ✅ Exploitées : » fait de noms nus ne dit rien de l'ordre du groupe suivant
+    def orientation(deb, fin):
+        i_stat = next((i for i in range(deb, fin) if toks[i][0] == "STAT" and toks[i][1] != "autres"), None)
+        i_name = next((i for i in range(deb, fin) if toks[i][0] == "NAME"), None)
+        return i_stat is not None and i_name is not None and i_name < i_stat
+    bornes = [i for i, tk in enumerate(toks) if tk[0] == "SUB"] + [len(toks)]
+    apres_de = {}
+    deb = 0
+    for fin in bornes + ([len(toks)] if not bornes or bornes[-1] != len(toks) else []):
+        ap = orientation(deb, fin)
+        for i in range(deb, fin):
+            apres_de[i] = ap
+            if ap and toks[i][0] == "STAT" and toks[i][1] == "autres":
+                toks[i][0] = "SKIP"     # dans un tableau, « Consultée — … » est la remarque d'une ligne, pas un statut
+        deb = fin
     # appariement nom ↔ statut, par sous-titre
     groupe = None
     grp = {}     # sous-titre -> {"stat": bool, "entry": bool}
@@ -216,6 +232,7 @@ if start is not None:
             while j < len(toks) and toks[j][0] == "CONT": j += 1
             suivant = j if j < len(toks) and toks[j][0] == "STAT" and not toks[j][3] else None
             precedent = i - 1 if i >= 1 and toks[i - 1][0] == "STAT" and not toks[i - 1][3] else None
+            apres = apres_de.get(i, False)
             st = (suivant if suivant is not None else precedent) if apres else (precedent if precedent is not None else suivant)
             g = grp.get(groupe, {"stat": False, "entry": False})
             if st is not None:

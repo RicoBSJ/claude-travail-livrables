@@ -23,6 +23,8 @@ La note reste utile pour son calendrier prospectif : la **RBPP « Vie quotidienn
 
 **Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 4/6 exploitées » puis « 3 sources ✅ effectivement reprises » — la rubrique liste quatre ✅ (dont CMV, ouverte mais hors périmètre) et trois pages consultées sans nouveauté : 4/7 ouvertes, 3 reprises. Trois nombres pour une liste, un seul juste. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
 
+**Liens ajoutés le 12/09/2026.** Le contrôle des attributions (`outils/scripts/controle_attributions.py`, passe A) a relevé que les trois pages HAS « consultées sans élément nouveau » étaient nommées sans lien ; elles répondent 200. C'est la règle 6 du prompt : seuls 404 et 5xx interdisent le lien. Journal du document complété.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-03_veille_has-actualite.fiche]]

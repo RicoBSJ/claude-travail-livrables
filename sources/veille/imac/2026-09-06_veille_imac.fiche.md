@@ -34,6 +34,8 @@ Document source : [[2026-09-06_veille_imac.docx]]
 
 **Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 5/9 ✅ » avec sept domaines énumérés — la liste compte neuf ✅ et cinq ⛔ : 9/14, et trois domaines manquaient à l'en-tête (9to5mac, amazon, lenovo). Le test de décompte écrit le 12/09 au matin avait déclaré cette note cohérente : il lisait le « 9 » de « 5/9 » et le trouvait égal aux neuf ✅ de la liste. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
 
+**Liens ajoutés le 12/09/2026.** Le contrôle des attributions (`outils/scripts/controle_attributions.py`, passe A) a relevé que la page Apple ⛔ (en-tête et liste) et lenovo.com/fr étaient nommées sans lien ; elles répondent 200. C'est la règle 6 du prompt : seuls 404 et 5xx interdisent le lien. Journal du document complété.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-30_veille_imac.fiche]]

@@ -26,6 +26,8 @@ Le paquet souveraineté se précise : CADA, Chips Act 2.0, stratégie open sourc
 
 **Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « Sources accessibles : 5/7 » — la liste compte quatre ✅ et trois ⛔ ; même écart les 21/06 et 28/06. Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
 
+**Liens ajoutés le 12/09/2026.** Le contrôle des attributions (`outils/scripts/controle_attributions.py`, passe A) a relevé que les deux pages ⛔ de la liste (Service Desk timeline, artificialintelligenceact.eu/implementation-timeline) étaient nommées sans lien ; elles répondent 200 à un navigateur. C'est la règle 6 du prompt : seuls 404 et 5xx interdisent le lien. Journal du document complété.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-13_veille_ai-act.fiche]]

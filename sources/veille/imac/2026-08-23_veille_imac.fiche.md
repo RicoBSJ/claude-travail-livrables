@@ -31,6 +31,8 @@ Le comparatif Windows reste stable : **500 à 940 € d'écart** avec le HP Omni
 
 **Décompte des sources corrigé le 12/09/2026.** Lors du contrôle des 85 veilles du dépôt (`outils/scripts/controle_decompte.py`), la note annonçait « 5 ✅ » — la rubrique compte sept sources ✅ 200 (huit pages, Boulanger en comptant deux). Le contenu est inchangé ; la formulation d'origine est conservée dans le journal des corrections du document.
 
+**Liens ajoutés le 12/09/2026.** Le contrôle des attributions (`outils/scripts/controle_attributions.py`, passe A) a relevé que les deux pages Apple ⛔ (achat, reconditionné) étaient nommées sans lien — illisibles pour l'agent, elles répondent 200 au lecteur. C'est la règle 6 du prompt : seuls 404 et 5xx interdisent le lien. Journal du document complété.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-08-16_veille_imac.fiche]]
