@@ -4,8 +4,13 @@
 # Installation (une fois, config locale, non versionnée) :   git config core.hooksPath outils/scripts/hooks
 # Contournement assumé :                                      git push --no-verify   (ou SKIP_NR=1 git push)
 #
-# Deux déclencheurs. (1) Un CONTRÔLE commun modifié → non_regression.sh complet (≈ 90 s), push refusé si un
-# verdict a changé. (2) Des DOCUMENTS (.docx de livrables/lecons ou sources/veille) ajoutés ou modifiés →
+# Deux déclencheurs. (1) Un CONTRÔLE commun modifié → non_regression.sh (≈ 90 s), push refusé si un
+# verdict a changé ; si c'est controle_attributions.py ou extract_docx.py (qui le nourrit) qui est touché,
+# non_regression.sh --complet (13/09/2026) : les passes avec aspiration — B (citations, ㉓ ㉔), C2, D — ne
+# sont exercées que là, sur trois témoins qui doivent sortir en 0 et les témoins d'avant correction qui
+# doivent sortir en 1 (≈ 4-5 min de plus, réseau). Un exit 3 (page non lue) n'est pas une régression :
+# le harnais l'affiche « à relancer » et laisse passer — relance --complet à la main.
+# (2) Des DOCUMENTS (.docx de livrables/lecons ou sources/veille) ajoutés ou modifiés →
 # non_regression.sh --docs sur ces seuls fichiers (quelques secondes par document) : un document ne doit
 # pas régresser par rapport à sa référence, un document nouveau doit être à 0 bloquant, un décompte de
 # veille ne doit pas être incohérent. C'est par là que passent les pushs des 14 jobs : un livrable
@@ -13,9 +18,10 @@
 # Règle de JOBS.md (12/09/2026), rendue exécutable.
 ROOT="$(git rev-parse --show-toplevel)"
 SURVEILLES='^outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push)$'
+ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'
 [ -n "${SKIP_NR:-}" ] && exit 0
 DOCS='^(livrables/lecons|sources/veille)/.*\.docx$'
-touche=0; docs=()
+touche=0; complet=0; docs=()
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue     # suppression de branche
   if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
@@ -26,15 +32,23 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   fi
   fichiers=$(git diff --name-only --diff-filter=AM "$plage" 2>/dev/null)
   echo "$fichiers" | grep -Eq "$SURVEILLES" && touche=1
+  echo "$fichiers" | grep -Eq "$ASPIRATION" && complet=1
   for d in $(echo "$fichiers" | grep -E "$DOCS"); do [ -f "$ROOT/$d" ] && docs+=("$ROOT/$d"); done
 done
 if [ "$touche" = "1" ]; then
-  echo "pre-push : un contrôle commun est dans ce push → non_regression.sh (≈ 90 s)…"
-  if "$ROOT/outils/scripts/non_regression.sh"; then
+  mode=()
+  if [ "$complet" = "1" ]; then
+    mode=(--complet)
+    echo "pre-push : controle_attributions.py ou extract_docx.py est dans ce push → non_regression.sh --complet (≈ 90 s + 4-5 min d'aspiration)…"
+  else
+    echo "pre-push : un contrôle commun est dans ce push → non_regression.sh (≈ 90 s)…"
+  fi
+  if "$ROOT/outils/scripts/non_regression.sh" "${mode[@]}"; then
     echo "pre-push : ✓ aucun verdict n'a changé — push autorisé"
   else
     cat <<'MSG'
-pre-push : ✗ PUSH REFUSÉ — un verdict a changé ou un témoin ne sort plus en 1.
+pre-push : ✗ PUSH REFUSÉ — un verdict a changé, un témoin ne sort plus en 1, ou (mode --complet) un témoin
+  à citations ne sort plus en 0.
   Lis le diff ci-dessus. Si chaque changement est voulu et compris :
       outils/scripts/non_regression.sh --accepter   puis commite la référence et repousse.
   Pour passer outre en connaissance de cause : git push --no-verify
