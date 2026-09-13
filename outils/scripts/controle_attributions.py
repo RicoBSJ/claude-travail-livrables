@@ -20,7 +20,12 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
    même ligne la proximité suffit, sur les lignes suivantes le nom doit répondre à l'adresse ;
 ⑱ une page vide est retentée deux fois (5 s, 15 s) avant d'être déclarée non lue ;
 ㉑ un code HTTP hors 2xx (429, 503, 403) vaut page non lue : le corps d'une page d'erreur n'est pas la page ;
-㉒ passe A5 : un hyperlien sans cible (relation sans Target), signalé par extract_docx, bloque.
+㉒ passe A5 : un hyperlien sans cible (relation sans Target), signalé par extract_docx, bloque ;
+㉓ (13/09/2026) B APPARIE la citation à la source NOMMÉE à côté d'elle : « … » (selon consomac.fr) doit être
+   sur une page de consomac.fr — trouvée sur une autre page listée, elle est MAL ATTRIBUÉE et bloque.
+   Avant ㉓, une citation trouvée sur n'importe quelle page listée était OK, quelle que soit la source
+   que la note lui prêtait (veille iMac du 13/09/2026 : deux phrases de Gurman prêtées à consomac.fr,
+   qui n'en porte aucune — elles étaient sur 9to5mac.com et macrumors.com, et B disait OK).
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -378,6 +383,19 @@ def ou_trouve(aiguille):
             return u, "texte"
     return None, None
 
+def ou_trouve_toutes(aiguille):
+    """㉓ toutes les pages qui portent la citation, pas la premiere : l'appariement a besoin de savoir
+    si la page NOMMEE est parmi elles."""
+    n = re.sub(r"[^a-z0-9]+", "", aiguille.lower())
+    return [u for u, p in pages.items() if n and n in p]
+
+def hote(u):
+    return sans_www(re.sub(r"^https?://", "", u).split("/")[0])
+
+def pages_de(dom):
+    """les pages listees du domaine nomme (ou de ses sous-domaines)"""
+    return [u for u in urls if hote(u) == dom or hote(u).endswith("." + dom)]
+
 def ou_trouve_nombre(n):
     """Nombres : recherche BORNEE. Sans bornes, 0.1.0 est 'trouve' dans 10.1.0 et
     un nombre a deux chiffres est trouve dans n'importe quelle page. Le brut est
@@ -413,6 +431,51 @@ OUTILS = re.compile(r"\b(the|of|a|an|is|are|was|were|to|in|on|that|this|with|not
                     r"|between|during|while|about|there|these|those|them|he|she|they)\b",
                     re.I)
 cits = set()
+# ㉓ (13/09/2026) la source NOMMEE a cote de la citation : un domaine ecrit juste apres la fermeture
+#    (« (Gurman, selon consomac.fr du 26/08) »), jusqu'a la fin de la phrase ou de la ligne ; ou, juste
+#    avant l'ouverture, un domaine ou un nom qui « titre », « ecrit », « rapporte » la citation
+#    (« MacRumors (25/08) titre "…" »). Le nom est apparie aux domaines listes comme en A4 (⑳).
+#    Un nom sans page listee ne donne rien : c'est la passe A (site nu) qui le voit.
+attrib = {}
+NOMME = re.compile(r"(?<![\wÀ-ÿ])([A-ZÀ-Ý][\wÀ-ÿ-]{2,}(?:\s+[A-ZÀ-Ý][\wÀ-ÿ-]+)?)\s*(?:\([^)]{0,40}\))?\s*"
+                   r"(?:titre|écrit|rapporte|publie|annonce|indique|précise|cite)\s*:?\s*$", re.I)
+CONT = ("—", "–", ")", ",", "(", "·", ";", ":")
+def ligne_logique_apres(z):
+    """un lien pose dans la phrase la coupe a l'extraction : on recolle les libelles de liens et les
+    morceaux qui s'ouvrent par une ponctuation de continuation (meme regle qu'en A4)"""
+    segs = z.split("\n")
+    out = segs[0]
+    for sg in segs[1:]:
+        if sg.strip() in libelles_lies or (sg.strip()[:1] in CONT and sg.strip()):
+            out += " " + sg.strip()
+        else:
+            break
+    return out
+def ligne_logique_avant(z):
+    segs = z.split("\n")
+    out = segs[-1]
+    for sg in reversed(segs[:-1]):
+        if sg.strip() in libelles_lies or (out.strip()[:1] in CONT and out.strip()):
+            out = sg.strip() + " " + out
+        else:
+            break
+    return out
+def source_nommee(avant, apres):
+    apres = re.split(r"\.\s", ligne_logique_apres(apres[:200]), 1)[0]
+    doms = [sans_www(d) for d in re.findall(DOM, apres, re.I)]
+    doms = [d for d in doms if pages_de(d)]
+    if doms:
+        return set(doms)
+    avant = re.split(r"\.\s", ligne_logique_avant(avant[-140:]))[-1]
+    doms = [sans_www(d) for d in re.findall(DOM, avant, re.I)]
+    doms = [d for d in doms if pages_de(d)]
+    if doms:
+        return set(doms[-1:])            # le plus proche de l'ouverture
+    m_ = NOMME.search(avant)
+    if m_:
+        nom_ = m_.group(1)
+        return set(hote(u) for u in urls if apparie(nom_, hote(u)) and len(cle(nom_)) >= 4)
+    return set()
 # ⑮ (12/09/2026) un guillemet droit colle a un chiffre est un POUCE (« 27" QHD »), pas une citation :
 #    sur la veille iMac du 05/07, deux tailles d'ecran encadraient une ligne de tableau, lue comme
 #    une citation anglaise de 8 mots « absente des pages ». Ouverture et fermeture non precedees d'un chiffre.
@@ -433,6 +496,7 @@ for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{25,300}?)\s*(?:»|(?<!\d)\")"
     c = re.split(r"\s+[\u2014-]\s+(?=[A-Z\u00c0-\u00dd][^.]{2,60}$)", c)[0].strip()
     if len(c.split()) >= 8:
         cits.add(c)
+        attrib[c] = attrib.get(c, set()) | source_nommee(corps[max(0, m.start() - 140):m.start()], corps[m.end():m.end() + 200])
 # ⑰ (12/09/2026) une page qui n'a PAS PU ETRE LUE (0 octet : reseau, mur, delai) n'est pas une
 #    page qui ne porte pas la phrase. nodejs.org/en/download repondait 0 octet, et C2 concluait
 #    « cette page NE la porte PAS » sur le vide. Sur une page non lue on ne conclut rien :
@@ -444,8 +508,26 @@ ko_b = 0
 non_verif = 0
 for c in sorted(cits):
     u, how = ou_trouve(c)
+    nommes = attrib.get(c, set())
+    if u and nommes:
+        # ㉓ la citation est trouvee : est-ce sur une page de la source que la note lui prete ?
+        trouvees = ou_trouve_toutes(c)
+        chez = [t_ for t_ in trouvees if any(hote(t_) == d or hote(t_).endswith("." + d) for d in nommes)]
+        if chez:
+            u = chez[0]
+        else:
+            attendues = sum((pages_de(d) for d in nommes), [])
+            if any(a_ in non_lues for a_ in attendues):
+                non_verif += 1
+                print("   NON VERIFIABLE %s\n             -> prêtée à %s, dont une page n'a pas été lue ; trouvée sur %s"
+                      % (c[:76], "/".join(sorted(nommes)), trouvees[0]))
+            else:
+                ko_b += 1
+                print("   MAL ATTRIBUEE %s\n             -> prêtée à %s (%d page(s) lue(s), aucune ne la porte) ; elle est sur %s (㉓)"
+                      % (c[:76], "/".join(sorted(nommes)), len(attendues), ", ".join(trouvees)))
+            continue
     if u:
-        print("   OK      %s\n             -> %s (%s)" % (c[:76], u, how))
+        print("   OK      %s\n             -> %s (%s)%s" % (c[:76], u, how, " — prêtée à " + "/".join(sorted(nommes)) + ", appariée (㉓)" if nommes else ""))
     elif non_lues:
         non_verif += 1
         print("   NON VERIFIABLE %s\n             -> sur aucune page LUE ; %d page(s) non lue(s)" % (c[:76], len(non_lues)))

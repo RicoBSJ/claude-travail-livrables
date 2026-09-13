@@ -5,7 +5,9 @@
 #                                               leçons et veilles + décompte sur les 85 veilles + les 14 témoins
 #                                               d'avant correction (qui doivent sortir en 1) ; diff avec la référence.
 #   outils/scripts/non_regression.sh --complet  ajoute le contrôle d'attributions COMPLET (avec aspiration) sur les
-#                                               trois témoins à citations — long, dépend du réseau (exit 3 = relancer).
+#                                               trois témoins à citations (doivent sortir en 0) et sur les témoins
+#                                               d'avant correction de non_regression/temoins_attributions_avant_correction/
+#                                               (doivent sortir en 1) — long, dépend du réseau (exit 3 = relancer).
 #   outils/scripts/non_regression.sh --accepter enregistre le passage courant comme nouvelle référence, APRÈS avoir
 #                                               lu le diff et compris chaque changement de verdict.
 #   outils/scripts/non_regression.sh --docs f…  mode DOCUMENTS (quelques secondes) : pour chaque .docx donné, passes
@@ -134,6 +136,15 @@ if [ "$MODE" = "--complet" ]; then
     env -i $PY "$ROOT/outils/scripts/controle_attributions.py" "$f" > "$CUR/$(basename "$f" .docx).txt" 2>&1; rc=$?
     case $rc in 0) l="✓ exit 0";; 3) l="⟳ exit 3 — pages non lues, à relancer";; *) l="✗ exit $rc"; STATUT=1;; esac
     echo "  $l  $(basename "$f")  ($(grep -m1 '^VERDICT' "$CUR/$(basename "$f" .docx).txt" | cut -c1-80))"
+  done
+  # témoins d'AVANT correction pour le contrôle complet : ils doivent sortir en 1 (une citation prêtée à la
+  # mauvaise page, ㉓ — veille iMac du 13/09/2026). Un témoin qui sort en 0 = le contrôle a perdu une dent.
+  echo "▶ Témoins d'attributions d'avant correction (doivent sortir en 1)…"
+  for f in "$ROOT"/outils/scripts/non_regression/temoins_attributions_avant_correction/*.docx; do
+    [ -e "$f" ] || continue
+    env -i $PY "$ROOT/outils/scripts/controle_attributions.py" "$f" > "$CUR/temoin_attr_$(basename "$f" .docx).txt" 2>&1; rc=$?
+    case $rc in 1) l="✓ exit 1";; 3) l="⟳ exit 3 — pages non lues, à relancer";; *) l="✗ exit $rc — le témoin ne bloque plus"; STATUT=1;; esac
+    echo "  $l  $(basename "$f")  ($(grep -m1 'MAL ATTRIBUEE\|^ *INTERDIT\|^ *ABSENTE ' "$CUR/temoin_attr_$(basename "$f" .docx).txt" | cut -c1-90))"
   done
 fi
 exit $STATUT
