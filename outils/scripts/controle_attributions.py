@@ -19,7 +19,8 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
 ⑳ A4 APPARIE la source nommée à l'adresse voisine (« Nexem » ↔ nexem.fr, alias d'institutions) : sur la
    même ligne la proximité suffit, sur les lignes suivantes le nom doit répondre à l'adresse ;
 ⑱ une page vide est retentée deux fois (5 s, 15 s) avant d'être déclarée non lue ;
-㉑ un code HTTP hors 2xx (429, 503, 403) vaut page non lue : le corps d'une page d'erreur n'est pas la page.
+㉑ un code HTTP hors 2xx (429, 503, 403) vaut page non lue : le corps d'une page d'erreur n'est pas la page ;
+㉒ passe A5 : un hyperlien sans cible (relation sans Target), signalé par extract_docx, bloque.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -295,6 +296,18 @@ for a in sorted(mal_formes):
 for a in sorted(identifiants):
     print("      ok      ", a)
 print("      (aucun)" if not (identifiants or mal_formes) else "")
+
+# ── A5. hyperliens SANS CIBLE : extract_docx les liste (㉒, 13/09/2026). Un lien qui ne mene
+#    nulle part est une source nommee sans adresse — trois lecons n°01 en ont porte quatre
+#    chacune pendant trois mois, lues « 0 URL » par tous les controles.
+sans_cible = []
+if "HYPERLIENS SANS CIBLE" in entete:
+    bloc = entete.split("HYPERLIENS SANS CIBLE", 1)[1]
+    sans_cible = [l.strip() for l in bloc.split("\n")[1:] if " → " in l]
+print("A5. HYPERLIENS SANS CIBLE (le lecteur clique dans le vide) :")
+for l in sans_cible:
+    print("      INTERDIT", l[:120])
+print("      (aucun)" if not sans_cible else "")
 
 # ── aspiration des pages : texte utile ET html brut
 #    le brut est indispensable : nodejs.org/en/download n'expose ses numeros de
@@ -605,8 +618,8 @@ print(">>> Une passe inerte n'est PAS une passe reussie : elle n'a rien cherche.
 if non_lues:
     print(">>> PAGES NON LUES (0 octet) : %d — %s" % (len(non_lues), "; ".join(non_lues)))
     print(">>> Rien n'a pu etre verifie sur elles : relance plus tard, ou verifie a la main.")
-pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + ko_b + ko_c2
-print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + B + C2)%s"
+pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + len(sans_cible) + ko_b + ko_c2
+print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + B + C2)%s"
       % (pb, " — et %d verification(s) IMPOSSIBLE(S), pages non lues" % non_verif if non_verif else ""))
 print("          %d valeur(s) chiffree(s) a relire en D — a la main, D n'est pas bloquant"
       % ko_d)

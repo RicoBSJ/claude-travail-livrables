@@ -11,9 +11,9 @@ def extract_links(z):
     """Chaque lien du corps avec son LIBELLÉ visible et sa CIBLE : (libellé, url), dans l'ordre du document.
     Ajouté le 12/09/2026 : un contrôle qui ne lit que le texte ne sait pas qu'un libellé « Nexem » est un
     lien vers nexem.fr — il le traitait comme un nom sans adresse (passe A4)."""
-    liens = []
+    liens, sans_cible = [], []
     if 'word/document.xml' not in z.namelist() or 'word/_rels/document.xml.rels' not in z.namelist():
-        return liens
+        return liens, sans_cible
     cibles = {}
     with z.open('word/_rels/document.xml.rels') as f:
         for rel in ET.parse(f).getroot().iter('{http://schemas.openxmlformats.org/package/2006/relationships}Relationship'):
@@ -22,11 +22,16 @@ def extract_links(z):
     with z.open('word/document.xml') as f:
         for h in ET.parse(f).getroot().iter(W + 'hyperlink'):
             rid = h.get(R + 'id')
+            libelle = ''.join(t.text or '' for t in h.iter(W + 't')).strip()
             if rid in cibles and cibles[rid].startswith('http'):
-                libelle = ''.join(t.text or '' for t in h.iter(W + 't')).strip()
                 if libelle:
                     liens.append((libelle, cibles[rid]))
-    return liens
+            elif rid is not None and not h.get(W + 'anchor'):
+                # ㉒ (13/09/2026) un hyperlien dont la relation n'a pas de cible (ou une cible qui n'est pas
+                #    une adresse) : le lecteur clique dans le vide. Trois leçons n°01 (dzogchen, stoïcisme,
+                #    ennéagramme) ont porté trois mois quatre liens de ce genre, lus « 0 URL » par tout le monde.
+                sans_cible.append((libelle or '(sans libellé)', rid, cibles.get(rid, '(relation absente)') or '(pas de Target)'))
+    return liens, sans_cible
 
 def extract_text_and_urls(filepath):
     urls = []
@@ -44,7 +49,7 @@ def extract_text_and_urls(filepath):
                         if elem.text:
                             text_parts.append(elem.text)
             
-            liens = []
+            liens, sans_cible = [], []
             # Extract URLs from relationships
             rels_files = [n for n in z.namelist() if n.endswith('.rels')]
             for rels_file in rels_files:
@@ -60,12 +65,12 @@ def extract_text_and_urls(filepath):
                                     urls.append(target)
                     except:
                         pass
-            liens = extract_links(z)
+            liens, sans_cible = extract_links(z)
     except Exception as e:
         print(f"ERROR: {e}", file=sys.stderr)
-        liens = []
+        liens, sans_cible = [], []
 
-    return '\n'.join(text_parts), urls, liens
+    return '\n'.join(text_parts), urls, liens, sans_cible
 
 USAGE = """Usage : python3 extract_docx.py <fichier.docx> [--extrait[=N]]
 
@@ -97,7 +102,7 @@ if __name__ == '__main__':
                 print(f"ERREUR : valeur invalide pour --extrait — {a}", file=sys.stderr)
                 sys.exit(1)
 
-    text, urls, liens = extract_text_and_urls(filepath)
+    text, urls, liens, sans_cible = extract_text_and_urls(filepath)
 
     print(f"=== URLS ({len(urls)}) ===")
     for url in urls:
@@ -107,6 +112,12 @@ if __name__ == '__main__':
     print(f"\n=== LIENS ({len(liens)}) ===")
     for libelle, url in liens:
         print(f"{libelle} → {url}")
+    if sans_cible:
+        # signalé sur stderr ET dans le flux : un contrôle qui ne lit que stdout doit le voir aussi
+        print(f"\n=== ⚠️ HYPERLIENS SANS CIBLE ({len(sans_cible)}) — le lecteur clique dans le vide ===")
+        for libelle, rid, cible in sans_cible:
+            print(f"{libelle} → {cible} [{rid}]")
+        print(f"⚠️ {filepath} : {len(sans_cible)} hyperlien(s) sans cible", file=sys.stderr)
 
     if limite is None:
         print(f"\n=== TEXTE COMPLET ({len(text)} caractères) ===")

@@ -44,7 +44,7 @@ for f in sys.argv[2:]:
         try: exec(code, g)
         except SystemExit as e: print("EXIT", e)
     orph = sorted(g.get("orphelines", set())); snl = sorted(g.get("sites_non_listes", set()))
-    a2 = sorted(g.get("sans_adresse", set())); a3 = sorted(g.get("mal_formes", set())); a4 = list(g.get("src_sans_adresse", []))
+    a2 = sorted(g.get("sans_adresse", set())); a3 = sorted(g.get("mal_formes", set())); a4 = list(g.get("src_sans_adresse", [])) + list(g.get("sans_cible", []))
     print("%s\t%d\t%s" % (f.split("/")[-1], len(orph) + len(snl) + len(a2) + len(a3) + len(a4), " ; ".join(orph + snl + a2 + a3 + a4)[:300]))
 PYH
   while IFS=$'\t' read -r nom n detail; do
@@ -77,7 +77,7 @@ for f in sys.argv[2:]:
         try: exec(code, g)
         except SystemExit as e: print("EXIT", e)
     orph = sorted(g.get("orphelines", set())); snl = sorted(g.get("sites_non_listes", set()))
-    a2 = sorted(g.get("sans_adresse", set())); a3 = sorted(g.get("mal_formes", set())); a4 = list(g.get("src_sans_adresse", []))
+    a2 = sorted(g.get("sans_adresse", set())); a3 = sorted(g.get("mal_formes", set())); a4 = list(g.get("src_sans_adresse", [])) + list(g.get("sans_cible", []))
     print("%s\t%d\t%s\t%s\t%s" % (f.split("/")[-1], len(orph) + len(snl) + len(a2) + len(a3) + len(a4), ";".join(orph), ";".join(snl), ";".join(a2 + a3 + a4)[:200]))
 PYH
 N_A=$(wc -l < "$CUR/passe_A.tsv" | tr -d ' '); B_A=$(awk -F'\t' '$2>0' "$CUR/passe_A.tsv" | wc -l | tr -d ' ')
