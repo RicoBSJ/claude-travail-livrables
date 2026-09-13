@@ -26,10 +26,14 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
    Avant ㉓, une citation trouvée sur n'importe quelle page listée était OK, quelle que soit la source
    que la note lui prêtait (veille iMac du 13/09/2026 : deux phrases de Gurman prêtées à consomac.fr,
    qui n'en porte aucune — elles étaient sur 9to5mac.com et macrumors.com, et B disait OK).
+㉔ (13/09/2026) B descend de huit à six mots : « Before the end of the year » (six mots) passait sous le seuil
+   dans la même note. Inventaire préalable sur les 223 documents : cinq citations de six ou sept mots, toutes
+   trouvées sur leur page (Enneagram Institute, react.dev, lyckowbackman.se, aapel.org, 9to5mac) — aucun faux
+   positif à trier ; le plancher de 25 caractères ne cache aucune citation de six mots (vérifié à 18).
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
-huit mots ou plus cherchées dans les pages · C/C2 numéros de version (C2 bloquant
+six mots ou plus (㉔) cherchées dans les pages · C/C2 numéros de version (C2 bloquant
 à moins de 80 caractères d'un domaine cité) · D valeurs chiffrées, à relire.
 Lis toujours la ligne « PASSES INERTES » : une passe inerte n'a rien cherché.
 """
@@ -412,7 +416,7 @@ def ou_trouve_nombre(n):
             return u, "brut (rendu JS)"
     return None, None
 
-# ── B. citations anglaises de 8 mots ou plus
+# ── B. citations anglaises de 6 mots ou plus (㉔, 13/09/2026 : huit auparavant)
 #    ⚠️ La passe B ne peut PAS verifier une TRADUCTION : une citation rendue en
 #    francais n'est pas une sous-chaine de la page anglaise. Le filtre doit donc etre
 #    large, sinon toute traduction est declaree ABSENTE a tort — c'est arrive le
@@ -481,7 +485,7 @@ def source_nommee(avant, apres):
 #    une citation anglaise de 8 mots « absente des pages ». Ouverture et fermeture non precedees d'un chiffre.
 for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{25,300}?)\s*(?:»|(?<!\d)\")", corps):
     c = re.sub(r"\s+", " ", m.group(1)).strip()
-    if len(c.split()) < 8:                      continue
+    if len(c.split()) < 6:                      continue
     if re.search(r"[<>{}=;]|//|…", c):     continue
     if not c[:1].isalpha():                     continue
     if FR.search(c):                            continue
@@ -494,7 +498,7 @@ for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{25,300}?)\s*(?:»|(?<!\d)\")"
     # l'attribution « — Auteur » finale n'est pas la citation : on la retire avant de
     # chercher, sinon une citation EXACTE est declaree absente (11/09/2026).
     c = re.split(r"\s+[\u2014-]\s+(?=[A-Z\u00c0-\u00dd][^.]{2,60}$)", c)[0].strip()
-    if len(c.split()) >= 8:
+    if len(c.split()) >= 6:
         cits.add(c)
         attrib[c] = attrib.get(c, set()) | source_nommee(corps[max(0, m.start() - 140):m.start()], corps[m.end():m.end() + 200])
 # ⑰ (12/09/2026) une page qui n'a PAS PU ETRE LUE (0 octet : reseau, mur, delai) n'est pas une
@@ -503,7 +507,7 @@ for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{25,300}?)\s*(?:»|(?<!\d)\")"
 #    NON VERIFIABLE, compte a part, exit 3 s'il ne reste que cela.
 non_lues = [u for u in urls if u not in non_textuels and not bruts.get(u)
             and not re.search(r"://(?:localhost|127\.0\.0\.1)", u)]      # les adresses locales du projet ne sont pas des pages
-print("\nB. CITATIONS ANGLAISES DE 8 MOTS OU PLUS : %d" % len(cits))
+print("\nB. CITATIONS ANGLAISES DE 6 MOTS OU PLUS : %d" % len(cits))
 ko_b = 0
 non_verif = 0
 for c in sorted(cits):
@@ -686,7 +690,7 @@ for n in sorted(chiffres, key=lambda s: (len(s), s)):
         print("   A VERIFIER %-7s -> absente des pages citees | %s" % (n, chiffres[n]))
 
 inertes = []
-if not cits:    inertes.append("B (aucune citation anglaise de 8 mots ou plus)")
+if not cits:    inertes.append("B (aucune citation anglaise de 6 mots ou plus)")
 if not vers:    inertes.append("C (aucun numero de version)")
 if not vus:     inertes.append("C2 (aucune version pres d'un domaine cite)")
 if not chiffres: inertes.append("D (aucune valeur chiffree en contexte d'attribution)")
