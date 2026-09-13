@@ -18,7 +18,8 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
    dans son libellé est quand même une adresse donnée au lecteur ;
 ⑳ A4 APPARIE la source nommée à l'adresse voisine (« Nexem » ↔ nexem.fr, alias d'institutions) : sur la
    même ligne la proximité suffit, sur les lignes suivantes le nom doit répondre à l'adresse ;
-⑱ une page vide est retentée deux fois (5 s, 15 s) avant d'être déclarée non lue.
+⑱ une page vide est retentée deux fois (5 s, 15 s) avant d'être déclarée non lue ;
+㉑ un code HTTP hors 2xx (429, 503, 403) vaut page non lue : le corps d'une page d'erreur n'est pas la page.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -318,10 +319,21 @@ for u in urls:
         if attente:
             time.sleep(attente)
         essais += 1
-        brut = subprocess.run(["curl", "-s", "-L", "--max-time", "30", "-A",
-                               "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
-                               " (KHTML, like Gecko) Chrome/126 Safari/537.36", u],
-                              capture_output=True).stdout
+        # ㉑ (13/09/2026) le CODE HTTP compte : une page d'erreur (429, 503, 403…) a un corps, mais ce
+        #    corps n'est pas la page — la citation y est forcement « absente », et le verdict est faux.
+        #    Sur hypnose n°13, deux citations exactes ont ete declarees absentes de PMC pendant une
+        #    salve de 429 ; la meme commande dix minutes plus tard les trouvait. Hors 2xx : page non lue.
+        rep = subprocess.run(["curl", "-s", "-L", "--max-time", "30", "-o", "/tmp/.controle_page", "-w", "%{http_code}", "-A",
+                              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+                              " (KHTML, like Gecko) Chrome/126 Safari/537.36", u],
+                             capture_output=True, text=True)
+        code = rep.stdout.strip()[-3:]
+        try:
+            brut = open("/tmp/.controle_page", "rb").read()
+        except FileNotFoundError:
+            brut = b""
+        if not code.startswith("2"):
+            brut = b""                 # corps d'erreur : on ne lit rien dedans
         if brut or re.search(r"://(?:localhost|127\.0\.0\.1)", u):
             break
     if brut[:4] == b"%PDF" or u.lower().endswith(".pdf"):
@@ -339,7 +351,7 @@ for u in urls:
     bruts[u] = raw
     locale = bool(re.search(r"://(?:localhost|127\.0\.0\.1)", u))
     if not raw:
-        note = "  <-- adresse locale du projet, non aspiree" if locale else "  <-- VIDE apres %d essais : NON LUE, rien ne sera conclu sur elle (⑰)" % essais
+        note = "  <-- adresse locale du projet, non aspiree" if locale else "  <-- VIDE ou HTTP %s apres %d essais : NON LUE, rien ne sera conclu sur elle (⑰, ㉑)" % (code if not locale else "-", essais)
     else:
         note = ("  <-- SOUS 3000 : facade, ou page rendue en JS ? regarde le brut" if utile < 3000 else "") \
                + ("  [obtenue au %de essai]" % essais if essais > 1 else "")
