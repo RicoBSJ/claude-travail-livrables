@@ -7,7 +7,8 @@
 #   outils/scripts/non_regression.sh --complet  ajoute le contrôle d'attributions COMPLET (avec aspiration) sur les
 #                                               trois témoins à citations (doivent sortir en 0) et sur les témoins
 #                                               d'avant correction de non_regression/temoins_attributions_avant_correction/
-#                                               (doivent sortir en 1) — long, dépend du réseau (exit 3 = relancer).
+#                                               (doivent sortir en 1) — long, dépend du réseau : un exit 3 est
+#                                               retenté une fois après NR_ATTENTE s (60), puis affiché, jamais refusé.
 #   outils/scripts/non_regression.sh --accepter enregistre le passage courant comme nouvelle référence, APRÈS avoir
 #                                               lu le diff et compris chaque changement de verdict.
 #   outils/scripts/non_regression.sh --docs f…  mode DOCUMENTS (quelques secondes) : pour chaque .docx donné, passes
@@ -130,11 +131,26 @@ fi
 [ "$TEM_KO" != "0" ] && STATUT=1
 
 # ── 5. contrôle complet sur les témoins à citations
+# RETRY (13/09/2026) : un exit 3 (page non lue — réseau, mur, délai) ne prouve rien sur la passe B ; comme le
+# hook ne refuse pas sur un 3, un témoin qui sort en 3 laissait passer un push sans l'avoir testé. On retente
+# UNE fois après NR_ATTENTE secondes (60 par défaut) ; un 3 qui persiste est affiché « deux essais » — toujours
+# pas un refus (un site qui tombe n'est pas une régression du contrôle), mais on sait que ce passage n'a rien
+# prouvé sur B, et il faut relancer --complet à la main.
+ATTENTE="${NR_ATTENTE:-60}"
+controle_complet() {   # $1 docx, $2 fichier de sortie → rc ; ESSAIS=1|2
+  env -i $PY "$ROOT/outils/scripts/controle_attributions.py" "$1" > "$2" 2>&1; local rc=$?; ESSAIS=1
+  if [ "$rc" = "3" ]; then
+    sleep "$ATTENTE"
+    env -i $PY "$ROOT/outils/scripts/controle_attributions.py" "$1" > "$2" 2>&1; rc=$?; ESSAIS=2
+  fi
+  return $rc
+}
 if [ "$MODE" = "--complet" ]; then
   echo "▶ Contrôle d'attributions complet (avec aspiration) sur trois témoins…"
   for f in "$ROOT"/livrables/lecons/*stoicisme_14*.docx "$ROOT"/livrables/lecons/*appli-ia_07*.docx "$ROOT"/livrables/lecons/*placement-financier_14*.docx; do
-    env -i $PY "$ROOT/outils/scripts/controle_attributions.py" "$f" > "$CUR/$(basename "$f" .docx).txt" 2>&1; rc=$?
-    case $rc in 0) l="✓ exit 0";; 3) l="⟳ exit 3 — pages non lues, à relancer";; *) l="✗ exit $rc"; STATUT=1;; esac
+    controle_complet "$f" "$CUR/$(basename "$f" .docx).txt"; rc=$?
+    case $rc in 0) l="✓ exit 0";; 3) l="⟳ exit 3 après $ESSAIS essais — pages non lues, rien prouvé sur B : relancer --complet";; *) l="✗ exit $rc"; STATUT=1;; esac
+    [ "$ESSAIS" = "2" ] && [ "$rc" != "3" ] && l="$l (au 2e essai)"
     echo "  $l  $(basename "$f")  ($(grep -m1 '^VERDICT' "$CUR/$(basename "$f" .docx).txt" | cut -c1-80))"
   done
   # témoins d'AVANT correction pour le contrôle complet : ils doivent sortir en 1 (une citation prêtée à la
@@ -142,8 +158,9 @@ if [ "$MODE" = "--complet" ]; then
   echo "▶ Témoins d'attributions d'avant correction (doivent sortir en 1)…"
   for f in "$ROOT"/outils/scripts/non_regression/temoins_attributions_avant_correction/*.docx; do
     [ -e "$f" ] || continue
-    env -i $PY "$ROOT/outils/scripts/controle_attributions.py" "$f" > "$CUR/temoin_attr_$(basename "$f" .docx).txt" 2>&1; rc=$?
-    case $rc in 1) l="✓ exit 1";; 3) l="⟳ exit 3 — pages non lues, à relancer";; *) l="✗ exit $rc — le témoin ne bloque plus"; STATUT=1;; esac
+    controle_complet "$f" "$CUR/temoin_attr_$(basename "$f" .docx).txt"; rc=$?
+    case $rc in 1) l="✓ exit 1";; 3) l="⟳ exit 3 après $ESSAIS essais — la page de la source nommée n'a pas été lue, rien prouvé : relancer --complet";; *) l="✗ exit $rc — le témoin ne bloque plus"; STATUT=1;; esac
+    [ "$ESSAIS" = "2" ] && [ "$rc" != "3" ] && l="$l (au 2e essai)"
     echo "  $l  $(basename "$f")  ($(grep -m1 'MAL ATTRIBUEE\|^ *INTERDIT\|^ *ABSENTE ' "$CUR/temoin_attr_$(basename "$f" .docx).txt" | cut -c1-90))"
   done
 fi
