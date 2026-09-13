@@ -11,7 +11,7 @@ tags:
   - concept/rigpa
   - concept/ma-rigpa
   - concept/base-voie-fruit
-  - auteur/dilgo-khyentse
+  - auteur/dilgo-khyentse  - alerte/corrige  - correction/2026-09-13
 ---
 
 # 2026-06-05_lecon-dzogchen_01_rigpa-reconnaissance
@@ -27,6 +27,8 @@ Le couple fondateur est posé : **rigpa**, la conscience éveillée, la présenc
 L'architecture en trois temps, qui structurera tout le parcours, apparaît dès ici : **Base** (l'état originel — vide, clarté, énergie compatissante), **Chemin** (vue, pratique, conduite), **Fruit** (l'auto-libération des pensées, la reconnaissance comme liberté non duelle).
 
 L'exercice le plus juste est le second : basculer de « celui qui gère » à « la présence qui observe », en posant la question *qui voit ? qui écoute ?* sans y répondre. C'est la pointe du dzogchen réduite à sa plus simple expression.
+
+**Réparée le 13/09/2026 — la leçon n'avait aucune adresse.** les quatre « ressources » étaient des hyperliens dont la relation ne portait aucune adresse — bug du script de génération du 05/06, premier jour du parcours ; le lecteur cliquait dans le vide. Cibles posées et testées : Wikipédia (qui porte rigpa/ma rigpa, trekchö, tögal, les trois séries, base-chemin-fruit), deux textes de Lotsawa House, le site de Rigpa (libellé ramené à ce que la page est) ; série Dzogchen de Lotsawa House ajoutée. La citation retirée le 11/09 n'a pas retrouvé de source. Contrôle d'attribution complet à exit 0. Journal dans le document.
 
 ## Notes liées
 

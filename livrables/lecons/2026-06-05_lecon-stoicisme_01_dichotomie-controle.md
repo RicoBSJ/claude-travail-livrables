@@ -11,7 +11,7 @@ tags:
   - auteur/epictete
   - concept/dichotomie-controle
   - concept/acceptation
-  - concept/devoir
+  - concept/devoir  - alerte/corrige  - correction/2026-09-13  - theme/citation-non-sourcee
 ---
 
 # 2026-06-05_lecon-stoicisme_01_dichotomie-controle
@@ -25,6 +25,8 @@ Première leçon du parcours, et la seule au format ancien — orientée directe
 Elle pose le partage qui fonde tout le reste : mes jugements, désirs, aversions et efforts dépendent de moi ; le corps d'autrui, les biens, la santé, la réputation n'en dépendent pas. La conséquence pratique est la plus utile — **le devoir se mesure à ce qu'on a mis en œuvre, jamais au résultat obtenu**. Un accompagnement mené selon les règles reste un accompagnement réussi même si la crise persiste.
 
 Le challenge final applique ce raisonnement à une situation de crise comportementale après six mois de suivi : avoir appliqué les bonnes pratiques, posé les limites justes et maintenu la bientraitance suffit à conclure que le devoir est rempli.
+
+**Réparée le 13/09/2026 — la leçon n'avait aucune adresse.** les quatre « ressources » étaient des hyperliens sans adresse (bug du script du 05/06) ; cibles posées — trois articles Daily Stoic, Wikipédia — et deux sources ajoutées : le chapitre 1 du Manuel d'Épictète (trad. Carter), qui porte mot pour mot la liste de la théorie, et la Stanford Encyclopedia. La citation « Il n'y a qu'une voie vers le bonheur… » — Épictète, formule de recueils sans passage identifié, perd ses guillemets et son attribution directe, adossée au chapitre 1. Contrôle d'attribution complet à exit 0. Journal dans le document.
 
 ## Notes liées
 
