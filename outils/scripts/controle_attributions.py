@@ -30,6 +30,18 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
    dans la même note. Inventaire préalable sur les 223 documents : cinq citations de six ou sept mots, toutes
    trouvées sur leur page (Enneagram Institute, react.dev, lyckowbackman.se, aapel.org, 9to5mac) — aucun faux
    positif à trier ; le plancher de 25 caractères ne cache aucune citation de six mots (vérifié à 18).
+㉕ (14/09/2026) D acceptait « 1 689 » mais pas « 1 689,00 » : la borne « (?![0-9.,]) » refusait les décimales nulles
+   d'une page française (consomac : « 1 689,00 € »), et l'espace insécable n'était pas neutralisée (re.escape
+   n'échappe plus l'espace depuis Python 3.7 : le remplacement était du code mort). Faux positif dans la note de
+   contrôle du 13/09.
+㉖ (14/09/2026) passe B-FR : une citation FRANÇAISE entre guillemets, prêtée à une source nommée à côté d'elle
+   (domaine, ou nom apparié aux pages listées : « par l'INSERM 2016 », « (ANESM, 2015) », « selon Unafam »),
+   doit être sur une page de cette source quand cette page est en français — sinon ABSENTE DE LA SOURCE NOMMÉE,
+   bloquant. Page non lue ou PDF → NON VERIFIABLE ; page en anglais → traduction possible, non tranché ; sans
+   source nommée → cherchée partout, « à relire » si absente, jamais bloquant. Une citation entre crochets de
+   correction (« [Corrigé le … : la première version prêtait … « mot » …] ») est exemptée : elle cite l'erreur.
+   Incident : psychopathologie n°16 du 14/09/2026, « contradictoires » prêté à l'INSERM, mot absent du chapitre ;
+   l'anglais avait un test depuis le 11/09, le français aucun.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -37,7 +49,7 @@ six mots ou plus (㉔) cherchées dans les pages · C/C2 numéros de version (C2
 à moins de 80 caractères d'un domaine cité) · D valeurs chiffrées, à relire.
 Lis toujours la ligne « PASSES INERTES » : une passe inerte n'a rien cherché.
 """
-import sys, re, html, subprocess, time
+import sys, re, html, subprocess, time, os
 
 DOCX = sys.argv[1]
 EXTRACT = "/Users/utilisateur/kDrive/Claude_Travail/outils/scripts/extract_docx.py"
@@ -405,8 +417,11 @@ def ou_trouve_nombre(n):
     un nombre a deux chiffres est trouve dans n'importe quelle page. Le brut est
     consulte en second : nodejs.org/en/download n'expose ses numeros de version
     que dans sa charge JavaScript (mesure du 11/09/2026)."""
-    corps_n = re.escape(n).replace("\\ ", "[  ]?").replace("\\ ", "[  ]?")
-    motif = re.compile(r"(?<![\d.,])" + corps_n + r"(?![\d.,])")
+    # ㉕ (14/09/2026) l'espace du nombre (normale, insecable, fine) est neutralisee ici — re.escape ne l'echappe
+    #    plus depuis Python 3.7 — et « ,00 » / « .00 » apres le nombre ne le rendent pas absent : « 1 689,00 € »
+    #    porte bien 1 689 (consomac, note de controle du 13/09 : faux positif).
+    corps_n = re.sub(r"[ \u00a0\u202f]", "[ \u00a0\u202f]?", re.escape(n))
+    motif = re.compile(r"(?<![\d.,])" + corps_n + r"(?:[.,]0+)?(?![\d.,])")
     motif_v = re.compile(r"(?<![\d.])v" + re.escape(n) + r"(?![\d.])")
     for u, r in textes.items():
         if motif.search(r):
@@ -441,6 +456,7 @@ cits = set()
 #    (« MacRumors (25/08) titre "…" »). Le nom est apparie aux domaines listes comme en A4 (⑳).
 #    Un nom sans page listee ne donne rien : c'est la passe A (site nu) qui le voit.
 attrib = {}
+cits_fr = {}
 NOMME = re.compile(r"(?<![\wÀ-ÿ])([A-ZÀ-Ý][\wÀ-ÿ-]{2,}(?:\s+[A-ZÀ-Ý][\wÀ-ÿ-]+)?)\s*(?:\([^)]{0,40}\))?\s*"
                    r"(?:titre|écrit|rapporte|publie|annonce|indique|précise|cite)\s*:?\s*$", re.I)
 CONT = ("—", "–", ")", ",", "(", "·", ";", ":")
@@ -480,21 +496,52 @@ def source_nommee(avant, apres):
         nom_ = m_.group(1)
         return set(hote(u) for u in urls if apparie(nom_, hote(u)) and len(cle(nom_)) >= 4)
     return set()
+NOM_ATTR = re.compile(r"(?:\bselon|\bpar|d[’']apr[eè]s|\bde|\bpour|[—–(:;,])\s*(?:l[’']|la\s|le\s|les\s|du\s|des\s|un\s|une\s)?"
+                      r"(?:guide\s|expertise\s|page\s|rapport\s|site\s|note\s)?([A-ZÀ-Ý][\wÀ-ÿ-]{2,}(?:\s+[A-ZÀ-Ý][\wÀ-ÿ-]+){0,2})")
+def source_nommee_fr(avant, apres):
+    """㉖ la source nommee d'une citation francaise : celle de ㉓ (domaines, « X titre »), plus un NOM attribue
+    dans la phrase, avant ou apres (« par l'INSERM 2016 », « (ANESM, 18 décembre 2015 » , « selon Unafam »),
+    apparie aux pages listees comme en A4 (⑳). Un nom sans page listee ne donne rien."""
+    doms = set(source_nommee(avant, apres))
+    apres_l = re.split(r"\.\s", ligne_logique_apres(apres[:200]), 1)[0]
+    avant_l = re.split(r"\.\s", ligne_logique_avant(avant[-160:]))[-1]
+    for z in (apres_l, avant_l):
+        for m_ in NOM_ATTR.finditer(z):
+            nom_ = m_.group(1)
+            if len(cle(nom_)) < 3 or cle(nom_.split()[0]) in VIDES:
+                continue
+            doms |= set(hote(u) for u in urls if apparie(nom_, hote(u)))
+    return doms
 # ⑮ (12/09/2026) un guillemet droit colle a un chiffre est un POUCE (« 27" QHD »), pas une citation :
 #    sur la veille iMac du 05/07, deux tailles d'ecran encadraient une ligne de tableau, lue comme
 #    une citation anglaise de 8 mots « absente des pages ». Ouverture et fermeture non precedees d'un chiffre.
-for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{25,300}?)\s*(?:»|(?<!\d)\")", corps):
+for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{9,300}?)\s*(?:»|(?<!\d)\")", corps):
     c = re.sub(r"\s+", " ", m.group(1)).strip()
-    if len(c.split()) < 6:                      continue
     if re.search(r"[<>{}=;]|//|…", c):     continue
     if not c[:1].isalpha():                     continue
-    if FR.search(c):                            continue
+    if FR.search(c) or not OUTILS.search(c):
+        # ㉖ citation FRANCAISE — un mot-outil francais, ou aucun mot-outil anglais (« contradictoires », un seul
+        #    mot, n'a ni l'un ni l'autre : le document est francais, la citation l'est) : neuf lettres au moins,
+        #    hors crochets de correction, avec sa source nommee
+        lettres = len(re.findall(r"[A-Za-zÀ-ÿ]", c))
+        av_ = corps[max(0, m.start() - 300):m.start()]
+        dans_crochet = "[" in av_.rsplit("]", 1)[-1] and "]" in corps[m.end():m.end() + 400]
+        if lettres >= 9 and not re.search(r"[<>{}=;]|//", c) and not dans_crochet:
+            nommes_ = source_nommee_fr(corps[max(0, m.start() - 160):m.start()], corps[m.end():m.end() + 200])
+            # la parole d'une vignette (« il répète « j'en peux plus » »), la question que la lecon propose de se
+            # poser, la formulation qu'elle discute : ce sont ses propres mots, pas une citation — sans source
+            # nommee, on ne les cherche pas
+            parole = re.search(r"\b(?:dit|disent|répète|pense|crie|murmure|verbalis\w*|propos|phrase|question|formul\w*|"
+                               r"écrit|note[sz]?|intitul\w*|appel\w*|terme|mot|expression)\b[^«»\n]{0,40}$", av_[-80:], re.I)
+            if nommes_ or not parole:
+                cits_fr[c] = cits_fr.get(c, set()) | nommes_
+        continue
+    if len(c.split()) < 6:                      continue      # anglais : six mots ou plus (㉔)
     # ⚠️ une citation est une PHRASE, pas un NOM. Un nom propre ou un intitule de
     #    produit entre guillemets n'a aucun mot-outil anglais — et n'a pas a etre
     #    cherche sur une page. Sans ce filtre, la lecon placement-financier n°13
     #    voyait signaler « Tracker CAC 40 (DR) UCITS ETF - Dist », un nom que la
     #    lecon declare elle-meme FICTIF deux lignes plus haut (11/09/2026).
-    if not OUTILS.search(c):                    continue
     # l'attribution « — Auteur » finale n'est pas la citation : on la retire avant de
     # chercher, sinon une citation EXACTE est declaree absente (11/09/2026).
     c = re.split(r"\s+[\u2014-]\s+(?=[A-Z\u00c0-\u00dd][^.]{2,60}$)", c)[0].strip()
@@ -532,12 +579,51 @@ for c in sorted(cits):
             continue
     if u:
         print("   OK      %s\n             -> %s (%s)%s" % (c[:76], u, how, " — prêtée à " + "/".join(sorted(nommes)) + ", appariée (㉓)" if nommes else ""))
-    elif non_lues:
+    elif non_lues or non_textuels:
         non_verif += 1
-        print("   NON VERIFIABLE %s\n             -> sur aucune page LUE ; %d page(s) non lue(s)" % (c[:76], len(non_lues)))
+        print("   NON VERIFIABLE %s\n             -> sur aucune page LUE ; %d page(s) non lue(s), %d PDF non analyse(s)" % (c[:76], len(non_lues), len(non_textuels)))
     else:
         ko_b += 1
         print("   ABSENTE %s\n             -> sur AUCUNE page listee" % c[:76])
+
+# ── B-FR (㉖). Les pages francaises se reconnaissent a leurs mots-outils ; une citation francaise pretee a une
+#    page anglaise peut etre une traduction : on ne tranche pas.
+def page_fr(u):
+    t_ = textes.get(u, "")
+    return len(FR.findall(t_)) / max(1, len(t_.split())) >= 0.08
+a_relire_fr = 0
+print("\nB-FR. CITATIONS FRANCAISES ENTRE GUILLEMETS (9 lettres ou plus ; sans source nommee, 4 mots ou plus) : %d" % len(cits_fr))
+if os.environ.get("DEBUG"):
+    for c in sorted(cits_fr): print("   [debug] %r -> nommes %s" % (c[:60], sorted(cits_fr[c])))
+for c in sorted(cits_fr):
+    nommes = cits_fr[c]
+    trouvees = ou_trouve_toutes(c)
+    if not nommes:
+        if len(c.split()) < 4:
+            continue                     # un terme entre guillemets sans source nommee (« saupoudrage ») n'est pas une citation a chercher
+        if trouvees:
+            print("   OK      %s\n             -> %s (sans source nommée à côté)" % (c[:76], trouvees[0]))
+        else:
+            a_relire_fr += 1
+            print("   A RELIRE %s\n             -> sur aucune page lue, et aucune source nommée à côté : traduction ou reformulation ? (non bloquant)" % c[:76])
+        continue
+    attendues = sum((pages_de(d) for d in nommes), [])
+    chez = [t_ for t_ in trouvees if t_ in attendues]
+    if chez:
+        print("   OK      %s\n             -> %s — prêtée à %s, appariée (㉖)" % (c[:76], chez[0], "/".join(sorted(nommes))))
+    elif any(a_ in non_lues or a_ in non_textuels or len(textes.get(a_, "")) < 500 for a_ in attendues):
+        # une FACADE (moins de 500 caracteres utiles : mur, page d'attente, 2xx vide) n'est pas une page lue —
+        # ipubli.inserm.fr a rendu 94 caracteres a un passage du harnais le 14/09, 89 984 au suivant
+        non_verif += 1
+        print("   NON VERIFIABLE %s\n             -> prêtée à %s : page non lue, façade (< 500 car.) ou PDF non analysé — à vérifier à la main%s"
+              % (c[:76], "/".join(sorted(nommes)), (" ; trouvée sur " + trouvees[0]) if trouvees else ""))
+    elif not any(page_fr(a_) for a_ in attendues):
+        a_relire_fr += 1
+        print("   A RELIRE %s\n             -> prêtée à %s, page(s) en anglais : traduction possible, non tranché (non bloquant)" % (c[:76], "/".join(sorted(nommes))))
+    else:
+        ko_b += 1
+        print("   ABSENTE DE LA SOURCE NOMMEE %s\n             -> prêtée à %s (%d page(s) française(s) lue(s), aucune ne la porte)%s (㉖)"
+              % (c[:76], "/".join(sorted(nommes)), len(attendues), (" ; elle est sur " + trouvees[0]) if trouvees else ""))
 
 # ── C. numeros de version
 #    un numero releve a npm show est legitime et ne vient PAS de la doc :
@@ -691,6 +777,7 @@ for n in sorted(chiffres, key=lambda s: (len(s), s)):
 
 inertes = []
 if not cits:    inertes.append("B (aucune citation anglaise de 6 mots ou plus)")
+if not cits_fr: inertes.append("B-FR (aucune citation française de 9 lettres ou plus)")
 if not vers:    inertes.append("C (aucun numero de version)")
 if not vus:     inertes.append("C2 (aucune version pres d'un domaine cite)")
 if not chiffres: inertes.append("D (aucune valeur chiffree en contexte d'attribution)")
@@ -705,8 +792,9 @@ if non_lues:
     print(">>> PAGES NON LUES (0 octet) : %d — %s" % (len(non_lues), "; ".join(non_lues)))
     print(">>> Rien n'a pu etre verifie sur elles : relance plus tard, ou verifie a la main.")
 pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + len(sans_cible) + ko_b + ko_c2
-print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + B + C2)%s"
-      % (pb, " — et %d verification(s) IMPOSSIBLE(S), pages non lues" % non_verif if non_verif else ""))
+print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + B + B-FR + C2)%s%s"
+      % (pb, " — et %d verification(s) IMPOSSIBLE(S), pages non lues ou PDF" % non_verif if non_verif else "",
+         " — et %d citation(s) francaise(s) A RELIRE (non bloquant)" % a_relire_fr if a_relire_fr else ""))
 print("          %d valeur(s) chiffree(s) a relire en D — a la main, D n'est pas bloquant"
       % ko_d)
 sys.exit(1 if pb else (3 if non_verif else 0))
