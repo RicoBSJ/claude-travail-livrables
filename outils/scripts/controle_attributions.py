@@ -518,7 +518,7 @@ def source_nommee_fr(avant, apres):
 for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{9,300}?)\s*(?:»|(?<!\d)\")", corps):
     c = re.sub(r"\s+", " ", m.group(1)).strip()
     if re.search(r"[<>{}=;]|//|…", c):     continue
-    if not c[:1].isalpha():                     continue
+    if not re.search(r"[A-Za-zÀ-ÿ]", c):       continue
     if FR.search(c) or not OUTILS.search(c):
         # ㉖ citation FRANCAISE — un mot-outil francais, ou aucun mot-outil anglais (« contradictoires », un seul
         #    mot, n'a ni l'un ni l'autre : le document est francais, la citation l'est) : neuf lettres au moins,
@@ -537,6 +537,7 @@ for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{9,300}?)\s*(?:»|(?<!\d)\")",
                 cits_fr[c] = cits_fr.get(c, set()) | nommes_
         continue
     if len(c.split()) < 6:                      continue      # anglais : six mots ou plus (㉔)
+    if not c[:1].isalpha():                     continue      # (un titre francais peut commencer par un chiffre : « 6e cycle… » — B-FR l'a deja pris)
     # ⚠️ une citation est une PHRASE, pas un NOM. Un nom propre ou un intitule de
     #    produit entre guillemets n'a aucun mot-outil anglais — et n'a pas a etre
     #    cherche sur une page. Sans ce filtre, la lecon placement-financier n°13
