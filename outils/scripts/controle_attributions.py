@@ -544,7 +544,9 @@ def source_nommee_fr(avant, apres):
 # ⑮ (12/09/2026) un guillemet droit colle a un chiffre est un POUCE (« 27" QHD »), pas une citation :
 #    sur la veille iMac du 05/07, deux tailles d'ecran encadraient une ligne de tableau, lue comme
 #    une citation anglaise de 8 mots « absente des pages ». Ouverture et fermeture non precedees d'un chiffre.
-for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{9,700}?)\s*(?:»|(?<!\d)\")", corps):   # 700 : une citation hagiographique tient sur 500 caracteres (㉗)
+#    un guillemet droit OUVRANT n'est pas colle a une lettre (la fermeture de "induire" suivie de l'ouverture de
+#    "covert" fabriquait la « citation » « un état hypnotique chez une tierce personne… » — hypnose n°14, 15/09/2026)
+for m in re.finditer(r"(?:«|(?<![\wÀ-ÿ])\")\s*([^»\"]{9,700}?)\s*(?:»|\"(?![\wÀ-ÿ]))", corps):   # 700 : une citation hagiographique tient sur 500 caracteres (㉗)
     c = re.sub(r"\s+", " ", m.group(1)).strip()
     if re.search(r"[<>{}=]|//|\w\(\)", c):   continue      # code, pas prose ; « ; » n'exclut plus (« in his heart; a stream of tears » — Thondup, dzogchen 16, ㉗), ni « … »
     if not re.search(r"[A-Za-zÀ-ÿ]", c):       continue
