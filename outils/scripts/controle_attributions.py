@@ -42,6 +42,10 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
    correction (« [Corrigé le … : la première version prêtait … « mot » …] ») est exemptée : elle cite l'erreur.
    Incident : psychopathologie n°16 du 14/09/2026, « contradictoires » prêté à l'INSERM, mot absent du chapitre ;
    l'anglais avait un test depuis le 11/09, le français aucun.
+㉗ (15/09/2026) trois angles morts vus sur dzogchen n°16 : une adresse à parenthèses (Wikipedia « Terma_(religion) »)
+   était coupée à la parenthèse et déclarée non lue ; les diacritiques (« ḍākinīs ») rendaient une citation exacte
+   introuvable ; une citation de plus de 300 caractères, ou coupée par « [...] », n'était pas lue du tout — elle
+   se cherche désormais segment par segment (tous sur la même page), jusqu'à 700 caractères.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -49,7 +53,7 @@ six mots ou plus (㉔) cherchées dans les pages · C/C2 numéros de version (C2
 à moins de 80 caractères d'un domaine cité) · D valeurs chiffrées, à relire.
 Lis toujours la ligne « PASSES INERTES » : une passe inerte n'a rien cherché.
 """
-import sys, re, html, subprocess, time, os
+import sys, re, html, subprocess, time, os, unicodedata
 
 DOCX = sys.argv[1]
 EXTRACT = "/Users/utilisateur/kDrive/Claude_Travail/outils/scripts/extract_docx.py"
@@ -63,7 +67,16 @@ entete, corps = t[:sep], t[sep:]
 jrn = corps.find("Journal des corrections")
 if jrn != -1:
     corps = corps[:jrn]
-urls = sorted(set(re.findall(r"https?://[^\s)]+", entete)))
+def urls_de(z, fin=r"\s"):
+    """㉗ (15/09/2026) une adresse Wikipedia porte des parentheses (« Terma_(religion) ») : on ne coupe une
+    parenthese fermante finale que si elle n'a pas d'ouvrante dans l'adresse."""
+    out = []
+    for u in re.findall(r"https?://[^" + fin + r"]+", z):
+        while u and u[-1] in ")>]»" and (u[-1] != ")" or u.count("(") < u.count(")")):
+            u = u[:-1]
+        out.append(u)
+    return out
+urls = sorted(set(urls_de(entete)))
 # ⑲ (12/09/2026) les LIBELLÉS des liens : extract_docx imprime « libellé → cible » ; un libellé sans
 #    domaine (« Nexem ») est quand meme une adresse donnee au lecteur — A4 doit le savoir
 libelles_lies = set()
@@ -75,7 +88,7 @@ for l in entete.split("\n"):
             libelles_lies.add(lib)
 # ⑭ une adresse ecrite EN CLAIR dans le corps (cellule « URL » d'un tableau, ligne « Source : https://… »)
 #    est une adresse donnee au lecteur, meme sans lien cliquable : elle compte comme listee
-urls_texte = sorted(set(re.findall(r"https?://[^\s)>\]»]+", corps)))
+urls_texte = sorted(set(urls_de(corps, r"\s>\]«»\"")))
 urls = sorted(set(urls) | set(urls_texte))
 
 # ── A. une page nommee dans le CORPS doit etre listee en Ressources
@@ -99,6 +112,12 @@ TLD = (r"com|org|net|fr|dev|io|gov|edu|uk|au|ca|ch|be|de|es|it|eu|info|int|co"
 DOM = r"(?<![A-Za-z0-9-])(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:" + TLD + r")(?![A-Za-z0-9-])"
 def sans_www(d):
     return re.sub(r"^www\.", "", d.lower())
+def cle_texte(z):
+    """㉗ (15/09/2026) ponctuation, espaces ET diacritiques neutralises : « ḍākinīs » (leçon) et « dakinis »
+    (Wikipedia) sont le meme mot — avant, ḍ et ā disparaissaient et la citation exacte etait NON VERIFIABLE."""
+    z = unicodedata.normalize("NFKD", z)
+    z = "".join(ch for ch in z if not unicodedata.combining(ch))
+    return re.sub(r"[^a-z0-9]+", "", z.lower())
 doms_res = set(sans_www(d) for d in re.findall(r"^(?:https?://)?(" + DOM + r")",
                                                "\n".join(urls), re.M | re.I))
 CODE = re.compile(r"curl|wget|\bPOST\b|\bGET\b|fetch\s*\(|\bbash\b|endpoint"
@@ -380,7 +399,7 @@ for u in urls:
     r = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", r)))
     r = re.sub(r"\[\s*\d+\s*\]", " ", r)   # appels de note Wikipedia
     utile = len(r)
-    pages[u] = re.sub(r"[^a-z0-9]+", "", r.lower())
+    pages[u] = cle_texte(r)
     textes[u] = r
     bruts[u] = raw
     locale = bool(re.search(r"://(?:localhost|127\.0\.0\.1)", u))
@@ -392,8 +411,15 @@ for u in urls:
     print("     %s : %d car. utiles / %d octets bruts%s" % (u, utile, len(raw), note))
 
 def ou_trouve(aiguille):
-    """Citations : ponctuation et espaces neutralises des deux cotes."""
-    n = re.sub(r"[^a-z0-9]+", "", aiguille.lower())
+    """Citations : ponctuation et espaces neutralises des deux cotes ; une citation coupee par « […] » ou « [...] »
+    se cherche segment par segment (㉗), et n'est trouvee que si TOUS ses segments le sont sur une meme page."""
+    segs = [sg for sg in re.split(r"\[\s*(?:\.\.\.|…)\s*\]|…", aiguille) if len(sg.split()) >= 3]
+    if len(segs) > 1:
+        for u, p in pages.items():
+            if all(cle_texte(sg) in p for sg in segs):
+                return u, "texte, %d segments" % len(segs)
+        return None, None
+    n = cle_texte(aiguille)
     for u, p in pages.items():
         if n and n in p:
             return u, "texte"
@@ -402,7 +428,10 @@ def ou_trouve(aiguille):
 def ou_trouve_toutes(aiguille):
     """㉓ toutes les pages qui portent la citation, pas la premiere : l'appariement a besoin de savoir
     si la page NOMMEE est parmi elles."""
-    n = re.sub(r"[^a-z0-9]+", "", aiguille.lower())
+    segs = [sg for sg in re.split(r"\[\s*(?:\.\.\.|…)\s*\]|…", aiguille) if len(sg.split()) >= 3]
+    if len(segs) > 1:
+        return [u for u, p in pages.items() if all(cle_texte(sg) in p for sg in segs)]
+    n = cle_texte(aiguille)
     return [u for u, p in pages.items() if n and n in p]
 
 def hote(u):
@@ -515,9 +544,9 @@ def source_nommee_fr(avant, apres):
 # ⑮ (12/09/2026) un guillemet droit colle a un chiffre est un POUCE (« 27" QHD »), pas une citation :
 #    sur la veille iMac du 05/07, deux tailles d'ecran encadraient une ligne de tableau, lue comme
 #    une citation anglaise de 8 mots « absente des pages ». Ouverture et fermeture non precedees d'un chiffre.
-for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{9,300}?)\s*(?:»|(?<!\d)\")", corps):
+for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{9,700}?)\s*(?:»|(?<!\d)\")", corps):   # 700 : une citation hagiographique tient sur 500 caracteres (㉗)
     c = re.sub(r"\s+", " ", m.group(1)).strip()
-    if re.search(r"[<>{}=;]|//|…", c):     continue
+    if re.search(r"[<>{}=]|//|\w\(\)", c):   continue      # code, pas prose ; « ; » n'exclut plus (« in his heart; a stream of tears » — Thondup, dzogchen 16, ㉗), ni « … »
     if not re.search(r"[A-Za-zÀ-ÿ]", c):       continue
     if FR.search(c) or not OUTILS.search(c):
         # ㉖ citation FRANCAISE — un mot-outil francais, ou aucun mot-outil anglais (« contradictoires », un seul
@@ -526,7 +555,7 @@ for m in re.finditer(r"(?:«|(?<!\d)\")\s*([^»\"]{9,300}?)\s*(?:»|(?<!\d)\")",
         lettres = len(re.findall(r"[A-Za-zÀ-ÿ]", c))
         av_ = corps[max(0, m.start() - 300):m.start()]
         dans_crochet = "[" in av_.rsplit("]", 1)[-1] and "]" in corps[m.end():m.end() + 400]
-        if lettres >= 9 and not re.search(r"[<>{}=;]|//", c) and not dans_crochet:
+        if lettres >= 9 and not dans_crochet:
             nommes_ = source_nommee_fr(corps[max(0, m.start() - 160):m.start()], corps[m.end():m.end() + 200])
             # la parole d'une vignette (« il répète « j'en peux plus » »), la question que la lecon propose de se
             # poser, la formulation qu'elle discute : ce sont ses propres mots, pas une citation — sans source

@@ -60,7 +60,10 @@ class Audit:
         self.fiches_v = notes_md(VEILLE, "*.fiche.md")
         self.veilles_md = [p for p in notes_md(VEILLE) if not p.name.endswith(".fiche.md")]
         self.noms = {}
-        for p in self.lecons + notes_md(VEILLE):
+        # les fiches des notes de contrôle (livrables/controles/*.md, depuis le 13/09/2026) sont des cibles
+        # de liens wiki légitimes — sans elles, [[2026-09-13_controle-livrables]] passait pour cassé (15/09)
+        controles = [p for p in notes_md(RACINE / "livrables" / "controles") if p.name != "README.md"]
+        for p in self.lecons + notes_md(VEILLE) + controles:
             self.noms.setdefault(p.stem, []).append(p)
 
     def resultat(self, titre, problemes, note=""):
