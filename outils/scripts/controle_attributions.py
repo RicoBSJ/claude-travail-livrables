@@ -46,6 +46,9 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
    était coupée à la parenthèse et déclarée non lue ; les diacritiques (« ḍākinīs ») rendaient une citation exacte
    introuvable ; une citation de plus de 300 caractères, ou coupée par « [...] », n'était pas lue du tout — elle
    se cherche désormais segment par segment (tous sur la même page), jusqu'à 700 caractères.
+㉘ (17/09/2026) passe A6 : un lien en 404/410 est un LIEN MORT, bloquant — sauf si le document le déclare mort à
+   côté de son libellé (« ⛔ 404 »). Avant, un 404 était « une page non lue » comme un 429 : astrologie n°07 a
+   publié un lien mort avec un verdict à 0.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
@@ -354,6 +357,7 @@ print("      (aucun)" if not sans_cible else "")
 #    version que dans sa charge JavaScript (mesure du 11/09/2026).
 pages, textes, bruts = {}, {}, {}
 non_textuels = []
+codes = {}                                  # ㉘ dernier code HTTP de chaque adresse
 for u in urls:
     # ⚠️ PAS de text=True : une ressource peut etre un PDF, et le decodage utf-8
     #    d'un binaire leve UnicodeDecodeError — le controle mourait alors en cours de
@@ -381,6 +385,7 @@ for u in urls:
                               " (KHTML, like Gecko) Chrome/126 Safari/537.36", u],
                              capture_output=True, text=True)
         code = rep.stdout.strip()[-3:]
+        codes[u] = code
         try:
             brut = open("/tmp/.controle_page", "rb").read()
         except FileNotFoundError:
@@ -409,6 +414,36 @@ for u in urls:
         note = ("  <-- SOUS 3000 : facade, ou page rendue en JS ? regarde le brut" if utile < 3000 else "") \
                + ("  [obtenue au %de essai]" % essais if essais > 1 else "")
     print("     %s : %d car. utiles / %d octets bruts%s" % (u, utile, len(raw), note))
+
+# ── A6. LIENS MORTS (㉘, 17/09/2026). Un 404 ou un 410 n'est pas un mur ni un delai : la page n'existe pas.
+#    Avant ㉘, le controle le rangeait avec les 429 et les 000 (« page non lue », exit 3 au mieux), et la lecon
+#    astrologie n°07 a publie imprint.co.uk/jcs/JCS10_6-7.html en 404 avec un verdict a 0 bloquant. Regle 6 de
+#    tous les prompts : « 404 = ne cite pas ». Exemption : un lien que le document DECLARE mort a cote de son
+#    libelle (« ⛔ 404 », « lien mort », « inaccessible ») — enneagramme n°15 declare psychologytoday en 404 —
+#    est une information donnee au lecteur, pas une adresse pretendue vivante.
+liens_morts = []
+for u in urls:
+    if codes.get(u) not in ("404", "410"):
+        continue
+    libs = [l.rsplit(" → ", 1)[0].strip() for l in entete.split("\n") if l.strip().endswith(u)]
+    chemin_u = re.sub(r"^https?://(?:www\.)?", "", u).rstrip("/")
+    declare = False
+    for cle_u in libs + [chemin_u, chemin_u.split("/")[0]]:
+        for m_ in re.finditer(re.escape(cle_u), corps):
+            fen = corps[max(0, m_.start() - 200): m_.end() + 200]
+            if re.search(r"404|410|⛔|lien mort|inaccessible|introuvable|n['’]existe plus|page supprim", fen, re.I):
+                declare = True
+                break
+        if declare:
+            break
+    if declare:
+        print("     (lien mort DECLARE dans le document, non bloquant : %s)" % u)
+    else:
+        liens_morts.append(u)
+print("A6. LIENS MORTS (HTTP 404/410, non declares dans le document) :")
+for u in liens_morts:
+    print("      INTERDIT", u, "- HTTP", codes.get(u), ": la page n'existe pas, le document la cite comme vivante (㉘)")
+print("      (aucun)" if not liens_morts else "")
 
 def ou_trouve(aiguille):
     """Citations : ponctuation et espaces neutralises des deux cotes ; une citation coupee par « […] » ou « [...] »
@@ -550,14 +585,17 @@ for m in re.finditer(r"(?:«|(?<![\wÀ-ÿ])\")\s*([^»\"]{9,700}?)\s*(?:»|\"(?!
     c = re.sub(r"\s+", " ", m.group(1)).strip()
     if re.search(r"[<>{}=]|//|\w\(\)", c):   continue      # code, pas prose ; « ; » n'exclut plus (« in his heart; a stream of tears » — Thondup, dzogchen 16, ㉗), ni « … »
     if not re.search(r"[A-Za-zÀ-ÿ]", c):       continue
+    # une citation entre crochets de correction (« [Corrigé le … : la première version citait « … »] ») cite
+    # l'erreur, elle ne l'affirme pas : exemptee dans les deux langues (17/09/2026 — astrologie n°07)
+    av_ = corps[max(0, m.start() - 300):m.start()]
+    if "[" in av_.rsplit("]", 1)[-1] and "]" in corps[m.end():m.end() + 400]:
+        continue
     if FR.search(c) or not OUTILS.search(c):
         # ㉖ citation FRANCAISE — un mot-outil francais, ou aucun mot-outil anglais (« contradictoires », un seul
         #    mot, n'a ni l'un ni l'autre : le document est francais, la citation l'est) : neuf lettres au moins,
         #    hors crochets de correction, avec sa source nommee
         lettres = len(re.findall(r"[A-Za-zÀ-ÿ]", c))
-        av_ = corps[max(0, m.start() - 300):m.start()]
-        dans_crochet = "[" in av_.rsplit("]", 1)[-1] and "]" in corps[m.end():m.end() + 400]
-        if lettres >= 9 and not dans_crochet:
+        if lettres >= 9:
             nommes_ = source_nommee_fr(corps[max(0, m.start() - 160):m.start()], corps[m.end():m.end() + 200])
             # la parole d'une vignette (« il répète « j'en peux plus » »), la question que la lecon propose de se
             # poser, la formulation qu'elle discute : ce sont ses propres mots, pas une citation — sans source
@@ -823,8 +861,8 @@ print(">>> Une passe inerte n'est PAS une passe reussie : elle n'a rien cherche.
 if non_lues:
     print(">>> PAGES NON LUES (0 octet) : %d — %s" % (len(non_lues), "; ".join(non_lues)))
     print(">>> Rien n'a pu etre verifie sur elles : relance plus tard, ou verifie a la main.")
-pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + len(sans_cible) + ko_b + ko_c2
-print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + B + B-FR + C2)%s%s"
+pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + len(sans_cible) + len(liens_morts) + ko_b + ko_c2
+print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + A6 + B + B-FR + C2)%s%s"
       % (pb, " — et %d verification(s) IMPOSSIBLE(S), pages non lues ou PDF" % non_verif if non_verif else "",
          " — et %d citation(s) francaise(s) A RELIRE (non bloquant)" % a_relire_fr if a_relire_fr else ""))
 print("          %d valeur(s) chiffree(s) a relire en D — a la main, D n'est pas bloquant"

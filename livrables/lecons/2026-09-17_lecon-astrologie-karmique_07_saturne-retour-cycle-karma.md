@@ -20,7 +20,8 @@ tags:
   - theme/titres-inventes
   - theme/synthese-vide
   - theme/lien-mort
-  - alerte/a-corriger
+  - alerte/corrige
+  - correction/2026-09-17
 ---
 
 # 2026-09-17_lecon-astrologie-karmique_07_saturne-retour-cycle-karma
@@ -37,7 +38,7 @@ Document source : [[2026-09-17_lecon-astrologie-karmique_07_saturne-retour-cycle
 
 **Ce que la leçon fait bien, et qui rend le défaut plus visible.** Chaque énoncé est étiqueté — régime A, régime B, « convention du corpus, non testée causalement » — au point que le lecteur croit tout tracé ; c'est précisément ce marquage exemplaire qui donne aux faux titres de Schulman l'air d'une bibliographie vérifiée. La pratique (astro.com, calcul du premier retour au degré natal, articulation Saturne-nœuds) reste dans l'exploration intérieure, sans prédiction ni conseil — règles 4 et 5 tenues. Le pont vers Carlson et Dean & Kelly est honnête : *« ces deux études portent sur des affirmations générales, non sur le retour de Saturne »*.
 
-**Ce qu'il faudrait corriger, dans l'ordre.** ① Les titres : *Karmic Astrology, vol. III : Joy and the Part of Fortune ; vol. IV : The Karma of the Now* — et retirer « traitent spécifiquement de Saturne », que rien n'établit ; ② retirer « d'après les synthèses secondaires » partout où la synthèse ne nomme pas l'auteur — écrire *« lecture courante du corpus, sans source consultée »* ou ne pas l'écrire ; ③ le lien JCS : remplacer par la notice de l'article (ingentaconnect ou PhilPapers) ou retirer l'adresse ; ④ rendre à Horoscope.com ce qu'elle dit du second retour ; ⑤ sourcer Ptolémée ou le dire de mémoire. Puis durcir la règle 9 d'un cas : *une « synthèse secondaire » ne porte un auteur que si elle le nomme — compte les occurrences de son nom sur la page avant d'écrire « d'après »* ; et, côté contrôle, **㉘** : un 404 n'est pas une page non lue, c'est un lien mort, et il bloque.
+**Corrigé le 17/09/2026, journal dans le document — huit corrections, aucune donnée de ciel ne change.** ① Les quatre volumes de *Karmic Astrology* avec leurs vrais titres et années (I 1975, II 1975, III *Joy and the Part of Fortune* 1978, IV *The Karma of the Now* 1979), notices Open Library liées, et la phrase qui compte : *aucun volume consacré à Saturne* ; ② les six « d'après les synthèses » qui portaient Schulman et Greene réécrits en *« lecture courante du corpus, sans source consultée »*, avec la note de statut qui dit désormais que les deux synthèses ouvertes ne nomment aucun des deux (zéro occurrence, vérifié) ; ③ le lien JCS mort remplacé par le texte intégral de l'article sur journalpsyche.org (PDF, 24 pages, « 10, No. 6–7, 2003, pp. 175–198 », les 2 101 nés à Londres) ; ④ Horoscope.com rendue à ce qu'elle dit du second retour (« greet Saturn like an old friend ») ; ⑤ Ptolémée dit de mémoire, la négation ramenée aux sources ouvertes. **Le contrôle reçoit ㉘, la passe A6** : un 404/410 est un lien mort et bloque, sauf déclaré mort dans le document (« ⛔ 404 ») — validé dans les deux sens : la sauvegarde d'avant correction sort en 1 (*INTERDIT imprint.co.uk … HTTP 404*), la leçon corrigée en 0, ennéagramme 15 (psychologytoday déclaré 404) en 0 avec « lien mort DÉCLARÉ, non bloquant » ; une citation entre crochets de correction est exemptée dans les deux langues. **Le prompt** (25 202 → 27 596) : la règle 9 reçoit le cas et trois gestes — compter le nom de l'auteur sur la synthèse avant d'écrire « d'après » (`grep -o -i | wc -l`, exécuté : 0 et 0), relever tout titre sur une notice ouverte et la lier, afficher les comptes dans le récapitulatif ; la règle 6 reçoit le 404 et la passe A6. Commande du contrôle ré-extraite de la règle 13 et exécutée sur la leçon corrigée : exit 0.
 
 ## Notes liées
 
