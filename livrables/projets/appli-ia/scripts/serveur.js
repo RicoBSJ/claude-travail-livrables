@@ -1,6 +1,7 @@
 // scripts/serveur.js — Serveur HTTP local du Portail Livrables
 // Leçon 04 — Données réelles : l'API qui connaît vos fichiers (21/08/2026)
 // Leçon 07 — Ajout de la route /api/db/search (11/09/2026)
+// Leçon 08 — Factorisation : CATEGORIES et utilitaires déplacés dans utils.js (18/09/2026)
 //
 // Lance : node scripts/serveur.js
 // Ou sur un autre port : PORT=8080 node scripts/serveur.js
@@ -19,69 +20,18 @@ const path     = require('node:path');
 const { URL }  = require('node:url');
 const Database = require('better-sqlite3');
 
+// Utilitaires et configuration partagés — factorisation leçon 08
+const { CATEGORIES, DOCS_DE_DOSSIER,
+        extraireDate, extraireSlug, estLivrable } = require('./utils');
+
 // ── Configuration ──────────────────────────────────────────────────────────
 
 // PORT peut être injecté par l'environnement : PORT=8080 node scripts/serveur.js
 const PORT    = process.env.PORT || 3000;
 const DB_PATH = path.join(__dirname, '..', 'portail.db');
 
-// Le script vit dans livrables/projets/appli-ia/scripts/
-// On remonte de 4 niveaux pour atteindre la racine Claude_Travail/
-const RACINE = path.resolve(__dirname, '..', '..', '..', '..');
-
-// Catégories à inventorier : clé → { chemin absolu, extensions acceptées }
-const CATEGORIES = {
-  lecons:       { chemin: path.join(RACINE, 'livrables', 'lecons'),       extensions: ['.docx', '.md'] },
-  quiz:         { chemin: path.join(RACINE, 'livrables', 'quiz'),         extensions: ['.pptx'] },
-  infographies: { chemin: path.join(RACINE, 'livrables', 'infographies'), extensions: ['.pptx'] },
-  veilles:      { chemin: path.join(RACINE, 'sources',   'veille'),       extensions: ['.docx', '.md'] },
-  documents:    { chemin: path.join(RACINE, 'livrables', 'documents'),    extensions: ['.docx', '.pdf'] },
-  controles:    { chemin: path.join(RACINE, 'livrables', 'controles'),    extensions: ['.md', '.docx'] },
-};
-
-// Exclusions spec v1.2
-const DOCS_DE_DOSSIER = ['readme.md'];
-
 // ── Fonctions utilitaires ──────────────────────────────────────────────────
-
-/**
- * Extrait la date YYYY-MM-DD du nom de fichier (résout écart n°3).
- * Retourne null si le nom ne respecte pas la convention de nommage.
- *
- * Exemples :
- *   "2026-08-21_lecon-appli-ia_04_donnees.docx" → "2026-08-21"
- *   "quiz_rbpp_bientraitance.pptx"               → null
- */
-function extraireDate(nom) {
-  const match = nom.match(/^(\d{4}-\d{2}-\d{2})/);
-  return match ? match[1] : null;
-}
-
-/**
- * Extrait le slug descriptif du nom de fichier (partie après la date).
- * Si le nom ne suit pas la convention, retourne le nom sans extension.
- *
- * Exemples :
- *   "2026-08-21_lecon-appli-ia_04_donnees.docx" → "lecon-appli-ia_04_donnees"
- *   "quiz_rbpp_bientraitance.pptx"               → "quiz_rbpp_bientraitance"
- */
-function extraireSlug(nom) {
-  const { name } = path.parse(nom);
-  const match = name.match(/^\d{4}-\d{2}-\d{2}_(.+)$/);
-  return match ? match[1] : name;
-}
-
-/**
- * Retourne true si le fichier est un livrable réel.
- *   - Exclut les verrous Office (~$…)
- *   - Exclut les docs de dossier (readme.md)
- *   - Filtre sur les extensions autorisées par catégorie
- */
-function estLivrable(nom, extensions) {
-  if (nom.startsWith('~$')) return false;
-  if (DOCS_DE_DOSSIER.includes(nom.toLowerCase())) return false;
-  return extensions.includes(path.extname(nom).toLowerCase());
-}
+// extraireDate, extraireSlug, estLivrable sont importées depuis utils.js (leçon 08)
 
 /**
  * Parcourt un dossier (et ses sous-dossiers si recursif=true) de façon asynchrone.

@@ -1,5 +1,7 @@
 // scripts/indexer.js — Indexation des livrables dans SQLite
 // Leçon 07 — Persistance : base de données locale (11/09/2026)
+// Leçon 08 — Factorisation : CATEGORIES et utilitaires déplacés dans utils.js (18/09/2026)
+//            Fix extraireDate() : gère maintenant la date en fin de nom (quiz, infographies)
 //
 // Lance     : node scripts/indexer.js
 // Ou        : npm run indexer
@@ -18,54 +20,12 @@ const path     = require('node:path');
 const fs       = require('node:fs');
 const Database = require('better-sqlite3');
 
-// ── Configuration (identique à serveur.js) ────────────────────────────────
-
-// Le script vit dans livrables/projets/appli-ia/scripts/
-// On remonte de 4 niveaux pour atteindre la racine Claude_Travail/
-const RACINE = path.resolve(__dirname, '..', '..', '..', '..');
-
-const CATEGORIES = {
-  lecons:       { chemin: path.join(RACINE, 'livrables', 'lecons'),       extensions: ['.docx', '.md'] },
-  quiz:         { chemin: path.join(RACINE, 'livrables', 'quiz'),         extensions: ['.pptx'] },
-  infographies: { chemin: path.join(RACINE, 'livrables', 'infographies'), extensions: ['.pptx'] },
-  veilles:      { chemin: path.join(RACINE, 'sources',   'veille'),       extensions: ['.docx', '.md'] },
-  documents:    { chemin: path.join(RACINE, 'livrables', 'documents'),    extensions: ['.docx', '.pdf'] },
-  controles:    { chemin: path.join(RACINE, 'livrables', 'controles'),    extensions: ['.md', '.docx'] },
-};
-
-const DOCS_DE_DOSSIER = ['readme.md'];
+// Utilitaires et configuration partagés — factorisation leçon 08
+const { CATEGORIES, DOCS_DE_DOSSIER,
+        extraireDate, extraireSlug, estLivrable } = require('./utils');
 
 // La base SQLite est créée au même niveau que PROJET.md (racine du projet)
 const DB_PATH = path.join(__dirname, '..', 'portail.db');
-
-// ── Fonctions utilitaires ──────────────────────────────────────────────────
-
-/**
- * Extrait la date YYYY-MM-DD du nom de fichier.
- * Retourne null si le nom ne respecte pas la convention de nommage.
- */
-function extraireDate(nom) {
-  const match = nom.match(/^(\d{4}-\d{2}-\d{2})/);
-  return match ? match[1] : null;
-}
-
-/**
- * Extrait le slug descriptif du nom de fichier (partie après la date).
- */
-function extraireSlug(nom) {
-  const { name } = path.parse(nom);
-  const match = name.match(/^\d{4}-\d{2}-\d{2}_(.+)$/);
-  return match ? match[1] : name;
-}
-
-/**
- * Retourne true si le fichier est un livrable réel (même logique que serveur.js).
- */
-function estLivrable(nom, extensions) {
-  if (nom.startsWith('~$')) return false;
-  if (DOCS_DE_DOSSIER.includes(nom.toLowerCase())) return false;
-  return extensions.includes(path.extname(nom).toLowerCase());
-}
 
 /**
  * Version SYNCHRONE de l'inventaire — adaptée à l'API synchrone de better-sqlite3.
