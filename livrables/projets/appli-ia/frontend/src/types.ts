@@ -1,22 +1,18 @@
 // frontend/src/types.ts — le CONTRAT DE L'API, vu du navigateur
-// Ajouté le 28/08/2026, en typant le frontend.
+// Ajouté le 28/08/2026, en typant le frontend. Miroir de ../../src/types.ts depuis le 18/09/2026.
 //
-// ⚠️ Ce fichier n'est pas un doublon de ../../src/types.ts. Celui-là décrit les
-// données telles que le SERVEUR les manipule ; celui-ci décrit ce qui circule
-// réellement sur le fil, et les deux ne coïncident pas :
+// Historique : jusqu'à la leçon 08, ../../src/types.ts déclarait `Categorie` avec `recents` ET
+// `livrables` obligatoires — une forme qu'aucune route ne renvoyait. Ce fichier a été écrit pour
+// décrire ce qui circule réellement sur le fil :
 //
 //   • /api/inventaire        renvoie { nombre, taille_ko, recents } — SANS `livrables`
-//   • /api/livrables?cat=X   renvoie { categorie, nombre, livrables } — une enveloppe,
-//                            pas une Categorie
+//   • /api/livrables?cat=X   renvoie { categorie, nombre, livrables } — une enveloppe
 //
-// Or `Categorie` dans ../../src/types.ts déclare `recents` ET `livrables` comme
-// obligatoires : aucune des deux routes ne renvoie cette forme. C'est le piège que
-// la leçon 03 signalait — TypeScript fait confiance aux déclarations, jamais aux
-// données à l'exécution. Une interface qui décrit ce qu'on aimerait recevoir ne
-// protège de rien.
-//
-// Règle retenue : le frontend type ce qu'il REÇOIT. À réconcilier côté serveur en
-// leçon 08 (API et architecture), où le contrat devrait devenir la source unique.
+// Depuis la leçon 08 (18/09/2026), le serveur déclare les mêmes noms et les mêmes formes
+// (CategorieResumee, Inventaire, ReponseLivrables). Les deux fichiers sont tenus en synchronisation
+// par CHOIX, pas par contrainte : testé le 18/09/2026, un `import type` de ../../src/types passe
+// tsc et vite build ; seul le serveur de développement refuse de servir hors de server.fs.allow.
+// Règle inchangée : le frontend type ce qu'il REÇOIT, et le vérifie contre une réponse réelle.
 
 /** Un livrable, tel que renvoyé par les deux routes. Forme identique de part et d'autre. */
 export interface Livrable {

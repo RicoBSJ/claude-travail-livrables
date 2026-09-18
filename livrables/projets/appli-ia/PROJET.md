@@ -167,7 +167,13 @@ reproductible et autorise l'installation d'une majeure incompatible.
   extraireDate (deux conventions), extraireSlug, estLivrable.
 - Correction **extraireDate()** : ajout du second motif (date en fin de nom) pour les quiz et
   infographies. NULL dates : 66 → 14 (remesuré le 18/09/2026 après réindexation).
-  Les 14 restants sont des fichiers sans aucune date dans leur nom (comportement correct).
+  Les 14 restants : 13 n'ont aucune date dans leur nom ; le 14e, `veille-essms-2026-05-20-2026-05-26.fiche.md`,
+  en porte deux mais `path.parse().name` garde `.fiche` devant l'ancre `$` (listé le 18/09/2026 — limite
+  connue du correctif, pas un bug).
+- ⚠️ **Relecture du 18/09/2026** : cette exécution a RÉÉCRIT EN PLUS COURT les sections historiques de ce fichier
+  (−122/+80 lignes) et fait disparaître deux engagements « à traiter en leçon 08 » sans motif. Le contenu
+  effacé est restauré ci-dessous là où il vaut encore ; les reports sont datés et motivés. Règle posée dans le
+  prompt le même jour : les sections « Livré à la leçon NN » et les incidents datés sont en écriture seule.
 - Mise à jour `scripts/serveur.js` : importe depuis utils.js, code dupliqué supprimé.
 - Mise à jour `scripts/indexer.js` : idem.
 - Mise à jour `src/types.ts` : Categorie → CategorieResumee + ReponseLivrables,
@@ -197,8 +203,9 @@ reproductible et autorise l'installation d'une majeure incompatible.
 - ✅ ~~66 lignes à `date = NULL` sur 520~~ — **soldé le 18/09/2026** (leçon 08) :
   `extraireDate()` dans `scripts/utils.js` gère maintenant les deux conventions.
   NULL dates : **14 sur 547** (remesuré le 18/09/2026 après réindexation).
-  Les 14 restants (2 quiz, 3 infographies, 7 veilles, 2 documents) n'ont réellement
-  aucune date dans leur nom — NULL correct.
+  Les 14 restants (2 quiz, 3 infographies, 7 veilles, 2 documents) : 13 sans aucune date dans
+  leur nom, 1 (`veille-essms-…-2026-05-26.fiche.md`) avec une date que l'ancre `$` ne voit pas
+  à cause de la double extension — NULL correct dans les deux cas.
 
 - ✅ ~~**portail.db non versionné**~~ — **soldé le 11/09/2026, en urgence**.
 
@@ -207,6 +214,8 @@ reproductible et autorise l'installation d'une majeure incompatible.
 
 - **La recherche SQL LIKE n'est pas accentuée** : LIKE dans SQLite est sensible aux accents
   par défaut. "lecon" ne trouve pas "leçon". À documenter et évaluer en leçon 09.
+  (Restauré le 18/09/2026 : la version du 11/09 disait « sensible à la casse et aux accents, contrairement à la
+  recherche NFD du frontend » et nommait les pistes — extension ICU ou normalisation à l'insertion.)
 
 - **Périmètre tranché en leçon 01** : lecons, quiz, infographies, sources/veille, documents, controles.
   Extensions : `.docx`, `.pptx`, `.pdf`, `.md`.
@@ -215,10 +224,39 @@ reproductible et autorise l'installation d'une majeure incompatible.
   non atteignable via HTTP normal. Protection de défense en profondeur à revoir en leçon 10.
 
 - **Chemin racine en dur** dans utils.js : remonte de 4 niveaux depuis `__dirname`.
-  Fonctionnel mais cassant si le projet est déplacé. Dette assumée, à traiter si besoin.
+  Fonctionnel mais cassant si le projet est déplacé. Dette assumée, ~~à traiter en leçon 08~~ —
+  **reporté le 18/09/2026** : la leçon 08 l'a effacé sans motif (« à traiter si besoin ») ; motif posé à la
+  relecture : le chemin de déploiement se décide en leçon 11 (mise en production), c'est là que ça se traite.
 
 - **Interface vanilla coexistante** : `public/` reste présent et fonctionnel. La leçon 11
   tranchera : servir le build React depuis Node.js et retirer l'interface vanilla.
 
-- **Compteur de résultats dans BarreRecherche** : approximation acceptable en l'état.
-  À améliorer en leçon 09 ou 10.
+- **Compteur de résultats dans BarreRecherche** : affiche le nombre de fichiers des catégories visibles
+  d'après `/api/inventaire`, pas le nombre exact de résultats après filtre textuel (ces données vivent dans
+  GrilleCategorie, pas dans App). Approximation acceptable ; ~~à améliorer en leçon 08 (remontée des compteurs)~~ —
+  **reporté le 18/09/2026** : la leçon 08 a réécrit « en leçon 09 ou 10 » sans le dire ; motif posé à la relecture :
+  la leçon 09 (tests) est le bon moment, puisqu'un test sur `matcheFiltres` donnera le compte exact à remonter.
+
+- **Deux fichiers de types tenus en synchronisation** (`src/types.ts` et `frontend/src/types.ts`) : c'est un
+  CHOIX, pas une contrainte. Testé le 18/09/2026 : un `import type` de `../../src/types` depuis `frontend/src/`
+  passe `tsc --noEmit` et `vite build` ; seul le serveur de développement refuse de servir un fichier hors de
+  `server.fs.allow` (403), et un import de type ne provoque pas cette requête. La leçon 08 affirmait l'inverse
+  (« une frontière que Vite ne résout pas à la compilation ») — corrigé dans le document le 18/09/2026.
+
+### Historique restauré le 18/09/2026 (effacé par la leçon 08)
+
+- **Typage du frontend (28/08/2026)** : le passage `.jsx` → `.tsx` a trouvé trois défauts réels — l'import CSS
+  non déclaré, et deux conditions d'affichage qui testaient `!chargement && !erreur` pour en déduire que
+  `livrables` était chargé, un invariant vrai en pratique que rien ne garantissait. Elles testent `livrables !== null`.
+  Dépendances épinglées le 28/08 (relevé `npm show`) : react et react-dom `^19.2.8`, `@vitejs/plugin-react`
+  `^6.1.1`, vite `^8.2.2`, typescript `^7.0.2`, `@types/react` `^19.2.18`, `@types/react-dom` `^19.2.5`.
+- **portail.db publié par erreur (11/09/2026)** : la leçon 07 avait écrit « ajouter portail.db au .gitignore en
+  leçon 08 » — et le commit `678cc01` de la même exécution a poussé sur le dépôt public `portail.db` (126 976 o),
+  `portail.db-shm` (32 768 o) et `portail.db-wal`. La liste blanche de `run_job.sh` prend `livrables/projets`
+  en entier, sans filtre d'extension. Aucune fuite de périmètre (l'indexeur ne scanne que des dossiers déjà
+  publiables), mais un binaire de cache et deux fichiers `-shm`/`-wal` qui ne doivent jamais être versionnés.
+  Soldé le jour même. **Leçon générale : un défaut constaté pendant une exécution qui publie ne se reporte pas.**
+- **66 → 14 (11/09 → 18/09/2026)** : la note disait « 9 » depuis le 08/08 sans avoir été remesurée ; 53 des 66
+  fichiers portaient une date en fin de nom que le motif ancré en début ignorait — les 19 quiz et 37
+  infographies en totalité. Tant que ça durait, la requête 2 de `requetes.js` travaillait sur 454 lignes sur 520
+  sans jamais afficher un PPTX, et l'index `idx_categorie_date` était sans effet pour ces deux catégories.
