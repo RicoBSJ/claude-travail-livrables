@@ -49,10 +49,17 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
 ㉘ (17/09/2026) passe A6 : un lien en 404/410 est un LIEN MORT, bloquant — sauf si le document le déclare mort à
    côté de son libellé (« ⛔ 404 »). Avant, un 404 était « une page non lue » comme un 429 : astrologie n°07 a
    publié un lien mort avec un verdict à 0.
+㉙ (19/09/2026) passe B-NOM : une affirmation SANS guillemets prêtée à une source nommée — « selon l'IEFP »,
+   « (AMF) », « d'après la CNIL », « l'INSEE indique que » — se cherche mot par mot (mots pleins de 7 lettres
+   ou plus) sur les pages listées de cette source. Placement n°15 : « les biais les plus courants en France,
+   selon la littérature (IEFP), sont … l'effet moutonnier » — la page de l'IEFP ne dit jamais « moutonnier » ;
+   ai-act 18/09 : trois chantiers législatifs prêtés à un article qui n'en nomme aucun. B et B-FR ne cherchent
+   que ce qui est entre guillemets ; un nom entre parenthèses est une attribution comme une autre.
 
 Cinq passes : A pages nommées non listées et sites nus · A2 noms d'autorité sans
 adresse · A3 identifiants (forme vérifiée, clé ISBN) · B citations anglaises de
-six mots ou plus (㉔) cherchées dans les pages · C/C2 numéros de version (C2 bloquant
+six mots ou plus (㉔) cherchées dans les pages · B-FR citations françaises · B-NOM affirmations
+prêtées à un nom sans guillemets (㉙) · C/C2 numéros de version (C2 bloquant
 à moins de 80 caractères d'un domaine cité) · D valeurs chiffrées, à relire.
 Lis toujours la ligne « PASSES INERTES » : une passe inerte n'a rien cherché.
 """
@@ -247,7 +254,9 @@ ALIAS = {"anesm": ("hassante",), "has": ("hassante",), "hautautoritedesante": ("
          "dgcs": ("socialgouvfr", "handicapgouvfr"), "ministere": ("gouvfr",), "atih": ("atihsantefr",),
          "amf": ("amffranceorg",), "insee": ("inseefr",), "bloomberg": ("bloombergcom",), "gurman": ("bloombergcom",),
          "serafin": ("handicapgouvfr", "cnsafr"), "serafinph": ("handicapgouvfr", "cnsafr"),
-         "pubmed": ("ncbinlmnihgov",), "pubmedcentral": ("ncbinlmnihgov",), "pmc": ("ncbinlmnihgov",)}
+         "pubmed": ("ncbinlmnihgov",), "pubmedcentral": ("ncbinlmnihgov",), "pmc": ("ncbinlmnihgov",),
+         "iefp": ("lafinancepourtouscom",), "iapp": ("iapporg",), "servicepublic": ("servicepublicgouvfr", "servicepublicfr"),
+         "banquedefrance": ("banquefrancefr",), "acpr": ("acprbanquefrancefr",), "urssaf": ("urssaffr",), "dgfip": ("impotsgouvfr",)}
 def cle(t):
     t = t.lower()
     for a_, b_ in (("é", "e"), ("è", "e"), ("ê", "e"), ("à", "a"), ("ô", "o"), ("î", "i"), ("ç", "c"), ("ù", "u"), ("û", "u")):
@@ -695,6 +704,84 @@ for c in sorted(cits_fr):
         print("   ABSENTE DE LA SOURCE NOMMEE %s\n             -> prêtée à %s (%d page(s) française(s) lue(s), aucune ne la porte)%s (㉖)"
               % (c[:76], "/".join(sorted(nommes)), len(attendues), (" ; elle est sur " + trouvees[0]) if trouvees else ""))
 
+# ── B-NOM (㉙, 19/09/2026). Une affirmation sans guillemets pretee a un nom : « selon l'IEFP », « (AMF) »,
+#    « d'apres la CNIL », « l'INSEE indique que ». B et B-FR ne cherchent que ce qui est entre guillemets ;
+#    placement n°15 pretait a l'IEFP une hierarchie des biais que sa page ne pose pas (« moutonnier » absent),
+#    ai-act 18/09 pretait a un article trois chantiers legislatifs qu'il ne nomme pas. Ici, pas de phrase exacte
+#    a chercher : on prend les MOTS PLEINS de la phrase (7 lettres ou plus, hors nom de la source et mots
+#    de liaison) et on regarde combien la source nommee les porte sur ses pages listees. En dessous d'un tiers,
+#    la phrase n'est pas de cette page : bloquant. Entre un tiers et deux tiers : a relire. Une source sans page
+#    listee n'est pas jugee ici (c'est A2 / A4).
+LIAISON = {"corrige", "courant", "courants", "notamment", "egalement", "cependant", "toutefois", "principaux", "principal", "principale", "suivant", "suivante",
+           "suivants", "certains", "certaines", "plusieurs", "toujours", "souvent", "pendant", "comment", "pourquoi",
+           "lorsque", "environ", "ensemble", "generalement", "particulierement", "essentiellement", "notamment", "litterature",
+           "exemple", "exemples", "c'est-a-dire", "cestadire", "concernant", "seulement", "actuellement", "desormais",
+           "aujourdhui", "maintenant", "surtout", "davantage", "vraiment", "reellement", "directement", "immediatement",
+           "rapidement", "simplement", "clairement", "necessairement", "precisement", "consulte", "consultee", "consultes",
+           "verifie", "verifiee", "verifiees", "verifies", "source", "sources", "secondaire", "primaire", "officiel", "officielle"}
+MARQUEUR_NOM = re.compile(
+    r"(?:\b(?:selon|d[’']apr[eè]s)\s+(?:l[’']|la\s|le\s|les\s|une?\s|du\s|des\s)?(?:litt[ée]rature\s(?:de\s|sur\s)?[^,;(]{0,60}?\(?)?"
+    r"([A-ZÀ-Ý][\wÀ-ÿ.-]{1,}(?:\s+[A-ZÀ-Ý][\wÀ-ÿ-]+){0,3})"
+    r"|\(([A-Z][A-Z0-9-]{1,}[a-z]?)\)"
+    r"|(?<![\wÀ-ÿ])([A-ZÀ-Ý][\wÀ-ÿ-]{2,}(?:\s+[A-ZÀ-Ý][\wÀ-ÿ-]+){0,2})\s+(?:indique|pr[ée]cise|rapporte|[ée]crit|souligne|estime|recense|signale|rappelle|explique|affirme|constate|observe|montre|recommande)\b)")
+def mots_pleins(z, nom):
+    exclus = set(cle(w) for w in re.findall(r"[\wÀ-ÿ-]+", nom))
+    out = []
+    for w in re.findall(r"[A-Za-zÀ-ÿ][\wÀ-ÿ-]{6,}", z):
+        k = cle(w)
+        if len(k) >= 7 and k not in LIAISON and k not in exclus and k not in out:
+            out.append(k)
+    return out
+ko_nom = 0
+a_relire_nom = 0
+phrases_nom = []
+for ph in re.split(r"(?<=[.!?])\s+|\n+", corps):
+    ph = ph.strip()
+    if len(ph) < 40 or "«" in ph or "\"" in ph or "[Corrigé le" in ph or "Journal des corrections" in ph:
+        continue
+    for m_ in MARQUEUR_NOM.finditer(ph):
+        nom_ = m_.group(1) or m_.group(2) or m_.group(3)
+        if not nom_ or len(cle(nom_)) < 3 or cle(nom_.split()[0]) in VIDES or cle(nom_) in LIAISON:
+            continue
+        # « American Psychiatric Association (APA) », « CIM-10 (OMS) » : la parenthese developpe ou situe le NOM qui
+        # la precede, elle n'attribue pas la phrase. Une attribution suit un mot ordinaire : « des épargnants (IEFP) ».
+        if m_.group(2) and re.search(r"(?:[A-ZÀ-Ý][\wÀ-ÿ-]*|\d[\w-]*)\s*$", ph[:m_.start()]):
+            continue
+        if re.match(r"(?:Source|Sources|Lien|Page|Voir|Note|Figure|Tableau|Exercice|Situation|Scénario|Leçon|Corrigé)\b", nom_):
+            continue
+        attendues = [u for u in urls if apparie(nom_, hote(u)) and not re.search(r"://(?:localhost|127\.0\.0\.1)", u)]
+        if not attendues:
+            continue
+        mots = mots_pleins(ph, nom_)
+        if len(mots) < 4:
+            continue
+        phrases_nom.append((ph, nom_, attendues, mots))
+        break                                     # une phrase, une attribution : la premiere
+print("\nB-NOM. AFFIRMATIONS SANS GUILLEMETS PRETEES A UNE SOURCE NOMMEE (« selon X », « (X) », « X indique ») : %d" % len(phrases_nom))
+for ph, nom_, attendues, mots in phrases_nom:
+    lues = [u for u in attendues if u not in non_lues and u not in non_textuels and len(textes.get(u, "")) >= 500]
+    if not lues:
+        non_verif += 1
+        print("   NON VERIFIABLE %s\n             -> prêtée à %s : page(s) non lue(s), façade ou PDF" % (ph[:76], nom_))
+        continue
+    corpus_ = " ".join(pages[u] for u in lues)
+    absents = [k for k in mots if k not in corpus_]
+    part = 1 - len(absents) / len(mots)
+    if part >= 0.66:
+        print("   OK      %s\n             -> %s : %d mots pleins sur %d sur ses pages (%s)" % (ph[:76], nom_, len(mots) - len(absents), len(mots), lues[0]))
+    elif part >= 0.34 or len(mots) < 6:
+        # sous six mots pleins, la phrase est trop courte pour trancher (« TER < 0,5 % typique des ETF selon l'AMF » :
+        # quatre mots, tous du redacteur — le chiffre, lui, releve de D) : a relire, jamais bloquant
+        a_relire_nom += 1
+        print("   A RELIRE %s\n             -> prêtée à %s : %d mots pleins sur %d sur ses pages — absents : %s (non bloquant)"
+              % (ph[:76], nom_, len(mots) - len(absents), len(mots), ", ".join(absents)))
+    else:
+        ko_nom += 1
+        print("   PAS SUR LA SOURCE NOMMEE %s\n             -> prêtée à %s : %d mots pleins sur %d seulement — absents : %s (㉙)"
+              % (ph[:76], nom_, len(mots) - len(absents), len(mots), ", ".join(absents)))
+if not phrases_nom:
+    print("      (aucune)")
+
 # ── C. numeros de version
 #    un numero releve a npm show est legitime et ne vient PAS de la doc :
 #    on le classe NPM au lieu de le signaler.
@@ -848,6 +935,7 @@ for n in sorted(chiffres, key=lambda s: (len(s), s)):
 inertes = []
 if not cits:    inertes.append("B (aucune citation anglaise de 6 mots ou plus)")
 if not cits_fr: inertes.append("B-FR (aucune citation française de 9 lettres ou plus)")
+if not phrases_nom: inertes.append("B-NOM (aucune affirmation prêtée à un nom sans guillemets)")
 if not vers:    inertes.append("C (aucun numero de version)")
 if not vus:     inertes.append("C2 (aucune version pres d'un domaine cite)")
 if not chiffres: inertes.append("D (aucune valeur chiffree en contexte d'attribution)")
@@ -861,10 +949,11 @@ print(">>> Une passe inerte n'est PAS une passe reussie : elle n'a rien cherche.
 if non_lues:
     print(">>> PAGES NON LUES (0 octet) : %d — %s" % (len(non_lues), "; ".join(non_lues)))
     print(">>> Rien n'a pu etre verifie sur elles : relance plus tard, ou verifie a la main.")
-pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + len(sans_cible) + len(liens_morts) + ko_b + ko_c2
-print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + A6 + B + B-FR + C2)%s%s"
+pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + len(sans_cible) + len(liens_morts) + ko_b + ko_nom + ko_c2
+print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + A6 + B + B-FR + B-NOM + C2)%s%s%s"
       % (pb, " — et %d verification(s) IMPOSSIBLE(S), pages non lues ou PDF" % non_verif if non_verif else "",
-         " — et %d citation(s) francaise(s) A RELIRE (non bloquant)" % a_relire_fr if a_relire_fr else ""))
+         " — et %d citation(s) francaise(s) A RELIRE (non bloquant)" % a_relire_fr if a_relire_fr else "",
+         " — et %d attribution(s) sans guillemets A RELIRE (non bloquant)" % a_relire_nom if a_relire_nom else ""))
 print("          %d valeur(s) chiffree(s) a relire en D — a la main, D n'est pas bloquant"
       % ko_d)
 sys.exit(1 if pb else (3 if non_verif else 0))
