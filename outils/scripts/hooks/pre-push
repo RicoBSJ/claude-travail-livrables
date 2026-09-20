@@ -7,7 +7,8 @@
 # Deux déclencheurs. (1) Un CONTRÔLE commun modifié → non_regression.sh (≈ 90 s), push refusé si un
 # verdict a changé ; si c'est controle_attributions.py ou extract_docx.py (qui le nourrit) qui est touché,
 # non_regression.sh --complet (13/09/2026) : les passes avec aspiration — B (citations, ㉓ ㉔), C2, D — ne
-# sont exercées que là, sur trois témoins qui doivent sortir en 0 et les témoins d'avant correction qui
+# sont exercées que là, sur les témoins conformes qui doivent sortir en 0 (trois documents vivants + les copies
+# figées de non_regression/temoins_attributions_conformes/, 20/09/2026) et les témoins d'avant correction qui
 # doivent sortir en 1 (≈ 4-5 min de plus, réseau). Un exit 3 (page non lue) n'est pas une régression :
 # le harnais l'affiche « à relancer » et laisse passer — relance --complet à la main.
 # (2) Des DOCUMENTS (.docx de livrables/lecons ou sources/veille) ajoutés ou modifiés →

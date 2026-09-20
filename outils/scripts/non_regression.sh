@@ -146,10 +146,18 @@ controle_complet() {   # $1 docx, $2 fichier de sortie → rc ; ESSAIS=1|2
   return $rc
 }
 if [ "$MODE" = "--complet" ]; then
-  echo "▶ Contrôle d'attributions complet (avec aspiration) sur trois témoins…"
-  for f in "$ROOT"/livrables/lecons/*stoicisme_14*.docx "$ROOT"/livrables/lecons/*appli-ia_07*.docx "$ROOT"/livrables/lecons/*placement-financier_14*.docx; do
+  # témoins CONFORMES : ils doivent sortir en 0. Les trois premiers sont les documents vivants (stoïcisme 14 :
+  # citations anglaises appariées ; appli-ia 07 ; placement 14). S'y ajoutent les copies figées de
+  # non_regression/temoins_attributions_conformes/ — chacune protège une passe contre un FAUX POSITIF :
+  #   · 2026-09-15_lecon-dzogchen_16 (20/09/2026) : une phrase française prêtée à une page ANGLAISE (Lotsawa House,
+  #     Tricycle) ne doit pas bloquer en B-NOM (㉙) — ses chiffres sont sur la page, ses mots français n'y sont pas.
+  #     La passe l'a bloqué pendant deux heures le 20/09 et la note de contrôle a prescrit de supprimer des chiffres
+  #     exacts. Un témoin qui sort en 1 = le contrôle a poussé une dent de trop.
+  echo "▶ Contrôle d'attributions complet (avec aspiration) sur les témoins conformes (doivent sortir en 0)…"
+  for f in "$ROOT"/livrables/lecons/*stoicisme_14*.docx "$ROOT"/livrables/lecons/*appli-ia_07*.docx "$ROOT"/livrables/lecons/*placement-financier_14*.docx "$ROOT"/outils/scripts/non_regression/temoins_attributions_conformes/*.docx; do
+    [ -e "$f" ] || continue
     controle_complet "$f" "$CUR/$(basename "$f" .docx).txt"; rc=$?
-    case $rc in 0) l="✓ exit 0";; 3) l="⟳ exit 3 après $ESSAIS essais — pages non lues, rien prouvé sur B : relancer --complet";; *) l="✗ exit $rc"; STATUT=1;; esac
+    case $rc in 0) l="✓ exit 0";; 3) l="⟳ exit 3 après $ESSAIS essais — pages non lues, rien prouvé sur B : relancer --complet";; *) l="✗ exit $rc — un témoin conforme bloque : faux positif du contrôle"; STATUT=1;; esac
     [ "$ESSAIS" = "2" ] && [ "$rc" != "3" ] && l="$l (au 2e essai)"
     echo "  $l  $(basename "$f")  ($(grep -m1 '^VERDICT' "$CUR/$(basename "$f" .docx).txt" | cut -c1-80))"
   done
