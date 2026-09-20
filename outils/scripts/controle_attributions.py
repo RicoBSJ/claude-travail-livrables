@@ -49,6 +49,12 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
 ㉘ (17/09/2026) passe A6 : un lien en 404/410 est un LIEN MORT, bloquant — sauf si le document le déclare mort à
    côté de son libellé (« ⛔ 404 »). Avant, un 404 était « une page non lue » comme un 429 : astrologie n°07 a
    publié un lien mort avec un verdict à 0.
+㉚ (20/09/2026) présence n'est pas parole : une citation TROUVÉE sur la page nommée peut y être dans la voix de
+   l'auteur, sans guillemets — « All signs point to the M6 models being close to launch » est une phrase de
+   9to5Mac, que MacRumors cite entre guillemets en la prêtant à Gurman ; la veille iMac du 20/09 l'a remise sous
+   9to5Mac une semaine après la correction du 13/09, et ㉓ disait OK. B cherche désormais la phrase AVEC ses
+   guillemets sur la page nommée : trouvée nue là et entre guillemets ailleurs → MAL ATTRIBUEE (reprise nue) ;
+   nue partout → A RELIRE, « qui parle ? ».
 ㉙ (19/09/2026) passe B-NOM : une affirmation SANS guillemets prêtée à une source nommée — « selon l'IEFP »,
    « (AMF) », « d'après la CNIL », « l'INSEE indique que » — se cherche mot par mot (mots pleins de 7 lettres
    ou plus) sur les pages listées de cette source. Placement n°15 : « les biais les plus courants en France,
@@ -90,12 +96,14 @@ urls = sorted(set(urls_de(entete)))
 # ⑲ (12/09/2026) les LIBELLÉS des liens : extract_docx imprime « libellé → cible » ; un libellé sans
 #    domaine (« Nexem ») est quand meme une adresse donnee au lecteur — A4 doit le savoir
 libelles_lies = set()
+lib_hote = {}      # ㉚ libelle de lien -> hote de sa cible (« 9to5Mac (23/08/2026) » -> 9to5mac.com)
 for l in entete.split("\n"):
     if " → http" in l:
         lib = l.rsplit(" → ", 1)[0].strip()
         # un libelle generique (« ici », « lien », « source ») acquitterait n'importe quelle fenetre
         if len(lib) >= 4 and lib.lower() not in ("lien", "voir", "page", "site", "source", "sources", "cliquer", "ici"):
             libelles_lies.add(lib)
+            lib_hote[lib] = re.sub(r"^www\.", "", re.sub(r"^https?://", "", l.rsplit(" → ", 1)[1].strip()).split("/")[0].lower())
 # ⑭ une adresse ecrite EN CLAIR dans le corps (cellule « URL » d'un tableau, ligne « Source : https://… »)
 #    est une adresse donnee au lecteur, meme sans lien cliquable : elle compte comme listee
 urls_texte = sorted(set(urls_de(corps, r"\s>\]«»\"")))
@@ -529,6 +537,7 @@ cits = set()
 #    (« MacRumors (25/08) titre "…" »). Le nom est apparie aux domaines listes comme en A4 (⑳).
 #    Un nom sans page listee ne donne rien : c'est la passe A (site nu) qui le voit.
 attrib = {}
+dit_par = {}    # ㉚ la note fait-elle DIRE la phrase a quelqu'un via la page (« Gurman, cité par 9to5Mac ») — ou cite-t-elle la prose de la page ?
 cits_fr = {}
 NOMME = re.compile(r"(?<![\wÀ-ÿ])([A-ZÀ-Ý][\wÀ-ÿ-]{2,}(?:\s+[A-ZÀ-Ý][\wÀ-ÿ-]+)?)\s*(?:\([^)]{0,40}\))?\s*"
                    r"(?:titre|écrit|rapporte|publie|annonce|indique|précise|cite)\s*:?\s*$", re.I)
@@ -564,6 +573,11 @@ def source_nommee(avant, apres):
     doms = [d for d in doms if pages_de(d)]
     if doms:
         return set(doms[-1:])            # le plus proche de l'ouverture
+    # ㉚ un LIBELLE de lien dans la phrase (« Gurman, cité par 9to5Mac (23/08/2026) : "…" et "…" ») nomme la page
+    #    de sa cible — meme quand une premiere citation le separe de la seconde. Le plus proche de l'ouverture.
+    pos_ = [(avant.rfind(lib), lib) for lib in lib_hote if lib in avant]
+    if pos_:
+        return {lib_hote[max(pos_)[1]]}
     m_ = NOMME.search(avant)
     if m_:
         nom_ = m_.group(1)
@@ -627,6 +641,10 @@ for m in re.finditer(r"(?:«|(?<![\wÀ-ÿ])\")\s*([^»\"]{9,700}?)\s*(?:»|\"(?!
     if len(c.split()) >= 6:
         cits.add(c)
         attrib[c] = attrib.get(c, set()) | source_nommee(corps[max(0, m.start() - 140):m.start()], corps[m.end():m.end() + 200])
+        av_c = corps[max(0, m.start() - 140):m.start()]
+        dit_par[c] = dit_par.get(c, False) or bool(
+            re.search(r"cit[ée]e?s?\s+(?:par|dans)|rapport[ée]e?s?\s+par|\bselon\b|d[’']apr[eè]s|\bsays?\b|\bsaid\b|\bdit\b|d[ée]clar|affirm", av_c, re.I)
+            and not re.search(r"titre|headline|intitul", av_c[-60:], re.I))
 # ⑰ (12/09/2026) une page qui n'a PAS PU ETRE LUE (0 octet : reseau, mur, delai) n'est pas une
 #    page qui ne porte pas la phrase. nodejs.org/en/download repondait 0 octet, et C2 concluait
 #    « cette page NE la porte PAS » sur le vide. Sur une page non lue on ne conclut rien :
@@ -636,15 +654,46 @@ non_lues = [u for u in urls if u not in non_textuels and not bruts.get(u)
 print("\nB. CITATIONS ANGLAISES DE 6 MOTS OU PLUS : %d" % len(cits))
 ko_b = 0
 non_verif = 0
+def entre_guillemets(c, u):
+    """㉚ la phrase est-elle ENTRE GUILLEMETS sur la page u (“…”, "…", «…», „…“) ? On cherche ses mots, dans l'ordre,
+    precedes d'un guillemet ouvrant a moins de trois caracteres. None si la phrase n'y est pas du tout."""
+    t_ = textes.get(u, "")
+    mots_ = re.findall(r"[A-Za-z0-9]+", c)
+    if len(mots_) < 3 or not t_:
+        return None
+    corps_ = r"[^A-Za-z0-9]+".join(re.escape(w) for w in mots_)
+    if not re.search(corps_, t_, re.I):
+        return None
+    return bool(re.search(r"[“\"«„‘']\s?[^A-Za-z0-9]{0,2}" + corps_, t_, re.I))
+a_relire_b = 0
 for c in sorted(cits):
     u, how = ou_trouve(c)
     nommes = attrib.get(c, set())
+    if os.environ.get("DEBUG"):
+        print("   [debug B] %r -> trouvee %s, nommes %s, dit_par %s" % (c[:50], u, sorted(nommes), dit_par.get(c)))
     if u and nommes:
         # ㉓ la citation est trouvee : est-ce sur une page de la source que la note lui prete ?
         trouvees = ou_trouve_toutes(c)
         chez = [t_ for t_ in trouvees if any(hote(t_) == d or hote(t_).endswith("." + d) for d in nommes)]
         if chez:
             u = chez[0]
+            # ㉚ presence n'est pas parole : sur la page nommee, la phrase est-elle entre guillemets ?
+            g_chez = [entre_guillemets(c, t_) for t_ in chez] if dit_par.get(c) else []
+            if os.environ.get("DEBUG"):
+                print("   [debug ㉚] %r -> nommes %s, dit_par %s, guillemets %s" % (c[:50], sorted(nommes), dit_par.get(c), g_chez))
+            if any(g_chez):
+                pass
+            elif g_chez and all(g is False for g in g_chez):
+                ailleurs = [t_ for t_ in trouvees if t_ not in chez and entre_guillemets(c, t_)]
+                if ailleurs:
+                    ko_b += 1
+                    print("   MAL ATTRIBUEE %s\n             -> prêtée à %s, où elle est dans la voix de l'auteur, SANS guillemets ; elle est entre guillemets sur %s (㉚ reprise nue)"
+                          % (c[:76], "/".join(sorted(nommes)), ailleurs[0]))
+                    continue
+                a_relire_b += 1
+                print("   A RELIRE %s\n             -> prêtée à %s : la phrase y est SANS guillemets, dans la voix de l'auteur — qui parle ? (㉚, non bloquant)"
+                      % (c[:76], "/".join(sorted(nommes))))
+                continue
         else:
             attendues = sum((pages_de(d) for d in nommes), [])
             if any(a_ in non_lues for a_ in attendues):
@@ -767,6 +816,13 @@ for ph, nom_, attendues, mots in phrases_nom:
     corpus_ = " ".join(pages[u] for u in lues)
     absents = [k for k in mots if k not in corpus_]
     part = 1 - len(absents) / len(mots)
+    if part < 0.66 and not any(page_fr(u) for u in lues):
+        # une phrase francaise pretee a une page ANGLAISE (Lotsawa House, Tricycle — dzogchen n°16) : ses mots
+        # n'y sont pas parce que la page est dans une autre langue, pas parce qu'elle ne le dit pas. A relire.
+        a_relire_nom += 1
+        print("   A RELIRE %s\n             -> prêtée à %s : page(s) en anglais, %d mots pleins sur %d — traduction, non tranché (non bloquant)"
+              % (ph[:76], nom_, len(mots) - len(absents), len(mots)))
+        continue
     if part >= 0.66:
         print("   OK      %s\n             -> %s : %d mots pleins sur %d sur ses pages (%s)" % (ph[:76], nom_, len(mots) - len(absents), len(mots), lues[0]))
     elif part >= 0.34 or len(mots) < 6:
@@ -950,10 +1006,11 @@ if non_lues:
     print(">>> PAGES NON LUES (0 octet) : %d — %s" % (len(non_lues), "; ".join(non_lues)))
     print(">>> Rien n'a pu etre verifie sur elles : relance plus tard, ou verifie a la main.")
 pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + len(sans_cible) + len(liens_morts) + ko_b + ko_nom + ko_c2
-print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + A6 + B + B-FR + B-NOM + C2)%s%s%s"
+print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + A6 + B + B-FR + B-NOM + C2)%s%s%s%s"
       % (pb, " — et %d verification(s) IMPOSSIBLE(S), pages non lues ou PDF" % non_verif if non_verif else "",
          " — et %d citation(s) francaise(s) A RELIRE (non bloquant)" % a_relire_fr if a_relire_fr else "",
-         " — et %d attribution(s) sans guillemets A RELIRE (non bloquant)" % a_relire_nom if a_relire_nom else ""))
+         " — et %d attribution(s) sans guillemets A RELIRE (non bloquant)" % a_relire_nom if a_relire_nom else "",
+         " — et %d citation(s) reprise(s) nue(s) A RELIRE (㉚, non bloquant)" % a_relire_b if a_relire_b else ""))
 print("          %d valeur(s) chiffree(s) a relire en D — a la main, D n'est pas bloquant"
       % ko_d)
 sys.exit(1 if pb else (3 if non_verif else 0))
