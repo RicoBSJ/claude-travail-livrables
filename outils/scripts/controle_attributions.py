@@ -49,6 +49,8 @@ et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ 
 ㉘ (17/09/2026) passe A6 : un lien en 404/410 est un LIEN MORT, bloquant — sauf si le document le déclare mort à
    côté de son libellé (« ⛔ 404 »). Avant, un 404 était « une page non lue » comme un 429 : astrologie n°07 a
    publié un lien mort avec un verdict à 0.
+㉘ bis (20/09/2026) un ⛔ seul ne déclare pas un lien mort : la déclaration nomme le code (404/410) ou le fait
+   (« lien mort », « introuvable », « n'existe plus ») — revenus-passifs n°09 marquait un 404 « ⛔ page JS-only ».
 ㉚ (20/09/2026) présence n'est pas parole : une citation TROUVÉE sur la page nommée peut y être dans la voix de
    l'auteur, sans guillemets — « All signs point to the M6 models being close to launch » est une phrase de
    9to5Mac, que MacRumors cite entre guillemets en la prêtant à Gurman ; la veille iMac du 20/09 l'a remise sous
@@ -448,7 +450,10 @@ for u in urls:
     for cle_u in libs + [chemin_u, chemin_u.split("/")[0]]:
         for m_ in re.finditer(re.escape(cle_u), corps):
             fen = corps[max(0, m_.start() - 200): m_.end() + 200]
-            if re.search(r"404|410|⛔|lien mort|inaccessible|introuvable|n['’]existe plus|page supprim", fen, re.I):
+            # ㉘ bis (20/09/2026) : un ⛔ seul ne declare pas un lien mort — revenus-passifs n°09 marquait plausible.io/pricing
+            #   « ⛔ page JS-only » alors que l'adresse repond 404 : la raison ecrite etait fausse et le lecteur renvoye vers une
+            #   erreur. La declaration doit nommer le fait : le code, ou « lien mort / introuvable / n'existe plus / supprimee ».
+            if re.search(r"404|410|lien mort|introuvable|n['’]existe plus|page supprim", fen, re.I):
                 declare = True
                 break
         if declare:
@@ -772,9 +777,11 @@ MARQUEUR_NOM = re.compile(
     r"(?:\b(?:selon|d[’']apr[eè]s)\s+(?:l[’']|la\s|le\s|les\s|une?\s|du\s|des\s)?(?:litt[ée]rature\s(?:de\s|sur\s)?[^,;(]{0,60}?\(?)?"
     r"([A-ZÀ-Ý][\wÀ-ÿ.-]{1,}(?:\s+[A-ZÀ-Ý][\wÀ-ÿ-]+){0,3})"
     r"|\(([A-Z][A-Z0-9-]{1,}[a-z]?)\)"
-    r"|(?<![\wÀ-ÿ])([A-ZÀ-Ý][\wÀ-ÿ-]{2,}(?:\s+[A-ZÀ-Ý][\wÀ-ÿ-]+){0,2})\s+(?:indique|pr[ée]cise|rapporte|[ée]crit|souligne|estime|recense|signale|rappelle|explique|affirme|constate|observe|montre|recommande)\b)")
+    r"|(?<![\wÀ-ÿ])([A-ZÀ-Ý][\wÀ-ÿ-]{2,}(?:\s+[A-ZÀ-Ý][\wÀ-ÿ-]+){0,2})(?:\s*\([^)]{0,60}\))?\s+(?:a\s+)?(?:indique|pr[ée]cise|rapporte|[ée]crit|souligne|estime|recense|signale|rappelle|explique|affirme|constate|observe|montre|recommande|publi[ée]|alerte|met\s+en\s+garde)\b)")
 def mots_pleins(z, nom):
     exclus = set(cle(w) for w in re.findall(r"[\wÀ-ÿ-]+", nom))
+    z = re.sub(DOM, " ", z, flags=re.I)                                    # un domaine n'est pas un mot de la phrase
+    z = re.sub(re.escape(nom) + r"\s*\([^)]{0,60}\)", nom, z)             # « AMF (Autorité des marchés financiers) » : le developpe n'est pas un mot a chercher
     out = []
     for w in re.findall(r"[A-Za-zÀ-ÿ][\wÀ-ÿ-]{6,}", z):
         k = cle(w)
