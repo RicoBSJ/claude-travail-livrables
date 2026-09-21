@@ -76,3 +76,18 @@ Bilan : 5 sources documentaires tentées — **4 ✅ consultées et mobilisées*
 ---
 
 *Note générée automatiquement le 31/08/2026 — Pipeline RBPP / Veille HAS hebdomadaire*
+
+---
+
+## 📝 Journal des corrections — 21 septembre 2026
+
+Corrections portées dans le `.docx` le 21/09/2026, au passage du contrôle de note ajouté au prompt (étape 7.6 bis) ; le contenu sur la loi relative à l'aide à mourir n'a pas été relu. Formulations d'origine :
+
+- En bref : « Aucune nouvelle RBPP publiée dans la fenêtre de référence » — sans source lisible ; confirmé le 21/09/2026 sur le flux RSS « Recommandations et guides » de la HAS (aucune entrée du secteur du 24 au 31 août), flux lié.
+- Rappel : « HAS — 22 ans d'existence (article du 13 août 2026) » — page nommée et datée sans lien ; lien ajouté.
+- À venir : « appel à candidatures clos le 4 septembre 2026. Sélection des experts en septembre, travaux démarrant à l'automne 2026 » — lien de l'appel mis dans la phrase ; calendrier de la note de cadrage (groupes 09-10/2026, travaux dès 11/2026, commission 4e trimestre 2027) substitué.
+- À venir : « publication de la recommandation attendue en fin d'année » (prévention spécialisée) — projection sans source ; remplacée par « 8 séances de juin 2025 à septembre 2026 d'après l'édition du 02/09/2026 ; aucune date de publication annoncée ».
+- À venir : « RBPP Habitat — volet 3 : (appel candidatures clôturé en avril 2026), publication attendue » — « clos le 3 avril 2026 d'après l'édition du 02/09/2026 » ; « publication attendue » retiré.
+- Consultations : « clôture le 4 septembre 2026. Lien : has-sante.fr (voir sources) » — lien mis dans la phrase.
+- Impacts : « publication probable de la RBPP Prévention spécialisée » — projection ; « dernière séance prévue en septembre 2026 ; aucune date de publication annoncée ».
+- Sources : « 5 sources documentaires tentées — 4 ✅ / 1 ⚠️ » → 7 — 6 ✅ / 1 ⚠️ (flux RSS, article des 22 ans).
