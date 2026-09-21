@@ -1,0 +1,49 @@
+---
+type: fiche-document
+source: 2026-09-21_veille_has-actualite.docx
+date_creation: 2026-09-21
+date_veille: 2026-09-21
+veille: has-actualite
+statut: veille-active
+tags:
+  - veille/has-actualite
+  - registre/pro
+  - theme/csms
+  - theme/certification
+  - theme/protection-enfance
+  - theme/habitat
+  - theme/prevention-specialisee
+  - theme/semaine-securite-patients
+  - source/has
+  - theme/dates-de-fichier
+  - theme/heritage-sans-source
+  - theme/titre-resume-entre-guillemets
+  - alerte/a-corriger
+---
+
+# 2026-09-21_veille_has-actualite
+
+Document source : [[2026-09-21_veille_has-actualite.docx]]
+
+## Résumé
+
+**Une semaine creuse dite creuse, et les deux régressions du 14/09 réparées.** Les six pages ✅ répondent 200 et portent ce que la note leur prête, au mot près : le communiqué *« En soins dentaires aussi, les antibiotiques ne sont pas automatiques »* et la page *« Septembre Bouge : la HAS mobilisée pour faire de l'activité physique un réflexe santé »* sont datés du **14 septembre** sur le site ; le calendrier HAS porte le webinaire du **23/09, 12h30-14h**, *« 6e cycle de certification : premiers résultats et cap sur 2030 »*, *« pas d'inscription préalable »*, et la **CSMS du mardi 29 septembre, 9h30-17h**, sans ordre du jour ; la consultation d'usagers sur les actes esthétiques est *« mise en ligne le 08 sept. 2026 »*, *« clôture de l'appel le 30 septembre 2026 »* ; l'article de la Semaine de la sécurité des patients, du 11/09, est rangé hors fenêtre comme il se doit. Le calendrier de la RBPP protection de l'enfance vient du **PDF de la note de cadrage** (validée le 7 juillet, en ligne le 9), lu : *« Composition des groupes de travail : 09/2026-10/2026 … Organisation des groupes de travail : 11/2026 - 10/2027 … Relecture : 07/2027-09/2027 … Passage en commission : 4ème trimestre 2027 »* — là où le 14/09 avait mis un « délai habituel 18-24 mois » ; et l'habitat volet 3 reste *clos le 3 avril 2026*, là où le 14/09 l'avait fait redevenir « en cours ». Les deux appels sont bien derrière une identification (rouverts ce soir : redirection vers `portail-has-professionnels…login.jsp`, 3 200 caractères de formulaire) et la note le dit. « Aucune nouvelle RBPP » : exact — le flux RSS *Recommandations et guides* de la HAS ne porte rien pour le secteur entre le 14 et le 21. Décompte **6 ✅ | 0 | 2 ⛔ — 8**, COHÉRENT ; `controle_attributions` **exit 0**, quatre A RELIRE. Coût **2,84 $** (71 % du plafond), 60 tours, 14 min 27 s — **+54 %** sur le 14/09 (1,85 $, 47 tours) pour une note de même forme.
+
+**Le défaut : le bloc « Dernières RBPP publiées » revient de l'édition du 02/09 avec ses deux dates de fichier.** *« 27/06/2026 — RBPP … PPA-DUI »* et *« 22/06/2026 — RBPP Vie intime, affective et sexuelle – volet 1 (mise à jour) »* : la HAS a mis le guide PPA-DUI en ligne le **24 juin 2026** (adopté par la CSMS le 12 mai), et la RBPP vie intime volet 1 le **12 février 2025** (validée le 14 janvier 2025), mise à jour le **14 novembre 2025** — la page, rouverte ce soir, ne porte aucune mise à jour du 22/06/2026. Le 27/06 et le 22/06 sont les dates des **fichiers du dépôt** (`quiz_rbpp_vie-intime-…_2026-06-22.pptx`), pas celles de la HAS ; la fiche du 02/09 l'avait établi en toutes lettres — *« ce sont les dates des veilles du dépôt »* —, la note du 14/09 avait laissé tomber le bloc, celle du 21/09 le rapporte du 02/09 tel quel. C'est l'effet secondaire de la règle écrite le 14/09 : *une édition ne peut pas savoir moins que la précédente* fait de l'édition précédente une source, et une source qu'on relit sans sa fiche transmet ses erreurs avec ses acquis. Deuxième cas, plus léger : pour la prévention spécialisée, *« fin probable du cycle de travaux ce mois-ci ; publication à venir dans les prochains trimestres »* — les *« 8 séances de juin 2025 à septembre 2026 »* viennent du 02/09 (page alors ouverte), la « publication dans les prochains trimestres » ne vient de nulle part : c'est le « délai habituel » du 14/09, en plus prudent, sous une page ⛔.
+
+**Ce qui est hérité n'est plus tracé.** Le 14/09 écrivait *« appel clos le 4 septembre 2026 (édition du 02/09) »* et *« clos le 3 avril 2026 (édition du 02/09 de cette veille, page alors ouverte) »* ; le 21/09 écrit *« Appel à candidatures clos le 4/09/2026 »*, *« clos le 3/04/2026 »*, puis ⛔ *page inaccessible*. Les dates sont justes, la règle du prompt est respectée à la lettre — elle demande de garder les dates, pas de dire d'où elles viennent — et le lecteur d'une note seule voit une date suivie d'une page qu'on ne peut pas ouvrir. C'est le même trou que la règle 11 d'ai-act nomme pour le règlement 2026/1744 et que la ligne DDADUE a montré jeudi : une référence héritée porte sa provenance dans chaque édition. Plus petit, et déjà relevé le 14/09 : deux **titres résumés entre guillemets** — *« Vie quotidienne enfants 3-11 ans PE »*, *« Guide actes esthétiques hors chirurgicaux »* — que B-FR ne trouve sur aucune page, à raison ; ma correction du 14/09 s'y était fait prendre, le job y retombe. Et l'en-tête compte deux publications « le 14/09 » : le communiqué antibiotiques est daté du 14 sur sa page mais du 11 dans le flux RSS *Actualité* de la HAS — un écart de trois jours que la note ne pouvait pas voir, et qui ne change rien à la fenêtre.
+
+**Ce que la note ne cherche pas, et ce qu'elle pourrait lire sans navigateur.** Les pages de liste de la HAS — *publications du secteur social & médico-social*, *RBPP pour le secteur* — sont des façades (6 450 caractères de menus), et la note s'en remet à WebSearch pour dire « aucune RBPP ». Or la HAS publie dix flux RSS lisibles en headless (`feed/Rss2.jsp?id=p_3081452`, *Recommandations et guides*, 50 entrées datées ; `p_3081656`, *Actualité*) : ils confirment la semaine creuse, et ils montrent ce que la série n'a jamais signalé depuis juillet — un guide *« Recueillir et prendre en compte le point de vue des enfants de la naissance à 6 ans »* (29/07), un guide *« Méthodes de mesure d'impact et d'évaluation économique des interventions sociales et médico-sociales »* (31/07), une *« Analyse des déclarations d'EIGS en lien avec les EHPAD »* (juillet) — trois publications du secteur, hors fenêtre aujourd'hui, jamais passées par une fenêtre. À corriger : les deux dates du bloc « Dernières RBPP » (24/06/2026 ; 12/02/2025, mise à jour 14/11/2025), la projection sur la prévention spécialisée, la provenance des dates héritées, les deux titres résumés. À durcir : le bloc « Dernières RBPP » se recopie des pages HAS, jamais d'une édition précédente ni d'un nom de fichier ; une date héritée s'écrit avec son édition ; le flux RSS comme source de la semaine creuse.
+
+## Notes liées
+
+- **⬅️ Précédente** · [[2026-09-14_veille_has-actualite.fiche]]
+  ses deux régressions sont réparées ici — le calendrier vient de la note de cadrage, l'appel habitat reste clos —, mais la provenance « (édition du 02/09) » qu'elle écrivait a disparu, et le bloc « Dernières RBPP » qu'elle avait laissé tomber revient avec ses dates de fichier
+- **🔗 Pont** · [[2026-09-02_veille_has-actualite.fiche]]
+  **la fiche qui avait démonté ces dates** : 22/06 et 27/06 sont des dates de fichiers du dépôt, la mise à jour vie intime est du 14/11/2025 — trois semaines plus tard, la note du 21/09 les recopie depuis la note du 02/09, que le prompt lui demande de relire
+- **🗂️ Dossier** · [[HAS-actualite_dossier.fiche]]
+  à compléter des flux RSS de la HAS (`feed/Rss2.jsp?id=p_3081452` recommandations, `p_3081656` actualité), seules listes lisibles en headless, et des trois publications SMS de juillet que la série n'a pas vues
+- **🔗 Pont** · [[2026-09-21_lecon-psychopathologie_17_psychotropes-classes-effets-surveillance]]
+  **le même matin, l'inverse** : la leçon citait une notice HAS sans ouvrir son PDF ; cette note ouvre le PDF de la note de cadrage et en recopie le calendrier — la bonne pratique existe dans le dépôt, sur un job voisin
+- **🔗 Pont** · [[2026-09-18_veille_ai-act.fiche]]
+  la ligne DDADUE « toujours en navette » sans source et l'appel « clos le 3/04/2026 » sous une page ⛔ : deux faits hérités justes, aucun ne dit de quelle édition il vient
