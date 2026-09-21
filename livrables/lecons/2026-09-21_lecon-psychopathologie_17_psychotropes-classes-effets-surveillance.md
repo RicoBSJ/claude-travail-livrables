@@ -1,0 +1,54 @@
+---
+type: fiche-document
+source: 2026-09-21_lecon-psychopathologie_17_psychotropes-classes-effets-surveillance.docx
+date_creation: 2026-09-21
+date_lecon: 2026-09-21
+parcours: psychopathologie
+numero: 17
+statut: parcours-actif
+tags:
+  - parcours/psychopathologie
+  - registre/pro
+  - module/clinique
+  - theme/psychotropes
+  - theme/antipsychotiques
+  - theme/thymoregulateurs
+  - theme/antidepresseurs
+  - theme/surveillance-medicamenteuse
+  - theme/constipation-fausse-route
+  - theme/syndrome-extrapyramidal
+  - source/ansm
+  - source/has
+  - source/wikipedia
+  - theme/source-citee-non-lue
+  - theme/denominateur
+  - theme/corrige-contre-theorie
+  - alerte/a-corriger
+---
+
+# 2026-09-21_lecon-psychopathologie_17_psychotropes-classes-effets-surveillance
+
+Document source : [[2026-09-21_lecon-psychopathologie_17_psychotropes-classes-effets-surveillance.docx]]
+
+## Résumé
+
+**Les quatre dossiers ANSM sont recopiés fidèlement, et c'est la matière de la leçon.** J'ai rouvert les sept pages liées (toutes en 200, avec un agent de navigateur) : les dates d'en-tête sont exactes (*« MIS À JOUR LE 18/09/2026 »* sur antidépresseurs, antipsychotiques et thymorégulateurs, *12/08/2026* sur psychostimulants), les DCI et marques sont celles des tableaux de disponibilité (Téralithe, Tégrétol, Dépamide, Dépakote/Divalcote, Lamictal, Xurta, Concerta, Quasym, Ritaline), les mécanismes sont ceux des pages — *« dopamine, glutamate, GABA, sérotonine … plasticité neuronale et la régulation du rythme veille-sommeil »* pour les thymorégulateurs, *« principalement la dopamine et la noradrénaline »* pour les psychostimulants, *« notamment celle de la dopamine … également sur d'autres neurotransmetteurs comme la sérotonine »* pour les antipsychotiques —, les délais aussi (*« deux à quatre semaines »*, *« durée minimale de six mois »*, *« de quelques jours pour les phases maniaques aiguës, à plusieurs semaines pour les phases dépressives »*), les listes d'effets indésirables des thymorégulateurs et des psychostimulants sont celles des pages mot pour mot, y compris la surveillance *« tension artérielle et fréquence cardiaque … croissance chez les enfants … poids, appétit »* et l'alerte sur *« une augmentation des idées et comportements suicidaires »*. La note méthodologique sur les anxiolytiques est juste : le portail santé mentale de l'ANSM annonce *« 4 pages »* et aucune ne leur est consacrée. Continuité tenue au titre près avec l'annonce de la leçon 16, feuille de route respectée (17/20, la 18 annoncée est la bonne), Wikipédia cantonné au rang 4 pour Delay-Deniker, posture non médicale répétée quatre fois sans excès. Contrôles : `controle_attributions` **exit 0**, B-NOM *11 mots pleins sur 12* pour la phrase HAS, deux A RELIRE qui sont les paroles inventées des vignettes. Coût **1,42 $** (35 %), 37 tours, 7 min 58 s — la leçon 16 avait coûté 2,24 $ et 57 tours.
+
+**Le défaut central : la source du pont pro est un document de trois pages que la leçon cite par son titre et sa date sans l'avoir ouvert — et il dit autre chose que ce qu'elle en tire.** La page HAS ouverte par le job est la fiche de présentation du Flash Sécurité Patient (7 099 caractères : contexte, chiffre, *« 4 actions de prévention : Informer, Dépister, Surveiller, Sensibiliser »*). Le Flash lui-même est le PDF lié sur cette page (daté du **27 octobre 2022**, mis en ligne le 3 novembre) ; ses mots-clés sont *« neuroleptiques – constipation – fausse route – iatrogénie – occlusion »*, et ses trois événements sont trois morts : un patient sous clozapine *« retrouvé, à 3 heures du matin, endormi dans ses selles »* et décédé d'une occlusion faute d'examen clinique ; un patient de plus de 70 ans en USLD, isolé en chambre pour un cluster Covid, mort d'une **fausse route** au repas *« en l'absence de surveillance »* ; une jeune fille de 15 ans sous clozapine, morte d'un syndrome occlusif sous-estimé aux urgences. La surveillance que la HAS détaille est celle du transit, du périmètre abdominal, de la déglutition, de la glycémie, des lipides, de la TA et de l'ECG — et le document se ferme sur *« la propension à mettre toute symptomatologie sur le compte de la maladie psychiatrique »*, c'est-à-dire l'*overshadowing* que la leçon 16 venait d'enseigner. Rien de cela n'est dans la leçon : sa liste des effets indésirables des antipsychotiques *« à surveiller en ESSMS »* (extrapyramidal, poids, sédation, QT) ne contient ni constipation ni fausse route, alors que ce sont précisément les deux signes qu'une équipe éducative observe — aux toilettes et à table — avant tout soignant. La quatrième action HAS est rebaptisée **« Détecter »** (table et pont pro) là où la HAS écrit *« Dépister »*, et la colonne *« ce que cela signifie en pratique »*, sous le titre *« (HAS, 2022) »*, porte le contenu de la leçon, pas celui du document : pour la HAS, le dépistage, ce sont les facteurs de risque avant prescription, les interactions, la non-observance et *« tout syndrome douloureux abdominal »*. Règle B5, écrite le 07/09 pour la leçon 15, dans les mêmes termes : *un document nommé, daté et caractérisé sans avoir été ouvert.* La différence, c'est que la page HTML était bien ouverte — et que le document était un clic plus loin.
+
+**Le chiffre du pont pro perd son dénominateur, et le corrigé du challenge range le syndrome malin dans la mauvaise ligne.** *« 1/3 des événements graves médicamenteux liés aux neuroleptiques sont associés à une absence d'évaluation régulière »* : la HAS parle de *« 60 évènements graves médicamenteux liés à un mésusage »* dans sa base REX-EIGS — un tiers de soixante signalements, soit une vingtaine de cas, pas un tiers des événements graves sous neuroleptiques en France. Le paragraphe de théorie garde « mésusage », le pont pro le perd, et ni l'un ni l'autre n'écrit 60 : c'est la règle du dénominateur déclaré, tenue sur les vingt chiffres de la leçon 16 et lâchée ici sur le seul chiffre de la leçon. Dans le corrigé du challenge, la ligne *Thymorégulateur* porte *« Médecin (urgence si fièvre + rigidité + confusion) »* — c'est la triade du syndrome malin des neuroleptiques, que le corrigé de l'exercice 2 place, à raison, chez les antipsychotiques ; un apprenant qui aurait bien lu Marco tombe sur un tableau qui le contredit (C1/C2). Plus petit, mais dans une table de DCI : **« Lévopromazine »** n'existe pas, l'ANSM écrit *lévomépromazine* (Nozinan) ; *« Quatre sous-classes sont reconnues (ANSM) »* alors que la page en décrit cinq — la cinquième, *« Autres antidépresseurs »* (miansérine, mirtazapine, agomélatine, vortioxétine, eskétamine), est celle qu'on rencontre le plus en foyer ; *« syndrome de discontinuation »* là où l'ANSM dit *« syndrome de sevrage »*, tout en précisant — phrase que la leçon aurait pu citer pour sa section anxiolytiques sans source — que *« contrairement aux anxiolytiques ou aux hypnotiques (somnifères), la grande majorité des antidépresseurs ne créent pas de dépendance »* ; *« dyskinésies tardives »* pour *« dyskinésies »* ; *« Lisdexamphétamine »* pour *Lisdexamfétamine*. Et dans le corrigé de Lucie, la soif présentée comme *« un signal d'alerte possible de lithémie trop élevée »* : aucune page ouverte ne le dit — dans les référentiels usuels, la polyurie-polydipsie est un effet indésirable courant du lithium à dose thérapeutique, et les signes de surdosage sont d'un autre ordre (tremblement ample, troubles digestifs, troubles de l'équilibre, confusion) ; de mémoire, à vérifier, mais écrit ici comme un fait, régime (1) pour un énoncé qui est au mieux (3).
+
+**Ce qui tient, et ce que la leçon aurait été avec le PDF ouvert.** Les trois exercices sont bien construits pour un chef de service : Marco (ralentissement, tremblement, sialorrhée → syndrome extrapyramidal → *« noter, dater, transmettre à l'infirmier ou au médecin sans interprétation diagnostique »*, non urgent mais rapide, et la triade du syndrome malin comme urgence à connaître) ; Lucie (épisode maniaque, soif, poids, tremblements → thymorégulateur, *« ne jamais acquiescer à l'idée d'un arrêt spontané »*, ce que l'ANSM appuie par *« un risque élevé de rechutes … qui peuvent être plus sévères qu'avant le traitement »*) ; le challenge à cinq lignes qui force la mémorisation des classes. Le cadre déontologique est net et répété sans devenir un refrain, l'exercice 1 ne laisse aucune ambiguïté entre les classes, la « position d'observation privilégiée » du pont pro est la bonne idée pour un foyer. Il manquait le document que la leçon nommait : avec lui, la vignette de Marco aurait eu une sœur — un résident qui ne va plus à la selle depuis quatre jours, ou qui tousse à chaque repas — et l'*overshadowing* de la leçon 16 aurait trouvé sa suite naturelle dans le *« biais cognitif »* que la HAS nomme en dernière page. À corriger : Dépister, la ligne du challenge, le dénominateur, Lévopromazine, la soif de Lucie ; à ajouter : constipation et fausse route dans la surveillance des antipsychotiques, avec le PDF dans les ressources. À durcir : une page HAS de présentation n'est pas le document — quand elle lie un PDF, c'est le PDF qu'on lit et qu'on cite.
+
+## Notes liées
+
+- **⬅️ Précédente** · [[2026-09-14_lecon-psychopathologie_16_handicap-psychique-deficience-intellectuelle]]
+  l'annonce est tenue au titre près, et la 16 enseignait l'*overshadowing* que le Flash HAS nomme *« propension à mettre toute symptomatologie sur le compte de la maladie psychiatrique »* — le pont était écrit dans la source, la leçon ne l'a pas ouverte
+- **🔗 Pont** · [[2026-07-27_lecon-psychopathologie_07_troubles-psychotiques-schizophrenie]]
+  la clinique que les antipsychotiques traitent ; la 17 reprend les symptômes positifs et négatifs avec les mots de l'ANSM et n'y contredit rien
+- **🔗 Pont** · [[2026-09-07_lecon-psychopathologie_15_crise-suicidaire-evaluation-risque-conduite]]
+  **la règle B5 vient de là** — un document HAS nommé, daté, caractérisé, non ouvert ; ici la page de présentation est ouverte et le document reste derrière, ce que la règle ne distingue pas. Et l'alerte ANSM sur les idées suicidaires en début de thymorégulateur renvoie à la conduite à tenir de la 15
+- **🔗 Pont** · [[2026-08-31_lecon-psychopathologie_13_troubles-neurocognitifs-vieillissement]]
+  le deuxième événement du Flash — plus de 70 ans, USLD, fausse route au repas sans surveillance — est un cas de la 13 autant que de la 17 : la déglutition sous neuroleptique au long cours, absente des deux
+- **🔗 Pont** · [[2026-09-18_veille_ai-act.fiche]]
+  **même mécanique, trois jours plus tôt** : une source primaire *identifiée* et non lue, remplacée par ce qu'on en savait — là le discours derrière une page vide, ici un PDF derrière une page de présentation
