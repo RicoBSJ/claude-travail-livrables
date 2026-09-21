@@ -13,6 +13,8 @@ tags:
   - theme/prevention-specialisee
   - controle/liens
   - alerte/dates
+  - alerte/corrige
+  - correction/2026-09-21
 ---
 
 # 2026-09-02_veille_has-actualite
@@ -28,6 +30,8 @@ Document source : [[2026-09-02_veille_has-actualite.docx]]
 **Sur le fond, semaine calme et tri pertinent.** Aucune RBPP opposable publiée dans la fenêtre, ce que la note dit franchement. Quatre travaux en cours sont suivis, et surtout **le tri enfance / adultes est fait et il est juste** : la RBPP protection de l'enfance vise foyers de l'enfance, MECS et pouponnières, « pas directement les foyers d'hébergement pour adultes handicapés » ; la prévention spécialisée vise le milieu ouvert, avec la nuance que **les recommandations sur la coordination territoriale seront transférables** aux pratiques partenariales. C'est exactement le travail qu'on attend d'une veille : ne pas tout déverser, mais dire ce qui touche l'établissement et ce qui ne le touche pas.
 
 **Ce qui te concerne vraiment — et une échéance à ne pas attendre.** La note annonce un « fort impact attendu pour tous les ESSMS accueillant des adultes » pour le **volet 2** de la RBPP vie intime, affective et sexuelle, sans date de publication. Elle recommande de préparer les protocoles internes d'ici là. Mais elle ne redit pas ce que la fiche du 22/06 avait retenu et que j'ai revérifié sur la page HAS : **le volet 1 est déjà opposable et a été actualisé le 14 novembre 2025** pour intégrer la **loi n° 2025-1057 du 6 novembre 2025** modifiant la définition pénale du viol et des agressions sexuelles. Attendre le volet 2 pour agir serait une erreur de calendrier : le socle transversal existe, il est à jour du droit pénal, et il s'applique dès maintenant.
+
+**Corrigé le 21/09/2026, journal de huit entrées dans le document — dix-neuf jours après la fiche, parce que la note du 21/09 en avait hérité les dates.** Le bloc « Dernières RBPP publiées » est refait aux dates du site HAS, pages ouvertes et liées : guide PPA-DUI *validé le 12 mai 2026, mis en ligne le 24 juin 2026* ; RBPP autisme *validée le 08 janvier 2026, mise en ligne le 12 févr. 2026* ; habitat volet 2 *validée le 04 novembre 2025, mise en ligne le 25 nov. 2025* ; vie intime volet 1 *12 févr. 2025*, *« Mise à jour 14/11/2025 »* — le 27/06, le 06/06, le 15/06 et le 22/06 étaient les dates des fichiers du dépôt, et la « rectification » de la note est nommée pour ce qu'elle était. Deux projections sortent : *« la prochaine vague de publications est attendue à l'automne 2026 »* et *« publication finale attendue fin 2027 »* devient le *« passage en commission : 4ème trimestre 2027 »* de la note de cadrage ; l'article des 22 ans est lié ; le flux RSS *Recommandations et guides*, lu le 21/09, confirme la semaine creuse du 26/08 au 02/09 et entre dans les sources. Douze ✅, `controle_attributions` exit 0 (deux A RELIRE, titres abrégés de la note elle-même), `controle_decompte` sans décompte à comparer (la note n'en annonçait pas), étape 7.6 bis du prompt → OK. Ce que cette correction ne répare pas : la note du 14/09, qui n'a jamais eu le bloc, et l'habitude — trois éditions sur quatre — de ne pas lier ce qu'on date.
 
 ## Notes liées
 
