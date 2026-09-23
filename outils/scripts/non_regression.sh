@@ -33,6 +33,21 @@ PY=/usr/bin/python3
 mkdir -p "$CUR"
 MODE="${1:-}"
 
+# Effectif ATTENDU de chaque lot de témoins (23/09/2026). Les trois boucles de témoins contrôlaient ce
+# qu'elles trouvaient et annonçaient un total ÉCRIT EN DUR : « ✓ 14/14 en exit 1 » s'imprimait quel que
+# soit le nombre de fichiers réellement passés. Le 23/09, pendant un test du hook, un témoin avait quitté
+# son dossier et le script annonçait toujours 14/14. Pire : zsh saute une boucle dont le motif ne matche
+# rien (« no matches found »), donc un lot VIDÉ — dossier supprimé, fichiers renommés, glob d'un document
+# vivant qui ne matche plus après un rangement — faisait passer le contrôle sans en exécuter une ligne.
+# Désormais chaque lot déclare son effectif ici, le script compte ce qu'il a réellement contrôlé, et TOUT
+# écart refuse. Ajouter ou retirer un témoin, c'est mettre à jour le nombre correspondant ci-dessous.
+# Les trois boucles portent le qualificateur zsh (N) : sans lui, un lot VIDE fait mourir le script sur
+# « no matches found » avant même le diff des verdicts — refus, mais sans message lisible. Avec (N), le
+# motif vide rend zéro fichier, le compteur reste à 0 et le contrôle ci-dessous dit ce qui manque.
+ATTENDU_DECOMPTE=14   # temoins_decompte_avant_correction/
+ATTENDU_CONFORMES=4   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/
+ATTENDU_AVANT=6       # temoins_attributions_avant_correction/
+
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then
   shift; STATUT=0
@@ -97,12 +112,18 @@ echo "  $(cut -f1 "$CUR/decompte.tsv" | sort | uniq -c | awk '{printf "exit %s :
 
 # ── 3. les quatorze témoins d'avant correction : tous doivent sortir en 1
 echo "▶ Témoins d'avant correction (doivent sortir en 1)…"
-TEM_KO=0
-for f in "$NR"/temoins_decompte_avant_correction/*.docx; do
+TEM_KO=0; TEM_N=0
+for f in "$NR"/temoins_decompte_avant_correction/*.docx(N); do
+  TEM_N=$((TEM_N+1))
   env -i $PY "$ROOT/outils/scripts/controle_decompte.py" "$f" > /dev/null 2>&1; rc=$?
   if [ "$rc" != "1" ]; then echo "  ✗ $(basename "$f") sort en $rc au lieu de 1"; TEM_KO=$((TEM_KO+1)); fi
 done
-[ "$TEM_KO" = "0" ] && echo "  ✓ 14/14 en exit 1"
+if [ "$TEM_N" != "$ATTENDU_DECOMPTE" ]; then
+  echo "  ✗ $TEM_N témoin(s) contrôlé(s), $ATTENDU_DECOMPTE attendu(s) — un lot incomplet ne prouve rien :"
+  echo "    rétablis le ou les témoins manquants, ou mets ATTENDU_DECOMPTE à jour dans ce script."
+  TEM_KO=$((TEM_KO+1))
+fi
+[ "$TEM_KO" = "0" ] && echo "  ✓ $TEM_N/$ATTENDU_DECOMPTE en exit 1"
 
 # ── 4. diff avec la référence
 STATUT=0
@@ -154,23 +175,41 @@ if [ "$MODE" = "--complet" ]; then
   #     La passe l'a bloqué pendant deux heures le 20/09 et la note de contrôle a prescrit de supprimer des chiffres
   #     exacts. Un témoin qui sort en 1 = le contrôle a poussé une dent de trop.
   echo "▶ Contrôle d'attributions complet (avec aspiration) sur les témoins conformes (doivent sortir en 0)…"
-  for f in "$ROOT"/livrables/lecons/*stoicisme_14*.docx "$ROOT"/livrables/lecons/*appli-ia_07*.docx "$ROOT"/livrables/lecons/*placement-financier_14*.docx "$ROOT"/outils/scripts/non_regression/temoins_attributions_conformes/*.docx; do
+  CONF_N=0
+  for f in "$ROOT"/livrables/lecons/*stoicisme_14*.docx(N) "$ROOT"/livrables/lecons/*appli-ia_07*.docx(N) "$ROOT"/livrables/lecons/*placement-financier_14*.docx(N) "$ROOT"/outils/scripts/non_regression/temoins_attributions_conformes/*.docx(N); do
     [ -e "$f" ] || continue
+    CONF_N=$((CONF_N+1))
     controle_complet "$f" "$CUR/$(basename "$f" .docx).txt"; rc=$?
     case $rc in 0) l="✓ exit 0";; 3) l="⟳ exit 3 après $ESSAIS essais — pages non lues, rien prouvé sur B : relancer --complet";; *) l="✗ exit $rc — un témoin conforme bloque : faux positif du contrôle"; STATUT=1;; esac
     [ "$ESSAIS" = "2" ] && [ "$rc" != "3" ] && l="$l (au 2e essai)"
     echo "  $l  $(basename "$f")  ($(grep -m1 '^VERDICT' "$CUR/$(basename "$f" .docx).txt" | cut -c1-80))"
   done
+  if [ "$CONF_N" != "$ATTENDU_CONFORMES" ]; then
+    echo "  ✗ $CONF_N témoin(s) conforme(s) contrôlé(s), $ATTENDU_CONFORMES attendu(s) — un document vivant a changé"
+    echo "    de nom ou de dossier, ou une copie figée manque : rétablis-le, ou mets ATTENDU_CONFORMES à jour."
+    STATUT=1
+  else
+    echo "  ✓ $CONF_N/$ATTENDU_CONFORMES témoin(s) conforme(s) contrôlé(s)"
+  fi
   # témoins d'AVANT correction pour le contrôle complet : ils doivent sortir en 1 (une citation prêtée à la
   # mauvaise page, ㉓ — veille iMac du 13/09/2026). Un témoin qui sort en 0 = le contrôle a perdu une dent.
   echo "▶ Témoins d'attributions d'avant correction (doivent sortir en 1)…"
-  for f in "$ROOT"/outils/scripts/non_regression/temoins_attributions_avant_correction/*.docx; do
+  AVANT_N=0
+  for f in "$ROOT"/outils/scripts/non_regression/temoins_attributions_avant_correction/*.docx(N); do
     [ -e "$f" ] || continue
+    AVANT_N=$((AVANT_N+1))
     controle_complet "$f" "$CUR/temoin_attr_$(basename "$f" .docx).txt"; rc=$?
     case $rc in 1) l="✓ exit 1";; 3) l="⟳ exit 3 après $ESSAIS essais — la page de la source nommée n'a pas été lue, rien prouvé : relancer --complet";; *) l="✗ exit $rc — le témoin ne bloque plus"; STATUT=1;; esac
     [ "$ESSAIS" = "2" ] && [ "$rc" != "3" ] && l="$l (au 2e essai)"
     echo "  $l  $(basename "$f")  ($(grep -m1 'MAL ATTRIBUEE\|^ *INTERDIT\|^ *ABSENTE ' "$CUR/temoin_attr_$(basename "$f" .docx).txt" | cut -c1-90))"
   done
+  if [ "$AVANT_N" != "$ATTENDU_AVANT" ]; then
+    echo "  ✗ $AVANT_N témoin(s) contrôlé(s), $ATTENDU_AVANT attendu(s) — un lot incomplet ne prouve rien :"
+    echo "    rétablis le ou les témoins manquants, ou mets ATTENDU_AVANT à jour dans ce script."
+    STATUT=1
+  else
+    echo "  ✓ $AVANT_N/$ATTENDU_AVANT témoin(s) d'avant correction contrôlé(s)"
+  fi
 fi
 # dernière ligne, toujours : ce qui lit la sortie en arrière-plan (job controle-livrables) attend celle-ci —
 # l'en-tête « Témoins d'attributions » s'imprime AVANT le dernier contrôle, il ne prouve pas la fin
