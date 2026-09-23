@@ -118,9 +118,12 @@ class Audit:
                 continue
             if not d.with_suffix(".fiche.md").exists() and not d.with_suffix(".md").exists():
                 pb.append(f"veille/{d.relative_to(VEILLE)}")
-        for d in sorted(LECONS.glob("*.docx")):
+        # rglob et non glob (23/09/2026) : livrables/lecons/ est rangé par parcours, comme
+        # sources/veille/ juste au-dessus. Avec glob, ce contrôle se serait TU — il n'aurait
+        # plus vu une seule leçon, sans rien signaler.
+        for d in sorted(LECONS.rglob("*.docx")):
             if not d.name.startswith("~$") and not d.with_suffix(".md").exists():
-                pb.append(f"lecons/{d.name}")
+                pb.append(f"lecons/{d.relative_to(LECONS)}")
         self.resultat("Chaque document a sa note", pb)
 
     # ---- 5 · doublons fiche + veille markdown -----------------------------

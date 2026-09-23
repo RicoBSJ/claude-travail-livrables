@@ -66,4 +66,6 @@ export interface ReponseLivrables {
 export interface DossierConfig {
   chemin: string;
   extensions: string[];
+  /** true si les sous-dossiers de `chemin` comptent (lecons/, veille/ sont rangés par série). */
+  recursif: boolean;
 }

@@ -133,8 +133,7 @@ function indexer() {
   let totalInsere = 0;
 
   for (const [cle, config] of Object.entries(CATEGORIES)) {
-    const estRecursif = cle === 'veilles';
-    const livrables   = inventorierSync(config.chemin, config.extensions, estRecursif);
+    const livrables   = inventorierSync(config.chemin, config.extensions, config.recursif);
 
     const rangees = livrables.map(l => ({
       categorie:  cle,

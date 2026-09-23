@@ -31,7 +31,10 @@ Claude_Travail/
 │       └── rgpd/ (archive, job supprimé le 25/07/2026) · archives/ (séries sans job : nocode-ia, essms)
 │
 ├── livrables/              ← SORTIES
-│   ├── lecons/             ← leçons Word hebdomadaires (parcours d'apprentissage)
+│   ├── lecons/             ← leçons Word — UN SOUS-DOSSIER PAR PARCOURS, racine vide
+│   │   ├── psychopathologie/ · enneagramme/ · dzogchen/ · stoicisme/ · hypnose/   ← parcours actifs
+│   │   ├── placement-financier/ · astrologie-karmique/ · revenus-passifs/ · appli-ia/
+│   │   └── nocode-ia/ · entretien-motivationnel/ (parcours clos) · archives/ (leçons Claude Code d'avril)
 │   ├── quiz/               ← quiz_[type]_[slug]_YYYY-MM-DD.pptx
 │   ├── infographies/       ← infographie_[type]_[slug]_YYYY-MM-DD.pptx
 │   ├── documents/          ← documents Word divers, fiches synthèse
@@ -59,7 +62,7 @@ Claude_Travail/
 | Veille | `YYYY-MM-DD_veille_[sujet].docx` | `2026-04-06_veille_SERAFIN-PH.docx` |
 | Quiz | `quiz_[type]_[slug]_YYYY-MM-DD.pptx` | `quiz_rbpp_projet-personnalise_2026-04-06.pptx` |
 | Infographie | `infographie_[type]_[slug]_YYYY-MM-DD.pptx` | `infographie_rbpp_tsa-enfant-adolescent_2026-02-12.pptx` |
-| Leçon (parcours) | `YYYY-MM-DD_lecon-[parcours]_NN_[slug].docx` | `2026-08-07_lecon-appli-ia_01_cadrage-specification.docx` |
+| Leçon (parcours) | `[parcours]/YYYY-MM-DD_lecon-[parcours]_NN_[slug].docx` | `appli-ia/2026-08-07_lecon-appli-ia_01_cadrage-specification.docx` |
 
 ---
 
@@ -98,7 +101,7 @@ Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `li
 
 - Style professionnel, structuré avec titres et sous-titres
 - Français, registre professionnel médico-social
-- Livrable → `livrables/documents/` (documents divers) ou `livrables/lecons/` (leçons hebdomadaires)
+- Livrable → `livrables/documents/` (documents divers) ou `livrables/lecons/[parcours]/` (leçons hebdomadaires)
 
 ---
 
@@ -115,11 +118,11 @@ Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `li
 - Sources : documentation officielle en priorité (developer.mozilla.org, nodejs.org, typescriptlang.org, react.dev, nextjs.org, docs.claude.com, cnil.fr).
 - Format : leçon active (20% théorie / 80% pratique), **code complet et exécutable** à chaque incrément.
 - Nom du fichier : `YYYY-MM-DD_lecon-appli-ia_NN_[slug].docx`
-- Livrables → `livrables/lecons/` (la leçon) **et** `livrables/projets/appli-ia/` (le code + `PROJET.md`).
+- Livrables → `livrables/lecons/appli-ia/` (la leçon) **et** `livrables/projets/appli-ia/` (le code + `PROJET.md`).
 - **`PROJET.md` est la mémoire du parcours** : le job le lit au début de chaque leçon et le met à jour à la fin. Sans lui, pas de continuité du fil rouge.
 - Garde-fou spécifique : ne jamais écrire de version de bibliothèque ni de signature d'API de mémoire (écosystème très mouvant) → vérifier à la doc officielle.
 
-> Historique : ce job remplace `nocode-ia-veille` (supprimé le 02/08/2026). Les **16 leçons NO-CODE + IA** déjà produites (`lecon-nocode-ia_01` à `_16`) sont conservées dans `livrables/lecons/`.
+> Historique : ce job remplace `nocode-ia-veille` (supprimé le 02/08/2026). Les **16 leçons NO-CODE + IA** déjà produites (`lecon-nocode-ia_01` à `_16`) sont conservées dans `livrables/lecons/nocode-ia/`.
 
 ---
 

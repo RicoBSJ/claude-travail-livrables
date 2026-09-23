@@ -176,7 +176,7 @@ if [ "$MODE" = "--complet" ]; then
   #     exacts. Un témoin qui sort en 1 = le contrôle a poussé une dent de trop.
   echo "▶ Contrôle d'attributions complet (avec aspiration) sur les témoins conformes (doivent sortir en 0)…"
   CONF_N=0
-  for f in "$ROOT"/livrables/lecons/*stoicisme_14*.docx(N) "$ROOT"/livrables/lecons/*appli-ia_07*.docx(N) "$ROOT"/livrables/lecons/*placement-financier_14*.docx(N) "$ROOT"/outils/scripts/non_regression/temoins_attributions_conformes/*.docx(N); do
+  for f in "$ROOT"/livrables/lecons/**/*stoicisme_14*.docx(N) "$ROOT"/livrables/lecons/**/*appli-ia_07*.docx(N) "$ROOT"/livrables/lecons/**/*placement-financier_14*.docx(N) "$ROOT"/outils/scripts/non_regression/temoins_attributions_conformes/*.docx(N); do
     [ -e "$f" ] || continue
     CONF_N=$((CONF_N+1))
     controle_complet "$f" "$CUR/$(basename "$f" .docx).txt"; rc=$?

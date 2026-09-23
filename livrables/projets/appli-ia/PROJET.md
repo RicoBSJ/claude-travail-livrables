@@ -179,6 +179,22 @@ reproductible et autorise l'installation d'une majeure incompatible.
 - Mise à jour `src/types.ts` : Categorie → CategorieResumee + ReponseLivrables,
   aligné sur ce que les routes renvoient réellement et sur frontend/src/types.ts.
 
+## Modifié hors leçon (23/09/2026) — récursivité déclarative
+
+- **`livrables/lecons/` est rangé par parcours**, comme `sources/veille/` l'est par série : un sous-dossier
+  par parcours (`psychopathologie/`, `enneagramme/`, …), la racine ne porte plus aucun fichier.
+- Le portail lisait `livrables/lecons/` **à plat** : `const estRecursif = cle === 'veilles'` était écrit en dur
+  à **quatre endroits** (`src/inventaire.ts`, `scripts/serveur.js` ×2, `scripts/indexer.js`). Après le
+  rangement, le portail aurait affiché **zéro leçon** — sans erreur, sans log, juste une catégorie vide.
+- Correctif : `recursif` devient une **propriété de la catégorie** dans les deux tables `CATEGORIES`
+  (`scripts/utils.js` et `src/inventaire.ts`), `true` pour `lecons` et `veilles`, `false` ailleurs ; le champ
+  est déclaré dans `DossierConfig` (`src/types.ts`). Les quatre `estRecursif` ont disparu. `tsc --noEmit`
+  passe, `node --check` passe sur les trois scripts, et l'inventaire retrouve ses 300 fichiers de leçons.
+- ⚠️ **Pour les prochaines leçons** : ne jamais déduire la récursivité du NOM d'une catégorie — c'est la
+  configuration qui la porte. Et les deux « cas réels » du prompt qui citent `ls livrables/lecons/*.docx`
+  (leçon n°07) sont des **citations historiques** : la commande ne compte plus rien depuis le rangement,
+  elle n'est là que pour l'incident qu'elle illustre.
+
 ## Reste à faire
 
 9. Qualité, tests, débogage (leçon 09) — node:test natif, tester extraireDate et matcheFiltres

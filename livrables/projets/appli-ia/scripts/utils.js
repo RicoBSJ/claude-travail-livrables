@@ -25,13 +25,16 @@ const path = require('node:path');
 const RACINE = path.resolve(__dirname, '..', '..', '..', '..');
 
 // Catégories à inventorier : clé → { chemin absolu, extensions acceptées }
+// `recursif` : la catégorie déclare elle-même si ses sous-dossiers comptent (23/09/2026).
+// Avant, l'appelant testait `cle === 'veilles'` en dur, à quatre endroits — le jour où
+// livrables/lecons/ a été rangé par parcours, le portail aurait affiché zéro leçon.
 const CATEGORIES = {
-  lecons:       { chemin: path.join(RACINE, 'livrables', 'lecons'),       extensions: ['.docx', '.md'] },
-  quiz:         { chemin: path.join(RACINE, 'livrables', 'quiz'),         extensions: ['.pptx'] },
-  infographies: { chemin: path.join(RACINE, 'livrables', 'infographies'), extensions: ['.pptx'] },
-  veilles:      { chemin: path.join(RACINE, 'sources',   'veille'),       extensions: ['.docx', '.md'] },
-  documents:    { chemin: path.join(RACINE, 'livrables', 'documents'),    extensions: ['.docx', '.pdf'] },
-  controles:    { chemin: path.join(RACINE, 'livrables', 'controles'),    extensions: ['.md', '.docx'] },
+  lecons:       { chemin: path.join(RACINE, 'livrables', 'lecons'),       extensions: ['.docx', '.md'], recursif: true },
+  quiz:         { chemin: path.join(RACINE, 'livrables', 'quiz'),         extensions: ['.pptx'], recursif: false },
+  infographies: { chemin: path.join(RACINE, 'livrables', 'infographies'), extensions: ['.pptx'], recursif: false },
+  veilles:      { chemin: path.join(RACINE, 'sources',   'veille'),       extensions: ['.docx', '.md'], recursif: true },
+  documents:    { chemin: path.join(RACINE, 'livrables', 'documents'),    extensions: ['.docx', '.pdf'], recursif: false },
+  controles:    { chemin: path.join(RACINE, 'livrables', 'controles'),    extensions: ['.md', '.docx'], recursif: false },
 };
 
 // Fichiers à exclure quel que soit leur dossier (spec v1.2)

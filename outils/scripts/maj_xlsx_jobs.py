@@ -55,7 +55,7 @@ def dernier_numero(parcours):
     motif = re.compile(r"_lecon-" + re.escape(parcours) + r"_(\d+)_")
     numeros = [
         int(m.group(1))
-        for f in LECONS.glob("*.docx")
+        for f in LECONS.rglob("*.docx")   # rglob : lecons/ est rangé par parcours (23/09/2026)
         if not f.name.startswith("~$") and (m := motif.search(f.name))
     ]
     return max(numeros) if numeros else None

@@ -14,13 +14,16 @@ import type { Livrable, DossierConfig } from './types';
 // On remonte de 4 niveaux pour atteindre la racine Claude_Travail/
 const RACINE: string = path.resolve(__dirname, '..', '..', '..', '..');
 
+// `recursif` : la catégorie déclare elle-même si ses sous-dossiers comptent (23/09/2026).
+// Avant, l'appelant testait `cle === 'veilles'` en dur, à quatre endroits — le jour où
+// livrables/lecons/ a été rangé par parcours, le portail aurait affiché zéro leçon.
 const CATEGORIES: Record<string, DossierConfig> = {
-  lecons:       { chemin: path.join(RACINE, 'livrables', 'lecons'),       extensions: ['.docx', '.md'] },
-  quiz:         { chemin: path.join(RACINE, 'livrables', 'quiz'),         extensions: ['.pptx'] },
-  infographies: { chemin: path.join(RACINE, 'livrables', 'infographies'), extensions: ['.pptx'] },
-  veilles:      { chemin: path.join(RACINE, 'sources',   'veille'),       extensions: ['.docx', '.md'] },
-  documents:    { chemin: path.join(RACINE, 'livrables', 'documents'),    extensions: ['.docx', '.pdf'] },
-  controles:    { chemin: path.join(RACINE, 'livrables', 'controles'),    extensions: ['.md', '.docx'] },
+  lecons:       { chemin: path.join(RACINE, 'livrables', 'lecons'),       extensions: ['.docx', '.md'], recursif: true },
+  quiz:         { chemin: path.join(RACINE, 'livrables', 'quiz'),         extensions: ['.pptx'], recursif: false },
+  infographies: { chemin: path.join(RACINE, 'livrables', 'infographies'), extensions: ['.pptx'], recursif: false },
+  veilles:      { chemin: path.join(RACINE, 'sources',   'veille'),       extensions: ['.docx', '.md'], recursif: true },
+  documents:    { chemin: path.join(RACINE, 'livrables', 'documents'),    extensions: ['.docx', '.pdf'], recursif: false },
+  controles:    { chemin: path.join(RACINE, 'livrables', 'controles'),    extensions: ['.md', '.docx'], recursif: false },
 };
 
 const DOCS_DE_DOSSIER: string[] = ['readme.md'];
@@ -94,8 +97,7 @@ async function main(): Promise<void> {
   let totalOctets   = 0;
 
   for (const [cle, config] of Object.entries(CATEGORIES)) {
-    const estRecursif = cle === 'veilles';
-    const livrables   = await inventorierDossier(config.chemin, config.extensions, estRecursif);
+    const livrables   = await inventorierDossier(config.chemin, config.extensions, config.recursif);
     const octets      = livrables.reduce((s, l) => s + l.taille, 0);
     const ko          = Math.round(octets / 1024);
 

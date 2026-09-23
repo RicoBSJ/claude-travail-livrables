@@ -89,8 +89,7 @@ async function construireInventaire() {
   let totalOctets   = 0;
 
   for (const [cle, config] of Object.entries(CATEGORIES)) {
-    const estRecursif = cle === 'veilles';
-    const livrables   = await inventorierDossier(config.chemin, config.extensions, estRecursif);
+    const livrables   = await inventorierDossier(config.chemin, config.extensions, config.recursif);
 
     // Tri : date décroissante ; les null en fin (fichiers hors convention)
     livrables.sort((a, b) => {
@@ -203,8 +202,7 @@ async function gererRequete(req, res) {
       return;
     }
     const config     = CATEGORIES[categorie];
-    const estRecursif = categorie === 'veilles';
-    const livrables  = await inventorierDossier(config.chemin, config.extensions, estRecursif);
+    const livrables  = await inventorierDossier(config.chemin, config.extensions, config.recursif);
     livrables.sort((a, b) => {
       if (a.date === null && b.date === null) return 0;
       if (a.date === null) return 1;
