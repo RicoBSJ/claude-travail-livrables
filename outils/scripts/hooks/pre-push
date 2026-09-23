@@ -31,7 +31,18 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   else
     plage="$remote_sha..$local_sha"
   fi
-  fichiers=$(git diff --name-only --diff-filter=AM "$plage" 2>/dev/null)
+  # --diff-filter=AMR — le R est indispensable (23/09/2026). Un renommage sort en "R", pas en "A" ni en "M" :
+  # avec AM, les 112 veilles déplacées dans leurs sous-dossiers (commit 53eabe8) sont parties sur le dépôt
+  # public SANS passer par le contrôle — 0 document vu là où AMR en voit 53. Et git appelle "R" un fichier
+  # renommé ET MODIFIÉ tant que la similarité reste au-dessus de 50 % (mesuré : R084 pour 16 % du contenu
+  # changé), donc `git mv doc.docx autre.docx` suivi d'une édition publiait un document non contrôlé ; un
+  # `git mv` depuis un dossier non publié (outils/, en_cours/) vers livrables/ ou sources/veille/ aussi.
+  # --name-only rend le chemin de DESTINATION d'un renommage, c'est-à-dire le fichier qui existe après le
+  # push : c'est bien celui qu'il faut contrôler. Limite assumée : un contrôle commun renommé VERS un autre
+  # nom ne déclenche plus SURVEILLES (son nouveau nom ne correspond plus au motif) — mais non_regression.sh
+  # ne le trouverait pas davantage. Les copies (C) ne sont pas détectées par git sans -C, les changements
+  # de type (T, un .docx remplacé par un lien symbolique) ne sont pas couverts : aucun incident à ce jour.
+  fichiers=$(git diff --name-only --diff-filter=AMR "$plage" 2>/dev/null)
   echo "$fichiers" | grep -Eq "$SURVEILLES" && touche=1
   echo "$fichiers" | grep -Eq "$ASPIRATION" && complet=1
   for d in $(echo "$fichiers" | grep -E "$DOCS"); do [ -f "$ROOT/$d" ] && docs+=("$ROOT/$d"); done
