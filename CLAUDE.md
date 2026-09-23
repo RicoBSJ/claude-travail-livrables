@@ -26,8 +26,9 @@ Claude_Travail/
 │   ├── rbpp/               ← PDFs HAS/ANESM bruts (un sous-dossier par RBPP)
 │   ├── tnmp/               ← fichiers Excel TNmP
 │   ├── qvct/               ← documents QVCT
-│   └── veille/             ← veilles produites (SERAFIN, RBPP, HAS, ESSMS…)
-│       └── imac/ · ai-act/ (actifs) · rgpd/ (archive, job supprimé le 25/07/2026)
+│   └── veille/             ← veilles produites — UN SOUS-DOSSIER PAR SÉRIE, racine vide
+│       ├── serafin-ph/ · has-actualite/ · rbpp/ · imac/ · ai-act/   ← séries actives
+│       └── rgpd/ (archive, job supprimé le 25/07/2026) · archives/ (séries sans job : nocode-ia, essms)
 │
 ├── livrables/              ← SORTIES
 │   ├── lecons/             ← leçons Word hebdomadaires (parcours d'apprentissage)
@@ -106,7 +107,7 @@ Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `li
 - Source : https://www.has-sante.fr
 - Résumé d'une page max : titre, date, public cible, points clés
 - Nom du fichier : `YYYY-MM-DD_veille_HAS.md`
-- Livrable → `sources/veille/`
+- Livrable → `sources/veille/has-actualite/`
 
 ## Leçon Développement d'applications avec l'IA (hebdomadaire, vendredi 8h03)
 
