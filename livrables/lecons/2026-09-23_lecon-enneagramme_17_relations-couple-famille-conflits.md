@@ -1,0 +1,50 @@
+---
+type: fiche-document
+source: 2026-09-23_lecon-enneagramme_17_relations-couple-famille-conflits.docx
+date_creation: 2026-09-23
+date_lecon: 2026-09-23
+parcours: enneagramme
+numero: 17
+statut: parcours-actif
+tags:
+  - parcours/enneagramme
+  - registre/perso
+  - theme/relations
+  - theme/conflit
+  - theme/reparation
+  - theme/daniels
+  - source/enneagram-institute
+  - source/9takes
+  - theme/garde-fou-supprime
+  - theme/qualite-non-sourcee
+  - theme/source-decorative
+  - alerte/a-corriger
+  - alerte/non-publie
+---
+
+# 2026-09-23_lecon-enneagramme_17_relations-couple-famille-conflits
+
+Document source : [[2026-09-23_lecon-enneagramme_17_relations-couple-famille-conflits.docx]]
+
+## Résumé
+
+**Le cadre épistémique est le meilleur du parcours, et il est tenu du début à la fin.** La leçon annonce en tête des ressources que ses quatre sources sont commerciales — *« tous ont un intérêt commercial dans la promotion du modèle… L'Enneagram Institute est juge et partie dès qu'il s'agit de la validité du modèle »* —, elle marque son tableau des réflexes défensifs comme *« une synthèse d'approches commerciales et praticiennes… non issue d'une validation psychométrique indépendante »*, elle refuse l'étiquetage (*« ne teste pas ton hypothèse en la lui soumettant »*, *« pas un diagnostic à communiquer »*) et le pont pro reste dans la préparation personnelle, comme D3 l'exige. Sur le fond, les reprises sont fidèles : l'Enneagram Institute écrit bien *« No pairing of types is particularly blessed and no pairing is particularly doomed »* et donne les trois facteurs que la leçon reprend (*« the type, the level of health, and the instincts of each person »*) ; Daniels porte bien les **45 combinaisons**, le *« circle of conflict »* et ses trois aspects — *« 1. What to acknowledge 2. What to appreciate 3. Key tasks for development »* —, et la mise en garde de la leçon est sa *« Words of Gentle Caution »* ; les neuf réflexes défensifs du tableau sont, mot pour mot, la liste de 9takes (*« correcting, helping, performing, intensifying, withdrawing, checking, reframing, controlling, or accommodating »*), et le protocole en cinq étapes suit le sien dans l'ordre. Continuité tenue avec l'annonce de la leçon 16, renvois justes aux leçons 14 (niveaux), 15 (sous-types) et 16 (triades). Contrôle commun **exit 0**, coût **0,73 $** — 24 % du plafond, 23 tours, 4 min 42 s : la leçon la moins chère du dépôt ce mois-ci.
+
+**Le défaut central : le protocole de réparation a perdu la clause de sécurité que sa source y attache.** 9takes écrit, juste après la cinquième étape : *« This process does not apply when there is abuse, coercive control, or fear for someone's safety. In those cases, the priority is support and safety, not better type communication »*, et renvoie à une ligne d'écoute. La leçon reprend les cinq étapes — nommer le comportement, identifier la peur, séparer faits et interprétations, formuler une demande, vérifier — et **supprime l'exclusion**. Le lecteur est un chef de service qui travaille avec des personnes vulnérables et qui peut appliquer ce protocole à son propre couple ou à sa famille : la phrase retirée est exactement celle qui dit quand ne pas l'appliquer. C'est la même faute que la leçon psychopathologie du 21/09, où la liste des effets à surveiller avait perdu la constipation et la fausse route du document HAS : **ce qui tombe à la traduction, c'est la partie sécurité de la source.** Deuxième omission du même ordre : 9takes porte une section *« What the Research Can and Cannot Tell Us »* qui cite *« a 2021 systematic review of 104 independent samples »* avec ses preuves mitigées — c'est la revue de **Hook et al. (2021)**, la seule source indépendante du parcours, établie en leçon 13 et exigée par la règle B1 pour tout énoncé de validité. La leçon écrit *« l'ennéagramme n'est pas un test de compatibilité validé… c'est la position explicite des sources mobilisées »* sans la nommer, alors que sa propre source la lui tendait.
+
+**Deux qualités prêtées à David Daniels que la page citée ne porte pas, et une substitution technique.** *« Le Dr David Daniels (médecin et professeur à Stanford, co-fondateur de l'Enneagram Worldwide) »* : sur la page liée, *professor* compte **zéro occurrence**, *psychiatry* zéro, *co-founder* zéro, et *« Enneagram Worldwide »* zéro — la page nomme *« The Narrative Enneagram (TNE) »*, et *« Stanford »* n'y apparaît que dans un item de menu (*Stanford Enneagram Test & Guide*). Les deux qualités sont plausibles et probablement vraies ; elles ne sont pas sur la source, et c'est la règle A2 du prompt (*« n'attribue … que si l'attribution est étayée par une source récupérée dans cette exécution »*). Plus fin, dans la même section : Daniels écrit que la variation tient au *« level of personal development, cultural background, gender, the influence of other types, and life experience »* ; la leçon traduit *« the influence of other types »* par **« l'influence des ailes »**. Les ailes sont un sous-ensemble (les types adjacents) ; la source dit *les autres types*, ce qui inclut aussi les flèches, que ce parcours a enseignées séparément. Un terme technique du modèle a été substitué à un terme général — le geste de « Dépister » devenu « Détecter » lundi, transposé ici. La passe B-NOM du contrôle commun a d'ailleurs signalé cette phrase en *A RELIRE* : elle avait raison.
+
+**Une source listée qui n'a rien apporté, une synthèse qui ampute les questions, et une leçon qui n'est pas publiée.** ① **Growing Self** (Dr. Lisa Marie Bobby) figure dans les ressources avec une caractérisation — *« compatibilité, conflit, croissance (publié janvier 2026) »*, date exacte : `datePublished 2026-01-12` — mais **rien dans le corps de la leçon n'en vient** : c'est une source décorative, ce que les prompts de veille interdisent explicitement (*« une source lue mais qui n'a rien apporté ne se coche pas ✅ »*) et que les parcours n'ont pas encore écrit. ② Le tableau des « questions cachées » synthétise 9takes en perdant, sur au moins trois types, la moitié relationnelle de la question : le 7 devient *« Puis-je rester libre dans un engagement ? »* là où la source demande *« Can I stay free and hopeful if I let pain be real? »* (la douleur disparaît) ; le 9 devient *« Y a-t-il une place pour mes besoins ici ? »* pour *« Can I take up space and still stay connected to you? »* (le lien disparaît) ; le 6 devient *« Es-tu vraiment fiable et sûr(e) ? »* — une question sur l'autre — pour *« Are we safe, and will your words still be true tomorrow? »*, qui porte sur le couple. La synthèse est annoncée comme telle, donc ce n'est pas une citation fabriquée ; mais elle déplace systématiquement la question de la relation vers l'autre ou vers soi. ③ **La leçon n'est pas publiée** : le push du job a été refusé trois fois par le hook, non pour elle — elle sort à 0 bloquant — mais parce que la veille SERAFIN-PH du même matin a un décompte incohérent (*1 annoncé pour ⚠, liste 2*). Deux commits attendent en local, `eee05f7` et `e1a688a`. À corriger : la clause de sécurité du protocole, les deux qualités de Daniels, « ailes » → « autres types », Hook et al. nommée, Growing Self utilisée ou retirée. À durcir : une clause d'exclusion attachée à un protocole se recopie avec lui ; une source listée qui n'irrigue pas le corps se retire ; et une qualité de personne se relève sur la page citée.
+
+## Notes liées
+
+- **⬅️ Précédente** · [[2026-09-16_lecon-enneagramme_16_triades-horneviennes-harmoniques]]
+  l'annonce du 16/09 est tenue au thème près, et les triades harmoniques y sont réemployées dans le challenge — le parcours se sert de lui-même, ce qui est rare
+- **🔗 Pont** · [[2026-09-09_lecon-enneagramme_15_instincts-sous-types]]
+  **la règle A4 vient de là** (Confidant / Confident) : ici c'est l'inverse — un terme général de la source, *other types*, rendu par un terme technique du modèle, *les ailes*
+- **🔗 Pont** · [[2026-09-21_lecon-psychopathologie_17_psychotropes-classes-effets-surveillance]]
+  **la même faute, deux jours plus tôt** : la partie sécurité de la source disparaît à la reprise — constipation et fausse route du Flash HAS là-bas, clause « abuse, coercive control » du protocole de réparation ici
+- **🔗 Pont** · [[2026-09-22_lecon-hypnose_15_hypnose-troubles-sommeil]]
+  une source nommée sans être liée d'un côté, une source liée sans rien apporter de l'autre : les deux faces de la règle « une source nommée est une source liée »
+- **🗂️ Dossier** · [[2026-09-23_veille_SERAFIN-PH.fiche]]
+  la veille du même matin dont le décompte incohérent bloque le push : cette leçon, conforme, est retenue avec elle
