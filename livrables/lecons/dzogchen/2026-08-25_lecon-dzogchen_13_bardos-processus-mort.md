@@ -17,6 +17,10 @@ tags:
   - pratique/phowa
   - auteur/karma-lingpa
   - auteur/achard
+  - auteur/bakula
+  - theme/auteur-non-nomme
+  - alerte/corrige
+  - correction/2026-09-24
 ---
 
 # 2026-08-25_lecon-dzogchen_13_bardos-processus-mort
@@ -34,6 +38,8 @@ Le mot *bardo* signifie « entre les deux » — tout état de transition. Les s
 **Deux réserves et un manque, corrigés dans le document le 25/08/2026** et tracés dans son journal. Le pont professionnel invoquait *« les RBPP HAS sur l'accompagnement en ESSMS »* sans en nommer aucune, et « culture palliative inclusive » n'est pas une formulation HAS. Deux recommandations existent pourtant et sont désormais citées : **« Accompagner la fin de vie des personnes âgées en Ehpad »** — donnée comme utile aux établissements accueillant des personnes handicapées vieillissantes — et **« L'accompagnement à la santé de la personne handicapée »** (ANESM, 2013). Le paragraphe pose maintenant la séparation qui manquait : ces gestes sont fondés dans les textes **sans nécessiter de cosmologie**, et ce que le parcours apporte relève de la préparation personnelle, pas d'un contenu à transmettre en réunion d'équipe. Côté sources, Jean-Luc Achard était cité via un **blog personnel** : c'est la **Revue d'Études Tibétaines** qu'il dirige (CNRS / CRCAO, comité de lecture, accès libre) qui a été ajoutée.
 
 **Le manque le plus intéressant est devenu un paragraphe.** La page Wikipédia que la leçon citait elle-même précise que le titre « Livre tibétain des morts » vient de la traduction d'**Evans-Wentz (Oxford, 1927)**, auteur **ne lisant pas le tibétain** — le travail revenant pour l'essentiel à Lama Kazi Dawa Samdup — et dont l'approche y est décrite comme *« ni tibétaine ni bouddhiste, mais théosophique et védantiste »*, Jung ajoutant son commentaire en 1965. Rien n'en apparaissait, alors que la Theosophical Society figurait en ressource. Le texte le dit maintenant, avec sa raison d'être : **dater une reformulation ne disqualifie rien, cela situe le registre de ce qu'on lit**.
+
+**Corrigée le 24/09/2026 — un article signé, listé sans son auteur ni son titre exact.** Le test de l'étape 5 bis écrit la veille a refusé cette leçon sur un seul motif : la ligne de ressources *« Theosophical Society — A Tour of the Tibetan Book of the Dead »*. La page, rouverte, porte **« The Tibetan Book of the Dead: A Tour »** — le titre était inversé —, elle est signée **« By Joann S. Bakula »** et elle donne sa propre référence, *Quest* 91.3 (mai-juin 2003). La ligne porte maintenant les trois. Une chose est dite dans le journal plutôt que dans le corps, parce qu'elle concerne la leçon et non son lecteur : **aucune phrase de la leçon ne vient de cet article** — il est listé comme contexte comparatif, et le paragraphe sur la réception occidentale du Bardo Thödol (Evans-Wentz, Kazi Dawa Samdup, Jung), ajouté le 25/08, vient de la page Wikipédia du Bardo Thödol, qui est citée pour cela. `controle_attributions` exit 0, sans changement de verdict ; étape 5 bis → OK.
 
 ## Notes liées
 
