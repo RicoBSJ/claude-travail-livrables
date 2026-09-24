@@ -15,7 +15,12 @@ tags:
   - concept/askesis
   - concept/hegemonikon
   - concept/examen-du-soir
-  - alerte/a-corriger
+  - auteur/stephens
+  - auteur/silva
+  - theme/auteur-non-nomme
+  - alerte/corrige
+  - correction/2026-08-27
+  - correction/2026-09-24
 ---
 
 # 2026-08-27_lecon-stoicisme_12_musonius-rufus-exercice-concret
@@ -31,6 +36,8 @@ Première leçon consacrée à un auteur qui **n'a rien écrit**, et c'est le po
 **L'exercice 1 envoyait lire le mauvais texte — corrigé le 27/08/2026**, avec journal. Il annonce « Discours 6 — *Que les femmes aussi doivent étudier la philosophie* ». Dans la numérotation de Cora Lutz, qui fait référence, **c'est le Discours 3** ; le **Discours 6 est *Sur l'entraînement*** — c'est-à-dire, ironiquement, celui d'où vient l'analogie du médecin et du musicien citée deux pages plus haut. Le lecteur qui suit la consigne ouvre un texte qui ne répond à aucune des trois questions posées. Vérifié sur la page que la leçon cite elle-même en première ressource.
 
 **Deux autres inexactitudes, corrigées le même jour.** Musonius était donné « exilé à trois reprises » : l'*Internet Encyclopedia of Philosophy*, ressource n° 2 de la leçon, en compte **deux** — Néron en 65 vers Gyaros, puis Vespasien, avec retour sous Titus. Et le pont pro attribuait aux RBPP HAS une pratique nommée *« soutien des pratiques professionnelles »*, formulation introuvable : le terme consacré est **analyse des pratiques professionnelles (APP)**. Le passage l'emploie désormais et ajoute la réserve que la version initiale masquait — **l'APP est un dispositif collectif animé par un tiers extérieur**, quand la révision de Musonius est solitaire ; la seconde ne prépare ni ne remplace la première. Une recommandation réellement nommée a été ajoutée en ressources. C'était la **deuxième attribution HAS fabriquée en trois jours**, après « culture palliative inclusive » dans la leçon dzogchen 13 : les **sept prompts des parcours à pont pro ont été durcis** en conséquence — nommer la recommandation, ou n'invoquer aucune autorité. Le reste tient : les dates, les 21 discours et 32 apophtegmes, Épictète élève de Musonius autorisé par Épaphrodite, et la filiation pythagoricienne de l'examen du soir. Le corpus de sources est d'ailleurs meilleur que d'habitude — l'IEP et la World History Encyclopedia valent mieux que les trois sites de vulgarisation stoïcienne qui les accompagnent.
+
+**Corrigée une seconde fois le 24/09/2026 — deux articles signés, cités par le nom de leur publication.** *« Les sources convergent (World History Encyclopedia, IEP, Modern Stoic Path) pour identifier trois axes »* : l'article de l'IEP sur Musonius est signé **William O. Stephens** (Creighton University), celui de Modern Stoic Path **Aurelio Silva**. Les deux noms sont désormais dans le corps et sur leur ligne de ressources. Rien d'autre n'a bougé — les défauts du 27/08 (le Discours 6 pour le Discours 3, les trois exils pour deux, l'APP fabriquée) étaient déjà corrigés, et le tag `alerte/a-corriger` de cette fiche était resté en place à tort : il passe à `alerte/corrige`. `controle_attributions` exit 0, sans changement de verdict ; étape 5 bis → OK.
 
 ## Notes liées
 

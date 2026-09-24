@@ -23,7 +23,11 @@ tags:
   - source/stanford
   - theme/citations-exactes
   - theme/attribution-inversee
-  - alerte/a-corriger
+  - auteur/pigliucci
+  - auteur/bobzien
+  - theme/auteur-non-nomme
+  - alerte/corrige
+  - correction/2026-09-24
 ---
 
 # 2026-09-10_lecon-stoicisme_14_physique-logique-logos-destin-assentiment
@@ -43,6 +47,8 @@ Document source : [[2026-09-10_lecon-stoicisme_14_physique-logique-logos-destin-
 **Trois écarts plus courts.** ① **Frege** : la leçon écrit que *« certains historiens y voient une anticipation de la distinction moderne entre sens et référence »*. Stanford dit autre chose et le dit précisément : une étude de **S. Bobzien (2021)** suggère que la logique stoïcienne *« might have found its way to Gottlob Frege »*, avec des éléments montrant que certains travaux de Frege lui *« sont dérivés et fortement redevables »*. Une thèse de **transmission historique**, portée par un nom et une date, devient une **anticipation conceptuelle** portée par « certains historiens ». ② La métaphore est celle du **cylindre ET du cône** dans la citation que Stanford reproduit (*« his cylinder and cone… the cylinder rolls and the cone spins »*) ; la leçon ne garde que le cylindre. ③ En ressources, *« Wikipedia — Stoic Physics (logos, pneuma, ekpyrosis, **heimarmenê**) »* : les trois premiers y sont bien — *Ekpyrosis* avec sa majuscule, à côté de *conflagration* — mais **heimarmenê ne figure pas sur cette page**. Restent deux coquilles : *« Résorbtion »* pour résorption, et la question du Challenge encadrée de guillemets doublés.
 
 **Cinquième mesure de coût. 0,7468 $ pour un plafond de 3 $ — 25 %**, en 16 tours et 5 min 50 s. Les cinq relevés de la semaine se tiennent : dzogchen 0,78 · hypnose 0,74 · SERAFIN 0,43 · ennéagramme 0,74 · stoïcisme 0,75. **Les quatre leçons de doctrine sont toutes entre 25 et 26 % de leur plafond de 3 $** — une régularité assez nette pour commencer à dire quelque chose, à défaut de ligne de base antérieure.
+
+**Corrigée le 24/09/2026, journal de six entrées — les trois écarts de cette fiche, et les deux coquilles.** ① *« certains historiens y voient une anticipation de la distinction moderne entre sens et référence (Frege) »* → la Stanford Encyclopedia porte une thèse **de transmission historique, datée et signée** : une étude de **S. Bobzien (2021)** qui suggère que la logique stoïcienne *« might have found its way to Gottlob Frege »*, avec des éléments montrant qu'une partie du travail de Frege lui *« is derived from, and heavily indebted to »*. *« sense and reference »* : **zéro occurrence** sur la page. ② La métaphore est celle du **cylindre ET du cône** — *« the cylinder rolls and the cone spins »* —, le titre de section et le texte le disent désormais. ③ *« Wikipedia — Stoic Physics (… heimarmenê) »* → **heimarmenê ne figure pas sur cette page** (0 occurrence) ; le terme vient du glossaire du College of Stoic Philosophers, que la leçon cite au § 3 et liste plus bas. ④ **Massimo Pigliucci** nommé sur la ligne de l'IEP. ⑤ *« Résorbtion »* → résorption, et les guillemets doublés du Challenge réduits à un. **Un point vérifié et non corrigé** : « cause principale et parfaite » est la terminologie latine classique, absente de la page de Stanford qui écrit *« auxiliary and proximate »* d'après Cicéron (62C) et explique le reste par *« their own nature »* — c'est précisé sur place, la formule reste. ⚠️ Cette leçon est l'un des **quatre témoins conformes** de `non_regression.sh --complet` : après correction, `--complet` a été rejoué intégralement — **4/4 témoins conformes, 6/6 d'avant correction, exit 0**.
 
 ## Notes liées
 

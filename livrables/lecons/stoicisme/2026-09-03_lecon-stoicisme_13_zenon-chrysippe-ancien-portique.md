@@ -20,6 +20,8 @@ tags:
   - source/sep
   - alerte/corrige
   - correction/2026-09-03
+  - auteur/pigliucci
+  - correction/2026-09-24
 ---
 
 # 2026-09-03_lecon-stoicisme_13_zenon-chrysippe-ancien-portique
@@ -35,6 +37,8 @@ Document source : [[2026-09-03_lecon-stoicisme_13_zenon-chrysippe-ancien-portiqu
 **Le pont pro tient — et c'est exactement ce parcours qui devait le prouver.** La leçon 12 du 27/08 attribuait aux « RBPP HAS » une pratique nommée « soutien des pratiques professionnelles », formulation introuvable : c'est l'un des deux incidents qui fondent la famille D. Sept jours plus tard, la leçon 13 n'invoque **aucune** recommandation et l'écrit noir sur blanc — *« ce parallèle est une observation de bon sens professionnel — il ne s'appuie sur aucune recommandation HAS spécifiquement identifiée dans cette leçon »*. La règle « nommer ou se taire » appliquée à la lettre, dans le parcours qui l'a rendue nécessaire. Le parallèle lui-même est d'ailleurs juste et sobre : ce que Chrysippe nous apprend de la **transmission fragmentaire** vaut pour les pratiques d'équipe, qui passent par l'observation et l'oral bien plus que par l'écrit.
 
 **Ce qui manque relève de règles que ce parcours n'a pas — repris dans le document le 03/09/2026**, avec journal. Toute la leçon repose sur la doxographie — Diogène Laërce, Cicéron, Plutarque, Sextus Empiricus, Stobée — nommée dans une note honnête (« aucune œuvre originale n'est parvenue intacte ») mais **jamais liée** : ni le texte des *Vies*, ni Long & Sedley. C'est le problème que le parcours dzogchen a réglé le 01/09 par sa règle B4, « thème textuel = sources textuelles » : une leçon sur des fondateurs qu'on ne connaît que par des intermédiaires devrait donner accès à ces intermédiaires. S'y ajoute que **quatre des huit références sont des pages Wikipédia**, y compris pour le texte intégral de l'*Hymne à Zeus*. Le **Livre VII de Diogène Laërce** est désormais lié — traduction Hicks, testée et ouverte — avec la mention que Long & Sedley reste sans lien faute de page éditeur répondant au test : dire pourquoi vaut mieux qu'un lien non vérifié. Les deux références antiques portent aussi leur passage exact (VII, 180 et VII, 183). Corrigée enfin la coquille *« scholiarques »* pour **scholarques**.
+
+**Corrigée une seconde fois le 24/09/2026 — l'article de l'IEP porte un nom.** La ligne *« 2. Stoicism — Internet Encyclopedia of Philosophy »* ne disait pas qui l'a écrit : **Massimo Pigliucci** (City University of New York), signature portée en fin de page sous *Author Information*. Une encyclopédie publie, elle n'écrit pas. **Au passage, le test de l'étape 5 bis s'est trompé sur cette leçon** : son premier motif accusait un « Livre VII » non ouvert — c'est le Livre VII de **Diogène Laërce**, qui a sa propre page et qui est bel et bien liée en première ressource. Le motif a été restreint aux *Méditations* le jour même, dans le test et non dans le document. `controle_attributions` exit 0 ; étape 5 bis → OK.
 
 ## Notes liées
 

@@ -24,7 +24,12 @@ tags:
   - theme/traducteur-errone
   - theme/attribution-a-la-page
   - theme/fait-de-memoire
-  - alerte/a-corriger
+  - auteur/pigliucci
+  - auteur/carter
+  - theme/traducteur-de-memoire
+  - theme/section-invoquee
+  - alerte/corrige
+  - correction/2026-09-24
 ---
 
 # 2026-09-17_lecon-stoicisme_15_kathakon-devoir-engagement-cite
@@ -42,6 +47,8 @@ Document source : [[2026-09-17_lecon-stoicisme_15_kathakon-devoir-engagement-cit
 **Le reste est solide, et le corrigé de l'exercice 1 fait ce que C1 demande.** Les cinq scénarios distinguent finement kathêkon minimal (le cadre en réunion « par obligation hiérarchique »), kathêkon fort (le chevet du proche), « tend vers le katorthôma » (le passant désintéressé) — avec la réserve exacte : *seul le sage accomplit un katorthôma parfait*. Le scénario D (voter par peur de l'amende → ni l'un ni l'autre) est le plus discutable : pour un stoïcien, l'acte de voter reste un kathêkon même mal motivé — la leçon l'écrit elle-même pour le scénario A (*« le manque d'enthousiasme ne la disqualifie pas »*) et dit l'inverse pour D. Contradiction interne entre deux corrigés du même exercice. Le tableau des rôles (exercice 2) et les cercles (exercice 3) sont directement pratiquables ; le challenge sur l'arbitrage entre devoirs utilise la hiérarchie de Cicéron telle que Fagella la donne. Le pont pro reste à sa place : *« observation de bon sens professionnel — ne relève d'aucune recommandation »*.
 
 **Ce qu'il faudrait corriger, dans l'ordre.** ① « trad. Elizabeth Carter » aux quatre endroits ; ② retirer « SEP, section 4.5 » des cercles de Hiéroclès et écrire la source : *Hiéroclès, cité par Stobée, Anthologie IV, 671 ; l'IEP y renvoie en une ligne* — ou lier une page qui les décrit ; ③ sourcer kathêkon / katorthôma (Diogène Laërce VII, 107-109 est sur classics.mit.edu et sur Perseus), ou dire que la distinction est donnée de mémoire ; ④ réaligner le scénario D sur le scénario A (kathêkon mal motivé, pas « ni l'un ni l'autre »). Puis durcir : le parcours a A1 bis (*la vérification d'une citation est une recherche littérale*) — il lui manque son pendant pour l'étiquette : *le traducteur se lit sur la page, pas dans le souvenir*, avec ce cas.
+
+**Corrigée le 24/09/2026, journal de quatre entrées — et cette fiche s'était trompée de sens sur son premier point.** ① Elle demandait de corriger *« trad. Elizabeth Carter »* : **c'est l'inverse**. La page du MIT porte *« Translated by Elizabeth Carter »* et ne contient **aucune occurrence** de « Chrystal » — c'est la leçon qui écrivait *« trad. George Chrystal »*, aux deux endroits, et c'est cela qui est corrigé. Troisième fiche de la semaine dont un reproche ne tient pas à la vérification, après « abandonner » (dzogchen 17) et « 21 sections » (dzogchen 16). ② Les **cercles de Hiéroclès** étaient renvoyés à la *« section 4.5 »* de la Stanford Encyclopedia : cette section s'intitule **Stoic Cosmopolitanism**, la page ne contient qu'une occurrence de *circle* sans rapport, et l'article de l'IEP aucune de *concentric* — les deux nomment Hiéroclès et ses *Éléments d'éthique*, pas ses cercles, qui nous viennent de **Stobée**. La leçon le dit maintenant. ③ **Massimo Pigliucci** nommé sur la ligne de l'IEP. ④ Le corrigé de l'exercice 1 classait **D** (voter pour éviter une amende) en *« ni l'un ni l'autre »* quand **C** (siéger par obligation hiérarchique) était *« kathêkon minimal »* : deux actes convenables mal motivés, deux verdicts opposés dans le même corrigé. D devient un **kathêkon mal motivé**, cohérent avec C. `controle_attributions` exit 0 ; étape 5 bis → OK.
 
 ## Notes liées
 
