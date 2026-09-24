@@ -20,7 +20,12 @@ tags:
   - theme/sources-de-vulgarisation
   - theme/fait-de-memoire
   - theme/intention-pretee
-  - alerte/a-relire
+  - auteur/horney
+  - source/wikipedia
+  - theme/fait-sans-page
+  - theme/faux-ami
+  - alerte/corrige
+  - correction/2026-09-24
 ---
 
 # 2026-09-16_lecon-enneagramme_16_triades-horneviennes-harmoniques
@@ -38,6 +43,10 @@ Document source : [[2026-09-16_lecon-enneagramme_16_triades-horneviennes-harmoni
 **Le fond du problème est structurel, et la leçon le dit elle-même.** Cinq sources, toutes commerciales ou de praticiens ; la source primaire — le livre de Riso et Hudson, ou l'Enneagram Institute qui fait autorité *« sur ce que Riso et Hudson ont écrit — noms officiels, structure, définitions »* (règle B1) — est absente, alors que c'est précisément le cas où B1 l'autorise. Le renvoi à la leçon 19 (statut épistémique) est le bon geste, mais il ne remplace pas une source d'origine pour des définitions. Les exercices sont solides pédagogiquement : cartographie sans regarder, deux exercices d'auto-observation (stratégie sociale, coping) avec la bonne réserve — *« une donnée, pas un verdict »* —, un challenge à deux grilles sur un conflit réel avec un corrigé de cohérence qui distingue le 9 (Retrait + Positive Outlook) du 8 (Assertif + Réactif). Rien à corriger dans les faits ; la leçon peut rester telle quelle, avec trois retouches de sourçage si on y revient.
 
 **Ce qu'il faudrait retoucher, si on y revient.** ① Sourcer 1999 et 1885-1952 (Wikipedia *Karen Horney* et *Enneagram of Personality* les portent, ou les retirer) ; ② retirer « intentionnelle » ou l'attribuer ; ③ « Confinement » → « contenance » ou « endiguement » ; ④ ajouter l'Enneagram Institute pour les définitions, ou dire pourquoi il ne l'est pas ; ⑤ une ligne sur l'erreur de bestenneagramtest.com dans les ressources. Aucun durcissement de prompt : pas d'incident propre — les règles A2 bis, A4 et B1 ont tenu là où elles ont été écrites, et ce qui manque (des faits vrais sans page) est la faiblesse commune de trois parcours cette semaine, pas de celui-ci.
+
+**Corrigée le 24/09/2026, journal de sept entrées — les cinq retouches de cette fiche, plus deux.** ① *« The Wisdom of the Enneagram (1999) »* et *« Karen Horney (1885-1952) »* étaient exacts et **portés par aucune des cinq pages** : les deux notices Wikipédia qui les donnent sont désormais **liées** (*Karen Horney*, *Enneagram of Personality*) et le texte dit d'où viennent l'année et les dates — ce qui donne aussi à la leçon les deux seules sources non commerciales de sa bibliographie. ② *« formalisée dans The Wisdom of the Enneagram (1999) »* pour les harmoniques → **Heath Davis Havlick** est la seule page à l'écrire (*« discovered by Don Richard Riso and Russ Hudson »*, *« described in The Wisdom of the Enneagram »*, sans année) : elle est citée, ce qui la fait enfin servir. ③ *« cette symétrie est intentionnelle »* → une intention prêtée à deux auteurs qu'aucune page ne rapporte ; la symétrie reste, l'intention part. ④ *« Confinement »* → **contenance** : Daniels écrit *« containing through logical analysis »*, faux ami dans une leçon qui en signalait deux autres. ⑤ L'**erreur de Best Enneagram Test** — *« The triads in the Enneagram were discovered and classified by Psychologist Karen Horney »*, ce qui est faux — est signalée dans le corps et sur sa ligne de ressources : la leçon écrivait déjà le contraire, mais le lecteur qui suivait le lien n'était pas prévenu.
+
+**Deux points que cette fiche n'avait pas relevés.** ⑥ *« David Daniels, co-fondateur de la Narrative Enneagram »* — **« co-founder » compte 0 occurrence** sur la page citée, qui porte *« M.D. »* et nomme *« The Narrative Enneagram »*. C'est exactement la correction faite le même jour dans la leçon n°17, sur une autre page du même auteur : le parcours prête deux fois la même qualité non sourcée au même homme. ⑦ La page de Daniels **ne s'oppose pas** à Riso et Hudson comme la leçon le laissait entendre : elle s'y réfère — *« Don Riso and Russ Hudson call these types the "Attachment Triad" »*, *« the "Rejection Triad" »*, *« the "Frustration Triad" »* — mais pour ses **Harmony Triads**, qui ne sont pas les hornéviennes ; c'est écrit dans le marqueur de correction. `controle_attributions` **exit 0** ; étape 5 bis → **OK**, alors qu'elle refusait cette leçon deux heures plus tôt.
 
 ## Notes liées
 
