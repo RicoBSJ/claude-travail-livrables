@@ -1,0 +1,60 @@
+---
+type: fiche-document
+source: 2026-09-24_lecon-stoicisme_16_exercices-spirituels-hadot.docx
+date_creation: 2026-09-24
+date_lecon: 2026-09-24
+parcours: stoicisme
+numero: 16
+statut: parcours-actif
+tags:
+  - parcours/stoicisme
+  - registre/perso
+  - auteur/hadot
+  - auteur/pigliucci
+  - auteur/sharpe
+  - auteur/russell
+  - concept/exercices-spirituels
+  - concept/prosoche
+  - concept/hypomnemata
+  - concept/trois-disciplines
+  - source/iep
+  - source/mit-classics
+  - source/modern-stoicism
+  - theme/taxonomie-pretee
+  - theme/section-non-portee
+  - theme/livre-non-ouvert
+  - theme/source-decorative
+  - theme/passes-inertes
+  - alerte/a-corriger
+---
+
+# 2026-09-24_lecon-stoicisme_16_exercices-spirituels-hadot
+
+Document source : [[2026-09-24_lecon-stoicisme_16_exercices-spirituels-hadot.docx]]
+
+## Résumé
+
+**La biographie est exacte au mot près, et la leçon est d'une prudence épistémique inhabituelle.** J'ai rouvert les huit pages, toutes en 200. Wikipédia porte exactement ce que la leçon écrit de Hadot : *« 21 February 1922 – 24 April 2010 »*, professeur au Collège de France **en 1983**, chaire *« History of Hellenistic and Roman Thought »*, retraité **en 1991** (dernière leçon le 22 mai) ; *La citadelle intérieure*, Fayard, 1992 ; *Qu'est-ce que la philosophie antique ?*, Gallimard, 1995 ; *Philosophy as a Way of Life*, Blackwell, 1995 ; et l'influence sur Foucault *« in the second and third volumes of his History of Sexuality »*. La définition des exercices spirituels reprend fidèlement la page : *« practices … intended to effect a modification and a transformation in the subjects who practice them »*, et le refus du sens religieux au profit de « l'ensemble des facultés humaines » est bien ce que la page explique. Le point le plus technique est le mieux tenu : *« L'article de Massimo Pigliucci dans l'IEP synthétise comment Hadot (1998) établit les parallèles entre les trois disciplines stoïciennes et les quatre vertus »* — l'article IEP *Stoicism* est bien signé **Massimo Pigliucci (CUNY)** et écrit *« Hadot (1998) draws a series of parallels between the four virtues, the three topoi and what are referred to as the three Stoic disciplines: desire, action, and assent »*. Continuité tenue avec la leçon 15, qui annonçait le thème et la grille (prosochè, meditatio, vue d'en haut, memento mori). Contrôle commun **exit 0**. Coût **1,15 $** — 38 % du plafond, 42 tours, 6 min 10 s.
+
+**Le défaut central : une taxonomie en trois catégories prêtée à Hadot, que personne ne lui prête.** *« Hadot regroupe les exercices stoïciens en trois grandes catégories »* — Exercices de méditation / Exercices actifs / Exercices intellectuels —, suivi d'un tableau à trois lignes. Vérification faite : le mot *« categor »* compte **zéro occurrence** sur l'article Modern Stoicism, et *« three »* **zéro** sur l'article IEP consacré à Hadot. Ce que la page IEP donne, c'est la liste que Hadot tient de Philon d'Alexandrie, en **deux** ensembles : d'un côté *« reading, listening, dialogue, inquiry, and research »*, de l'autre *« practices of attention (prosoche), meditations (meletai), memorizations of dogmata, self-mastery (enkrateia), the therapy of the passions, the remembrance of good things, the accomplishment of duties, and the cultivation of indifference towards indifferent things »* (PWL 84). Tous les items du tableau sont réels ; **le classement en trois, lui, est de la leçon**. Et la parenthèse qui le justifie est pire que l'invention : *« d'après son analyse des trois disciplines stoïciennes — désir, action, assentiment — dont il repère la convergence avec les quatre vertus »*. C'est **Anitra Russell** qui écrit cette correspondance, dans l'article de Modern Stoicism listé en ressources — *« Hadot's three types of active exercises correspond perfectly to Epictetus' three areas of Stoic practice »* — et elle prend soin de préciser l'inverse de ce que la leçon avance : *« while Hadot does not elaborate in this essay on the background or origin of those exercises »*. Son article porte exactement la ligne « Exercices actifs » du tableau (*« self-mastery, accomplishment of duties, and indifference to indifferent things »*) ; **son nom n'apparaît pas une fois dans le corps de la leçon.** C'est le geste de la semaine, troisième parcours d'affilée : la liste sous un nom, après les quatre actions prêtées à la HAS le 21/09 et les quatre différences prêtées à Berzin le 22/09.
+
+**Marc Aurèle : un numéro de section que la page ne porte pas, et un livre cité deux fois sans avoir été ouvert.** La leçon cite *« Méditations, Livre II.11 (trad. G. Long, MIT) »* pour *« nul ne perd d'autre vie que celle qu'il vit maintenant »*. La phrase est bien sur la page — *« no man loses any other life than this which he now lives, nor lives any other than this which he now loses »* —, mais **la page du MIT ne porte aucune numérotation de section** : zéro occurrence de « 11. », de « XI. » ou de « Section ». Le passage est le **17e bloc de texte** de la page, dont les quatre premiers sont la navigation du site ; en comptant les sections à partir de là, c'est **II.14** dans la numérotation courante de la traduction de George Long, pas II.11. Plus net encore : le **Livre VI** est invoqué deux fois — pour la prosochè (*« revenir rapidement à soi-même »*) et pour la sympatheia (*« l'interconnexion de toutes choses »*), chaque fois « d'après le texte MIT ». Or les huit URL de la leçon ne comportent **que le Livre II et la page d'index** ; le Livre Six a sa propre page sur le même site, elle n'a pas été ouverte. Les deux affirmations sont exactes sur le fond (VI.11 et VI.38 chez Long) — elles reposent sur un texte que cette exécution n'a pas lu, et la règle B3 du parcours dit précisément de ne pas décrire ce qu'on n'a pas ouvert.
+
+**L'auteur derrière l'encyclopédie, un nom qui n'est sur aucune page, et trois sources décoratives.** ① L'article IEP sur Hadot est signé **Matthew Sharpe (Deakin University)** — la leçon écrit *« d'après l'IEP, article Hadot »* et ne le nomme jamais, alors qu'elle nomme Pigliucci deux fois pour l'autre article de la même encyclopédie : deux poids, deux mesures dans le même paragraphe de sources. ② *« le renouveau du stoïcisme pratique (Modern Stoicism, Ryan Holiday, massimo Pigliucci) »* : **Ryan Holiday ne figure sur aucune des huit pages** — nom ajouté de mémoire (et « massimo » en minuscule au passage). ③ Trois entrées des ressources n'irriguent rien : l'**Enchiridion d'Épictète** (41 132 caractères, pas une ligne reprise), la **notice archive.org** du livre de Hadot — un scan téléversé par un compte privé, `sapereaude78` —, et l'**index MIT des Méditations**, 538 caractères de menu dont la leçon ne tire que le nom du traducteur. ④ Deux détails d'édition : *Exercices spirituels et philosophie antique* est de 1981 aux **Études augustiniennes**, Albin Michel n'entrant qu'avec la nouvelle édition de 2002 ; et la leçon écrit que Hadot estimait que l'épicurisme et le stoïcisme *« nourrissaient sa propre existence »* là où la page ajoute *« and that of modern society »* — la détermination tombe à la reprise, ce qu'A1 bis interdit depuis le 08/09. Enfin *« souci de soi »* est prêté à Foucault d'après cette page : l'expression n'y apparaît pas.
+
+**Ce que le contrôle n'a pas pu faire, et c'est le plus instructif de cette leçon.** Verdict **exit 0** — mais avec **quatre passes inertes sur dix** : B (aucune citation anglaise de six mots ou plus), C, C2 et D (aucune valeur chiffrée en contexte d'attribution). Autrement dit, les passes qui vérifient qu'une citation est bien sur sa page et qu'un chiffre est bien sur la sienne **n'ont rien eu à chercher**. La raison est dans le document : la leçon ne cite jamais, et elle le dit — *« Synthèse d'après l'IEP, article Hadot — non vérifiable mot à mot en français »*, *« Reformulation du texte MIT, Livre VI — non citation de traducteur nommé »*, *« Style indirect — voir lien ci-dessous »*. Cette honnêteté est réelle et rare ; elle a aussi un effet mécanique : **un document qui ne cite rien ne peut pas être pris à mal citer.** Le seul signalement, une A RELIRE en B-NOM, porte sur la phrase auto-déclarée non vérifiable. À corriger : la taxonomie rendue à qui la construit (Russell) et la liste rendue à Philon via Hadot ; II.11 → II.14, ou le renvoi au bloc sans numéro ; le Livre VI ouvert ou les deux phrases retirées ; Matthew Sharpe nommé ; Ryan Holiday sourcé ou retiré ; l'Enchiridion et l'archive.org employés ou retirés ; *« and that of modern society »* rendu. À durcir : **une taxonomie n'est pas une liste — elle s'attribue à qui l'a construite** ; un numéro de chapitre ou de section se relève sur la page citée, sinon on renvoie au texte sans numéro ; et le prompt `stoicisme-lecon` n'a **aucune étape 5 bis**, donc aucun de ces cinq motifs n'a de test.
+
+## Notes liées
+
+- **⬅️ Précédente** · [[2026-09-17_lecon-stoicisme_15_kathakon-devoir-engagement-cite]]
+  l'annonce du 17/09 est tenue au thème et à la grille près (prosochè, meditatio, vue d'en haut, memento mori), et le kathêkon y est repris comme exercice actif — mais la 15 écrivait *prosechê* et la 16 écrit *prosochè* : deux graphies pour le même mot d'une semaine à l'autre
+- **🔗 Pont** · [[2026-08-06_lecon-stoicisme_09_vue-haut-sympatheia]]
+  l'exercice 3 s'y adosse explicitement (« la vue d'en haut, leçon 9 ») et l'élargit ; c'est le parcours qui se sert de lui-même, ce qui est son point fort
+- **🔗 Pont** · [[2026-06-10_lecon-stoicisme_02_fondations-trois-disciplines]]
+  les trois disciplines — désir, action, assentiment — viennent de là ; c'est elles que la leçon 16 convertit en trois catégories d'exercices, une conversion qui est d'Anitra Russell et non de Hadot
+- **🔗 Pont** · [[2026-09-22_lecon-dzogchen_17_dzogchen-mahamudra-convergences-differences-debats]]
+  **la même faute, trois jours plus tôt** : quatre différences prêtées à Berzin dont deux viennent d'un autre auteur. Ici, trois catégories prêtées à Hadot dont la source dit qu'il ne les élabore pas — et dans les deux cas, l'autrice ou l'auteur réel est dans les ressources sans être nommé
+- **🔗 Pont** · [[2026-09-21_lecon-psychopathologie_17_psychotropes-classes-effets-surveillance]]
+  la liste sous un nom pour la troisième fois en quatre jours, dans un troisième parcours : quatre actions prêtées à la HAS avec le contenu de la leçon
+- **🔗 Pont** · [[2026-09-10_lecon-stoicisme_14_physique-logique-logos-destin-assentiment]]
+  l'un des trois documents vivants du lot « témoins conformes » de `non_regression.sh` — la leçon du parcours qui sert à prouver que le contrôle ne produit pas de faux positif sur des citations anglaises appariées, exactement ce que la 16 ne contient pas
