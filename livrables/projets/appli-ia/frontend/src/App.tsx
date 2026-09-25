@@ -1,9 +1,10 @@
-// App.tsx — mis à jour leçon 06 (04/09/2026)
-// Ajout : état des filtres, useMemo pour les listes dérivées, BarreRecherche.
+// App.tsx — mis à jour leçon 09 (25/09/2026)
+// matcheFiltres et normaliser déplacés vers ./filtres.ts pour testabilité.
 
 import { useState, useEffect, useMemo } from 'react'
 import GrilleCategorie from './GrilleCategorie'
 import BarreRecherche from './BarreRecherche'
+import { matcheFiltres } from './filtres'
 import type { Inventaire, Livrable } from './types'
 import './index.css'
 
@@ -21,33 +22,8 @@ const LABELS: Record<string, string> = {
 // L'ordre reflète la fréquence d'apparition plutôt que l'ordre alphabétique.
 const EXTENSIONS_CONNUES = ['.docx', '.pptx', '.pdf', '.md']
 
-// Normalise une chaîne pour la recherche : minuscules, sans accents.
-// Cela permet de taper "lecon" et de trouver "leçon", ou "education" pour "éducation".
-function normaliser(s: string): string {
-  return s
-    .toLowerCase()
-    .normalize('NFD')           // décompose les caractères accentués
-    .replace(/[\u0300-\u036f]/g, '') // supprime les diacritiques
-}
-
-// Teste si un livrable correspond aux trois filtres actifs.
-// Exportée ici pour être réutilisable et testable unitairement en leçon 09.
-export function matcheFiltres(
-  livrable: Livrable,
-  recherche: string,
-  extension: string
-): boolean {
-  // Filtre par extension (exact)
-  if (extension !== '' && livrable.extension !== extension) return false
-
-  // Filtre par texte : on cherche dans le nom ET dans le slug normalisés.
-  if (recherche !== '') {
-    const cible = normaliser(livrable.nom + ' ' + livrable.slug)
-    if (!cible.includes(normaliser(recherche))) return false
-  }
-
-  return true
-}
+// normaliser et matcheFiltres sont dans ./filtres.ts depuis la leçon 09.
+// Elles sont importées en haut de ce fichier.
 
 function App() {
   // ── État des données ────────────────────────────────────────────────────

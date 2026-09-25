@@ -1,6 +1,6 @@
 {
   "name": "portail-livrables",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "description": "Consultation des livrables produits par les jobs Claude_Travail",
   "type": "commonjs",
@@ -10,6 +10,7 @@
     "serveur": "node scripts/serveur.js",
     "indexer": "node scripts/indexer.js",
     "requetes": "node scripts/requetes.js",
+    "test": "node scripts/tests.js && node --experimental-strip-types --test scripts/tests-filtres.mts",
     "build": "tsc",
     "inventaire:ts": "node dist/inventaire.js"
   },

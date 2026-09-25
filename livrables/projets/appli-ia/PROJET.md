@@ -8,12 +8,13 @@
 
 ## État de l'application
 
-**React + Vite avec recherche, filtres et index SQLite — leçon 08 terminée (18/09/2026).**
+**React + Vite avec recherche, filtres, index SQLite et suite de tests — leçon 09 terminée (25/09/2026).**
 
 Le Portail Livrables dispose de trois couches :
 - **API (port 3000)** : `node scripts/serveur.js` — scan filesystem + route SQLite
 - **Frontend React (port 5173 en dev)** : `cd frontend && npm install && npm run dev`
 - **Index SQLite** : `node scripts/indexer.js` → crée `portail.db`, à relancer après chaque job
+- **Tests** : `npm test` — 33 tests (17 utils.js + 16 filtres.mts), 0 échec (mesuré le 25/09/2026)
 
 Flux recommandé au démarrage :
 ```
@@ -21,13 +22,6 @@ node scripts/indexer.js    # crée/rafraîchit portail.db
 node scripts/serveur.js    # dans un terminal
 cd frontend && npm run dev # dans un autre terminal
 ```
-
-La leçon 08 a ajouté :
-- `scripts/utils.js` : module partagé — RACINE, CATEGORIES, DOCS_DE_DOSSIER, extraireDate, extraireSlug, estLivrable.
-- `scripts/serveur.js` mis à jour : importe ses utilitaires depuis utils.js, plus de code dupliqué.
-- `scripts/indexer.js` mis à jour : idem.
-- `scripts/utils.js` — correctif extraireDate() : gère désormais les deux conventions (date en tête ET date en fin).
-- `src/types.ts` mis à jour : Categorie scindée en CategorieResumee + ReponseLivrables — aligné sur ce que les routes renvoient réellement.
 
 ## Choix techniques arrêtés
 
@@ -47,6 +41,9 @@ La leçon 08 a ajouté :
 | Schéma | Table `livrables` : id, categorie, nom, date, slug, taille, extension, indexe_le | leçon 07 |
 | Index SQL | `idx_categorie_date(categorie, date DESC)` + `idx_extension(extension)` | leçon 07 |
 | Module partagé | `scripts/utils.js` (CJS) — source unique pour CATEGORIES et utilitaires | leçon 08 |
+| Tests utils | `scripts/tests.js` (node:test, CJS) — 17 tests pour extraireDate, extraireSlug, estLivrable | leçon 09 |
+| Tests filtres | `scripts/tests-filtres.mts` (node:test + --experimental-strip-types) — 16 tests pour normaliser et matcheFiltres | leçon 09 |
+| Logique filtrage | `frontend/src/filtres.ts` — normaliser + matcheFiltres extraites de App.tsx | leçon 09 |
 
 Aucune bibliothèque tierce côté serveur hors better-sqlite3. Côté frontend, les quatre dépendances sont **épinglées**
 (relevé `npm show` du 28/08/2026) : react et react-dom en `^19.2.8`, `@vitejs/plugin-react` en
@@ -60,7 +57,7 @@ reproductible et autorise l'installation d'une majeure incompatible.
 | Fichier | Rôle |
 |---|---|
 | `SPEC.md` | Spécification **v1.2** : problème, utilisateur, données, fonctions, hors périmètre, critère de réussite, journal des révisions |
-| `package.json` | **v0.7.0** · scripts `inventaire`, `demo-recursivite`, `serveur`, `indexer`, `requetes`, `build`, `inventaire:ts` · dependencies better-sqlite3 · devDependencies typescript+@types/node |
+| `package.json` | **v0.8.0** · scripts `inventaire`, `demo-recursivite`, `serveur`, `indexer`, `requetes`, `test`, `build`, `inventaire:ts` · dependencies better-sqlite3 · devDependencies typescript+@types/node |
 | `tsconfig.json` | Configuration TypeScript : target ES2022, module commonjs, strict, types:[node], outDir ./dist, rootDir ./src |
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store`, `portail.db*` |
 | `portail.db` | Base SQLite locale, créée par `indexer.js`. Fichier de cache non versionné : peut être supprimé et recréé. |
@@ -81,7 +78,10 @@ reproductible et autorise l'installation d'une majeure incompatible.
 | `frontend/vite.config.js` | Leçon 05 — Plugin React + proxy `/api` → localhost:3000 |
 | `frontend/index.html` | Leçon 05 — Point d'entrée Vite, monte `#root` |
 | `frontend/src/main.tsx` | Leçon 05, typé le 28/08 — `createRoot` + `StrictMode` |
-| `frontend/src/App.tsx` | Leçon 06 — État des filtres, useMemo, matcheFiltres exportée |
+| `frontend/src/App.tsx` | **Mis à jour leçon 09** — Importe matcheFiltres depuis ./filtres |
+| `frontend/src/filtres.ts` | **Nouveau leçon 09** — normaliser + matcheFiltres extraites de App.tsx pour testabilité |
+| `scripts/tests.js` | **Nouveau leçon 09** — 17 tests node:test pour utils.js (extraireDate, extraireSlug, estLivrable) |
+| `scripts/tests-filtres.mts` | **Nouveau leçon 09** — 16 tests node:test (--experimental-strip-types) pour normaliser et matcheFiltres |
 | `frontend/src/BarreRecherche.tsx` | Leçon 06 — Composant contrôlé : texte, catégorie, format, compteur, reset |
 | `frontend/src/GrilleCategorie.tsx` | Leçon 06 — prop `filtreLivrable`, useMemo, repli auto |
 | `frontend/src/CarteLivrable.tsx` | Leçon 05, typé le 28/08 — Carte individuelle |
@@ -195,9 +195,21 @@ reproductible et autorise l'installation d'une majeure incompatible.
   (leçon n°07) sont des **citations historiques** : la commande ne compte plus rien depuis le rangement,
   elle n'est là que pour l'incident qu'elle illustre.
 
+## Livré à la leçon 09 (25/09/2026)
+
+- Nouveau `scripts/tests.js` : 17 tests node:test (CommonJS) pour extraireDate, extraireSlug, estLivrable.
+- Nouveau `scripts/tests-filtres.mts` : 16 tests node:test (--experimental-strip-types) pour normaliser et matcheFiltres.
+- Nouveau `frontend/src/filtres.ts` : normaliser + matcheFiltres extraites de App.tsx.
+  Raison : un fichier .tsx (JSX) ne peut pas être importé par --experimental-strip-types.
+  Un .ts pur le peut — testé le 25/09/2026 sur Node.js v24.15.0.
+- Mise à jour `frontend/src/App.tsx` : importe matcheFiltres depuis ./filtres. `tsc --noEmit` passe.
+- Mise à jour `package.json` v0.8.0 : script `npm test` → node scripts/tests.js && node --experimental-strip-types --test scripts/tests-filtres.mts.
+- `npm test` : **33 tests · 0 fail** (mesuré le 25/09/2026).
+- Extension .mts (TypeScript ESModule) : nécessaire parce que le package.json déclare `"type": "commonjs"`.
+  Sans .mts, Node.js génère SyntaxError sur `import` (testé le 25/09/2026). L'extension .mts force ESM.
+
 ## Reste à faire
 
-9. Qualité, tests, débogage (leçon 09) — node:test natif, tester extraireDate et matcheFiltres
 10. Sécurité et données (RGPD, leçon 10)
 11. Mise en production : build Vite → fichiers statiques servis par Node.js (leçon 11)
 12. Maintenance et évolution (leçon 12)
@@ -229,7 +241,8 @@ reproductible et autorise l'installation d'une majeure incompatible.
   utils.js est la source unique.
 
 - **La recherche SQL LIKE n'est pas accentuée** : LIKE dans SQLite est sensible aux accents
-  par défaut. "lecon" ne trouve pas "leçon". À documenter et évaluer en leçon 09.
+  par défaut. "lecon" ne trouve pas "leçon". Documenté ici, évaluation remise à leçon 10 (sécurité
+  et données) où la route /api/db/search sera revue.
   (Restauré le 18/09/2026 : la version du 11/09 disait « sensible à la casse et aux accents, contrairement à la
   recherche NFD du frontend » et nommait les pistes — extension ICU ou normalisation à l'insertion.)
 
@@ -250,8 +263,8 @@ reproductible et autorise l'installation d'une majeure incompatible.
 - **Compteur de résultats dans BarreRecherche** : affiche le nombre de fichiers des catégories visibles
   d'après `/api/inventaire`, pas le nombre exact de résultats après filtre textuel (ces données vivent dans
   GrilleCategorie, pas dans App). Approximation acceptable ; ~~à améliorer en leçon 08 (remontée des compteurs)~~ —
-  **reporté le 18/09/2026** : la leçon 08 a réécrit « en leçon 09 ou 10 » sans le dire ; motif posé à la relecture :
-  la leçon 09 (tests) est le bon moment, puisqu'un test sur `matcheFiltres` donnera le compte exact à remonter.
+  **reporté le 18/09/2026** ; non traité en leçon 09 — **reporté le 25/09/2026** en leçon 11 (mise en production),
+  où l'architecture front/back sera consolidée.
 
 - **Deux fichiers de types tenus en synchronisation** (`src/types.ts` et `frontend/src/types.ts`) : c'est un
   CHOIX, pas une contrainte. Testé le 18/09/2026 : un `import type` de `../../src/types` depuis `frontend/src/`
