@@ -2,10 +2,18 @@
 // Leçon 09 — Qualité et débogage (25/09/2026)
 //
 // `matcheFiltres` et `normaliser` vivent ici, et non dans App.tsx, pour deux raisons :
-//   1. Testabilité : un fichier .ts pur peut être importé par node:test via
-//      --experimental-strip-types (testé le 25/09/2026 sur Node.js v24.15.0).
-//      Un fichier .tsx (JSX) ne l'est pas : le compilateur JSX est séparé du
-//      déshabilleur de types.
+//   1. Testabilité : un fichier .ts pur peut être chargé par node:test — Node retire
+//      les annotations de type à la volée, sans drapeau depuis v23.6.0 et v22.18.0
+//      (nodejs.org/api/cli.html, table History de --no-strip-types, consultée le
+//      25/09/2026 ; le drapeau --experimental-strip-types a été renommé
+//      --no-strip-types en v24.12.0). Mesuré le 25/09/2026 sur v24.15.0 et v24.18.1 :
+//      16 pass avec ou sans lui.
+//      Corrigé le 25/09/2026 : cet en-tête faisait du drapeau la condition de la
+//      testabilité. Il ne l'est pas — la vraie limite est le JSX.
+//      Un fichier .tsx ne se charge pas : `node frontend/src/App.tsx` rend
+//      TypeError [ERR_UNKNOWN_FILE_EXTENSION] (mesuré le 25/09/2026), et du JSX placé
+//      dans un .mts ne se parse pas. Le déshabilleur de types n'est pas un
+//      compilateur JSX.
 //   2. Réutilisabilité : si une autre page ou un autre composant a besoin de filtrer
 //      des livrables, il importe depuis ici, pas depuis App.tsx.
 //

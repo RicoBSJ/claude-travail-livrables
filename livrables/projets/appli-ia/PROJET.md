@@ -42,7 +42,7 @@ cd frontend && npm run dev # dans un autre terminal
 | Index SQL | `idx_categorie_date(categorie, date DESC)` + `idx_extension(extension)` | leçon 07 |
 | Module partagé | `scripts/utils.js` (CJS) — source unique pour CATEGORIES et utilitaires | leçon 08 |
 | Tests utils | `scripts/tests.js` (node:test, CJS) — 17 tests pour extraireDate, extraireSlug, estLivrable | leçon 09 |
-| Tests filtres | `scripts/tests-filtres.mts` (node:test + --experimental-strip-types) — 16 tests pour normaliser et matcheFiltres | leçon 09 |
+| Tests filtres | `scripts/tests-filtres.mts` (node:test, types déshabillés sans drapeau) — 16 tests pour normaliser et matcheFiltres | leçon 09 |
 | Logique filtrage | `frontend/src/filtres.ts` — normaliser + matcheFiltres extraites de App.tsx | leçon 09 |
 
 Aucune bibliothèque tierce côté serveur hors better-sqlite3. Côté frontend, les quatre dépendances sont **épinglées**
@@ -81,7 +81,7 @@ reproductible et autorise l'installation d'une majeure incompatible.
 | `frontend/src/App.tsx` | **Mis à jour leçon 09** — Importe matcheFiltres depuis ./filtres |
 | `frontend/src/filtres.ts` | **Nouveau leçon 09** — normaliser + matcheFiltres extraites de App.tsx pour testabilité |
 | `scripts/tests.js` | **Nouveau leçon 09** — 17 tests node:test pour utils.js (extraireDate, extraireSlug, estLivrable) |
-| `scripts/tests-filtres.mts` | **Nouveau leçon 09** — 16 tests node:test (--experimental-strip-types) pour normaliser et matcheFiltres |
+| `scripts/tests-filtres.mts` | **Nouveau leçon 09** — 16 tests node:test pour normaliser et matcheFiltres |
 | `frontend/src/BarreRecherche.tsx` | Leçon 06 — Composant contrôlé : texte, catégorie, format, compteur, reset |
 | `frontend/src/GrilleCategorie.tsx` | Leçon 06 — prop `filtreLivrable`, useMemo, repli auto |
 | `frontend/src/CarteLivrable.tsx` | Leçon 05, typé le 28/08 — Carte individuelle |
@@ -198,15 +198,38 @@ reproductible et autorise l'installation d'une majeure incompatible.
 ## Livré à la leçon 09 (25/09/2026)
 
 - Nouveau `scripts/tests.js` : 17 tests node:test (CommonJS) pour extraireDate, extraireSlug, estLivrable.
-- Nouveau `scripts/tests-filtres.mts` : 16 tests node:test (--experimental-strip-types) pour normaliser et matcheFiltres.
+- Nouveau `scripts/tests-filtres.mts` : 16 tests node:test pour normaliser et matcheFiltres.
 - Nouveau `frontend/src/filtres.ts` : normaliser + matcheFiltres extraites de App.tsx.
-  Raison : un fichier .tsx (JSX) ne peut pas être importé par --experimental-strip-types.
-  Un .ts pur le peut — testé le 25/09/2026 sur Node.js v24.15.0.
+  Raison : un fichier .tsx (JSX) ne peut pas être chargé par Node — `node frontend/src/App.tsx`
+  rend TypeError [ERR_UNKNOWN_FILE_EXTENSION] (mesuré le 25/09/2026), et du JSX dans un .mts ne
+  se parse pas. Un .ts pur, lui, se charge — testé le 25/09/2026 sur v24.15.0 et v24.18.1.
 - Mise à jour `frontend/src/App.tsx` : importe matcheFiltres depuis ./filtres. `tsc --noEmit` passe.
-- Mise à jour `package.json` v0.8.0 : script `npm test` → node scripts/tests.js && node --experimental-strip-types --test scripts/tests-filtres.mts.
+- Mise à jour `package.json` v0.8.0 : script `npm test` → node scripts/tests.js && node --test scripts/tests-filtres.mts.
 - `npm test` : **33 tests · 0 fail** (mesuré le 25/09/2026).
 - Extension .mts (TypeScript ESModule) : nécessaire parce que le package.json déclare `"type": "commonjs"`.
   Sans .mts, Node.js génère SyntaxError sur `import` (testé le 25/09/2026). L'extension .mts force ESM.
+
+## Corrigé hors leçon (25/09/2026) — le drapeau qui ne servait plus
+
+- ⚠️ **`--experimental-strip-types` a été retiré de quatre fichiers** : `package.json` (script `npm test`),
+  `scripts/tests-filtres.mts` (en-tête ×2), `frontend/src/filtres.ts` (en-tête) et deux lignes des tableaux
+  ci-dessus. Le déshabillage de types est **actif par défaut depuis Node.js v23.6.0 et v22.18.0**, et le
+  drapeau a été **renommé `--no-strip-types` en v24.12.0 et v25.2.0** — table *History* de `--no-strip-types`
+  sur nodejs.org/api/cli.html, consultée le 25/09/2026. La forme non niée n'apparaît plus dans la page ;
+  elle survit comme alias dans `node --help`. Le projet tourne sur v24.15.0 : le drapeau n'a jamais rien fait ici.
+- Mesuré le 25/09/2026, dans les deux sens et sur les deux binaires de la machine
+  (`/usr/local/bin/node` v24.15.0, celui du launchd ; nvm v24.18.1) : `node --test scripts/tests-filtres.mts`
+  **sans** le drapeau rend 16 pass / 0 fail, **avec** aussi, sans un avertissement.
+  Après retrait : `npm test` rend **33 tests · 0 fail** sur les deux PATH, `npx tsc --noEmit` sort en 0,
+  `vite build` construit.
+- **La décision d'architecture, elle, tient** : `frontend/src/filtres.ts` existe parce qu'un `.tsx` ne se charge
+  pas — `node frontend/src/App.tsx` rend `TypeError [ERR_UNKNOWN_FILE_EXTENSION]: Unknown file extension ".tsx"`
+  et du JSX placé dans un `.mts` ne se parse pas (mesuré le 25/09/2026). C'est la limite JSX qui justifie
+  l'extraction, pas un drapeau. Les en-têtes disaient l'inverse.
+- ⚠️ **Pour les prochaines leçons** : un drapeau `--experimental-…` est une date de péremption. Avant de
+  l'écrire, lance la commande **sans lui** et lis la table *History* de la page `cli.html`. Le garde-fou du
+  parcours — « ne jamais écrire de version de bibliothèque ni de signature d'API de mémoire » — couvre aussi
+  les drapeaux de la CLI, et c'est la première fois qu'il saute là-dessus.
 
 ## Reste à faire
 

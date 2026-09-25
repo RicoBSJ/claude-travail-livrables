@@ -1,13 +1,17 @@
 // scripts/tests-filtres.mts — Tests pour la logique de filtrage frontend
 // Leçon 09 — Qualité et débogage (25/09/2026)
 //
-// Lance avec : node --experimental-strip-types --test scripts/tests-filtres.mts
+// Lance avec : node --test scripts/tests-filtres.mts
 //  ou       : npm test  (script npm qui combine les deux suites)
+// Corrigé le 25/09/2026 : la commande portait --experimental-strip-types. Inutile —
+// le déshabillage de types est actif par défaut depuis v23.6.0 et v22.18.0, et le
+// drapeau a été renommé --no-strip-types en v24.12.0 (nodejs.org/api/cli.html).
+// Mesuré sans lui le 25/09/2026 sur v24.15.0 et v24.18.1 : 16 pass, 0 fail.
 //
 // Extension .mts (TypeScript ESModule) : force Node.js à traiter ce fichier
 // comme un module ES, ce qui permet d'utiliser `import` au lieu de `require`.
-// L'extension .mts est reconnue par Node.js v24+ via --experimental-strip-types.
-// Testé le 25/09/2026 sur Node.js v24.15.0.
+// L'extension .mts est reconnue par Node.js v24+ sans drapeau.
+// Testé le 25/09/2026 sur Node.js v24.15.0 et v24.18.1.
 //
 // POURQUOI .mts ET PAS .ts ?
 // Le package.json du projet ne déclare pas "type":"module" : tous les .js/.ts
