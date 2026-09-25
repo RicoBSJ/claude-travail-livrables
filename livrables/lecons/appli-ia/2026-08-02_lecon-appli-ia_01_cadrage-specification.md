@@ -17,6 +17,8 @@ tags:
   - theme/regime-des-chiffres
   - alerte/corrige
   - correction/2026-09-06
+  - theme/message-erreur-fabrique
+  - correction/2026-09-25
 ---
 
 # 2026-08-02_lecon-appli-ia_01_cadrage-specification
@@ -32,6 +34,8 @@ Document source : [[2026-08-02_lecon-appli-ia_01_cadrage-specification.docx]]
 **Le défaut : deux organismes nommés comme sources, sans adresse.** L'encadré « Trois chiffres à garder en tête » attribuait ses données à *« des travaux référencés notamment sur arXiv, **Cloud Security Alliance**, **OX Security** »*. Seul arXiv figure en Ressources avec une URL testée. Les deux autres étaient nommés **une seule fois dans toute la leçon, sans aucune adresse** — invérifiables par le lecteur comme par le job. Écrire le nom d'un organisme lui confère une autorité que le lecteur ne peut pas distinguer d'une source réellement ouverte : **c'est le nom qui fait la caution**. Les deux noms sont retirés ; les trois chiffres restent, avec leur régime déclaré.
 
 **Et ce qu'elle a apporté au parcours vaut mieux que sa correction.** L'encadré de transparence sur ces trois chiffres — *« Les études d'origine n'ont PAS été ouvertes une à une : traite ces valeurs comme des ordres de grandeur convergents, non comme des mesures que tu pourrais citer telles quelles dans un document professionnel »* — a été produit **spontanément**, alors qu'aucune consigne ne le demandait. Il a été repris **mot pour mot** le 06/09/2026 comme modèle obligatoire dans le prompt du parcours, sous la **règle 14**. Une règle peut naître d'un geste juste autant que d'une faute : celle-ci vient d'une leçon qui a fait, seule, ce qu'on ne lui avait pas demandé.
+
+**Relue le 25/09/2026 — les deux messages d'erreur n'avaient pas été lancés.** Le contrôle (g) de l'étape 5 bis, écrit après la leçon n°09, reprend ce document sur son tableau des erreurs fréquentes. `Cannot find module '.../inventaire.js'` : reproduit, Node préfixe par `Error:` et imprime le chemin **absolu** qu'il a résolu — c'est précisément ce chemin qui montre depuis quel dossier on a lancé. `SyntaxError: Unexpected token` **n'existe pas sous cette forme**, et surtout elle ne correspond pas à la cause donnée juste à côté : une accolade *manquante* donne `SyntaxError: Unexpected end of input`, une accolade *en trop* donne `SyntaxError: Unexpected token '}'` — Node nomme toujours le jeton. Les deux **causes** étaient justes, y compris la plus subtile : un point d'entrée passé à `node` se résout bien sur le répertoire courant, contrairement à un `require('./x')` interne. Un relevé de versions a été revérifié sans être corrigé (il était daté du 02/08) : le LTS est passé à **v24.21.0** et la Current à **v26.10.0**, et la page des versions a été ajoutée aux Ressources, qu'elle aurait dû rejoindre le 02/08 puisque c'est elle qui portait les chiffres.
 
 ## Notes liées
 

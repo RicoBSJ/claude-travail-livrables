@@ -21,6 +21,8 @@ tags:
   - alerte/corrige
   - correction/2026-09-06
   - correction/2026-09-11
+  - theme/message-erreur-fabrique
+  - correction/2026-09-25
   - alerte/puces-vides
   - theme/source-non-citee
 ---
@@ -54,6 +56,8 @@ Le choix annoncé en leçon 04 est tranché : **React + Vite**, dans un dossier 
 **Et le contrôle écrit dans la foulée m'a attrapé moi.** La règle 19 du prompt — *une affirmation se rattache à la page qui la porte, pas au site* — est arrivée avec un test qui aspire chaque page des Ressources et cherche dedans chaque citation anglaise de huit mots ou plus. Passé sur la leçon telle que je venais de la corriger, il a signalé **trois messages d'erreur React que j'avais moi-même mis entre guillemets la veille**, en comblant la puce « Expliquer un message d'erreur React » : *Each child in a list should have a unique key* et *Cannot update a component while rendering a different component* ne figurent sur **aucune** des six pages citées — vérifié sur les six. Ils sont reformulés en descriptions, et la puce porte désormais l'avertissement : *ne le mets pas entre guillemets sans avoir ouvert la page qui le porte*. Une règle qui attrape son auteur le jour où elle est écrite est une règle qui fonctionne.
 
 **Ce qui a été revérifié le 11/09 et tient.** Les quatre URL répondent **200 sans redirection** (14 303 · 9 766 · 26 204 · 42 073 caractères utiles). Les versions annoncées sont celles **réellement installées**, lues dans `node_modules` : react et react-dom **19.2.8**, `@vitejs/plugin-react` **6.1.1**, vite **8.2.2**. L'extrait de `vite.config.js` reproduit dans la leçon est **identique au fichier sur le disque**. `npm run build` passe dans `frontend/` : `tsc --noEmit` au vert puis **19 modules** transformés par vite 8.2.2 — le 19 confirmant la note de fraîcheur ajoutée le 06/09.
+
+**Relue le 25/09/2026 — deux symptômes ne correspondaient pas au chemin qu'ils décrivaient, et le plus instructif est contredit par la leçon elle-même.** `net::ERR_CONNECTION_REFUSED` quand le serveur Node est arrêté est **impossible dans ce projet** : le proxy `/api` du `vite.config.js` que cette leçon même publie est **côté serveur**. Mesuré, serveur arrêté : le navigateur affiche `Failed to load resource: the server responded with a status of 502 (Bad Gateway)` et `fetch` ne lève **même pas d'exception** — il rend une réponse 502. Et `Cannot find module 'vite'` pour un `npm install` oublié : `npm run build` sans `node_modules` rend `sh: vite: command not found`, parce que npm cherche un **exécutable**, pas un module (à noter : `npx vite build` n'échoue pas du tout, il **installe** vite). En revanche la réponse de l'exercice sur le CORS est juste, et elle a été mesurée pour de bon : serveur sur 3000 et frontend sur 5173, l'appel direct est refusé par le navigateur — `has been blocked by CORS policy: No Access-Control-Allow-Origin header` — là où l'appel via le proxy rend **HTTP 200**. La sortie du typage (`error TS2882`) était exacte le 28/08 : rejouée en retirant `src/vite-env.d.ts`, message, code et colonne sont identiques et **seule la ligne a bougé, de 4 à 9**, parce qu'`App.tsx` a grossi. Une sortie datée vieillit sur son numéro de ligne, pas sur son message.
 
 ## Notes liées
 

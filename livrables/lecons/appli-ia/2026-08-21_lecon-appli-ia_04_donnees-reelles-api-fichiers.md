@@ -21,6 +21,8 @@ tags:
   - theme/identifiant-mal-orthographie
   - alerte/corrige
   - correction/2026-09-06
+  - theme/message-erreur-fabrique
+  - correction/2026-09-25
   - projet/portail-livrables
 ---
 
@@ -49,6 +51,8 @@ Une relecture complète a relevé quatre points de plus, corrigés le même jour
 **Trois provenances précisées, aucune erreur de fond (relevé et corrigé le 11/09/2026).** Le test d'attribution a signalé deux relevés *« Node.js v26.7.0, 21/08/2026 »* sur `nodejs.org/api/fs.html#promises-api` et `nodejs.org/api/url.html#the-whatwg-url-api`. Mesuré : les deux pages répondent 200, affichent **v26.8.2**, et le v26.7.0 en a disparu. Le relevé du 21/08 était juste ; il a vieilli en trois semaines. Troisième point : la leçon écrit que *« ce projet tourne sur Node.js v24.15.0 »* sans dire d'où vient ce numéro — ce n'est pas une lecture de documentation mais une mesure de la machine. **Corrigé** : les deux lignes portent leur revérification et sa raison, et la provenance locale est écrite (`node -v` le 21/08/2026 ; **v24.18.1** au 11/09/2026, la ligne LTS avançant aussi).
 
 **Et cette leçon fait mieux que la règle qui l'a suivie.** Le test signalait ces points, mais la leçon portait déjà l'explication, écrite le 21/08 : *« nodejs.org publie la documentation de la version COURANTE, ici v26.7.0, alors que ce projet tourne sur Node.js v24.15.0 »*. **Elle distingue la version qu'elle LIT de celle qu'elle EXÉCUTE** — un réflexe absent partout ailleurs dans le corpus, et qui est l'esprit même du garde-fou sur les versions. Ce qui manquait n'était pas la compréhension : c'était la date de revérification et la provenance de la mesure locale. C'est aussi ce cas qui a fait ajouter au test la catégorie **dérive documentée** : sans elle, un document correctement re-daté restait rouge pour toujours — et un test qu'on ne peut pas ramener au vert finit par n'être plus lu.
+
+**Relue le 25/09/2026 — les quatre messages du tableau étaient tronqués ou mal formés, et les quatre causes exactes.** ① `Error: listen EADDRINUSE :::3000` perdait `: address already in use` — que **la leçon 02 publiait correctement deux semaines plus tôt**. ② `TypeError [ERR_INVALID_URL]: Invalid URL` : l'en-tête réel est `TypeError: Invalid URL` tout court, le code n'étant qu'une propriété de l'objet (`e.code`) ; toutes les erreurs de Node ne portent pas leur code dans l'en-tête, et celle-ci ne le porte pas — la forme existe (`TypeError [ERR_UNKNOWN_FILE_EXTENSION]`, mesurée le même jour), ce qui rend la confusion facile et l'invention invisible. ③ `SyntaxError: Cannot use import statement` perdait `outside a module`. ④ `ReferenceError: require is not defined` perdait le remède. Le défaut est **entièrement dans la recopie** : port occupé, `new URL()` sans base, import ESM en CommonJS, fichier traité comme ESM — aucune cause n'a bougé. C'est la forme la plus difficile à voir en relisant, puisque la ligne a l'air juste.
 
 ## Notes liées
 

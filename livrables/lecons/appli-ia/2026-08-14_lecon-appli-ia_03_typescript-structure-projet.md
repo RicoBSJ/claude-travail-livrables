@@ -19,6 +19,8 @@ tags:
   - theme/sortie-attendue-perimee
   - alerte/corrige
   - correction/2026-09-06
+  - theme/message-erreur-fabrique
+  - correction/2026-09-25
 ---
 
 # 2026-08-14_lecon-appli-ia_03_typescript-structure-projet
@@ -38,6 +40,8 @@ Les **interfaces** sont présentées pour ce qu'elles sont : des contrats sur la
 La section sur les manques de l'IA prolonge ce constat avec trois travers reconnaissables : recourir à `any` pour faire taire une erreur au lieu de la résoudre — `unknown` étant le bon réflexe quand le type est encore indéterminé ; produire des interfaces qui décrivent le code montré plutôt que les données réelles, TypeScript faisant confiance aux déclarations et jamais aux données à l'exécution ; et inventer des noms de paquets, d'où la vérification par `npm show`. **L'écart n°4 du projet — le `README.md` compté comme livrable — est enfin résolu ici**, comme prévu depuis la leçon 02.
 
 **Trois corrections, aucune sur un fait technique.** ① **L'adresse publiée n'était pas celle de la page** : `nodejs.org/en/about/releases` **redirige** vers `/en/about/previous-releases`. Le test `curl` du parcours suit les redirections — le 200 ne révélait rien. Le contenu cité est exact ; l'URL a été corrigée **dans la relation du .docx**, et elle ne redirige plus. La leçon 02 publiait déjà, elle, la bonne adresse pour ce même tableau : c'est cet écart entre deux leçons du même parcours qui a donné la **règle 15** du prompt. ② **Une sortie attendue qui se périme toute seule** : la liste de contrôle annonçait *« controles 1 fichier(s) »*. Exact au 14/08 — l'historique du dépôt le confirme — mais le dossier reçoit un fichier par semaine et la même commande renvoie **4** au 06/09. Or ce que l'exercice vérifie n'est pas le **nombre**, c'est que `README.md` ne soit plus compté : une **propriété**, qui ne bouge pas. La consigne le dit désormais, avec une commande de recoupement. **La règle 10 du prompt a été étendue le jour même aux sorties attendues des commandes de vérification.** ③ *« ES2022 est supportée par Node.js v18+ »* — affirmation sur un runtime, **absente des quatre sources**, exactement ce que vise le garde-fou n°2. Remplacée par ce qui est vérifiable localement : `engines.node >= 24` dans le `package.json` du projet.
+
+**Relue le 25/09/2026 — les deux messages étaient justes sur le fond, approximatifs dans leur forme.** Reproduits avec **TypeScript 7.0.2**, la version du projet : `TS2307` porte `or its corresponding type declarations.`, et c'est exactement ce qui le distingue du `Cannot find module` de Node à l'exécution — la leçon coupait avant, en perdant la seule information qui désambiguïse ; `TS5108` commence par `Option '…'` et finit par `Please remove it from your configuration.` Les deux codes et les deux causes étaient exacts. **Une observation prescrite était fausse et se vérifiait en une commande** : « si tu ouvres `dist/types.js`, tu verras un fichier vide (ou presque) ». Mesuré : **891 octets, dont exactement deux lignes de code** — `"use strict";` et `Object.defineProperty(exports, "__esModule", …)` — le reste étant l'en-tête de commentaires que `tsc` recopie. Aucune interface ne survit, ce qui est bien le point de la démonstration ; « vide » ne l'était pas. Enfin l'adresse morte que le journal du 06/09 citait (`nodejs.org/en/about/releases`, HTTP 404) est déclarée comme telle : elle bloquait le contrôle d'attributions depuis trois semaines, dans le journal d'une correction réussie.
 
 ## Notes liées
 
