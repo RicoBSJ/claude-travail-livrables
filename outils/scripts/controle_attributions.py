@@ -942,13 +942,45 @@ for mv in re.finditer(r"\bv?(\d+\.\d+\.\d+)\b", corps):
         releve = re.search(r"rev[ée]rifi[ée]e?s?\s+le|remesur[ée]e?s?\s+le"
                            r"|affiche d[ée]sormais|ne (?:l[ae] |y )?(?:figure|porte) plus",
                            large, re.I)
+        # ⚠️ SECOND ACQUITTEMENT, AJOUTE LE 25/09/2026 — LA DERIVE DECLAREE.
+        #    Le premier acquittement (ci-dessous, `neuf`) exige que le numero de
+        #    REMPLACEMENT annonce par la lecon soit encore celui de la page. Il PERIME :
+        #    la lecon appli-ia n°04 ecrit, depuis le 11/09/2026, « REVERIFIEE LE
+        #    11/09/2026 : la page affiche desormais v26.8.2 et le v26.7.0 n'y figure
+        #    plus » — impeccable — mais nodejs.org/api/fs.html publie la doc de la
+        #    version COURANTE : mesure le 25/09/2026, la page porte 26.10.0 et plus
+        #    aucune trace de 26.8.2. L'acquittement est tombe, et le controle a
+        #    re-accuse pendant deux semaines une ligne qui disait deja la verite.
+        #    Un test qu'on ne peut pas ramener au vert finit ignore : c'est ecrit
+        #    six lignes plus bas, et c'est arrive au test lui-meme.
+        #    Le discriminant qui ne perime pas : la lecon DECLARE que la page ne le
+        #    porte plus — ce que le controle vient precisement de mesurer, donc les
+        #    deux sont D'ACCORD — ET elle porte DEUX dates distinctes, celle du releve
+        #    et celle de la reverification. Le defaut du 28/08/2026 qui a motive la
+        #    regle n'a ni l'un ni l'autre : « Vite v8.2.2 — verifiee sur vite.dev/guide/
+        #    le 28/08/2026 » affirme que la page LA PORTE, a une seule date, et
+        #    vite.dev/guide/ ne l'a jamais portee. Une date seule n'acquitte toujours pas.
+        absence = re.search(r"n[’']?(?:y |e l[ae] |e )?(?:figure|porte|apparai[ts]|est)\s+plus"
+                            r"|en a disparu|a disparu de|ne s[’']y trouve plus",
+                            large, re.I)
+        dates = set(re.findall(r"\d{2}/\d{2}/\d{4}", large))
         neuf = None
         if releve:
             # on lit d'abord APRES le marqueur : « affiche desormais v26.8.2 ». Sans cela
             #    le premier numero de la fenetre est retenu, et le message vert annonce un
             #    numero sans rapport (mesure du 11/09/2026 : 24.0.0 au lieu de 26.8.2).
-            candidats = (re.findall(r"\bv?(\d+\.\d+\.\d+)\b", large[releve.end():])
-                         + re.findall(r"\bv?(\d+\.\d+\.\d+)\b", large))
+            # ⚠️ APRES LE MARQUEUR, ET NULLE PART AILLEURS (resserre le 25/09/2026).
+            #    Le repli « + re.findall(..., large) » cherchait dans TOUTE la fenetre de
+            #    800 caracteres : sur la lecon appli-ia n°04, il acquittait la ligne
+            #    url.html en annoncant « la page porte maintenant 24.0.0 » — un numero pris
+            #    dans une phrase VOISINE et sans rapport (l'historique de depreciation
+            #    d'url.parse(), « RÉVOCATION … v24.0.0 »), que nodejs.org/api/url.html
+            #    porte effectivement dans son tableau History. La ligne etait juste, mais
+            #    acquittee pour une raison fausse — et n'importe quelle ligne fautive
+            #    voisine d'un numero que la page porte l'etait aussi. C'est un FAUX NEGATIF,
+            #    plus grave que le faux positif corrige le meme jour : le numero de
+            #    remplacement doit etre celui que la lecon ANNONCE, donc apres son marqueur.
+            candidats = re.findall(r"\bv?(\d+\.\d+\.\d+)\b", large[releve.end():])
             for autre in candidats:
                 if autre == v:
                     continue
@@ -959,6 +991,10 @@ for mv in re.finditer(r"\bv?(\d+\.\d+\.\d+)\b", corps):
         if neuf:
             print("   DERIVE     %-10s pres de %-38s -> la page porte maintenant %s, et la "
                   "lecon le DIT : derive documentee, pas defaut" % (v, dom + chemin, neuf))
+        elif releve and absence and len(dates) >= 2:
+            print("   DERIVE     %-10s pres de %-38s -> la lecon DECLARE que la page ne la "
+                  "porte plus, la mesure le confirme, et deux dates l'attestent (%s) : "
+                  "derive declaree, pas defaut" % (v, dom + chemin, ", ".join(sorted(dates))))
         else:
             ko_c2 += 1
             date = re.search(r"\d{2}/\d{2}/\d{4}", zone)
