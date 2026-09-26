@@ -45,7 +45,12 @@ MODE="${1:-}"
 # « no matches found » avant même le diff des verdicts — refus, mais sans message lisible. Avec (N), le
 # motif vide rend zéro fichier, le compteur reste à 0 et le contrôle ci-dessous dit ce qui manque.
 ATTENDU_DECOMPTE=14   # temoins_decompte_avant_correction/
-ATTENDU_CONFORMES=4   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/
+ATTENDU_CONFORMES=5   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (2 copies figées)
+#   5 depuis le 26/09/2026 : la leçon placement-financier n°03 AVEC SES MARQUEURS DE CORRECTION
+#   GUILLEMETÉS est entrée dans le lot. C'est le seul témoin qui garde l'exemption des marqueurs
+#   dans les passes B, B-FR et B-NOM : il DOIT sortir en 0, et il sortait en 1 avant le correctif
+#   du 26/09 (mesuré dans les deux sens). Si une formulation citée pour mémoire redevient un jour
+#   une attribution, c'est lui qui le dira — aucun autre témoin conforme ne porte de marqueur.
 ATTENDU_AVANT=7       # temoins_attributions_avant_correction/ — 7 depuis le 25/09/2026 :
 #   la leçon appli-ia n°05 d'avant le 11/09 (commit 4ed6de0) est entrée dans le lot ce jour-là.
 #   C'est le SEUL témoin qui exerce la passe C2 : « Vite v8.2.2 — vérifiée sur vite.dev/guide/

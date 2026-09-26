@@ -609,6 +609,26 @@ def source_nommee_fr(avant, apres):
 #    une citation anglaise de 8 mots « absente des pages ». Ouverture et fermeture non precedees d'un chiffre.
 #    un guillemet droit OUVRANT n'est pas colle a une lettre (la fermeture de "induire" suivie de l'ouverture de
 #    "covert" fabriquait la « citation » « un état hypnotique chez une tierce personne… » — hypnose n°14, 15/09/2026)
+# ⚠️ LES MARQUEURS DE CORRECTION SE CALCULENT, ILS NE S'APPROXIMENT PAS (26/09/2026).
+#    Une exemption existait depuis le 17/09 : une citation était écartée si un « [ » non refermé
+#    se trouvait dans les 300 caracteres precedents ET un « ] » dans les 400 suivants. Elle tenait
+#    pour des marqueurs courts. Les marqueurs de correction font desormais 400 a 900 caracteres —
+#    ils expliquent ce qui a ete mesure —, si bien que les formulations d'origine qu'ils citent
+#    retombaient hors fenetre et redevenaient des attributions. Mesure du 26/09/2026 : corriger la
+#    lecon placement-financier n°03 la faisait passer de 1 a 3 bloquants, uniquement a cause de la
+#    trace conservee dans son propre marqueur. Quatre fois en une semaine le meme piege.
+#    On calcule donc les SPANS reels, en tolerant un niveau de crochets imbriques
+#    (« TypeError [ERR_UNKNOWN_FILE_EXTENSION] » vit a l'interieur d'un marqueur).
+MARQUEUR = re.compile(r"\[(?:Corrigé|Corrige|Précisé|Precise|Ajouté|Ajoute|Note du|Vérifié|Verifie)\b"
+                      r"[^\[\]]*(?:\[[^\]]*\][^\[\]]*)*\]", re.S)
+SPANS = [m.span() for m in MARQUEUR.finditer(corps)]
+def dans_marqueur(i):
+    """i tombe-t-il dans un marqueur de correction ? (la trace n'est pas une attribution)"""
+    return any(a <= i < b for a, b in SPANS)
+ecartes_marqueur = 0
+corps_hm = corps
+for a_, b_ in SPANS:
+    corps_hm = corps_hm[:a_] + " " * (b_ - a_) + corps_hm[b_:]
 for m in re.finditer(r"(?:«|(?<![\wÀ-ÿ])\")\s*([^»\"]{9,700}?)\s*(?:»|\"(?![\wÀ-ÿ]))", corps):   # 700 : une citation hagiographique tient sur 500 caracteres (㉗)
     c = re.sub(r"\s+", " ", m.group(1)).strip()
     if re.search(r"[<>{}=]|//|\w\(\)", c):   continue      # code, pas prose ; « ; » n'exclut plus (« in his heart; a stream of tears » — Thondup, dzogchen 16, ㉗), ni « … »
@@ -616,7 +636,8 @@ for m in re.finditer(r"(?:«|(?<![\wÀ-ÿ])\")\s*([^»\"]{9,700}?)\s*(?:»|\"(?!
     # une citation entre crochets de correction (« [Corrigé le … : la première version citait « … »] ») cite
     # l'erreur, elle ne l'affirme pas : exemptee dans les deux langues (17/09/2026 — astrologie n°07)
     av_ = corps[max(0, m.start() - 300):m.start()]
-    if "[" in av_.rsplit("]", 1)[-1] and "]" in corps[m.end():m.end() + 400]:
+    if dans_marqueur(m.start()):
+        ecartes_marqueur += 1
         continue
     if FR.search(c) or not OUTILS.search(c):
         # ㉖ citation FRANCAISE — un mot-outil francais, ou aucun mot-outil anglais (« contradictoires », un seul
@@ -791,7 +812,9 @@ def mots_pleins(z, nom):
 ko_nom = 0
 a_relire_nom = 0
 phrases_nom = []
-for ph in re.split(r"(?<=[.!?])\s+|\n+", corps):
+# B-NOM lit le corps PRIVE de ses marqueurs : une phrase decoupee a l'interieur d'un marqueur
+# ne contient pas forcement « [Corrigé le », et le filtre ci-dessous la laissait passer (26/09/2026).
+for ph in re.split(r"(?<=[.!?])\s+|\n+", corps_hm):
     ph = ph.strip()
     if len(ph) < 40 or "«" in ph or "\"" in ph or "[Corrigé le" in ph or "Journal des corrections" in ph:
         continue
@@ -813,6 +836,9 @@ for ph in re.split(r"(?<=[.!?])\s+|\n+", corps):
             continue
         phrases_nom.append((ph, nom_, attendues, mots))
         break                                     # une phrase, une attribution : la premiere
+if ecartes_marqueur or SPANS:
+    print("   (%d marqueur(s) de correction, %d citation(s) écartée(s) : une formulation citée pour\n          mémoire dans un « [Corrigé le … ] » n'est pas une attribution — elle n'a pas été cherchée)"
+          % (len(SPANS), ecartes_marqueur))
 print("\nB-NOM. AFFIRMATIONS SANS GUILLEMETS PRETEES A UNE SOURCE NOMMEE (« selon X », « (X) », « X indique ») : %d" % len(phrases_nom))
 for ph, nom_, attendues, mots in phrases_nom:
     lues = [u for u in attendues if u not in non_lues and u not in non_textuels and len(textes.get(u, "")) >= 500]
