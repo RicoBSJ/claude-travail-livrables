@@ -1,0 +1,51 @@
+---
+type: fiche-document
+source: 2026-09-26_lecon-placement-financier_16_transmission-succession-demembrement.docx
+date_creation: 2026-09-26
+date_lecon: 2026-09-26
+parcours: placement-financier
+numero: 16
+statut: parcours-actif
+tags:
+  - parcours/placement-financier
+  - registre/perso
+  - module/transmission
+  - concept/demembrement
+  - concept/usufruit-nue-propriete
+  - concept/abattement-15-ans
+  - concept/bareme-progressif
+  - source/service-public
+  - source/legifrance
+  - source/lafinancepourtous
+  - theme/contradiction-interne
+  - theme/condition-omise
+  - theme/promesse-non-tenue
+  - alerte/a-corriger
+---
+
+# 2026-09-26_lecon-placement-financier_16_transmission-succession-demembrement
+
+Document source : [[2026-09-26_lecon-placement-financier_16_transmission-succession-demembrement.docx]]
+
+## Résumé
+
+**Sur les chiffres — et c'est une leçon fiscale, donc c'est l'essentiel — tout est exact, y compris ce que je m'attendais à ne pas pouvoir vérifier.** Les sept tranches du barème en ligne directe sont celles de service-public.fr au caractère près (5 % jusqu'à 8 072 €, puis 8 073–12 109 à 10 %, 12 110–15 932 à 15 %, 15 933–552 324 à 20 %, 552 325–902 838 à 30 %, 902 839–1 805 677 à 40 %, au-delà 45 %), et les six abattements aussi — 100 000 € par enfant et par parent, 159 325 € au titre du handicap **en cumul** comme la page le précise, 15 932 €, 7 967 €, 1 594 €, conjoint et partenaire de PACS exonérés. **Le barème de l'article 669 CGI est exact sur ses neuf tranches**, et le plus notable est la manière dont la leçon le déclare : *« accès direct 403 anti-robot probable, contenu vérifié lors de cette exécution »*. J'ai vérifié la vérification — Légifrance rend bien un **403** au curl avec agent de navigateur, et la page s'ouvre par la voie que la leçon dit avoir employée, qui rend les neuf lignes identiques (90/10, 80/20, 70/30, 60/40, 50/50, 40/60, 30/70, 20/80, 10/90). **L'arithmétique des exercices est juste au centime** : les 34 194,35 € de l'exercice 1 se recomposent exactement (403,60 + 403,70 + 573,45 + 32 813,60), et les 403,70 € et 573,45 € sont **littéralement les nombres de l'exemple de service-public.fr**. Le point le plus facile à rater est bien traité : un usufruitier de **61 ans** n'est pas « moins de 61 ans », il relève de « moins de 71 ans » — usufruit 40 %, nue-propriété 60 %. La leçon le dit, l'écrit dans son tableau entre parenthèses, et le réapplique correctement à 68 ans. Côté déontologie, le rappel est explicite, répété, et le Pont pro renvoie au **juge des contentieux de la protection** pour une donation sous tutelle, ce qui est le bon interlocuteur.
+
+**Le défaut central est une contradiction interne, et la version fausse arrive la première.** L'exemple de la section 1 écrit : un enfant hérite de 350 000 €, *« après abattement de 100 000 €, la part taxable est de 250 000 €, intégralement soumise au taux de 20 % »*. Le barème est **progressif par tranches**, ce que la leçon démontre elle-même trente lignes plus loin dans l'exercice 1, puis énonce en toutes lettres dans une note pédagogique : *« le taux marginal (20 %) ne s'applique qu'à la partie qui dépasse le seuil de la tranche. Le taux moyen effectif est toujours inférieur au taux marginal. »* Les deux ne peuvent pas être vrais ensemble. Sur ces 250 000 €, le calcul correct donne **48 194,35 €** de droits ; « intégralement 20 % » en donne **50 000 €**, soit **1 805,65 € de trop**. Ce n'est pas une erreur de calcul — c'est le raccourci exact contre lequel la leçon met en garde, écrit par elle, dans la section de théorie que le lecteur lit en premier et retiendra le mieux. Le document contient donc son propre correctif, sans le savoir.
+
+**Deux thèmes annoncés par la leçon précédente ne sont pas traités, et la leçon 15 est citée pour un biais qu'elle ne contient pas.** La 15 annonçait, dans sa section « Prochaine leçon » : *« donation, succession, usufruit et nue-propriété, **démembrement de contrat d'assurance-vie**, abattements fiscaux, **pacte Dutreil** »*. Sur ces six thèmes, quatre sont livrés ; **« Dutreil » compte 0 occurrence** dans la leçon 16, et le démembrement de clause bénéficiaire aussi — l'assurance-vie n'y a que cinq lignes, présentées comme un rappel de la leçon 6 (référence exacte, la leçon 6 est bien celle du 18/07 sur l'assurance-vie). Le pacte Dutreil n'est pas un détail : c'est le dispositif central de transmission d'entreprise, et le seul que la 15 avait nommément promis. Second écart de continuité, plus discret : la leçon ouvre sur *« Lien avec la leçon 15 (biais comportementaux) : … les **biais d'inaction (procrastination)** et d'aversion aux pertes »*. Dans la leçon 15, « procrastination », « inaction », « statu quo » et « inertie » comptent **0 occurrence chacun** ; « aversion aux pertes » y est **treize fois**. La moitié du pont est réelle, l'autre attribue à la mémoire du parcours un contenu qu'elle n'a pas.
+
+**Trois conditions décisives sont tombées entre la page et la leçon.** ① Le don familial de 31 865 € est ouvert, dit la leçon, aux « enfant, petit-enfant, neveu/nièce ». La page écrit : *« Neveu ou nièce **si le donateur n'a pas de descendants** »* — condition supprimée, et elle inverse le résultat pour tout oncle ayant des enfants. Y disparaissent aussi l'arrière-petit-enfant, bénéficiaire éligible, et l'exigence que le bénéficiaire soit **majeur ou émancipé**. ② Le dispositif temporaire est résumé « acquisition d'une résidence principale **neuve** ou travaux de rénovation énergétique, utilisation dans les 6 mois, maintien comme résidence principale 5 ans ». Trois précisions manquent : les travaux doivent **donner droit à MaPrimeRénov'** ; le logement peut aussi être **loué** en résidence principale pendant les cinq ans ; et l'acquisition **en l'état futur d'achèvement** est admise — alors qu'une construction de maison individuelle hors VEFA ne l'est pas. ③ L'abattement de **1 594 €** est étiqueté « Autres (non-parents) » ; la valeur est la bonne, mais la page l'attache d'abord au **petit-enfant** (*« 1 594 € si votre parent (père/mère) est vivant »*), et le tableau de la leçon **n'a aucune ligne pour les petits-enfants** — qui reviennent pourtant deux fois dans sa propre section donation. Aucune de ces trois omissions n'est une invention : ce sont des conditions que la page porte et que le résumé a laissées de côté, dans un document dont l'objet est de préparer les questions à poser à un notaire.
+
+**C'est la première leçon produite sous le prompt durci du 24/09, et elle coûte 40 % de son plafond.** **1,1933 $ pour 3,00 $**, **36 tours**, 8 min 12 s, 24 544 tokens en sortie, 1 190 492 de cache lu, prompt à **47 420 octets** — celui qui porte l'étape 5 bis et les règles écrites après l'incident des notations d'agences. Le parcours reste le plus sobre du dépôt : 1,14 $, 0,96 $, 1,19 $ sur les trois dernières semaines, là où appli-ia est monté à 2,70 $. **Les contrôles passent tous et n'ont rien pu voir de ce qui précède** : `controle_attributions` sort en **0 bloquant** — avec, honnêtement signalée, **une page non lue sur quatre** (Légifrance, 0 octet, le 403) — l'étape 5 bis du parcours rend **« OK — aucun des trois motifs »**, et `controle_decompte` répond **« LISTE NON RECONNUE »**, la leçon n'ayant pas de rubrique Sources à symboles : le contrôle du décompte **n'a rien cherché**. Aucun des trois motifs ne regarde une condition omise, une contradiction entre deux sections du même document, ni une promesse de la leçon précédente. Ce qui est relevé ici l'a été en rouvrant les quatre pages et en relisant la leçon 15 — pas par une machine.
+
+## Notes liées
+
+- **⬅️ Précédente** · [[2026-09-19_lecon-placement-financier_15_biais-comportementaux-epargnant]]
+  **elle annonçait six thèmes pour aujourd'hui, la 16 en livre quatre** : ni le pacte Dutreil ni le démembrement de clause bénéficiaire d'assurance-vie n'y figurent (0 occurrence). Et la 16 lui attribue un « biais d'inaction (procrastination) » qu'elle ne contient pas — l'aversion aux pertes, elle, y est treize fois
+- **🔗 Pont** · [[2026-07-18_lecon-placement-financier_06_assurance-vie-fonds-euros-uc-fiscalite]]
+  **le renvoi est exact** — c'est bien là que le régime successoral de l'assurance-vie a été détaillé. C'est ce qui rend l'absence du démembrement de clause bénéficiaire plus visible : la base existait, la 15 l'avait promise, la 16 la survole en cinq lignes
+- **🔗 Pont** · [[2026-09-25_lecon-appli-ia_09_qualite-tests-debogage]]
+  **dire juste à un endroit et le contraire à un autre, dans le même document** : là-bas la cause exacte de `Cannot find module` était écrite une semaine plus tôt et son inverse publié ensuite ; ici le barème progressif est démontré dans l'exercice 1 et nié dans l'exemple de la théorie, trente lignes plus haut. Un document ne se relit pas contre lui-même
+- **🔗 Pont** · [[2026-09-24_lecon-astrologie-karmique_08_retrogradations-mouvement-apparent-lecture]]
+  **l'avant-veille, la même semaine, la même forme** : une page ouverte, longuement et exactement lue, dont on retient le chiffre et non la condition qui l'accompagne. Là-bas un pourcentage inversé, ici « neveu ou nièce » sans « si le donateur n'a pas de descendants ». Le contrôle qui vérifie qu'un chiffre figure sur la page ne vérifie jamais ce qui figure à côté
