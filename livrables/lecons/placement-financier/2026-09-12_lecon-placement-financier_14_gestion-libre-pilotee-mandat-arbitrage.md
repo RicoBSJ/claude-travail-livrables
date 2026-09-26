@@ -23,6 +23,7 @@ tags:
   - alerte/source-non-citee
   - alerte/corrige
   - correction/2026-09-12
+  - correction/2026-09-26
 ---
 
 # 2026-09-12_lecon-placement-financier_14_gestion-libre-pilotee-mandat-arbitrage
@@ -42,6 +43,8 @@ Document source : [[2026-09-12_lecon-placement-financier_14_gestion-libre-pilote
 **Ce que la leçon fait bien, et qui distingue ce parcours.** Elle refuse de chiffrer ce qu'elle ne peut pas sourcer : *« les chiffres de frais de mandat circulent dans la presse financière à partir de sources secondaires. Se référer systématiquement aux DIC »* — alors que la page Calcunet, citée, lui offrait une fourchette de 0,15 % à 0,40 %. Elle déclare fictifs les rendements de l'exercice 2 et les clauses de l'exercice 3, y compris le *« 40 % de fonds maison »* de la clause 3, qui est une hypothèse d'école et non une règle. Elle écrit que les chiffres fiscaux n'ont *« pas [été] vérifiés sur source primaire lors de cette exécution »* au lieu de les recopier. Et elle porte quatre fois l'avertissement de non-conseil, jusqu'au Challenge — *« ce challenge est un exercice d'éducation financière. Il ne produit pas une décision d'investissement »*. Exécution à **1,1422 $** (38 % du plafond), 32 tours, 9 min 23 s.
 
 **Le prompt de ce parcours a été durci le 12/09/2026 sur ces quatre cas — et c'est le premier de ses durcissements à porter des contrôles mécaniques.** Quatre règles nouvelles, chacune avec l'incident du jour : **A4** un facteur ne s'arrondit pas avant de multiplier, et chaque « ≈ » se recalcule par une commande ; **B2** une source nommée dans le corps est une source listée ; **B3** la date d'une source se lit sur la page, jamais sur un horodatage — avec le test du jour de la semaine ; **C2** ce que la source dit de plus que la théorie s'applique aux cas construits. Et la famille E, qui n'avait aucune commande, en reçoit trois : l'intégrité du `.docx` (puces vides comprises), le contrôle d'attribution commun — désormais un fichier du dépôt, `outils/scripts/controle_attributions.py`, qui a gagné une passe **A4** sur les lignes « Source : » sans adresse, cas fondateur celui-ci — et le recalcul de l'arithmétique. Les trois ont été réextraits du prompt et passés sur cette leçon corrigée : `OK … 6 lien(s) · 28 puce(s), 0 vide` · `exit 0` · `37417 41693 4276`. Et la passe A4, passée sans réseau sur les 135 leçons, trouve **cinq autres lignes « Source : » qui nomment et datent sans lier** — hypnose 08, revenus-passifs 04 et 07, psychopathologie 14 (deux) — non traitées ici.
+
+**Précisée le 26/09/2026, des deux côtés.** En **réception** : la leçon 13 demandait « comment évaluer la **qualité** d'un mandat de gestion ? » ; celle-ci répond par le coût et par le contenu de la convention, ce qui est utile et vérifiable, mais laisse de côté la performance nette comparée, l'historique du mandataire et le reporting attendu — le mot « qualité » n'y figure pas. En **émission** : sa ligne d'annonce, ajoutée le même jour, nomme quatre biais pour la leçon 15 — aversion aux pertes, excès de confiance, **biais de récence**, biais de confirmation. Trois sont traités ; **le biais de récence ne l'est pas**, et c'est cette ligne qui a permis de le constater. Journal de 2 entrées.
 
 ## Notes liées
 

@@ -14,6 +14,7 @@ tags:
   - support/opci
   - support/siic
   - notion/liquidite
+  - correction/2026-09-26
 ---
 
 # 2026-08-01_lecon-placement-financier_08_immobilier-scpi-pierre-papier
@@ -31,6 +32,8 @@ Trois véhicules indirects sont distingués — **SCPI, OPCI, SIIC** — avec po
 Le chiffre à retenir, repris en leçon 09 : **les SCPI affichent des frais d'entrée de 8 à 12 %**, ce qui impose un horizon long pour être amorti.
 
 La leçon rappelle que l'immobilier constitue une classe d'actifs à part entière, envisagée en complément des enveloppes financières et non à leur place.
+
+**Précisée le 26/09/2026 — un thème annoncé, traité à moitié.** La leçon 07 promettait « nous analyserons les **rendements historiques** ». Cette leçon donne un **rendement annuel brut moyen de 4 % à 5 %/an**, ce qui est une moyenne courante, et **aucune évolution année par année** du taux de distribution ; le mot « historique » n'apparaît pas une seule fois (vérifié le 26/09/2026). La précision est posée à l'endroit du chiffre plutôt que comblée : **ajouter une série historique serait réécrire la leçon, pas la corriger**. Journal de 2 entrées, ligne d'annonce ajoutée pour la leçon 09.
 
 ## Notes liées
 

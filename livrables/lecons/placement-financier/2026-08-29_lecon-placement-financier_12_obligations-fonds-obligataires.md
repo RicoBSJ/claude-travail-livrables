@@ -19,6 +19,7 @@ tags:
   - alerte/corrige
   - correction/2026-08-29
   - correction/2026-09-24
+  - correction/2026-09-26
 ---
 
 # 2026-08-29_lecon-placement-financier_12_obligations-fonds-obligataires
@@ -38,6 +39,8 @@ Après les enveloppes, une classe d'actifs — et la continuité est bien trouv�
 **Corrigée une seconde fois le 24/09/2026 — la correction du 29/08 était elle-même fausse sur un point.** En durcissant le prompt de ce parcours, la notation de la France a été rouverte : la correction du 29/08 écrivait *« Moody's la note Aa3 et Fitch AA- : aucune agence ne soutenait "AA" »*. **La conclusion était juste, la répartition non.** Les trois notes, vérifiées le 24/09/2026 sur le tableau des notations souveraines de Wikipédia en anglais, qui les donne toutes avec leur date : **S&P A+ (stable, 17 octobre 2025)**, **Fitch A+ (stable, 6 mars 2026)**, **Moody's Aa3 (stable, 14 décembre 2024)**. Fitch n'est pas à AA- : **deux agences sur trois sont à A+, pas une**. La ligne du tableau des émetteurs et le journal portent désormais les trois notes avec leurs dates, et le journal conserve la formulation du 29/08.
 
 **Ce que cet incident enseigne, et qui est passé dans le prompt.** La correction du 29/08 avait ouvert la page de S&P — celle dont la note était périmée — et **repris les deux autres agences sans les rouvrir**. C'est le même geste que le défaut qu'elle corrigeait, d'un cran plus haut : une donnée vérifiée à côté de deux données de mémoire. La règle **A3 bis** écrite le 24/09/2026 dit maintenant qu'une notation porte son agence et sa date, et qu'on ouvre la page de **chaque** agence citée. À noter aussi : la notice française *Dette publique de la France* est en retard sur les deux autres sources — elle ignore la dégradation de S&P d'octobre 2025 et arrête Fitch à septembre 2025. **Une page encyclopédique généraliste n'est pas une source de notation.** `controle_attributions` exit 0 ; étape 5 bis du prompt durci → OK.
+
+**Ligne d'annonce ajoutée le 26/09/2026.** La section « Prochaine leçon » porte désormais une ligne **« Thèmes annoncés : … »**, rédigée dans les termes que cette section employait déjà. Elle est la condition du contrôle de continuité ajouté le même jour au prompt : sans elle, la leçon suivante ne peut pas être contrôlée sur ce qu'on lui a promis — c'est ce qui est arrivé entre la n°15 et la n°16, où le pacte Dutreil et le démembrement de clause bénéficiaire ont disparu sans que rien ne le signale. Aucun autre changement : le contenu n'est pas touché.
 
 ## Notes liées
 

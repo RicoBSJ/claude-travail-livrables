@@ -17,6 +17,7 @@ tags:
   - notion/csg-crds
   - notion/pass
   - alerte/a-corriger
+  - correction/2026-09-26
 ---
 
 # 2026-08-22_lecon-placement-financier_11_epargne-salariale-pee-pereco-interessement-abondement
@@ -32,6 +33,8 @@ Après la fiscalité de droit commun vue en leçon 10, l'épargne salariale est 
 **Le garde-fou fiscal du parcours a joué à moitié.** Bon réflexe d'abord : la leçon refuse de trancher le taux des prélèvements sociaux sur les gains PEE à la sortie, relève que economie.gouv.fr affiche encore 17,2 % et que le PEE ne figure pas dans les exceptions maintenues à ce taux, et recommande de vérifier. **La réponse est 18,6 %** — La Finance pour tous l'écrit explicitement pour le PEE, vérifié le 22/08/2026. À noter au passage, et la leçon ne le dit pas : la hausse de CSG de 2026 vise les **revenus du capital**, pas les revenus d'activité — d'où une CSG-CRDS d'épargne salariale **inchangée à 9,7 %** quand les gains passent à 18,6 %.
 
 **Une affirmation était fausse et contaminait deux exercices — corrigée dans le document le 22/08/2026**, avec journal des corrections. Le corrigé de la situation A énonçait que la CSG-CRDS *« est prélevée à l'entrée sur l'abondement […] mais pas sur la prime d'intéressement elle-même placée par le salarié »*. C'est l'inverse : **intéressement, participation et abondement subissent tous les 9,7 % à l'entrée dans le plan**, l'exonération obtenue en plaçant sous 15 jours ne portant que sur l'impôt sur le revenu. Seuls les versements volontaires y échappent — l'exercice 2, qui n'applique la CSG-CRDS qu'à l'abondement, est donc juste. Conséquence sur le challenge : le scénario B créditait 4 567,20 € au PERECO alors que la prime subit 232,80 € de CSG-CRDS, soit **4 334,40 €** réels ; et le scénario A ne retranchait que la fraction non déductible (2,4 %) au lieu des 9,7 % effectivement prélevés, portant le net en poche de 1 622,40 € à une fourchette de **1 447 à 1 496 €** selon le traitement de la CSG déductible. Le ratio passe de 2,82 à environ **2,9**. Les deux écarts jouant en sens contraire, la conclusion — placer reste nettement plus avantageux — n'est pas modifiée.
+
+**Ligne d'annonce ajoutée le 26/09/2026.** La section « Prochaine leçon » porte désormais une ligne **« Thèmes annoncés : … »**, rédigée dans les termes que cette section employait déjà. Elle est la condition du contrôle de continuité ajouté le même jour au prompt : sans elle, la leçon suivante ne peut pas être contrôlée sur ce qu'on lui a promis — c'est ce qui est arrivé entre la n°15 et la n°16, où le pacte Dutreil et le démembrement de clause bénéficiaire ont disparu sans que rien ne le signale. Aucun autre changement : le contenu n'est pas touché.
 
 ## Notes liées
 

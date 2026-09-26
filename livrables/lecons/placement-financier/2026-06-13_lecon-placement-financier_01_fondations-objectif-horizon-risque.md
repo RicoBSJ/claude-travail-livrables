@@ -11,6 +11,7 @@ tags:
   - notion/horizon
   - notion/profil-de-risque
   - notion/epargne-precaution
+  - correction/2026-09-26
 ---
 
 # 2026-06-13_lecon-placement-financier_01_fondations-objectif-horizon-risque
@@ -28,6 +29,8 @@ Puis les trois questions préalables : l'**objectif** (faire croître un capital
 Le triangle rendement / risque / disponibilité est posé — on n'optimise jamais les trois ensemble.
 
 Le rappel déontologique qui ouvre chaque leçon du parcours est déjà là : **éducation financière générale, jamais conseil personnalisé**.
+
+**Ligne d'annonce ajoutée le 26/09/2026.** La section « Prochaine leçon » porte désormais une ligne **« Thèmes annoncés : … »**, rédigée dans les termes que cette section employait déjà. Elle est la condition du contrôle de continuité ajouté le même jour au prompt : sans elle, la leçon suivante ne peut pas être contrôlée sur ce qu'on lui a promis — c'est ce qui est arrivé entre la n°15 et la n°16, où le pacte Dutreil et le démembrement de clause bénéficiaire ont disparu sans que rien ne le signale. Aucun autre changement : le contenu n'est pas touché.
 
 ## Notes liées
 

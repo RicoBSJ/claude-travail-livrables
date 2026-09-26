@@ -12,6 +12,7 @@ tags:
   - notion/inflation
   - notion/rendement-reel
   - outil/regle-des-72
+  - correction/2026-09-26
 ---
 
 # 2026-07-04_lecon-placement-financier_04_interets-composes-inflation-rendement-reel
@@ -27,6 +28,8 @@ La mécanique fondamentale du parcours, et la plus contre-intuitive.
 Le second volet est celui qu'on oublie : **l'inflation**. Un placement à 3 % dans une économie à 2 % d'inflation rapporte réellement 1 %. Le **rendement réel** est la seule grandeur qui compte, et c'est celle que les communications commerciales n'affichent jamais.
 
 Le message de fond : le temps est le principal moteur d'un patrimoine, et l'inflation son principal adversaire silencieux.
+
+**Ligne d'annonce ajoutée le 26/09/2026.** La section « Prochaine leçon » porte désormais une ligne **« Thèmes annoncés : … »**, rédigée dans les termes que cette section employait déjà. Elle est la condition du contrôle de continuité ajouté le même jour au prompt : sans elle, la leçon suivante ne peut pas être contrôlée sur ce qu'on lui a promis — c'est ce qui est arrivé entre la n°15 et la n°16, où le pacte Dutreil et le démembrement de clause bénéficiaire ont disparu sans que rien ne le signale. Aucun autre changement : le contenu n'est pas touché.
 
 ## Notes liées
 

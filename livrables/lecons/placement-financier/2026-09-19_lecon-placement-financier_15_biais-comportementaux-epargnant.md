@@ -43,6 +43,8 @@ Document source : [[2026-09-19_lecon-placement-financier_15_biais-comportementau
 
 **Retouchée le 26/09/2026 — son annonce de la leçon 16 n'a été tenue qu'aux deux tiers.** La section « Prochaine leçon » promettait six thèmes ; la leçon 16, livrée ce jour, en traite quatre. **Le pacte Dutreil et le démembrement de clause bénéficiaire d'assurance-vie comptent zéro occurrence** dans le document livré. L'annonce est **conservée telle quelle** plutôt que réécrite — c'est elle qui a permis de repérer le manque — et porte désormais un marqueur daté qui dit ce qui a été livré et ce qui reste à traiter. À noter dans l'autre sens : la leçon 16 s'ouvrait en attribuant à celle-ci un « biais d'inaction (procrastination) » qu'elle ne contient pas (0 occurrence, contre 13 pour l'aversion aux pertes) — corrigé côté 16.
 
+**Précisée le 26/09/2026 — un biais annoncé et remplacé par son voisin.** La leçon 14 annonçait quatre biais : aversion aux pertes (**13 occurrences ici**), excès de confiance (**5**), biais de confirmation (**plusieurs**) et **biais de récence** — lequel n'apparaît **pas une seule fois**. Le **biais de disponibilité** occupe sa place : voisin mais distinct — la récence porte sur ce qui est *récent*, la disponibilité sur ce qui vient *facilement à l'esprit*. Le biais de récence reste à traiter, et c'est écrit dans le document. Cette leçon était déjà la seule des seize à porter une ligne d'annonce exploitable : c'est elle qui a rendu possible le constat sur la leçon 16, puis sur elle-même.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-09-12_lecon-placement-financier_14_gestion-libre-pilotee-mandat-arbitrage]]

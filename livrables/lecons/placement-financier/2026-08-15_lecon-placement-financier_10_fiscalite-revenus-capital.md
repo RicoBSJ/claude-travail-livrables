@@ -16,6 +16,7 @@ tags:
   - notion/erosion-rendement
   - enveloppe/pea
   - enveloppe/assurance-vie
+  - correction/2026-09-26
 ---
 
 # 2026-08-15_lecon-placement-financier_10_fiscalite-revenus-capital
@@ -31,6 +32,8 @@ Deux régimes coexistent. Le **PFU** — la « flat tax » — s'applique par d�
 L'alternative est l'**option pour le barème progressif**, exercée en cochant la case 2OP. Trois caractéristiques la commandent : elle est **globale** — tous les revenus du capital de l'année, sans choix produit par produit ; les prélèvements sociaux restent dus à l'identique dans les deux régimes ; et elle ouvre deux avantages propres, l'**abattement de 40 % sur les dividendes** bruts de sociétés françaises ou européennes, et la **déductibilité de 6,8 % de CSG** sur le revenu imposable de l'année suivante. Nouveauté 2026 relevée par la leçon : **l'option n'est plus irrévocable**, elle se rejoue chaque année.
 
 L'arbitrage se lit à la tranche marginale d'imposition. En dessous de 12,8 % de TMI — donc à 0 % ou 11 % — le barème est mécaniquement plus favorable ; à 41 % ou 45 %, le PFU l'emporte systématiquement ; entre les deux, la composition des revenus décide, l'abattement sur dividendes pouvant renverser le calcul. La leçon assortit ce tableau d'une réserve nette : **orientation pédagogique, pas conseil personnalisé** — le calcul exact dépend de la situation complète, et relève d'un professionnel agréé.
+
+**Ligne d'annonce ajoutée le 26/09/2026.** La section « Prochaine leçon » porte désormais une ligne **« Thèmes annoncés : … »**, rédigée dans les termes que cette section employait déjà. Elle est la condition du contrôle de continuité ajouté le même jour au prompt : sans elle, la leçon suivante ne peut pas être contrôlée sur ce qu'on lui a promis — c'est ce qui est arrivé entre la n°15 et la n°16, où le pacte Dutreil et le démembrement de clause bénéficiaire ont disparu sans que rien ne le signale. Aucun autre changement : le contenu n'est pas touché.
 
 ## Notes liées
 
