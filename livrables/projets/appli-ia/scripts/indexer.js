@@ -2,6 +2,7 @@
 // Leçon 07 — Persistance : base de données locale (11/09/2026)
 // Leçon 08 — Factorisation : CATEGORIES et utilitaires déplacés dans utils.js (18/09/2026)
 //            Fix extraireDate() : gère maintenant la date en fin de nom (quiz, infographies)
+// Leçon 10 — Sécurité et données (26/09/2026) : colonne slug_normalise pour recherche accentuée
 //
 // Lance     : node scripts/indexer.js
 // Ou        : npm run indexer
@@ -22,7 +23,7 @@ const Database = require('better-sqlite3');
 
 // Utilitaires et configuration partagés — factorisation leçon 08
 const { CATEGORIES, DOCS_DE_DOSSIER,
-        extraireDate, extraireSlug, estLivrable } = require('./utils');
+        extraireDate, extraireSlug, estLivrable, normaliserSlug } = require('./utils');
 
 // La base SQLite est créée au même niveau que PROJET.md (racine du projet)
 const DB_PATH = path.join(__dirname, '..', 'portail.db');
@@ -81,14 +82,15 @@ function creerSchema(db) {
     DROP TABLE IF EXISTS livrables;
 
     CREATE TABLE livrables (
-      id         INTEGER PRIMARY KEY AUTOINCREMENT,
-      categorie  TEXT    NOT NULL,
-      nom        TEXT    NOT NULL,
-      date       TEXT,              -- NULL si hors convention YYYY-MM-DD_
-      slug       TEXT    NOT NULL,
-      taille     INTEGER NOT NULL DEFAULT 0,
-      extension  TEXT    NOT NULL,
-      indexe_le  TEXT    NOT NULL   -- horodatage ISO de l'indexation (ex: 2026-09-11T08:03:00.000Z)
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      categorie       TEXT    NOT NULL,
+      nom             TEXT    NOT NULL,
+      date            TEXT,              -- NULL si hors convention YYYY-MM-DD_
+      slug            TEXT    NOT NULL,
+      slug_normalise  TEXT    NOT NULL,  -- leçon 10 : accents et casse supprimés pour LIKE
+      taille          INTEGER NOT NULL DEFAULT 0,
+      extension       TEXT    NOT NULL,
+      indexe_le       TEXT    NOT NULL   -- horodatage ISO de l'indexation
     );
 
     -- Index 1 : accélère les requêtes "livrables récents par catégorie"
@@ -117,8 +119,8 @@ function indexer() {
   // Instruction préparée : SQLite la compile une fois, on l'exécute N fois.
   // Les paramètres nommés (@nom) évitent les injections SQL et améliorent la lisibilité.
   const inserer = db.prepare(`
-    INSERT INTO livrables (categorie, nom, date, slug, taille, extension, indexe_le)
-    VALUES (@categorie, @nom, @date, @slug, @taille, @extension, @indexe_le)
+    INSERT INTO livrables (categorie, nom, date, slug, slug_normalise, taille, extension, indexe_le)
+    VALUES (@categorie, @nom, @date, @slug, @slug_normalise, @taille, @extension, @indexe_le)
   `);
 
   // Transaction : toutes les insertions d'une catégorie en un seul commit.
@@ -136,13 +138,14 @@ function indexer() {
     const livrables   = inventorierSync(config.chemin, config.extensions, config.recursif);
 
     const rangees = livrables.map(l => ({
-      categorie:  cle,
-      nom:        l.nom,
-      date:       l.date,       // peut être null → SQLite stocke NULL
-      slug:       l.slug,
-      taille:     l.taille,
-      extension:  l.extension,
-      indexe_le:  maintenant,
+      categorie:      cle,
+      nom:            l.nom,
+      date:           l.date,                  // peut être null → SQLite stocke NULL
+      slug:           l.slug,
+      slug_normalise: normaliserSlug(l.slug),  // leçon 10 : pour recherche insensible aux accents
+      taille:         l.taille,
+      extension:      l.extension,
+      indexe_le:      maintenant,
     }));
 
     insererTout(rangees);

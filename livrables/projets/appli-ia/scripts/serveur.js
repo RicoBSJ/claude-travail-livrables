@@ -2,6 +2,8 @@
 // Leçon 04 — Données réelles : l'API qui connaît vos fichiers (21/08/2026)
 // Leçon 07 — Ajout de la route /api/db/search (11/09/2026)
 // Leçon 08 — Factorisation : CATEGORIES et utilitaires déplacés dans utils.js (18/09/2026)
+// Leçon 10 — Sécurité et données (26/09/2026) :
+//            En-têtes de sécurité HTTP, validation PORT, recherche accentuée (slug_normalise)
 //
 // Lance : node scripts/serveur.js
 // Ou sur un autre port : PORT=8080 node scripts/serveur.js
@@ -22,13 +24,47 @@ const Database = require('better-sqlite3');
 
 // Utilitaires et configuration partagés — factorisation leçon 08
 const { CATEGORIES, DOCS_DE_DOSSIER,
-        extraireDate, extraireSlug, estLivrable } = require('./utils');
+        extraireDate, extraireSlug, estLivrable, normaliserSlug } = require('./utils');
 
 // ── Configuration ──────────────────────────────────────────────────────────
 
 // PORT peut être injecté par l'environnement : PORT=8080 node scripts/serveur.js
-const PORT    = process.env.PORT || 3000;
+// Leçon 10 : validation explicite pour éviter une valeur non numérique silencieuse.
+const PORT_RAW = process.env.PORT;
+const PORT     = PORT_RAW ? parseInt(PORT_RAW, 10) : 3000;
+if (isNaN(PORT) || PORT < 1 || PORT > 65535) {
+  console.error(`PORT invalide : "${PORT_RAW}" — doit être un entier entre 1 et 65535`);
+  process.exit(1);
+}
 const DB_PATH = path.join(__dirname, '..', 'portail.db');
+
+// ── En-têtes de sécurité HTTP ──────────────────────────────────────────────
+
+/**
+ * Applique les en-têtes de sécurité à CHAQUE réponse HTTP.
+ * Appeler avant res.writeHead() : res.setHeader() et les headers de writeHead() sont fusionnés,
+ * writeHead() prenant la priorité en cas de conflit. Aucun des quatre en-têtes ci-dessous
+ * n'est fourni par writeHead(), donc aucun conflit n'est possible.
+ *
+ * X-Content-Type-Options  : empêche le navigateur de deviner un type MIME différent du déclaré
+ *                           (« sniffing ») — protège contre certaines attaques XSS.
+ * X-Frame-Options         : bloque l'inclusion de l'application dans un <iframe> tiers
+ *                           (protection clickjacking).
+ * Referrer-Policy         : empêche l'envoi de l'URL de la page précédente vers des tiers.
+ * Content-Security-Policy : limite les origines autorisées pour scripts, styles et fetch.
+ *                           'unsafe-inline' est conservé pour les styles React injectés par Vite
+ *                           en développement. Une CSP stricte (nonces) serait plus solide
+ *                           mais nécessite une intégration côté build.
+ */
+function ajouterEntetesSecurite(res) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+  );
+}
 
 // ── Fonctions utilitaires ──────────────────────────────────────────────────
 // extraireDate, extraireSlug, estLivrable sont importées depuis utils.js (leçon 08)
@@ -138,6 +174,10 @@ const TYPES_MIME = {
  *   GET /style.css, /app.js, …       → fichiers statiques du dossier public/
  */
 async function gererRequete(req, res) {
+  // Leçon 10 : en-têtes de sécurité sur TOUTES les réponses.
+  // res.setHeader() avant res.writeHead() : les deux jeux de headers sont fusionnés.
+  ajouterEntetesSecurite(res);
+
   // Parsing de l'URL et extraction du chemin + query params
   // La base "http://localhost" est requise pour que new URL() accepte des chemins relatifs.
   const urlParsee  = new URL(req.url, 'http://localhost');
@@ -167,14 +207,17 @@ async function gererRequete(req, res) {
     }
     try {
       const db = new Database(DB_PATH, { readonly: true });
+      // Leçon 10 : recherche dans slug_normalise (accents supprimés) avec terme normalisé.
+      // "lecon" trouve "leçon", "evaluation" trouve "évaluation".
+      const motif = '%' + normaliserSlug(q) + '%';
       const resultats = db.prepare(`
         SELECT categorie, nom, date, slug, extension,
                ROUND(taille / 1024.0, 1) AS taille_ko
         FROM livrables
-        WHERE slug LIKE @motif
+        WHERE slug_normalise LIKE @motif
         ORDER BY date DESC NULLS LAST
         LIMIT 50
-      `).all({ motif: '%' + q + '%' });
+      `).all({ motif });
       db.close();
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify({ terme: q, resultats }, null, 2));

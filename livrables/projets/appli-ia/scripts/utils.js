@@ -1,5 +1,6 @@
 // scripts/utils.js — Utilitaires et configuration partagés du Portail Livrables
 // Leçon 08 — API et architecture (18/09/2026)
+// Leçon 10 — Sécurité et données (26/09/2026) : ajout de normaliserSlug
 //
 // Ce module extrait le code qui était dupliqué entre scripts/serveur.js
 // et scripts/indexer.js : mêmes constantes CATEGORIES et DOCS_DE_DOSSIER,
@@ -99,4 +100,22 @@ function estLivrable(nom, extensions) {
   return extensions.includes(path.extname(nom).toLowerCase());
 }
 
-module.exports = { RACINE, CATEGORIES, DOCS_DE_DOSSIER, extraireDate, extraireSlug, estLivrable };
+/**
+ * Normalise une chaîne pour la recherche insensible aux accents et à la casse.
+ * Miroir exact de normaliser() dans frontend/src/filtres.ts :
+ *   - Minuscules
+ *   - Décomposition NFD puis suppression des diacritiques U+0300–U+036F
+ *
+ * Stocké dans portail.db (colonne slug_normalise) pour que LIKE devienne insensible
+ * aux accents : LIKE '%lecon%' trouve les slugs contenant 'leçon'.
+ *
+ * Exemples :
+ *   "leçon-appli-ia_08_api" → "lecon-appli-ia_08_api"
+ *   "bientraitance-RBPP"    → "bientraitance-rbpp"
+ *   "Évaluation HAS"        → "evaluation has"
+ */
+function normaliserSlug(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+module.exports = { RACINE, CATEGORIES, DOCS_DE_DOSSIER, extraireDate, extraireSlug, estLivrable, normaliserSlug };
