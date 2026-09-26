@@ -29,6 +29,8 @@ La leçon situe aussi le parcours dans son plan d'ensemble : Fondations, Envelop
 
 **Ligne d'annonce ajoutée le 26/09/2026.** La section « Prochaine leçon » porte désormais une ligne **« Thèmes annoncés : … »**, rédigée dans les termes que cette section employait déjà. Elle est la condition du contrôle de continuité ajouté le même jour au prompt : sans elle, la leçon suivante ne peut pas être contrôlée sur ce qu'on lui a promis — c'est ce qui est arrivé entre la n°15 et la n°16, où le pacte Dutreil et le démembrement de clause bénéficiaire ont disparu sans que rien ne le signale. Aucun autre changement : le contenu n'est pas touché.
 
+**Attribution corrigée le 26/09/2026 — et la page disait plus précis que ce qu'on lui prêtait.** La leçon prêtait à La Finance pour Tous, entre guillemets, la phrase *Les obligations constituent un investissement de moyen et long terme*. Les **deux** pages obligations listées ont été rouvertes : les expressions *moyen et long terme* et *revenu régulier* y comptent **zéro occurrence** chacune. C'était une reformulation sous guillemets. Ce que la page écrit réellement est **plus précis** et se cite : *« Les obligations sont un placement peu risqué si vous le gardez jusqu'à maturité c'est-à-dire jusqu'au remboursement du capital par l'emprunteur »* et *« Elles sont généralement recommandées aux personnes qui recherchent des revenus réguliers et sûrs, avec un horizon de cinq ans et plus. »* — cinq ans et plus au lieu d'un vague moyen et long terme, et « réguliers **et sûrs** » là où la leçon ne gardait que le caractère régulier.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-20_lecon-placement-financier_02_rendement-risque-diversification]]

@@ -32,6 +32,8 @@ Le rappel déontologique qui ouvre chaque leçon du parcours est déjà là : **
 
 **Ligne d'annonce ajoutée le 26/09/2026.** La section « Prochaine leçon » porte désormais une ligne **« Thèmes annoncés : … »**, rédigée dans les termes que cette section employait déjà. Elle est la condition du contrôle de continuité ajouté le même jour au prompt : sans elle, la leçon suivante ne peut pas être contrôlée sur ce qu'on lui a promis — c'est ce qui est arrivé entre la n°15 et la n°16, où le pacte Dutreil et le démembrement de clause bénéficiaire ont disparu sans que rien ne le signale. Aucun autre changement : le contenu n'est pas touché.
 
+**Attribution corrigée le 26/09/2026 — une reformulation présentée comme une citation.** La leçon écrivait, entre guillemets et *« d'après La finance pour tous (IEFP) »* : *« Investir, c'est d'abord se connaître : son objectif, son horizon, son tempérament. »* Page rouverte : **« se connaître » y compte zéro occurrence**. Le fond était juste — le titre de la page est littéralement *« Placements financiers : horizon, objectifs, tempérament »*, les trois mêmes notions — mais la phrase était de la leçon, pas de la source. Elle est remplacée par le **titre réel** et par la **phrase d'ouverture de la page**, reproduite mot pour mot : *« Pour optimiser vos placements et choisir ceux qui correspondent le mieux à vos besoins, prenez le temps de déterminer vos grands projets de vie, et le temps que vous avez devant vous pour les mettre en œuvre. De même, interrogez-vous sur votre rapport au risque. »* Une citation vraie à la place d'une fausse qui disait la même chose.
+
 ## Notes liées
 
 - **➡️ Suivante** · [[2026-06-20_lecon-placement-financier_02_rendement-risque-diversification]]

@@ -28,6 +28,8 @@ La **prime de risque** est définie comme la rémunération exigée pour accepte
 
 **Ligne d'annonce ajoutée le 26/09/2026.** La section « Prochaine leçon » porte désormais une ligne **« Thèmes annoncés : … »**, rédigée dans les termes que cette section employait déjà. Elle est la condition du contrôle de continuité ajouté le même jour au prompt : sans elle, la leçon suivante ne peut pas être contrôlée sur ce qu'on lui a promis — c'est ce qui est arrivé entre la n°15 et la n°16, où le pacte Dutreil et le démembrement de clause bénéficiaire ont disparu sans que rien ne le signale. Aucun autre changement : le contenu n'est pas touché.
 
+**Lien mort corrigé le 26/09/2026.** La ressource *« Comprendre la diversification — AMF (vidéo) »* pointait vers une adresse de l'ancien site de l'AMF : testée ce jour, **HTTP 404**. La vidéo dédiée n'existe plus, et **aucune page AMF sur la diversification n'a pu être vérifiée** sans reconstruire une adresse de mémoire — ce que le garde-fou du parcours interdit ; quatre candidates essayées, quatre 404. Le lien mène désormais à l'espace épargnants de l'AMF, **vérifié 200 le même jour**, et le libellé dit ce qui a disparu et à quelle date. Sur le fond, la diversification est bien traitée par une page déjà listée : *« La meilleure manière est d'avoir un portefeuille diversifié. Ceci abaissera le niveau de risque et sans doute aussi le rendement moyen espéré »* (La finance pour tous, rouverte le 26/09/2026).
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-06-13_lecon-placement-financier_01_fondations-objectif-horizon-risque]]
