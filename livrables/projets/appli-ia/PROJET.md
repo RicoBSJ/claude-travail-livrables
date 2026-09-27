@@ -56,6 +56,11 @@ reproductible et autorise l'installation d'une majeure incompatible.
 
 | Fichier | Rôle |
 |---|---|
+| `.env.example` | Variables configurables documentées (`PORT`), sans valeur secrète — leçon 10 |
+| `scripts/audit-securite.js` | **146 lignes** · cinq contrôles de sécurité (`.env`, `portail.db` hors git, `.env.example`, `npm audit`, en-têtes HTTP) — leçon 10 |
+| `exercices/01_lister_fichiers_sans_spec.js` | Exercice de la leçon 01 : lister sans spécification |
+| `exercices/02_lister_livrables_avec_spec.js` | Exercice de la leçon 01 : lister selon `SPEC.md` |
+| `exercices/README.md` | Consignes des deux exercices de la leçon 01 |
 | `SPEC.md` | Spécification **v1.2** : problème, utilisateur, données, fonctions, hors périmètre, critère de réussite, journal des révisions |
 | `package.json` | **v0.8.0** · scripts `inventaire`, `demo-recursivite`, `serveur`, `indexer`, `requetes`, `test`, `build`, `inventaire:ts` · dependencies better-sqlite3 · devDependencies typescript+@types/node |
 | `tsconfig.json` | Configuration TypeScript : target ES2022, module commonjs, strict, types:[node], outDir ./dist, rootDir ./src |
@@ -209,6 +214,35 @@ reproductible et autorise l'installation d'une majeure incompatible.
 - Extension .mts (TypeScript ESModule) : nécessaire parce que le package.json déclare `"type": "commonjs"`.
   Sans .mts, Node.js génère SyntaxError sur `import` (testé le 25/09/2026). L'extension .mts force ESM.
 
+## Livré à la leçon 10 (26/09/2026)
+
+⚠️ **Section écrite le 27/09/2026, pas par la leçon.** L'exécution du 26/09 a été tuée sur le
+plafond de coût (3,0689 $ = 102 %, 64 tours) APRÈS avoir déposé la leçon et le code, et la
+tentative 2 s'est arrêtée en 3 tours sur la vérification de doublon : **l'étape 6 n'a jamais
+tourné**. PROJET.md est resté identique au bit près (md5 `79e4d887…` avant et après), alors que
+le commit `8322368` poussait tout le reste. La leçon 11 aurait lu une mémoire sans la leçon 10.
+
+- Nouveau `.env.example` : documente les variables configurables (`PORT`), sans valeur secrète.
+- Nouveau `scripts/audit-securite.js` (146 lignes) : cinq contrôles — présence de `.env`,
+  `portail.db` non suivi par git, `.env.example` documenté, `npm audit`, en-têtes HTTP.
+- Mise à jour `scripts/serveur.js` : quatre en-têtes de sécurité (dont une CSP complète),
+  validation de `PORT` avec `exit 1` sur valeur invalide.
+- Mise à jour `scripts/utils.js`, `scripts/indexer.js` : `normaliserSlug`, colonne `slug_normalise`.
+- Mise à jour `package.json` v0.9.0 : script `audit`.
+- Mesures du 26/09/2026, toutes rejouées le 27/09 : `utils.js` 121 lignes, `indexer.js` 162,
+  `serveur.js` 303, `audit-securite.js` 146 · `npm test` **33 tests · 0 fail** · démonstration SQL
+  0 puis 308 lignes (310 au rejeu) · quatre URL de ressources en 200.
+
+## Corrigé hors leçon (27/09/2026) — le champ npm qui n'existe pas
+
+- ⚠️ **`scripts/audit-securite.js` lisait `meta.totalDependencies`**, champ absent de la sortie de
+  `npm audit --json` (mesuré sur npm **11.16.0** le 27/09/2026). Le repli `|| '?'` se déclenchait
+  donc à CHAQUE exécution : le contrôle n°4 affichait « 0 vulnérabilité trouvée (**?** dépendances
+  analysées) », et la leçon 10 publiait cette sortie comme un résultat normal. Le champ réel est
+  `metadata.dependencies.total` = **25**. Corrigé, avec repli explicite « nombre indisponible »
+  plutôt qu'un point d'interrogation qui passe pour une valeur. Sortie vérifiée après correction :
+  « 0 vulnérabilité trouvée (25 dépendances analysées) ».
+
 ## Corrigé hors leçon (25/09/2026) — le drapeau qui ne servait plus
 
 - ⚠️ **`--experimental-strip-types` a été retiré de quatre fichiers** : `package.json` (script `npm test`),
@@ -266,6 +300,10 @@ reproductible et autorise l'installation d'une majeure incompatible.
 - **La recherche SQL LIKE n'est pas accentuée** : LIKE dans SQLite est sensible aux accents
   par défaut. "lecon" ne trouve pas "leçon". Documenté ici, évaluation remise à leçon 10 (sécurité
   et données) où la route /api/db/search sera revue.
+  **Reporté le 27/09/2026 à la leçon 11** : la leçon 10 a bien ajouté `normaliserSlug` et la colonne
+  `slug_normalise` côté indexation, mais n'a ni nommé ni revu `/api/db/search` ni le LIKE accentué —
+  le mot « accentué » ne figure pas dans la leçon. Motif du report : l'étape 6 n'a pas tourné le
+  26/09 (exécution tuée sur le plafond), donc rien n'a été arbitré.
   (Restauré le 18/09/2026 : la version du 11/09 disait « sensible à la casse et aux accents, contrairement à la
   recherche NFD du frontend » et nommait les pistes — extension ICU ou normalisation à l'insertion.)
 
@@ -274,6 +312,9 @@ reproductible et autorise l'installation d'une majeure incompatible.
 
 - **Branche 403 inatteignable** (vérifié le 21/08/2026) : garde-fou path traversal correct mais
   non atteignable via HTTP normal. Protection de défense en profondeur à revoir en leçon 10.
+  **Reporté le 27/09/2026 à la leçon 11** : la leçon 10, qui portait la sécurité, ne contient
+  **aucune** occurrence de « traversal », « traversée » ni « 403 » (vérifié au grep sur le .docx).
+  L'engagement le plus directement dû par cette leçon est celui qu'elle a ignoré.
 
 - **Chemin racine en dur** dans utils.js : remonte de 4 niveaux depuis `__dirname`.
   Fonctionnel mais cassant si le projet est déplacé. Dette assumée, ~~à traiter en leçon 08~~ —

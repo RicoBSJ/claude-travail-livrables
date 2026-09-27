@@ -535,6 +535,12 @@ OUTILS = re.compile(r"\b(the|of|a|an|is|are|was|were|to|in|on|that|this|with|not
                     r"|any|each|other|such|only|also|into|inside|without|before|after"
                     r"|between|during|while|about|there|these|those|them|he|she|they)\b",
                     re.I)
+# ㉛ une requete SQL : un verbe SQL en TETE, puis un mot-cle de structure. Volontairement ancre
+#    au debut (re.match) : une phrase anglaise qui contiendrait « from » ou « where » au milieu
+#    reste une citation, seule une requete commence par SELECT/INSERT/UPDATE/DELETE/CREATE/PRAGMA.
+SQL = re.compile(r"(?:SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM|CREATE\s+(?:TABLE|INDEX|VIEW)"
+                 r"|ALTER\s+TABLE|DROP\s+(?:TABLE|INDEX)|PRAGMA|WITH\s+\w+\s+AS)\b"
+                 r"[\s\S]{0,400}?\b(?:FROM|INTO|SET|VALUES|WHERE|TABLE|INDEX|ON)\b", re.I)
 cits = set()
 # ㉓ (13/09/2026) la source NOMMEE a cote de la citation : un domaine ecrit juste apres la fermeture
 #    (« (Gurman, selon consomac.fr du 26/08) »), jusqu'a la fin de la phrase ou de la ligne ; ou, juste
@@ -654,6 +660,16 @@ for m in re.finditer(r"(?:«|(?<![\wÀ-ÿ])\")\s*([^»\"]{9,700}?)\s*(?:»|\"(?!
             if nommes_ or not parole:
                 cits_fr[c] = cits_fr.get(c, set()) | nommes_
         continue
+    # ㉛ (27/09/2026) UNE REQUETE SQL N'EST PAS UNE CITATION ANGLAISE. Les mots-cles de SQL
+    #    sont des mots anglais : « SELECT COUNT(*) as n FROM livrables WHERE slug LIKE @m » passe
+    #    le filtre FR/OUTILS (« as », « from ») et se retrouve cherche sur les pages citees, ou il
+    #    n'a evidemment aucune raison d'etre. CAS REEL : lecon appli-ia n°10 du 26/09/2026, deux
+    #    requetes de son exercice SQL declarees ABSENTES — donc deux BLOQUANTS sur un document
+    #    juste, qui empechaient de pousser sa correction. Le hook ne les avait pas vus : il passe
+    #    en mode --docs, sans reseau, et la passe B ne s'exerce que dans le mode complet.
+    #    Signature : un VERBE SQL en tete de requete, suivi d'un mot-cle de structure. C'est plus
+    #    strict qu'une simple presence de mot-cle — « select » seul est un mot anglais courant.
+    if SQL.match(c.strip()):                    continue
     if len(c.split()) < 6:                      continue      # anglais : six mots ou plus (㉔)
     if not c[:1].isalpha():                     continue      # (un titre francais peut commencer par un chiffre : « 6e cycle… » — B-FR l'a deja pris)
     # ⚠️ une citation est une PHRASE, pas un NOM. Un nom propre ou un intitule de

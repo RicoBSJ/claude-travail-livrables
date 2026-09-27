@@ -105,7 +105,12 @@ try {
   const hasCritical = (vulns.critical || 0) + (vulns.high || 0) > 0;
 
   if (total === 0) {
-    passer(`0 vulnérabilité trouvée (${meta.totalDependencies || '?'} dépendances analysées)`);
+    // Corrigé le 27/09/2026 : la ligne lisait meta.totalDependencies, champ qui N'EXISTE PAS
+    // dans la sortie de npm audit --json (npm 11.16.0 mesuré ce jour). Le repli « || '?' » se
+    // déclenchait donc à chaque exécution et la leçon 10 publiait « (? dépendances analysées) »
+    // comme un résultat normal. Le champ réel est metadata.dependencies.total = 25.
+    const nbDeps = (meta.dependencies && meta.dependencies.total) ?? meta.totalDependencies;
+    passer(`0 vulnérabilité trouvée (${nbDeps ?? 'nombre indisponible'} dépendances analysées)`);
   } else if (hasCritical) {
     echouer(`${total} vulnérabilité(s) dont ${vulns.critical || 0} critique(s) et ${vulns.high || 0} haute(s) — lance npm audit fix`);
   } else {

@@ -45,7 +45,10 @@ MODE="${1:-}"
 # « no matches found » avant même le diff des verdicts — refus, mais sans message lisible. Avec (N), le
 # motif vide rend zéro fichier, le compteur reste à 0 et le contrôle ci-dessous dit ce qui manque.
 ATTENDU_DECOMPTE=14   # temoins_decompte_avant_correction/
-ATTENDU_CONFORMES=5   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (2 copies figées)
+ATTENDU_CONFORMES=6   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (3 copies figées)
+                      # 3e copie figée le 27/09/2026 : appli-ia n°10, témoin de ㉛ — deux requêtes SQL de son
+                      # exercice (« SELECT COUNT(*) as n FROM livrables WHERE slug LIKE @m ») étaient lues comme
+                      # des citations anglaises et bloquaient un document juste. Elle doit sortir en 0.
 #   5 depuis le 26/09/2026 : la leçon placement-financier n°03 AVEC SES MARQUEURS DE CORRECTION
 #   GUILLEMETÉS est entrée dans le lot. C'est le seul témoin qui garde l'exemption des marqueurs
 #   dans les passes B, B-FR et B-NOM : il DOIT sortir en 0, et il sortait en 1 avant le correctif
