@@ -20,7 +20,7 @@
 ROOT="$(git rev-parse --show-toplevel)"
 SURVEILLES='^outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push)$'
 ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'
-# (3) LE RUNNER modifié → non_regression_runner.sh --mutations (10 scénarios de décision PUIS huit
+# (3) LE RUNNER modifié → non_regression_runner.sh --mutations (14 scénarios de décision PUIS douze
 #     mutations du runner qui vérifient que ces témoins tombent quand on le casse exprès, ≈ 30 s,
 # sans réseau). run_job.sh décide ce qui est retenté et ce qui est publié pour les 14 jobs ;
 # il n'était couvert par rien. Déclencheur SÉPARÉ de SURVEILLES : toucher au runner n'oblige
@@ -80,7 +80,7 @@ fi
 # Non couvert par non_regression.sh en mode --docs, donc ce déclencheur est le seul qui le voie
 # au moment d'un push qui ne touche que run_job.sh.
 if [ "$runner" = "1" ]; then
-  echo "pre-push : le runner est dans ce push → non_regression_runner.sh --mutations (10 scénarios + 8 mutations, ≈ 30 s)…"
+  echo "pre-push : le runner est dans ce push → non_regression_runner.sh --mutations (14 scénarios de décision + 12 mutations, ≈ 70 s)…"
   if "$ROOT/outils/scripts/non_regression_runner.sh" --mutations; then
     echo "pre-push : ✓ témoins du runner inchangés — push autorisé"
   else

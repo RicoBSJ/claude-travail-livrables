@@ -50,13 +50,31 @@ H="$(mktemp -d -t nrrunner)"
 nettoyer() { [ "$GARDER" -eq 1 ] && echo "  (dossier conservé : $H)" || rm -rf "$H"; }
 trap nettoyer EXIT
 
-mkdir -p "$H/outils/scripts/logs"
-( cd "$H" && git init -q . && git config user.email t@local && git config user.name T \
-  && echo x > .semence && git add -A && git commit -qm init ) >/dev/null 2>&1
-cat > "$H/jobs_config.json" <<'JSON'
+# ⚠️ LE DÉPÔT JETABLE EST UN SOUS-DOSSIER, PAS $H (27/09/2026). Première version : le dépôt
+# git occupait $H, où vivent aussi la copie instrumentée, le faux claude, le scénario et le
+# compteur. La mutation « liste blanche élargie à tout le dépôt » les a donc COMMITTÉS, puis
+# le « git reset --hard » du témoin suivant les a EFFACÉS — et la mutation d'après ne pouvait
+# plus rien lancer : les quatorze témoins tombaient pour une raison qui n'avait rien à voir.
+# Les outils du harnais vivent dans $H, le dépôt sous test dans $D. Rien ne se croise.
+D="$H/depot"
+mkdir -p "$D/outils/scripts/logs"
+# Un dépôt distant LOCAL et NU : le push de l'auto-commit doit réussir du premier coup,
+# sinon le runner dort 15 s puis 30 s entre ses trois tentatives (S14 coûterait 45 s).
+# Chemin de fichier, donc aucun réseau, aucune clé SSH, aucun accès au vrai dépôt.
+( cd "$D" && git init -q . && git config user.email t@local && git config user.name T \
+  && git init -q --bare "$H/distant.git" && git remote add origin "$H/distant.git" \
+  && echo x > .semence && git add -A && git commit -qm init && git push -q origin HEAD:main \
+  && git branch -M main && git branch --set-upstream-to=origin/main main ) >/dev/null 2>&1
+SEMENCE="$(cd "$D" && git rev-parse HEAD 2>/dev/null)"
+[ -n "$SEMENCE" ] || { echo "✗ dépôt jetable non initialisable"; exit 1; }
+ecrire_config () {
+  mkdir -p "$D/outils/scripts/logs"
+  cat > "$D/jobs_config.json" <<'JSON'
 { "_derniere_mise_a_jour": "2026-09-27",
   "jobs": [ { "id": "test-job", "cron": "0 0 * * 0", "livrable": "aucun", "prompt": "prompt de test" } ] }
 JSON
+}
+ecrire_config
 
 # faux claude : lit $HARN/scenario, une ligne « code|sortie » par tentative
 cat > "$H/faux_claude" <<'FAUX'
@@ -78,12 +96,12 @@ chmod +x "$H/faux_claude"
 COPIE="$H/runner_test.sh"
 instrumenter () {
   local src="$1" dest="$2"
-  sed -e "s|^PROJECT=.*|PROJECT=\"$H\"|" \
+  sed -e "s|^PROJECT=.*|PROJECT=\"$D\"|" \
       -e "s|/usr/local/bin/claude|$H/faux_claude|" \
       -e "s|^RETRY_DELAYS=.*|RETRY_DELAYS=(0 0)   # neutralisé par le harnais|" \
       "$src" > "$dest"
   local v
-  for v in "PROJECT=\"$H\"" "$H/faux_claude" "RETRY_DELAYS=(0 0)"; do
+  for v in "PROJECT=\"$D\"" "$H/faux_claude" "RETRY_DELAYS=(0 0)"; do
     grep -qF "$v" "$dest" || {
       echo "✗ INSTRUMENTATION MANQUÉE : « $v » absent de la copie."
       echo "  run_job.sh a changé de forme (PROJECT=, chemin de claude, ou RETRY_DELAYS=)."
@@ -102,6 +120,14 @@ OK40='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"l
 OK3='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"arret etape 1 : doublon du jour","total_cost_usd":0.15,"num_turns":3,"duration_ms":16000,"usage":{"input_tokens":4,"output_tokens":590}}'
 BUDGJ='{"is_error":true,"subtype":"error_max_budget_usd","stop_reason":"tool_use","result":"arret sur plafond","total_cost_usd":3.07,"num_turns":64,"duration_ms":844000,"usage":{"input_tokens":54,"output_tokens":52618}}'
 RESEAU='{"is_error":true,"subtype":"error_during_execution","stop_reason":"","result":"timeout reseau","total_cost_usd":0.4,"num_turns":8,"duration_ms":30000,"usage":{"input_tokens":4,"output_tokens":20}}'
+# Auth : le libellé réel du CLI. Panne du 09→15/07/2026, jeton Keychain expiré en launchd.
+AUTH='{"is_error":true,"subtype":"error_during_execution","result":"API Error: Failed to authenticate. Please run /login","total_cost_usd":0.01,"num_turns":1,"usage":{}}'
+# Limite d'usage : le libellé RÉELLEMENT renvoyé le 27/08/2026, qui ne contient ni
+# « usage limit » ni « quota exceeded » — c'est lui qui a motivé l'élargissement du motif.
+LIMITE='{"is_error":true,"subtype":"error_during_execution","result":"You are out of extra usage · resets 1pm (Europe/Paris)","total_cost_usd":0.02,"num_turns":1,"usage":{}}'
+# Un 403 de source bloquée : NORMAL et géré par les prompts (ATIH, Fnac, Darty…).
+# Il ne doit déclencher AUCUN fail-fast — sinon les trois tentatives sont perdues à tort.
+BLOQUEE='{"is_error":true,"subtype":"error_during_execution","result":"WebFetch: 403 Forbidden sur atih.sante.fr — source bloquee, repli prevu","total_cost_usd":0.3,"num_turns":6,"usage":{}}'
 # 12 tours : au-dessus du seuil. Borne le seuil par le haut (S8).
 OK12='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"veille ecrite","total_cost_usd":0.8,"num_turns":12,"duration_ms":180000,"usage":{"input_tokens":12,"output_tokens":9000}}'
 # 5 tours : arrêt précoce, aucune génération jamais observée à ce niveau. Borne par le bas (S9).
@@ -116,15 +142,19 @@ NONJSON='recapitulatif en texte brut, sans json'
 # Le nom commence par l'identifiant (S1, S2…) : c'est lui qu'on accumule dans ECHECS, et
 # c'est sur cet ensemble que les mutations sont jugées.
 SILENCE=0; ECHECS=""
+# Compteurs CALCULÉS : la première version annonçait « 10/10 témoins + 8/8 mutations » alors
+# qu'il y en avait 14 et 12. Un verdict qui compte à la main finit par mentir (27/09/2026).
+N_TEMOINS=0; N_MUT=0; N_MUT_OK=0
 essai () {
   local nom="$1" att_exit="$2" att_tent="$3" doit="$4" interdit="$5"; shift 5
   local id="${nom%% *}"
-  rm -f "$H/compteur" "$H"/outils/scripts/logs/test-job_*.log
+  [ "$SILENCE" = 0 ] && N_TEMOINS=$((N_TEMOINS + 1))
+  rm -f "$H/compteur" "$D"/outils/scripts/logs/test-job_*.log
   printf '%s\n' "$@" > "$H/scenario"
-  ( cd "$H" && HARN="$H" bash "$COPIE" test-job ) >/dev/null 2>&1
+  ( cd "$D" && HARN="$H" bash "$COPIE" test-job ) >/dev/null 2>&1
   local code=$? tent log ok=1 motifs=""
   tent="$(cat "$H/compteur" 2>/dev/null || echo 0)"
-  log="$(cat "$H"/outils/scripts/logs/test-job_*.log 2>/dev/null)"
+  log="$(cat "$D"/outils/scripts/logs/test-job_*.log 2>/dev/null)"
   [ "$code" = "$att_exit" ] || { ok=0; motifs="exit $code au lieu de $att_exit"; }
   [ "$tent" = "$att_tent" ] || { ok=0; motifs="$motifs; $tent tentative(s) au lieu de $att_tent"; }
   local IFS='|'
@@ -138,6 +168,76 @@ essai () {
     if [ "$SILENCE" = 0 ]; then
       printf '  ✗ %-58s %s\n' "$nom" "${motifs#; }"
       echo "$log" | grep -aE "retry|budget\]|git\]|Fin du job" | sed 's/^/      /' | head -8
+      STATUT=1
+    fi
+  fi
+}
+
+# ---- S14 : la LISTE BLANCHE de l'auto-push ----
+# Les treize premiers témoins lisent le LOG. Celui-ci lit le COMMIT : c'est le seul moyen
+# de savoir ce qui part vraiment sur le dépôt public. La règle de CLAUDE.md est « jamais
+# git add -A » — contexte/, sources/rbpp, sources/tnmp, sources/qvct, en_cours/, ressources/,
+# outils/ et NotebookLM/ restent hors publication automatique, et les fiches Obsidian des
+# leçons comme les .fiche.md des veilles sont exclues par pathspec. Rien ne le vérifiait.
+# L'assertion est une ÉGALITÉ d'ensembles, pas une inclusion : elle attrape autant un
+# élargissement (un dossier personnel publié) qu'un rétrécissement (un livrable oublié).
+PERMIS=(
+  "livrables/lecons/parcours-test/2026-09-27_lecon-test_01_theme.docx"
+  "livrables/quiz/quiz_test_2026-09-27.pptx"
+  "livrables/infographies/infographie_test_2026-09-27.pptx"
+  "livrables/projets/appli-ia/PROJET.md"
+  "livrables/controles/2026-09-27_controle.docx"
+  "livrables/documents/note-de-cadrage.docx"
+  "sources/veille/serie-test/2026-09-27_veille_test.docx"
+  "sources/veille/serie-test/2026-09-27_veille_markdown.md"
+)
+# Exclus par pathspec — des livrables voisins qui ne doivent PAS partir seuls.
+EXCLUS=(
+  "livrables/lecons/parcours-test/2026-09-27_lecon-test_01_theme.md"
+  "sources/veille/serie-test/2026-09-27_veille_test.fiche.md"
+  "sources/veille/2026-09-27_veille_racine.fiche.md"
+)
+# Dossiers personnels : jamais publiés automatiquement.
+INTERDITS=(
+  "contexte/emails/note.md" "sources/rbpp/recommandation.txt" "sources/tnmp/grille.txt"
+  "sources/qvct/document.txt" "en_cours/script-jetable.js" "ressources/memo.md"
+  "outils/scripts/outil.sh" "NotebookLM/RBPP/guide.md"
+)
+essai_liste_blanche () {
+  local nom="S14 liste blanche de l'auto-push (lit le COMMIT)"
+  [ "$SILENCE" = 0 ] && N_TEMOINS=$((N_TEMOINS + 1))
+  local f
+  # ⚠️ REPARTIR DE LA SEMENCE, PAS DE HEAD (27/09/2026). Première version : reset sur HEAD.
+  # Au premier appel S14 publiait ses huit fichiers ; à l'appel suivant — chaque mutation
+  # rejoue le lot — ils étaient déjà dans HEAD, « Rien de nouveau à committer », aucun push,
+  # et S14 tombait dans les douze mutations. Un témoin non idempotent accuse tout le monde.
+  # Le distant est remis au même point, sinon le pull --rebase du runner les ramène.
+  ( cd "$D" && git reset -q --hard "$SEMENCE" && git push -q --force origin main \
+      && git clean -qfdx ) >/dev/null 2>&1
+  ecrire_config
+  for f in "${PERMIS[@]}" "${EXCLUS[@]}" "${INTERDITS[@]}"; do
+    mkdir -p "$D/$(dirname "$f")"; echo "contenu de $f" > "$D/$f"
+  done
+  rm -f "$H/compteur" "$D"/outils/scripts/logs/test-job_*.log
+  printf '%s\n' "0|$OK40" > "$H/scenario"
+  ( cd "$D" && HARN="$H" bash "$COPIE" test-job ) >/dev/null 2>&1
+  local code=$? log obtenu voulu ok=1 motifs=""
+  log="$(cat "$D"/outils/scripts/logs/test-job_*.log 2>/dev/null)"
+  obtenu="$(cd "$D" && git show --pretty=format: --name-only HEAD 2>/dev/null | grep -v '^$' | sort | tr '\n' ' ' | sed 's/ *$//')"
+  voulu="$(printf '%s\n' "${PERMIS[@]}" | sort | tr '\n' ' ' | sed 's/ *$//')"
+  [ "$code" = 0 ] || { ok=0; motifs="exit $code au lieu de 0"; }
+  grep -qF "push OK" <<<"$log" || { ok=0; motifs="$motifs; le push n'a pas abouti dans le dépôt jetable"; }
+  [ "$obtenu" = "$voulu" ] || { ok=0; motifs="$motifs; l'ensemble publié diffère"; }
+  if [ "$ok" = 1 ]; then
+    ECHECS_LB=""
+    [ "$SILENCE" = 0 ] && printf '  ✓ %-58s %s fichier(s) publié(s), %s exclu(s), %s interdit(s) écarté(s)\n' \
+        "$nom" "${#PERMIS[@]}" "${#EXCLUS[@]}" "${#INTERDITS[@]}"
+  else
+    ECHECS="$ECHECS S14"; ECHECS_LB="S14"
+    if [ "$SILENCE" = 0 ]; then
+      printf '  ✗ %-58s %s\n' "$nom" "${motifs#; }"
+      echo "      publié : $obtenu"
+      echo "      attendu: $voulu"
       STATUT=1
     fi
   fi
@@ -200,9 +300,31 @@ lancer_les_dix () {
   essai "S10 cas réel serafin-ph 09/09 (9 tours) = vrai succès" 0 2 \
         "Succès à la tentative 2 (régénération complète : 9 tours)" "FAUX SUCCÈS|PAS DE PUBLICATION" \
         "1|$RESEAU" "0|$OK9"
+
+  # S11 à S13 couvrent les deux AUTRES fail-fast, jamais testés jusqu'ici (27/09/2026).
+  # Leur enjeu est le même que celui du plafond : une erreur non transitoire retentée trois
+  # fois brûle le créneau hebdomadaire. Panne du 09→15/07/2026 pour l'auth (jeton Keychain
+  # expiré en launchd), 27/08/2026 pour la limite d'usage — ce jour-là le motif ne couvrait
+  # pas le libellé réel et les tentatives 2 et 3 d'astrologie-karmique ont été brûlées en
+  # 18 minutes face à un quota qui se rétablissait 3 heures plus tard.
+  essai "S11 erreur d'AUTHENTIFICATION = arrêt immédiat" 1 1 \
+        "Échec d'AUTHENTIFICATION détecté|setup-token|pas de commit" "Nouvelle tentative|Succès" \
+        "1|$AUTH" "0|$OK40"
+
+  essai "S12 LIMITE D'USAGE (libellé réel du 27/08) = arrêt immédiat" 1 1 \
+        "LIMITE D'USAGE atteinte|rattrapage_jobs.sh|pas de commit" "Nouvelle tentative|Succès" \
+        "1|$LIMITE" "0|$OK40"
+
+  # S13 est un témoin de FAUX POSITIF : un 403 de source bloquée n'est pas une limite d'usage.
+  # Les commentaires de run_job.sh l'exigent en capitales ; rien ne le vérifiait.
+  essai "S13 403 de source bloquée : AUCUN fail-fast, on retente" 1 3 \
+        "Tentative 3 échouée" "LIMITE D'USAGE|AUTHENTIFICATION détecté" \
+        "1|$BLOQUEE" "1|$BLOQUEE" "1|$BLOQUEE"
+
+  essai_liste_blanche
 }
 
-echo "▶ Témoins du runner — 10 scénarios de décision (faux claude, dépôt jetable)"
+echo "▶ Témoins du runner — scénarios de décision (faux claude, dépôt jetable)"
 lancer_les_dix
 
 # ---- MODE --mutations : QUI TESTE LE HARNAIS ? ----
@@ -225,6 +347,10 @@ if [ "$MUTATIONS" = 1 ]; then
     "TOURS_MINI=50¤s/^TOURS_MINI=.*/TOURS_MINI=50/¤S4 S8 S10"
     "fail-fast du plafond sans la forme JSON¤s/|error_max_budget_usd|max_budget_usd//¤S1"
     "detection du travail partiel desarmee¤s/^  ECHEC_ANTERIEUR=1$/  ECHEC_ANTERIEUR=0/¤S3 S4 S5 S8 S9 S10"
+    "fail-fast d'authentification neutralise¤s#grep -qiE 'Failed to authenticate[^']*'#grep -qiE 'ZZ_AUCUNE_CORRESPONDANCE_ZZ'#¤S11"
+    "fail-fast de limite d'usage neutralise¤s#^  LIMIT_RE=.*#  LIMIT_RE=\"ZZ_AUCUNE_CORRESPONDANCE_ZZ\"#¤S12"
+    "liste blanche elargie a tout le depot¤s#^          ':(exclude)livrables/lecons/[*].md'.*#          '.' 2>/dev/null#¤S14"
+    "exclusion des fiches Obsidian retiree¤s#':(exclude)livrables/lecons/[*].md' ##¤S14"
   )
   MUT_SRC="$H/mutant_source.sh"
   for M in "${MUTS[@]}"; do
@@ -232,16 +358,18 @@ if [ "$MUTATIONS" = 1 ]; then
     sed "$expr" "$RUNNER" > "$MUT_SRC"
     if cmp -s "$MUT_SRC" "$RUNNER"; then
       printf '  ✗ %-44s la mutation N'"'"'A RIEN CHANGÉ — le sed ne mord plus sur run_job.sh\n' "$etiq"
-      STATUT=1; continue
+      N_MUT=$((N_MUT + 1)); STATUT=1; continue
     fi
     if ! instrumenter "$MUT_SRC" "$COPIE" >/dev/null 2>&1; then
-      printf '  ✗ %-44s la copie mutée n'"'"'a pas pu être instrumentée\n' "$etiq"; STATUT=1
+      printf '  ✗ %-44s la copie mutée n'"'"'a pas pu être instrumentée\n' "$etiq"; N_MUT=$((N_MUT + 1)); STATUT=1
       instrumenter "$RUNNER" "$COPIE" >/dev/null 2>&1; continue
     fi
     SILENCE=1; lancer_les_dix; SILENCE=0
     obtenu="$(echo $ECHECS | tr ' ' '\n' | sort -V | tr '\n' ' ' | sed 's/ *$//')"
     voulu="$(echo $attendu  | tr ' ' '\n' | sort -V | tr '\n' ' ' | sed 's/ *$//')"
+    N_MUT=$((N_MUT + 1))
     if [ "$obtenu" = "$voulu" ]; then
+      N_MUT_OK=$((N_MUT_OK + 1))
       printf '  ✓ %-44s tombent : %s\n' "$etiq" "${obtenu:-aucun (attendu)}"
     else
       printf '  ✗ %-44s tombent : %s   ATTENDU : %s\n' "$etiq" "${obtenu:-aucun}" "${voulu:-aucun}"
@@ -253,10 +381,10 @@ fi
 
 if [ "$STATUT" = 0 ]; then
   if [ "$MUTATIONS" = 1 ]; then
-    echo "  ✓ 10/10 témoins + 8/8 mutations — le runner publie ce qui a été fait, refuse ce qui ne l'a"
-    echo "        pas été, et les témoins tombent quand on le casse exprès"
+    echo "  ✓ $N_TEMOINS/$N_TEMOINS témoins + $N_MUT_OK/$N_MUT mutations — le runner publie ce qui a été fait,"
+    echo "        refuse ce qui ne l'a pas été, et les témoins tombent quand on le casse exprès"
   else
-    echo "  ✓ 10/10 — le runner publie ce qui a été fait, et refuse ce qui ne l'a pas été"
+    echo "  ✓ $N_TEMOINS/$N_TEMOINS — le runner publie ce qui a été fait, et refuse ce qui ne l'a pas été"
     echo "        (les mutations ne sont PAS jouées ici : --mutations pour prouver que ces témoins mordent)"
   fi
 else
