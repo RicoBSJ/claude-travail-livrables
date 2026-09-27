@@ -9,3 +9,6 @@ dist/
 portail.db
 portail.db-shm
 portail.db-wal
+
+# Sauvegardes locales — créées par scripts/sauvegarder.js, horodatées, non versionnées
+sauvegardes/

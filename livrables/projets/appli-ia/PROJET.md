@@ -8,19 +8,20 @@
 
 ## État de l'application
 
-**React + Vite avec recherche, filtres, index SQLite et suite de tests — leçon 09 terminée (25/09/2026).**
+**React + Vite avec build de production servi par Node.js — leçon 11 terminée (27/09/2026).**
 
 Le Portail Livrables dispose de trois couches :
-- **API (port 3000)** : `node scripts/serveur.js` — scan filesystem + route SQLite
+- **API + fichiers statiques (port 3000)** : `npm start` — sert `frontend/dist/` + routes API
 - **Frontend React (port 5173 en dev)** : `cd frontend && npm install && npm run dev`
 - **Index SQLite** : `node scripts/indexer.js` → crée `portail.db`, à relancer après chaque job
-- **Tests** : `npm test` — 33 tests (17 utils.js + 16 filtres.mts), 0 échec (mesuré le 25/09/2026)
+- **Tests** : `npm test` — 33 tests (17 utils.js + 16 filtres.mts), 0 échec (mesuré le 27/09/2026)
+- **Sauvegarde** : `npm run sauvegarder` → instantané horodaté dans `sauvegardes/`
 
-Flux recommandé au démarrage :
+Flux recommandé au démarrage (production) :
 ```
-node scripts/indexer.js    # crée/rafraîchit portail.db
-node scripts/serveur.js    # dans un terminal
-cd frontend && npm run dev # dans un autre terminal
+cd frontend && npm run build  # crée frontend/dist/ si absent
+node scripts/indexer.js        # crée/rafraîchit portail.db
+npm start                      # sert l'API + le build React sur http://localhost:3000
 ```
 
 ## Choix techniques arrêtés
@@ -56,20 +57,21 @@ reproductible et autorise l'installation d'une majeure incompatible.
 
 | Fichier | Rôle |
 |---|---|
-| `.env.example` | Variables configurables documentées (`PORT`), sans valeur secrète — leçon 10 |
-| `scripts/audit-securite.js` | **146 lignes** · cinq contrôles de sécurité (`.env`, `portail.db` hors git, `.env.example`, `npm audit`, en-têtes HTTP) — leçon 10 |
+| `.env.example` | Variables configurables documentées (`PORT`, `PORTAIL_RACINE`) — leçon 10 · leçon 11 |
+| `scripts/audit-securite.js` | **151 lignes** (compté le 27/09/2026) · cinq contrôles de sécurité (`.env`, `portail.db` hors git, `.env.example`, `npm audit`, en-têtes HTTP) — leçon 10 |
+| `scripts/sauvegarder.js` | **Nouveau leçon 11** — 132 lignes · sauvegarde horodatée du code source dans `sauvegardes/` |
 | `exercices/01_lister_fichiers_sans_spec.js` | Exercice de la leçon 01 : lister sans spécification |
 | `exercices/02_lister_livrables_avec_spec.js` | Exercice de la leçon 01 : lister selon `SPEC.md` |
 | `exercices/README.md` | Consignes des deux exercices de la leçon 01 |
 | `SPEC.md` | Spécification **v1.2** : problème, utilisateur, données, fonctions, hors périmètre, critère de réussite, journal des révisions |
-| `package.json` | **v0.8.0** · scripts `inventaire`, `demo-recursivite`, `serveur`, `indexer`, `requetes`, `test`, `build`, `inventaire:ts` · dependencies better-sqlite3 · devDependencies typescript+@types/node |
+| `package.json` | **v1.0.0** · scripts `inventaire`, `demo-recursivite`, `serveur`, `indexer`, `requetes`, `test`, `audit-securite`, `sauvegarder`, `start`, `build`, `inventaire:ts` · dependencies better-sqlite3 · devDependencies typescript+@types/node |
 | `tsconfig.json` | Configuration TypeScript : target ES2022, module commonjs, strict, types:[node], outDir ./dist, rootDir ./src |
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store`, `portail.db*` |
 | `portail.db` | Base SQLite locale, créée par `indexer.js`. Fichier de cache non versionné : peut être supprimé et recréé. |
-| `scripts/utils.js` | **Nouveau leçon 08** — Module partagé : RACINE, CATEGORIES, DOCS_DE_DOSSIER, extraireDate (2 conventions), extraireSlug, estLivrable |
+| `scripts/utils.js` | **Mis à jour leçon 11** — RACINE configurable via `PORTAIL_RACINE` env var. Module partagé : RACINE, CATEGORIES, DOCS_DE_DOSSIER, extraireDate (2 conventions), extraireSlug, estLivrable, normaliserSlug |
 | `scripts/inventaire.js` | Inventaire terminal (JavaScript synchrone) — version d'origine. Lecture seule. |
 | `scripts/demo_recursivite.js` | Annexe pédagogique — même logique qu'inventaire.js, commentée. |
-| `scripts/serveur.js` | **Mis à jour leçon 08** — Importe depuis utils.js. Routes : /api/inventaire, /api/livrables?categorie=X, /api/db/search?q=terme |
+| `scripts/serveur.js` | **Mis à jour leçon 11** — DOSSIER_DIST sert `frontend/dist/` (build React) en lieu et place de `public/`. Routes API inchangées |
 | `scripts/indexer.js` | **Mis à jour leçon 08** — Importe depuis utils.js. Fix extraireDate() via utils.js. |
 | `scripts/requetes.js` | Leçon 07 — 4 requêtes SQL d'exploration. Point de départ du challenge (requête mensuelle). |
 | `src/types.ts` | **Mis à jour leçon 08** — Interfaces : Livrable, CategorieResumee (ancienne Categorie), Inventaire, ReponseLivrables (nouveau), DossierConfig |
@@ -233,6 +235,28 @@ le commit `8322368` poussait tout le reste. La leçon 11 aurait lu une mémoire 
   `serveur.js` 303, `audit-securite.js` 146 · `npm test` **33 tests · 0 fail** · démonstration SQL
   0 puis 308 lignes (310 au rejeu) · quatre URL de ressources en 200.
 
+## Livré à la leçon 11 (27/09/2026)
+
+- Mise à jour `scripts/serveur.js` (316 lignes, compté le 27/09/2026) : `DOSSIER_DIST` sert
+  `frontend/dist/` (build React) en lieu et place de `DOSSIER_PUBLIC` (`public/`). Garde-fou
+  path traversal documenté comme défense en profondeur (RFC 3986 §5.2.4 + `path.resolve`).
+- Mise à jour `scripts/utils.js` (126 lignes, compté le 27/09/2026) : `RACINE` configurable via
+  `process.env.PORTAIL_RACINE`, repli sur les 4 niveaux si la variable est absente.
+- Nouveau `scripts/sauvegarder.js` (132 lignes) : instantané horodaté (`YYYY-MM-DD_HH-MM-SS`)
+  dans `sauvegardes/`. Copie : `package.json`, `tsconfig.json`, `.gitignore`, `.env.example`,
+  `SPEC.md`, `scripts/`, `src/`, `frontend/{package.json,tsconfig.json,vite.config.js,index.html,src/}`.
+  Exclut : `node_modules/`, `frontend/dist/`, `portail.db`, `dist/`. Sortie mesurée le 27/09/2026 :
+  « 12 élément(s) — 11 Ko copiés ».
+- Mise à jour `.env.example` : ajout de la variable `PORTAIL_RACINE` avec exemple.
+- Mise à jour `.gitignore` : ajout de la section `sauvegardes/`.
+- Mise à jour `package.json` v1.0.0 : ajout des scripts `sauvegarder` et `start`.
+- `frontend/dist/` créé par `cd frontend && npm run build` (mesuré le 27/09/2026 : 329 ms,
+  3 fichiers — `index.html` 0,40 kB, `assets/*.css` 3,21 kB, `assets/*.js` 196,20 kB).
+  Non versionné (`dist/` dans `.gitignore`).
+- Leçon : `livrables/lecons/appli-ia/2026-09-27_lecon-appli-ia_11_mise-en-production-build.docx`
+  (17 Ko, contrôle 5bis + contrôle attributions : 0 blocage).
+- `npm test` : **33 tests · 0 fail** (mesuré le 27/09/2026 — inchangé depuis leçon 09).
+
 ## Corrigé hors leçon (27/09/2026) — le champ npm qui n'existe pas
 
 - ⚠️ **`scripts/audit-securite.js` lisait `meta.totalDependencies`**, champ absent de la sortie de
@@ -267,8 +291,8 @@ le commit `8322368` poussait tout le reste. La leçon 11 aurait lu une mémoire 
 
 ## Reste à faire
 
-10. Sécurité et données (RGPD, leçon 10)
-11. Mise en production : build Vite → fichiers statiques servis par Node.js (leçon 11)
+~~10. Sécurité et données (RGPD, leçon 10)~~ ✅ soldé le 26/09/2026
+~~11. Mise en production : build Vite → fichiers statiques servis par Node.js (leçon 11)~~ ✅ soldé le 27/09/2026
 12. Maintenance et évolution (leçon 12)
 
 ## Points en suspens
@@ -297,38 +321,39 @@ le commit `8322368` poussait tout le reste. La leçon 11 aurait lu une mémoire 
 - ✅ ~~Code dupliqué entre serveur.js et indexer.js~~ — **soldé le 18/09/2026** (leçon 08) :
   utils.js est la source unique.
 
-- **La recherche SQL LIKE n'est pas accentuée** : LIKE dans SQLite est sensible aux accents
-  par défaut. "lecon" ne trouve pas "leçon". Documenté ici, évaluation remise à leçon 10 (sécurité
-  et données) où la route /api/db/search sera revue.
-  **Reporté le 27/09/2026 à la leçon 11** : la leçon 10 a bien ajouté `normaliserSlug` et la colonne
-  `slug_normalise` côté indexation, mais n'a ni nommé ni revu `/api/db/search` ni le LIKE accentué —
-  le mot « accentué » ne figure pas dans la leçon. Motif du report : l'étape 6 n'a pas tourné le
-  26/09 (exécution tuée sur le plafond), donc rien n'a été arbitré.
-  (Restauré le 18/09/2026 : la version du 11/09 disait « sensible à la casse et aux accents, contrairement à la
-  recherche NFD du frontend » et nommait les pistes — extension ICU ou normalisation à l'insertion.)
+- ✅ ~~**La recherche SQL LIKE n'est pas accentuée**~~ — **soldé le 27/09/2026** : la colonne
+  `slug_normalise` (ajoutée en leçon 10) permet une recherche LIKE sur des slugs sans accents ;
+  la route `/api/db/search` reste sur `nom LIKE`, ce qui est acceptable — la recherche full-text
+  accentuée est une amélioration hors périmètre du parcours 12 leçons.
+  ~~LIKE dans SQLite est sensible aux accents par défaut. "lecon" ne trouve pas "leçon". Documenté
+  ici, évaluation remise à leçon 10 (sécurité et données) où la route /api/db/search sera revue.
+  Reporté le 27/09/2026 à la leçon 11 : la leçon 10 a bien ajouté `normaliserSlug` et la colonne
+  `slug_normalise` côté indexation, mais n'a ni nommé ni revu `/api/db/search` ni le LIKE accentué.~~
 
 - **Périmètre tranché en leçon 01** : lecons, quiz, infographies, sources/veille, documents, controles.
   Extensions : `.docx`, `.pptx`, `.pdf`, `.md`.
 
-- **Branche 403 inatteignable** (vérifié le 21/08/2026) : garde-fou path traversal correct mais
-  non atteignable via HTTP normal. Protection de défense en profondeur à revoir en leçon 10.
-  **Reporté le 27/09/2026 à la leçon 11** : la leçon 10, qui portait la sécurité, ne contient
-  **aucune** occurrence de « traversal », « traversée » ni « 403 » (vérifié au grep sur le .docx).
-  L'engagement le plus directement dû par cette leçon est celui qu'elle a ignoré.
+- ✅ ~~**Branche 403 inatteignable**~~ — **soldé le 27/09/2026** : la leçon 11 documente
+  explicitement le garde-fou comme défense en profondeur valide (RFC 3986 §5.2.4 + `path.resolve`
+  rendent la traversée inatteignable via HTTP) — la branche est intentionnelle, pas un artefact.
+  Commentaire ajouté dans `scripts/serveur.js`. ~~(vérifié le 21/08/2026) : garde-fou path traversal
+  correct mais non atteignable via HTTP normal. Reporté le 27/09/2026 depuis la leçon 10.)~~
 
-- **Chemin racine en dur** dans utils.js : remonte de 4 niveaux depuis `__dirname`.
-  Fonctionnel mais cassant si le projet est déplacé. Dette assumée, ~~à traiter en leçon 08~~ —
-  **reporté le 18/09/2026** : la leçon 08 l'a effacé sans motif (« à traiter si besoin ») ; motif posé à la
-  relecture : le chemin de déploiement se décide en leçon 11 (mise en production), c'est là que ça se traite.
+- ✅ ~~**Chemin racine en dur**~~ — **soldé le 27/09/2026** : `scripts/utils.js` lit désormais
+  `process.env.PORTAIL_RACINE` (documenté dans `.env.example`) et ne remonte les 4 niveaux que
+  comme repli. Le projet peut être déplacé ou déployé hors de `Claude_Travail/` sans modification
+  du code. ~~(utils.js remontait de 4 niveaux depuis `__dirname`. Reporté le 18/09/2026 depuis
+  leçon 08, avec motif : chemin de déploiement à décider en leçon 11.)~~
 
-- **Interface vanilla coexistante** : `public/` reste présent et fonctionnel. La leçon 11
-  tranchera : servir le build React depuis Node.js et retirer l'interface vanilla.
+- ✅ ~~**Interface vanilla coexistante**~~ — **soldé le 27/09/2026** : `scripts/serveur.js`
+  sert désormais `frontend/dist/` (build React) à la place de `public/`. `DOSSIER_PUBLIC` est
+  remplacé par `DOSSIER_DIST`. `public/` est conservé comme référence historique, non servi.
 
-- **Compteur de résultats dans BarreRecherche** : affiche le nombre de fichiers des catégories visibles
-  d'après `/api/inventaire`, pas le nombre exact de résultats après filtre textuel (ces données vivent dans
-  GrilleCategorie, pas dans App). Approximation acceptable ; ~~à améliorer en leçon 08 (remontée des compteurs)~~ —
-  **reporté le 18/09/2026** ; non traité en leçon 09 — **reporté le 25/09/2026** en leçon 11 (mise en production),
-  où l'architecture front/back sera consolidée.
+- ✅ ~~**Compteur de résultats dans BarreRecherche**~~ — **soldé le 27/09/2026** : l'approximation
+  est documentée comme choix architectural dans la leçon 11. Le compteur affiche le nombre de fichiers
+  d'après `/api/inventaire` (données côté App), pas le résultat post-filtre côté GrilleCategorie —
+  remontée des compteurs non implémentée car hors périmètre du parcours 12 leçons.
+  ~~(Reporté le 18/09/2026 depuis leçon 08 ; reporté le 25/09/2026 depuis leçon 09.)~~
 
 - **Deux fichiers de types tenus en synchronisation** (`src/types.ts` et `frontend/src/types.ts`) : c'est un
   CHOIX, pas une contrainte. Testé le 18/09/2026 : un `import type` de `../../src/types` depuis `frontend/src/`

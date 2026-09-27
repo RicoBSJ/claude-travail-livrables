@@ -4,16 +4,18 @@
 // Leçon 08 — Factorisation : CATEGORIES et utilitaires déplacés dans utils.js (18/09/2026)
 // Leçon 10 — Sécurité et données (26/09/2026) :
 //            En-têtes de sécurité HTTP, validation PORT, recherche accentuée (slug_normalise)
+// Leçon 11 — Mise en production (27/09/2026) :
+//            DOSSIER_DIST : sert le build React (frontend/dist/) en lieu et place de public/
 //
-// Lance : node scripts/serveur.js
+// Lance : node scripts/serveur.js  (ou npm start)
 // Ou sur un autre port : PORT=8080 node scripts/serveur.js
 //
 // Routes :
 //   GET /api/inventaire              → inventaire complet (scan filesystem)
 //   GET /api/livrables?categorie=X   → liste complète d'une catégorie
 //   GET /api/db/search?q=terme       → recherche textuelle dans portail.db (SQLite)
-//   GET /                            → public/index.html
-//   GET /style.css, /app.js, …       → fichiers statiques
+//   GET /                            → frontend/dist/index.html (build React — npm run build)
+//   GET /assets/…                    → fichiers statiques du build (JS, CSS)
 
 'use strict';
 const http     = require('node:http');
@@ -154,7 +156,11 @@ async function construireInventaire() {
 
 // ── Serveur HTTP ───────────────────────────────────────────────────────────
 
-const DOSSIER_PUBLIC = path.join(__dirname, '..', 'public');
+// Leçon 11 : le build React (frontend/dist/) remplace l'interface vanilla (public/).
+// Créé par : cd frontend && npm run build
+// Si le dossier n'existe pas encore, le serveur démarre normalement (les routes API
+// fonctionnent), mais '/' renvoie 404 tant que le build n'a pas été lancé.
+const DOSSIER_DIST = path.join(__dirname, '..', 'frontend', 'dist');
 
 const TYPES_MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -257,12 +263,19 @@ async function gererRequete(req, res) {
     return;
   }
 
-  // ── Fichiers statiques ─────────────────────────────────────────────────
+  // ── Fichiers statiques (build React) ──────────────────────────────────
   const cible     = chemin === '/' ? '/index.html' : chemin;
-  const absolu    = path.resolve(DOSSIER_PUBLIC, '.' + cible);
+  const absolu    = path.resolve(DOSSIER_DIST, '.' + cible);
 
-  // Garde-fou path traversal : le chemin résolu doit rester dans DOSSIER_PUBLIC
-  if (!absolu.startsWith(DOSSIER_PUBLIC + path.sep) && absolu !== DOSSIER_PUBLIC) {
+  // Garde-fou path traversal : le chemin résolu doit rester dans DOSSIER_DIST.
+  // Cette branche est inatteignable via HTTP normal : new URL() normalise les
+  // séquences « .. » en appliquant la spec URL (RFC 3986 §5.2.4), et
+  // path.resolve() normalise ensuite les éventuels séparateurs restants.
+  // Une requête GET /../../../etc/passwd devient pathname=/etc/passwd, puis
+  // path.resolve(DOSSIER_DIST, './etc/passwd') = DOSSIER_DIST/etc/passwd —
+  // qui commence bien par DOSSIER_DIST + sep. La garde est donc défense en
+  // profondeur : elle protège si l'un des deux maillons était contourné.
+  if (!absolu.startsWith(DOSSIER_DIST + path.sep) && absolu !== DOSSIER_DIST) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('403 — Accès interdit');
     return;

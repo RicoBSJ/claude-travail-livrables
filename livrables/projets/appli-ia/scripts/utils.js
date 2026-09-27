@@ -1,6 +1,7 @@
 // scripts/utils.js — Utilitaires et configuration partagés du Portail Livrables
 // Leçon 08 — API et architecture (18/09/2026)
 // Leçon 10 — Sécurité et données (26/09/2026) : ajout de normaliserSlug
+// Leçon 11 — Mise en production (27/09/2026) : RACINE configurable via PORTAIL_RACINE
 //
 // Ce module extrait le code qui était dupliqué entre scripts/serveur.js
 // et scripts/indexer.js : mêmes constantes CATEGORIES et DOCS_DE_DOSSIER,
@@ -22,8 +23,12 @@ const path = require('node:path');
 // ── Configuration ─────────────────────────────────────────────────────────────
 
 // Le script vit dans livrables/projets/appli-ia/scripts/
-// On remonte de 4 niveaux pour atteindre la racine Claude_Travail/
-const RACINE = path.resolve(__dirname, '..', '..', '..', '..');
+// Par défaut, on remonte de 4 niveaux pour atteindre la racine Claude_Travail/.
+// Si la variable d'environnement PORTAIL_RACINE est définie, elle prend la priorité.
+// Usage : PORTAIL_RACINE=/chemin/absolu node scripts/serveur.js
+const RACINE = process.env.PORTAIL_RACINE
+  ? path.resolve(process.env.PORTAIL_RACINE)
+  : path.resolve(__dirname, '..', '..', '..', '..');
 
 // Catégories à inventorier : clé → { chemin absolu, extensions acceptées }
 // `recursif` : la catégorie déclare elle-même si ses sous-dossiers comptent (23/09/2026).
