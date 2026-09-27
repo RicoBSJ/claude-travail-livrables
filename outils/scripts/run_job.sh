@@ -69,9 +69,23 @@ fi
 MAX_ATTEMPTS=3
 RETRY_DELAYS=(90 180)   # attente (s) avant les tentatives 2 et 3
 # Plancher de tours en dessous duquel une tentative ne peut PAS avoir refait le travail :
-# elle s'est arrêtée sur un garde-fou (doublon le plus souvent). Séparation mesurée :
-# 3 tours pour une sortie sur doublon, 27 à 64 pour une génération réelle.
-TOURS_MINI=10
+# elle s'est arrêtée sur un garde-fou (doublon le plus souvent).
+#
+# ⚠️ ABAISSÉ DE 10 À 7 LE 27/09/2026, SUR MESURE DU FICHIER mesures_couts.csv.
+# La valeur 10 avait été posée le matin même sur une séparation que je croyais large :
+# 3 tours pour une sortie sur doublon, 27 à 64 pour une génération. Le dépouillement des
+# 45 exécutions mesurées depuis le 08/09/2026 dit autre chose — la zone basse est peuplée :
+#   • serafin-ph-veille, 09/09/2026 : 9 TOURS, 0,4298 $, veille de 18 781 octets écrite
+#     et POUSSÉE. Un vrai livrable en 9 tours. TOURS_MINI=10 l'aurait déclaré faux succès.
+#   • astrologie-karmique-lecon, 10/09/2026 : 11 tours, 1,1677 $ — leçon réelle.
+#   • sorties sur doublon observées : 3 tours (26/09 appli-ia, 27/09 revenus-passifs ×2).
+#   • controle-livrables, 13/09/2026 : 1 TOUR pour 1,5643 $ — un seul tour peut coûter
+#     cher, donc le nombre de tours n'est pas une mesure du travail fait, seulement un
+#     indice de l'arrêt précoce. C'est pourquoi le plancher reste bas et le doute penche
+#     du côté de NE PAS publier plutôt que du côté d'un faux négatif.
+# Bornes exigées par les témoins de non_regression_runner.sh : 5 tours doivent être
+# refusés (S9) et 9 tours acceptés (S10), donc TOURS_MINI ∈ [6, 9]. Il vaut 7.
+TOURS_MINI=7
 
 # Plafond de coût par exécution (modifiable). Défaut 2 $, mais certains jobs
 # très lourds en sources (WebFetch + boucles WebSearch de repli) dépassent

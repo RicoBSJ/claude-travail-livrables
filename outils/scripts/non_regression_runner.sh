@@ -28,7 +28,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # RUNNER_SOUS_TEST : pour PROUVER QUE CE HARNAIS A DES DENTS. Un harnais qui passe aussi
 # sur la version fautive ne teste rien. Vérification à refaire après toute retouche :
 #   RUNNER_SOUS_TEST=/chemin/vers/run_job.sh.avant outils/scripts/non_regression_runner.sh
-# Mesuré le 27/09/2026 sur la version d'avant correctif : S1, S3, S4 et S5 tombent.
+# Mesuré le 27/09/2026 sur la version d'avant correctif : S1, S3, S4, S5, S9 et S10 tombent.
 RUNNER="${RUNNER_SOUS_TEST:-$ROOT/outils/scripts/run_job.sh}"
 GARDER=0; [ "${1:-}" = "--garder" ] && GARDER=1
 STATUT=0
@@ -83,8 +83,13 @@ OK40='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"l
 OK3='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"arret etape 1 : doublon du jour","total_cost_usd":0.15,"num_turns":3,"duration_ms":16000,"usage":{"input_tokens":4,"output_tokens":590}}'
 BUDGJ='{"is_error":true,"subtype":"error_max_budget_usd","stop_reason":"tool_use","result":"arret sur plafond","total_cost_usd":3.07,"num_turns":64,"duration_ms":844000,"usage":{"input_tokens":54,"output_tokens":52618}}'
 RESEAU='{"is_error":true,"subtype":"error_during_execution","stop_reason":"","result":"timeout reseau","total_cost_usd":0.4,"num_turns":8,"duration_ms":30000,"usage":{"input_tokens":4,"output_tokens":20}}'
-# 12 tours : juste AU-DESSUS de TOURS_MINI=10. Sert à borner le seuil par le haut (voir S8).
+# 12 tours : au-dessus du seuil. Borne le seuil par le haut (S8).
 OK12='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"veille ecrite","total_cost_usd":0.8,"num_turns":12,"duration_ms":180000,"usage":{"input_tokens":12,"output_tokens":9000}}'
+# 5 tours : arrêt précoce, aucune génération jamais observée à ce niveau. Borne par le bas (S9).
+OK5='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"arret precoce","total_cost_usd":0.22,"num_turns":5,"duration_ms":40000,"usage":{"input_tokens":6,"output_tokens":900}}'
+# 9 tours : CAS RÉEL — serafin-ph-veille du 09/09/2026, 0,4298 $, veille de 18 781 octets
+# écrite et poussée. Chiffres repris de mesures_couts.csv. Borne le seuil par le bas du haut (S10).
+OK9='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"veille SERAFIN-PH ecrite","total_cost_usd":0.4298,"num_turns":9,"duration_ms":220891,"usage":{"input_tokens":12,"output_tokens":9858}}'
 BUDGTXT='Error: Exceeded USD budget (3)'
 NONJSON='recapitulatif en texte brut, sans json'
 
@@ -112,7 +117,7 @@ essai () {
   fi
 }
 
-echo "▶ Témoins du runner — 8 scénarios de décision (faux claude, dépôt jetable)"
+echo "▶ Témoins du runner — 10 scénarios de décision (faux claude, dépôt jetable)"
 
 essai "S1 plafond dès la tentative 1 (forme JSON, cas du 26/09)" 1 1 \
       "PLAFOND DE COÛT DÉPASSÉ|pas de commit" "Succès à la tentative|FAUX SUCCÈS" \
@@ -153,8 +158,24 @@ essai "S8 exécution courte mais RÉELLE (12 tours) = vrai succès" 0 2 \
       "Succès à la tentative 2 (régénération complète : 12 tours)" "FAUX SUCCÈS|PAS DE PUBLICATION" \
       "1|$RESEAU" "0|$OK12"
 
+# S9 et S10 RESSERRENT LE SEUIL SUR LA MESURE, PAS SUR L'INTUITION (27/09/2026).
+# S3 (3 tours) n'exigeait que TOURS_MINI ≥ 4 : un seuil à 4 ou 5 aurait laissé passer
+# comme « succès » un arrêt à 5 tours. S9 exige ≥ 6.
+# Et le dépouillement de mesures_couts.csv a montré que la borne haute était FAUSSE :
+# serafin-ph-veille a écrit et poussé une veille de 18 781 octets en 9 TOURS le 09/09/2026
+# (0,4298 $). TOURS_MINI valait 10 ce matin : cette veille-là aurait été refusée à la
+# publication si elle avait suivi une tentative échouée. S10 exige ≤ 9, et le seuil est
+# descendu à 7. Les deux ensemble enferment TOURS_MINI dans [6, 9].
+essai "S9 arrêt précoce à 5 tours = FAUX SUCCÈS" 7 2 \
+      "FAUX SUCCÈS|PAS DE PUBLICATION" "✅ Succès" \
+      "1|$RESEAU" "0|$OK5"
+
+essai "S10 cas réel serafin-ph 09/09 (9 tours) = vrai succès" 0 2 \
+      "Succès à la tentative 2 (régénération complète : 9 tours)" "FAUX SUCCÈS|PAS DE PUBLICATION" \
+      "1|$RESEAU" "0|$OK9"
+
 if [ "$STATUT" = 0 ]; then
-  echo "  ✓ 8/8 — le runner publie ce qui a été fait, et refuse ce qui ne l'a pas été"
+  echo "  ✓ 10/10 — le runner publie ce qui a été fait, et refuse ce qui ne l'a pas été"
 else
   echo "  ✗ AU MOINS UN TÉMOIN DU RUNNER A CHANGÉ DE COMPORTEMENT."
   echo "    Si le changement est voulu, mets à jour les attentes dans ce fichier — et dis pourquoi."
