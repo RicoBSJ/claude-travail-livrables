@@ -34,12 +34,16 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 #   RUNNER_SOUS_TEST=/chemin/vers/run_job.sh.avant outils/scripts/non_regression_runner.sh
 # Mesuré le 27/09/2026 sur la version d'avant correctif : S1, S3, S4, S5, S9 et S10 tombent.
 RUNNER="${RUNNER_SOUS_TEST:-$ROOT/outils/scripts/run_job.sh}"
-GARDER=0; MUTATIONS=0
+GARDER=0; MUTATIONS=0; JUGE_SEUL=0
 for a in "$@"; do
   case "$a" in
     --garder)    GARDER=1 ;;
     --mutations) MUTATIONS=1 ;;
-    *) echo "option inconnue : $a (attendu --mutations et/ou --garder)"; exit 2 ;;
+    # --juge-seul : ne joue QUE les auto-tests du juge, puis sort. Sert aux mutations du juge
+    # (mode --mutations), qui lancent des copies mutées de CE fichier et exigent qu'elles
+    # échouent. Sans ce raccourci, chaque mutation du juge coûterait les quatorze témoins.
+    --juge-seul) JUGE_SEUL=1 ;;
+    *) echo "option inconnue : $a (attendu --mutations, --juge-seul et/ou --garder)"; exit 2 ;;
   esac
 done
 STATUT=0
@@ -141,6 +145,82 @@ NONJSON='recapitulatif en texte brut, sans json'
 # ---- un scénario : nom | exit attendu | tentatives attendues | doit contenir | doit NE PAS contenir | lignes ----
 # Le nom commence par l'identifiant (S1, S2…) : c'est lui qu'on accumule dans ECHECS, et
 # c'est sur cet ensemble que les mutations sont jugées.
+# ---- LE JUGE, isolé pour pouvoir être jugé lui-même (27/09/2026) ----
+# juger() est PURE : elle ne lit aucun fichier, ne lance rien, et se contente de comparer.
+# Elle a été extraite d'essai() pour une raison précise : c'est elle qui décide de tout, et
+# si elle se casse — un IFS qui ne découpe plus, un grep qui devient permissif — TOUS les
+# témoins passent au vert en ne comparant plus rien. Le mode d'auto-test ci-dessous la met à
+# l'épreuve sur des cas synthétiques, avant que le moindre témoin ne tourne.
+# Rend 0 si tout concorde, 1 sinon, et dépose l'explication dans JUGE_MOTIFS.
+# ⚠️ LIMITE ASSUMÉE : « | » sépare les motifs, un motif ne peut donc pas en contenir.
+# La comparaison est LITTÉRALE (grep -F) : un motif n'est jamais une expression régulière.
+JUGE_MOTIFS=""
+juger () {
+  local code="$1" tent="$2" log="$3" att_exit="$4" att_tent="$5" doit="$6" interdit="$7"
+  local ok=1 m
+  JUGE_MOTIFS=""
+  [ "$code" = "$att_exit" ] || { ok=0; JUGE_MOTIFS="exit $code au lieu de $att_exit"; }
+  [ "$tent" = "$att_tent" ] || { ok=0; JUGE_MOTIFS="$JUGE_MOTIFS; $tent tentative(s) au lieu de $att_tent"; }
+  local IFS='|'
+  for m in $doit;     do [ -n "$m" ] && { grep -qF -- "$m" <<<"$log" || { ok=0; JUGE_MOTIFS="$JUGE_MOTIFS; « $m » ABSENT du log"; }; }; done
+  for m in $interdit; do [ -n "$m" ] && { grep -qF -- "$m" <<<"$log" && { ok=0; JUGE_MOTIFS="$JUGE_MOTIFS; « $m » PRÉSENT alors qu'il ne devrait pas"; }; }; done
+  unset IFS
+  JUGE_MOTIFS="${JUGE_MOTIFS#; }"
+  [ "$ok" = 1 ]
+}
+
+# ---- AUTO-TESTS DU JUGE : est-il capable de dire non ? ----
+# Joués à CHAQUE invocation, avant les témoins : ils ne coûtent aucun sous-processus.
+# Les douze mutations mordent sur run_job.sh ; celles-ci mordent sur le juge.
+autotests_du_juge () {
+  local LOG_T="premiere ligne
+[retry] ✅ Succès à la tentative 2 (régénération complète : 40 tours)
+[git] ✅ push OK (tentative 1)"
+  local n=0 ko=0
+  cas () {
+    local att="$1" lib="$2"; shift 2
+    local obt=0; juger "$@" || obt=1
+    n=$((n + 1))
+    if [ "$obt" = "$att" ]; then
+      [ "${VERBEUX:-0}" = 1 ] && printf '    ✓ %s\n' "$lib"
+    else
+      printf '  ✗ AUTO-TEST DU JUGE : %s — verdict %s au lieu de %s (motifs : %s)\n' \
+             "$lib" "$obt" "$att" "${JUGE_MOTIFS:-aucun}"
+      ko=1
+    fi
+  }
+  #    attendu  libellé                                     code tent log        att_exit att_tent doit interdit
+  cas 0 "tout concorde"                                     0 2 "$LOG_T" 0 2 "push OK" "FAUX SUCCÈS"
+  cas 1 "exit différent"                                    7 2 "$LOG_T" 0 2 "push OK" ""
+  cas 1 "nombre de tentatives différent"                    0 3 "$LOG_T" 0 2 "push OK" ""
+  cas 1 "un « doit contenir » absent"                       0 2 "$LOG_T" 0 2 "ABSENT_XYZ" ""
+  cas 0 "deux « doit contenir » présents"                   0 2 "$LOG_T" 0 2 "push OK|régénération complète" ""
+  cas 1 "deux « doit contenir », le second absent"          0 2 "$LOG_T" 0 2 "push OK|ABSENT_XYZ" ""
+  cas 1 "deux « doit contenir », le premier absent"         0 2 "$LOG_T" 0 2 "ABSENT_XYZ|push OK" ""
+  cas 1 "un « interdit » présent"                           0 2 "$LOG_T" 0 2 "" "push OK"
+  cas 0 "un « interdit » absent"                            0 2 "$LOG_T" 0 2 "" "FAUX SUCCÈS"
+  cas 1 "deux « interdits », le second présent"             0 2 "$LOG_T" 0 2 "" "ABSENT_XYZ|push OK"
+  cas 0 "motifs vides : ignorés, pas cherchés"              0 2 "$LOG_T" 0 2 "" ""
+  cas 0 "comparaison LITTÉRALE : parenthèses et deux-points" 0 2 "$LOG_T" 0 2 "(régénération complète : 40 tours)" ""
+  cas 1 "comparaison LITTÉRALE : le point n'est pas un joker" 0 2 "$LOG_T" 0 2 "push.OK" ""
+  cas 1 "comparaison LITTÉRALE : pas d'ancre regex"         0 2 "$LOG_T" 0 2 "^premiere" ""
+  cas 1 "log vide et un motif attendu"                      0 2 ""        0 2 "push OK" ""
+  cas 0 "log vide, rien d'attendu, rien d'interdit"         0 2 ""        0 2 "" ""
+  cas 1 "accent dans le motif, absent du log"               0 2 "$LOG_T" 0 2 "régénération partielle" ""
+  cas 0 "accent dans le motif, présent dans le log"         0 2 "$LOG_T" 0 2 "régénération complète" ""
+  if [ "$ko" = 0 ]; then
+    echo "  ✓ $n/$n auto-tests du juge — essai() sait dire non"
+  else
+    echo "  ✗ LE JUGE EST CASSÉ : tant qu'il l'est, un témoin vert ne prouve RIEN."
+    STATUT=1
+  fi
+}
+
+if [ "$JUGE_SEUL" = 1 ]; then
+  autotests_du_juge
+  exit $STATUT
+fi
+
 SILENCE=0; ECHECS=""
 # Compteurs CALCULÉS : la première version annonçait « 10/10 témoins + 8/8 mutations » alors
 # qu'il y en avait 14 et 12. Un verdict qui compte à la main finit par mentir (27/09/2026).
@@ -152,15 +232,11 @@ essai () {
   rm -f "$H/compteur" "$D"/outils/scripts/logs/test-job_*.log
   printf '%s\n' "$@" > "$H/scenario"
   ( cd "$D" && HARN="$H" bash "$COPIE" test-job ) >/dev/null 2>&1
-  local code=$? tent log ok=1 motifs=""
+  local code=$? tent log ok=1
   tent="$(cat "$H/compteur" 2>/dev/null || echo 0)"
   log="$(cat "$D"/outils/scripts/logs/test-job_*.log 2>/dev/null)"
-  [ "$code" = "$att_exit" ] || { ok=0; motifs="exit $code au lieu de $att_exit"; }
-  [ "$tent" = "$att_tent" ] || { ok=0; motifs="$motifs; $tent tentative(s) au lieu de $att_tent"; }
-  local IFS='|'
-  for m in $doit;     do [ -n "$m" ] && { grep -qF -- "$m" <<<"$log" || { ok=0; motifs="$motifs; « $m » ABSENT du log"; }; }; done
-  for m in $interdit; do [ -n "$m" ] && { grep -qF -- "$m" <<<"$log" && { ok=0; motifs="$motifs; « $m » PRÉSENT alors qu'il ne devrait pas"; }; }; done
-  unset IFS
+  juger "$code" "$tent" "$log" "$att_exit" "$att_tent" "$doit" "$interdit" || ok=0
+  local motifs="$JUGE_MOTIFS"
   if [ "$ok" = 1 ]; then
     [ "$SILENCE" = 0 ] && printf '  ✓ %-58s exit %s · %s tentative(s)\n' "$nom" "$code" "$tent"
   else
@@ -324,6 +400,9 @@ lancer_les_dix () {
   essai_liste_blanche
 }
 
+echo "▶ Auto-tests du juge (aucun sous-processus)"
+autotests_du_juge
+
 echo "▶ Témoins du runner — scénarios de décision (faux claude, dépôt jetable)"
 lancer_les_dix
 
@@ -377,12 +456,50 @@ if [ "$MUTATIONS" = 1 ]; then
     fi
   done
   instrumenter "$RUNNER" "$COPIE" >/dev/null 2>&1   # on repart du runner réel
+
+  # ---- MUTATIONS DU JUGE : et si c'était lui qui se cassait ? ----
+  # Les douze mutations ci-dessus cassent run_job.sh. Celles-ci cassent juger(), la fonction
+  # qui décide de tout. Un juge permissif rend les quatorze témoins verts sans rien comparer :
+  # c'est la panne la plus dangereuse du harnais, et la seule qui ne se voit pas.
+  # Chaque mutation produit une copie de CE fichier, lancée avec --juge-seul : elle DOIT sortir
+  # en échec. Une mutation du juge que les auto-tests laissent passer est un trou de couverture.
+  echo "▶ Mutations du juge — ses auto-tests doivent le prendre en défaut"
+  MUTS_JUGE=(
+    "comparaison rendue REGEX (grep -qF → grep -q)¤s/grep -qF -- /grep -q -- /g"
+    "separateur de motifs neutralise (IFS)¤s/  local IFS='|'/  local IFS=\$'\\002'/"
+    "boucle des motifs INTERDITS supprimee¤/for m in \$interdit;/d"
+    "verdict toujours favorable¤s/^  \[ \"\$ok\" = 1 \]$/  true/"
+    "comparaison du code de sortie supprimee¤s/^  \[ \"\$code\" = \"\$att_exit\" \].*$//"
+    "comparaison du nombre de tentatives supprimee¤s/^  \[ \"\$tent\" = \"\$att_tent\" \].*$//"
+  )
+  MUTE="$H/harnais_mute.sh"
+  for M in "${MUTS_JUGE[@]}"; do
+    etiq="${M%%¤*}"; expr="${M#*¤}"
+    sed "$expr" "$0" > "$MUTE"
+    N_MUT=$((N_MUT + 1))
+    if cmp -s "$MUTE" "$0"; then
+      printf '  ✗ %-44s la mutation N'"'"'A RIEN CHANGÉ — le sed ne mord plus sur le juge\n' "$etiq"
+      STATUT=1; continue
+    fi
+    if ! bash -n "$MUTE" 2>/dev/null; then
+      printf '  ✗ %-44s la copie mutée du harnais ne passe pas bash -n\n' "$etiq"
+      STATUT=1; continue
+    fi
+    if RUNNER_SOUS_TEST="$RUNNER" bash "$MUTE" --juge-seul >/dev/null 2>&1; then
+      printf '  ✗ %-44s les auto-tests ne l'"'"'ont PAS vu — trou de couverture du juge\n' "$etiq"
+      STATUT=1
+    else
+      N_MUT_OK=$((N_MUT_OK + 1))
+      printf '  ✓ %-44s pris en défaut\n' "$etiq"
+    fi
+  done
 fi
 
 if [ "$STATUT" = 0 ]; then
   if [ "$MUTATIONS" = 1 ]; then
-    echo "  ✓ $N_TEMOINS/$N_TEMOINS témoins + $N_MUT_OK/$N_MUT mutations — le runner publie ce qui a été fait,"
-    echo "        refuse ce qui ne l'a pas été, et les témoins tombent quand on le casse exprès"
+    echo "  ✓ $N_TEMOINS/$N_TEMOINS témoins + $N_MUT_OK/$N_MUT mutations (runner ET juge) — le runner publie ce"
+    echo "        qui a été fait, refuse ce qui ne l'a pas été, les témoins tombent quand on casse le runner,"
+    echo "        et les auto-tests tombent quand on casse le juge"
   else
     echo "  ✓ $N_TEMOINS/$N_TEMOINS — le runner publie ce qui a été fait, et refuse ce qui ne l'a pas été"
     echo "        (les mutations ne sont PAS jouées ici : --mutations pour prouver que ces témoins mordent)"
