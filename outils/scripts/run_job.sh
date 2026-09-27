@@ -55,8 +55,23 @@ fi
 # faisaient perdre tout le créneau — pour un job hebdo, c'était 7 jours de retard.
 # On réessaie jusqu'à MAX_ATTEMPTS fois, avec backoff. Un skip pour doublon renvoie
 # exit 0 → il n'est jamais retenté ; seul un vrai échec (exit ≠ 0) relance une tentative.
+#
+# ⚠️ CORRECTIF DU 27/09/2026 — UNE TENTATIVE TUÉE EN VOL LAISSE DU TRAVAIL PARTIEL,
+# ET LA SUIVANTE LE VALIDAIT. Incident du 26/09/2026 sur appli-ia-lecon : la tentative 1
+# est morte sur le plafond (3,0689 $ = 102 %, 64 tours, 14 min) APRÈS avoir écrit la
+# leçon et le code sur le disque ; la tentative 2, lancée 90 s plus tard, s'est arrêtée
+# en 9,9 s et 3 TOURS sur la vérification de doublon de l'étape 1 — le livrable du jour
+# existait déjà — et a rendu exit 0. Le runner a écrit « ✅ Succès à la tentative 2 »
+# puis a publié. Coût réel du livrable : 3,2830 $, le plafond étant appliqué PAR
+# TENTATIVE et non au cumul. Mesure de contrôle du 27/09/2026 sur revenus-passifs-lecon,
+# dépôt propre : la sortie sur doublon coûte 0,1541 $ et fait 3 tours en 16,5 s — même
+# signature. Une exécution réelle de ce job en fait 27 à 64. D'où TOURS_MINI ci-dessous.
 MAX_ATTEMPTS=3
 RETRY_DELAYS=(90 180)   # attente (s) avant les tentatives 2 et 3
+# Plancher de tours en dessous duquel une tentative ne peut PAS avoir refait le travail :
+# elle s'est arrêtée sur un garde-fou (doublon le plus souvent). Séparation mesurée :
+# 3 tours pour une sortie sur doublon, 27 à 64 pour une génération réelle.
+TOURS_MINI=10
 
 # Plafond de coût par exécution (modifiable). Défaut 2 $, mais certains jobs
 # très lourds en sources (WebFetch + boucles WebSearch de repli) dépassent
@@ -129,6 +144,9 @@ MESURES="$PROJECT/outils/scripts/logs/mesures_couts.csv"
 
 EXIT=1
 ATTEMPT=1
+ECHEC_ANTERIEUR=0     # une tentative précédente a échoué → le disque peut porter du travail partiel
+SUSPECT_PARTIEL=0     # cette exécution a rendu exit 0 sans avoir pu refaire le travail
+TOURS=""
 while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
   echo "--- Tentative $ATTEMPT/$MAX_ATTEMPTS — $(date '+%H:%M:%S') ---" >> "$LOG"
   LOG_MARK=$(wc -l < "$LOG")   # repère : lignes du log AVANT cette tentative (pour scanner sa seule sortie)
@@ -142,6 +160,7 @@ while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
   # ⚠️ Sur un abonnement Pro, ce montant n'est pas une facture : Claude Code le calcule
   # localement au prix catalogue. Il sert de mesure relative, pour comparer avant/après.
   RAW="$(mktemp -t claudejob)"
+  TOURS_F="$(mktemp -t claudejobtours)"
   /usr/local/bin/claude -p "$PREAMBULE" \
     --permission-mode bypassPermissions \
     --add-dir "$PROJECT" \
@@ -151,9 +170,9 @@ while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
     > "$RAW" 2>&1
   EXIT=$?
 
-  /usr/bin/python3 - "$RAW" "$LOG" "$MESURES" "$JOB_ID" "$ATTEMPT" "$EXIT" "$BUDGET" "${#JOB_PROMPT}" "$CFG_SIZE" <<'PYEOF'
+  /usr/bin/python3 - "$RAW" "$LOG" "$MESURES" "$JOB_ID" "$ATTEMPT" "$EXIT" "$BUDGET" "${#JOB_PROMPT}" "$CFG_SIZE" "$TOURS_F" <<'PYEOF'
 import json, sys, datetime
-raw_p, log_p, csv_p, job, att, exit_code, budget, psize, csize = sys.argv[1:10]
+raw_p, log_p, csv_p, job, att, exit_code, budget, psize, csize, tours_p = sys.argv[1:11]
 raw = open(raw_p, encoding='utf-8', errors='replace').read()
 log = open(log_p, 'a', encoding='utf-8')
 try:
@@ -163,6 +182,7 @@ except Exception:
     # pour que les fail-fast puissent y chercher leurs motifs.
     log.write(raw if raw.endswith('\n') else raw + '\n')
     log.close()
+    open(tours_p, 'w').write('')   # sortie non-JSON : nombre de tours inconnu
     sys.exit(0)
 
 # 1. le texte du modèle, comme avant le passage au JSON
@@ -195,16 +215,44 @@ else:
     log.write("[mesure] ⚠️ total_cost_usd absent de la sortie JSON — mesure indisponible pour cette tentative.\n")
 log.close()
 
+# le shell a besoin du nombre de tours pour juger si cette tentative a refait le travail
+with open(tours_p, 'w', encoding='utf-8') as f:
+    f.write(str(turns) if isinstance(turns, int) else '')
+
 with open(csv_p, 'a', encoding='utf-8') as f:
     f.write(','.join(str(x) for x in [
         datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), job, att, exit_code,
         cost if isinstance(cost, (int, float)) else '', budget, turns, dur, dur_api,
         ti, to, cr, cw, str(d.get('stop_reason', '')).replace(',', ';'), psize, csize]) + '\n')
 PYEOF
-  rm -f "$RAW"
+  TOURS="$(cat "$TOURS_F" 2>/dev/null)"
+  rm -f "$RAW" "$TOURS_F"
 
   if [ "$EXIT" -eq 0 ]; then
-    [ "$ATTEMPT" -gt 1 ] && echo "[retry] ✅ Succès à la tentative $ATTEMPT." >> "$LOG"
+    if [ "$ECHEC_ANTERIEUR" -eq 1 ]; then
+      # Une tentative a déjà échoué : le disque peut porter son travail partiel.
+      # Un exit 0 obtenu en quelques tours n'a pas refait le livrable, il a buté sur
+      # le garde-fou anti-doublon. Ce n'est pas un succès, et ça ne se publie pas.
+      # TOURS doit être un ENTIER : tout autre contenu est traité comme inconnu, jamais
+      # comme un succès (une comparaison arithmétique sur une chaîne non numérique sort
+      # en erreur et aurait fait tomber le cas dans la branche « succès »).
+      case "$TOURS" in (''|*[!0-9]*) TOURS="" ;; esac
+      if [ -n "$TOURS" ] && [ "$TOURS" -lt "$TOURS_MINI" ]; then
+        SUSPECT_PARTIEL=1
+        echo "[retry] ⛔ FAUX SUCCÈS À LA TENTATIVE $ATTEMPT — $TOURS tour(s), sous le plancher de $TOURS_MINI." >> "$LOG"
+        echo "[retry]    Une tentative précédente a échoué en laissant peut-être un livrable incomplet ;" >> "$LOG"
+        echo "[retry]    celle-ci s'est arrêtée sur un garde-fou (doublon) sans rien regénérer." >> "$LOG"
+        echo "[retry] 👉 RIEN N'EST PUBLIÉ. Relire le livrable du jour, le compléter ou le supprimer," >> "$LOG"
+        echo "[retry]    puis rejouer : bash outils/scripts/rattrapage_jobs.sh $JOB_ID" >> "$LOG"
+      elif [ -z "$TOURS" ]; then
+        SUSPECT_PARTIEL=1
+        echo "[retry] ⛔ TENTATIVE $ATTEMPT À exit 0 MAIS NOMBRE DE TOURS INCONNU, après un échec —" >> "$LOG"
+        echo "[retry]    impossible de vérifier qu'elle a refait le travail. RIEN N'EST PUBLIÉ." >> "$LOG"
+        echo "[retry] 👉 Relire le livrable du jour, puis : bash outils/scripts/rattrapage_jobs.sh $JOB_ID" >> "$LOG"
+      else
+        echo "[retry] ✅ Succès à la tentative $ATTEMPT (régénération complète : $TOURS tours)." >> "$LOG"
+      fi
+    fi
     break
   fi
 
@@ -246,7 +294,15 @@ PYEOF
   # après le durcissement du prompt du 20/08, qui a renchéri l'exécution.
   # Le correctif est humain : relever la valeur dans le case BUDGET, plus haut dans ce
   # script — d'où un message qui pointe l'endroit exact à modifier.
-  if tail -n +"$((LOG_MARK + 1))" "$LOG" | grep -qiE "Exceeded USD budget"; then
+  # ⚠️ MOTIF ÉLARGI LE 27/09/2026 — CE FAIL-FAST ÉTAIT MORT DEPUIS 19 JOURS.
+  # Il avait été écrit le 27/08/2026 contre la sortie TEXTE de claude -p, qui disait
+  # « Exceeded USD budget ». L'étape 0 du 07/09/2026 est passée à --output-format json :
+  # le dépassement n'est plus annoncé que par « subtype=error_max_budget_usd » dans la
+  # ligne [diagnostic]. Vérifié sur le log du 26/09/2026 : 0 occurrence de « Exceeded USD
+  # budget », 1 de « error_max_budget_usd ». Le fail-fast n'a donc pas déclenché, les
+  # tentatives 2 et 3 ont été autorisées, et c'est la 2 qui a publié du travail partiel.
+  # Le refactor d'un format de sortie désarme les motifs qui lisaient l'ancien.
+  if tail -n +"$((LOG_MARK + 1))" "$LOG" | grep -qiE "Exceeded USD budget|error_max_budget_usd|max_budget_usd"; then
     echo "[budget] ⛔ PLAFOND DE COÛT DÉPASSÉ (${BUDGET} \$) — arrêt des tentatives : rejouer à l'identique échouerait pareil." >> "$LOG"
     echo "[budget] 👉 Relever la valeur pour ce job dans le 'case \$JOB_ID' de outils/scripts/run_job.sh (section BUDGET), puis : bash outils/scripts/rattrapage_jobs.sh $JOB_ID" >> "$LOG"
     echo "[budget] 👉 Un dépassement récurrent signale souvent un prompt alourdi : vérifier les dernières modifications du job dans jobs_config.json." >> "$LOG"
@@ -254,6 +310,7 @@ PYEOF
   fi
 
   echo "[retry] ⚠️ Tentative $ATTEMPT échouée (exit $EXIT)." >> "$LOG"
+  ECHEC_ANTERIEUR=1
   if [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; then
     DELAY="${RETRY_DELAYS[$((ATTEMPT - 1))]}"
     echo "[retry] ⏳ Nouvelle tentative dans ${DELAY}s…" >> "$LOG"
@@ -263,6 +320,7 @@ PYEOF
 done
 
 echo "" >> "$LOG"
+if [ "$SUSPECT_PARTIEL" -eq 1 ]; then EXIT=7; fi   # 7 = exit 0 non prouvé après un échec : rien n'est publié
 echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : $EXIT, tentatives : $((ATTEMPT > MAX_ATTEMPTS ? MAX_ATTEMPTS : ATTEMPT)))" >> "$LOG"
 
 # ---- Fiches Obsidian des nouvelles leçons ----
@@ -371,6 +429,10 @@ if [ "$EXIT" -eq 0 ]; then
       echo "[git] ⛔ push ÉCHEC après 3 tentatives — $AHEAD commit(s) en avance sur origin/main, à pousser manuellement (git push origin main)." >> "$LOG"
     fi
   fi
+elif [ "$EXIT" -eq 7 ]; then
+  echo "[git] ⛔ PAS DE PUBLICATION — exit 0 non prouvé après un échec (voir [retry] ci-dessus)." >> "$LOG"
+  echo "[git]    Le travail éventuellement produit reste sur le disque, non committé." >> "$LOG"
+  echo "[git] 👉 git status --short   puis décider : compléter, supprimer, ou committer à la main." >> "$LOG"
 else
   echo "[git] Job en erreur (exit $EXIT) — pas de commit." >> "$LOG"
 fi
