@@ -83,6 +83,8 @@ OK40='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"l
 OK3='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"arret etape 1 : doublon du jour","total_cost_usd":0.15,"num_turns":3,"duration_ms":16000,"usage":{"input_tokens":4,"output_tokens":590}}'
 BUDGJ='{"is_error":true,"subtype":"error_max_budget_usd","stop_reason":"tool_use","result":"arret sur plafond","total_cost_usd":3.07,"num_turns":64,"duration_ms":844000,"usage":{"input_tokens":54,"output_tokens":52618}}'
 RESEAU='{"is_error":true,"subtype":"error_during_execution","stop_reason":"","result":"timeout reseau","total_cost_usd":0.4,"num_turns":8,"duration_ms":30000,"usage":{"input_tokens":4,"output_tokens":20}}'
+# 12 tours : juste AU-DESSUS de TOURS_MINI=10. Sert à borner le seuil par le haut (voir S8).
+OK12='{"is_error":false,"subtype":"success","stop_reason":"end_turn","result":"veille ecrite","total_cost_usd":0.8,"num_turns":12,"duration_ms":180000,"usage":{"input_tokens":12,"output_tokens":9000}}'
 BUDGTXT='Error: Exceeded USD budget (3)'
 NONJSON='recapitulatif en texte brut, sans json'
 
@@ -110,7 +112,7 @@ essai () {
   fi
 }
 
-echo "▶ Témoins du runner — 7 scénarios de décision (faux claude, dépôt jetable)"
+echo "▶ Témoins du runner — 8 scénarios de décision (faux claude, dépôt jetable)"
 
 essai "S1 plafond dès la tentative 1 (forme JSON, cas du 26/09)" 1 1 \
       "PLAFOND DE COÛT DÉPASSÉ|pas de commit" "Succès à la tentative|FAUX SUCCÈS" \
@@ -140,8 +142,19 @@ essai "S7 trois échecs transitoires (comportement inchangé)" 1 3 \
       "Tentative 3 échouée|pas de commit" "FAUX SUCCÈS|Succès à la tentative" \
       "1|$RESEAU" "1|$RESEAU" "1|$RESEAU"
 
+# S8 BORNE TOURS_MINI PAR LE HAUT, et c'est sa seule raison d'être (27/09/2026).
+# S3 (3 tours → refusé) exige TOURS_MINI > 3 : il protège le seuil par le bas.
+# Rien ne le protégeait par le haut : porté à 50, TOURS_MINI aurait transformé toute
+# exécution courte mais RÉELLE en faux succès — une veille qui se boucle en 12 tours
+# n'aurait plus jamais été publiée — et les sept premiers témoins seraient restés verts,
+# S4 étant à 40 tours. S8 échoue dès que TOURS_MINI passe au-dessus de 12.
+# Les deux ensemble enferment le seuil dans [4, 12] ; il vaut 10.
+essai "S8 exécution courte mais RÉELLE (12 tours) = vrai succès" 0 2 \
+      "Succès à la tentative 2 (régénération complète : 12 tours)" "FAUX SUCCÈS|PAS DE PUBLICATION" \
+      "1|$RESEAU" "0|$OK12"
+
 if [ "$STATUT" = 0 ]; then
-  echo "  ✓ 7/7 — le runner publie ce qui a été fait, et refuse ce qui ne l'a pas été"
+  echo "  ✓ 8/8 — le runner publie ce qui a été fait, et refuse ce qui ne l'a pas été"
 else
   echo "  ✗ AU MOINS UN TÉMOIN DU RUNNER A CHANGÉ DE COMPORTEMENT."
   echo "    Si le changement est voulu, mets à jour les attentes dans ce fichier — et dis pourquoi."
