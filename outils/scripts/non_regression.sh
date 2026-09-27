@@ -243,8 +243,13 @@ fi
 # le dire. Sept scénarios de décision, quelques secondes, sans réseau ni jeton.
 # Pas en mode --docs : celui-là est la porte des pushs de job, il reste focalisé sur les
 # documents. Le job controle-livrables passe en --complet, donc la couverture est hebdomadaire.
+# En --complet (le mode du job controle-livrables, qui accepte déjà 4-5 min de réseau) on
+# joue AUSSI les mutations : 30 s au lieu de 4, et c'est la seule passe automatique qui
+# vérifie que ces témoins mordent encore. En mode normal, les dix témoins seuls.
 if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/non_regression_runner.sh" ]; then
-  if ! "$ROOT/outils/scripts/non_regression_runner.sh"; then
+  RUNNER_ARGS=()
+  [ "$MODE" = "--complet" ] && RUNNER_ARGS=(--mutations)
+  if ! "$ROOT/outils/scripts/non_regression_runner.sh" "${RUNNER_ARGS[@]}"; then
     echo "  ✗ les témoins du runner ont changé de comportement (voir ci-dessus)"
     STATUT=1
   fi
