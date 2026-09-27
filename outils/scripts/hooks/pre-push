@@ -20,9 +20,15 @@
 ROOT="$(git rev-parse --show-toplevel)"
 SURVEILLES='^outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push)$'
 ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'
+# (3) LE RUNNER modifié → non_regression_runner.sh (7 scénarios de décision, quelques secondes,
+# sans réseau). run_job.sh décide ce qui est retenté et ce qui est publié pour les 14 jobs ;
+# il n'était couvert par rien. Déclencheur SÉPARÉ de SURVEILLES : toucher au runner n'oblige
+# pas à rejouer les 250 documents, et toucher à un contrôle commun n'oblige pas à rejouer le
+# runner. Le harnais lui-même est surveillé : le modifier le relance (27/09/2026).
+RUNNER_RE='^outils/scripts/(run_job\.sh|non_regression_runner\.sh)$'
 [ -n "${SKIP_NR:-}" ] && exit 0
 DOCS='^(livrables/lecons|sources/veille)/.*\.docx$'
-touche=0; complet=0; docs=()
+touche=0; complet=0; runner=0; docs=()
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue     # suppression de branche
   if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
@@ -45,6 +51,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   fichiers=$(git diff --name-only --diff-filter=AMR "$plage" 2>/dev/null)
   echo "$fichiers" | grep -Eq "$SURVEILLES" && touche=1
   echo "$fichiers" | grep -Eq "$ASPIRATION" && complet=1
+  echo "$fichiers" | grep -Eq "$RUNNER_RE" && runner=1
   for d in $(echo "$fichiers" | grep -E "$DOCS"); do [ -f "$ROOT/$d" ] && docs+=("$ROOT/$d"); done
 done
 if [ "$touche" = "1" ]; then
@@ -64,6 +71,25 @@ pre-push : ✗ PUSH REFUSÉ — un verdict a changé, un témoin ne sort plus en
   Lis le diff ci-dessus. Si chaque changement est voulu et compris :
       outils/scripts/non_regression.sh --accepter   puis commite la référence et repousse.
   Pour passer outre en connaissance de cause : git push --no-verify
+MSG
+    exit 1
+  fi
+fi
+# le runner : sept scénarios de décision sur une copie instrumentée, dépôt jetable, aucun réseau.
+# Non couvert par non_regression.sh en mode --docs, donc ce déclencheur est le seul qui le voie
+# au moment d'un push qui ne touche que run_job.sh.
+if [ "$runner" = "1" ]; then
+  echo "pre-push : le runner est dans ce push → non_regression_runner.sh (7 scénarios)…"
+  if "$ROOT/outils/scripts/non_regression_runner.sh"; then
+    echo "pre-push : ✓ témoins du runner inchangés — push autorisé"
+  else
+    cat <<'MSG'
+pre-push : ✗ PUSH REFUSÉ — run_job.sh ne décide plus comme avant : une tentative retentée, un exit 0
+  non prouvé, ou une publication autorisée à tort. Lis les scénarios en échec ci-dessus. Si le nouveau
+  comportement est voulu, mets à jour les attentes dans outils/scripts/non_regression_runner.sh en
+  disant pourquoi. Prouve d'abord que le harnais a des dents :
+      RUNNER_SOUS_TEST=<ancienne version> outils/scripts/non_regression_runner.sh
+  Passer outre : git push --no-verify
 MSG
     exit 1
   fi

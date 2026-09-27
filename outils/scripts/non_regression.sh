@@ -237,6 +237,19 @@ if [ "$MODE" = "--complet" ]; then
     echo "  ✓ $AVANT_N/$ATTENDU_AVANT témoin(s) d'avant correction contrôlé(s)"
   fi
 fi
+# ---- Témoins du runner (27/09/2026) ----
+# run_job.sh décide ce qui est retenté et ce qui est PUBLIÉ pour les 14 jobs, et rien ne le
+# testait : le fail-fast du plafond était mort depuis 19 jours sans qu'aucun contrôle puisse
+# le dire. Sept scénarios de décision, quelques secondes, sans réseau ni jeton.
+# Pas en mode --docs : celui-là est la porte des pushs de job, il reste focalisé sur les
+# documents. Le job controle-livrables passe en --complet, donc la couverture est hebdomadaire.
+if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/non_regression_runner.sh" ]; then
+  if ! "$ROOT/outils/scripts/non_regression_runner.sh"; then
+    echo "  ✗ les témoins du runner ont changé de comportement (voir ci-dessus)"
+    STATUT=1
+  fi
+fi
+
 # dernière ligne, toujours : ce qui lit la sortie en arrière-plan (job controle-livrables) attend celle-ci —
 # l'en-tête « Témoins d'attributions » s'imprime AVANT le dernier contrôle, il ne prouve pas la fin
 echo "▶ Terminé — exit $STATUT"
