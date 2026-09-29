@@ -229,7 +229,10 @@ essai () {
   local nom="$1" att_exit="$2" att_tent="$3" doit="$4" interdit="$5"; shift 5
   local id="${nom%% *}"
   [ "$SILENCE" = 0 ] && N_TEMOINS=$((N_TEMOINS + 1))
-  rm -f "$H/compteur" "$D"/outils/scripts/logs/test-job_*.log
+  # La marque d'échec de run_job.sh (logs/.echec_<job>, 29/09/2026) SURVIT au processus :
+  # c'est son rôle. Chaque témoin déclare sa propre prémisse — « sans échec avant » pour
+  # S6 — donc on repart d'un monde propre. S15, lui, la conserve VOLONTAIREMENT.
+  rm -f "$H/compteur" "$D"/outils/scripts/logs/test-job_*.log "$D/outils/scripts/logs/.echec_test-job"
   printf '%s\n' "$@" > "$H/scenario"
   ( cd "$D" && HARN="$H" bash "$COPIE" test-job ) >/dev/null 2>&1
   local code=$? tent log ok=1
@@ -346,6 +349,47 @@ lancer_les_dix () {
         "Fin du job" "FAUX SUCCÈS|Tentative 1 échouée" \
         "0|$OK3"
 
+  # S15 — LA MÉMOIRE D'ÉCHEC TRAVERSE LES PROCESSUS (29/09/2026).
+  # S3, S5 et S9 couvrent le faux succès À L'INTÉRIEUR d'une exécution. Rien ne couvrait le
+  # cas réel : hypnose-lecon meurt sur la limite d'usage à 09h03 (exit 1 ; la leçon reste sur
+  # le disque, non contrôlée), rattrapage_jobs.sh le relance à 19h18 — NOUVEAU PROCESSUS —
+  # l'étape 1 s'arrête sur le doublon en 2 tours, rend exit 0, et le runner a publié un .docx
+  # que personne n'avait vérifié (2da03a1). ECHEC_ANTERIEUR était une variable de shell :
+  # elle ne pouvait pas le savoir.
+  # Ce témoin lance DEUX fois le runner sans effacer la marque entre les deux, et exige que
+  # la seconde exécution refuse de publier. Il tombe si la marque n'est pas écrite, pas relue,
+  # considérée comme périmée, ou levée à tort par une sortie non nulle.
+  temoin_deux_processus () {
+    local nom="S15 échec, PUIS nouveau processus à 3 tours = FAUX SUCCÈS"
+    local marque="$D/outils/scripts/logs/.echec_test-job" ok=1 motifs=""
+    [ "$SILENCE" = 0 ] && N_TEMOINS=$((N_TEMOINS + 1))
+    rm -f "$H/compteur" "$D"/outils/scripts/logs/test-job_*.log "$marque"
+    printf '%s\n' "1|$RESEAU" "1|$RESEAU" "1|$RESEAU" > "$H/scenario"
+    ( cd "$D" && HARN="$H" bash "$COPIE" test-job ) >/dev/null 2>&1     # 1er processus : il échoue
+    [ -f "$marque" ] || { ok=0; motifs="$motifs; la marque d'échec n'a pas été écrite"; }
+    rm -f "$H/compteur" "$D"/outils/scripts/logs/test-job_*.log        # les logs partent, PAS la marque
+    printf '%s\n' "0|$OK3" > "$H/scenario"
+    ( cd "$D" && HARN="$H" bash "$COPIE" test-job ) >/dev/null 2>&1     # 2e processus : doublon, 3 tours
+    local code=$? tent log
+    tent="$(cat "$H/compteur" 2>/dev/null || echo 0)"
+    log="$(cat "$D"/outils/scripts/logs/test-job_*.log 2>/dev/null)"
+    juger "$code" "$tent" "$log" 7 1 "ÉCHEC ANTÉRIEUR SUR DISQUE|FAUX SUCCÈS|RIEN N'EST PUBLIÉ" "✅ Succès|push OK" || ok=0
+    [ -n "$JUGE_MOTIFS" ] && motifs="$motifs$JUGE_MOTIFS"
+    [ -f "$marque" ] || { ok=0; motifs="$motifs; la marque a été levée par un exit 7"; }
+    if [ "$ok" = 1 ]; then
+      [ "$SILENCE" = 0 ] && printf '  ✓ %-58s exit %s · %s tentative(s)\n' "$nom" "$code" "$tent"
+    else
+      ECHECS="$ECHECS S15"
+      if [ "$SILENCE" = 0 ]; then
+        printf '  ✗ %-58s %s\n' "$nom" "${motifs#; }"
+        echo "$log" | grep -aE "retry|Fin du job" | sed 's/^/      /' | head -6
+        STATUT=1
+      fi
+    fi
+    rm -f "$marque"
+  }
+  temoin_deux_processus
+
   essai "S7 trois échecs transitoires (comportement inchangé)" 1 3 \
         "Tentative 3 échouée|pas de commit" "FAUX SUCCÈS|Succès à la tentative" \
         "1|$RESEAU" "1|$RESEAU" "1|$RESEAU"
@@ -430,6 +474,10 @@ if [ "$MUTATIONS" = 1 ]; then
     "fail-fast de limite d'usage neutralise¤s#^  LIMIT_RE=.*#  LIMIT_RE=\"ZZ_AUCUNE_CORRESPONDANCE_ZZ\"#¤S12"
     "liste blanche elargie a tout le depot¤s#^          ':(exclude)livrables/lecons/[*].md'.*#          '.' 2>/dev/null#¤S14"
     "exclusion des fiches Obsidian retiree¤s#':(exclude)livrables/lecons/[*].md' ##¤S14"
+    # --- la mémoire d'échec entre processus (29/09/2026) : trois façons de la désarmer ---
+    'marque d echec jamais ECRITE¤s#> "$MARQUE_ECHEC" 2>/dev/null#> /dev/null#¤S15'
+    'marque d echec jamais RELUE¤s#^if \[ -f "\$MARQUE_ECHEC" \]; then#if false; then#¤S15'
+    'fraicheur de la marque a 0 (toujours perimee)¤s#^ECHEC_FRAICHEUR=.*#ECHEC_FRAICHEUR=0#¤S15'
   )
   MUT_SRC="$H/mutant_source.sh"
   for M in "${MUTS[@]}"; do

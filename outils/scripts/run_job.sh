@@ -159,6 +159,40 @@ MESURES="$PROJECT/outils/scripts/logs/mesures_couts.csv"
 EXIT=1
 ATTEMPT=1
 ECHEC_ANTERIEUR=0     # une tentative précédente a échoué → le disque peut porter du travail partiel
+
+# ---- MÉMOIRE D'ÉCHEC ENTRE EXÉCUTIONS (29/09/2026) ----------------------------------
+# ECHEC_ANTERIEUR était une variable de SHELL, remise à 0 à chaque invocation : elle ne
+# couvrait que les tentatives d'UN MÊME processus. Un job mort puis relancé par
+# rattrapage_jobs.sh repartait donc vierge, et le garde-fou SUSPECT_PARTIEL ne pouvait
+# pas se déclencher.
+# INCIDENT DU 29/09/2026 — hypnose-lecon. 09h03 : la tentative 1 écrit la leçon n°16
+# (17 332 octets) puis meurt sur la LIMITE D'USAGE du compte après 58 tours et 1,6638 $
+# — exit 1, aucun commit, le .docx reste sur le disque, non vérifié : le run est mort
+# AVANT son étape 5 bis et son étape 6. 19h18 : rattrapage. Nouveau processus, donc
+# ECHEC_ANTERIEUR=0 ; l'étape 1 voit un fichier du jour, s'arrête sur le doublon en
+# 2 TOURS et 0,1229 $, et rend exit 0. Les étapes post-job s'exécutent : fiche créée,
+# xlsx mis à jour, audit du vault au vert, et le .docx NON CONTRÔLÉ poussé (2da03a1).
+# Deux tours, très en dessous de TOURS_MINI=7 — le garde-fou du 27/09 aurait refusé de
+# publier s'il avait su qu'un run venait d'échouer. Rejouée ensuite à la main, l'étape
+# 5 bis de ce parcours REFUSAIT la leçon (deux motifs, faux tous les deux, corrigés le
+# même jour) : rien ne l'avait regardée.
+# La marque est donc posée sur le DISQUE, dans logs/ (gitignoré), et relue au démarrage.
+# Elle est bornée à 72 h : elle couvre un rattrapage le jour même ou le lendemain, et
+# expire bien avant le créneau hebdomadaire suivant, pour ne pas hanter le job.
+MARQUE_ECHEC="$LOG_DIR/.echec_${JOB_ID}"
+ECHEC_FRAICHEUR=259200          # 72 h en secondes
+if [ -f "$MARQUE_ECHEC" ]; then
+  MTIME=$(stat -f %m "$MARQUE_ECHEC" 2>/dev/null || stat -c %Y "$MARQUE_ECHEC" 2>/dev/null || echo 0)
+  case "$MTIME" in (''|*[!0-9]*) MTIME=0 ;; esac
+  AGE=$(( $(date +%s) - MTIME ))
+  if [ "$MTIME" -gt 0 ] && [ "$AGE" -lt "$ECHEC_FRAICHEUR" ]; then
+    ECHEC_ANTERIEUR=1
+    echo "[retry] ⚠️ ÉCHEC ANTÉRIEUR SUR DISQUE (il y a $((AGE / 60)) min) — $(head -1 "$MARQUE_ECHEC" 2>/dev/null)" >> "$LOG"
+    echo "[retry]    Le disque peut porter un livrable incomplet. Un exit 0 en moins de $TOURS_MINI tours ne sera PAS publié." >> "$LOG"
+  else
+    rm -f "$MARQUE_ECHEC"       # périmée : le créneau suivant repart propre
+  fi
+fi
 SUSPECT_PARTIEL=0     # cette exécution a rendu exit 0 sans avoir pu refaire le travail
 TOURS=""
 while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
@@ -335,6 +369,17 @@ done
 
 echo "" >> "$LOG"
 if [ "$SUSPECT_PARTIEL" -eq 1 ]; then EXIT=7; fi   # 7 = exit 0 non prouvé après un échec : rien n'est publié
+
+# La marque d'échec survit au processus (voir le bloc MARQUE_ECHEC plus haut).
+# Elle n'est levée que par un succès PROUVÉ : exit 0 franc. Un exit 7 la MAINTIENT,
+# puisque le disque porte toujours un travail que personne n'a vérifié.
+if [ "$EXIT" -eq 0 ]; then
+  rm -f "$MARQUE_ECHEC"
+else
+  { echo "$(date '+%Y-%m-%d %H:%M:%S') — $JOB_ID exit=$EXIT"; echo "$LOG"; } > "$MARQUE_ECHEC" 2>/dev/null || true
+  echo "[retry] 🔖 Marque d'échec posée : $MARQUE_ECHEC (valable 72 h)." >> "$LOG"
+  echo "[retry]    La prochaine exécution de ce job refusera de publier un exit 0 obtenu en moins de $TOURS_MINI tours." >> "$LOG"
+fi
 echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : $EXIT, tentatives : $((ATTEMPT > MAX_ATTEMPTS ? MAX_ATTEMPTS : ATTEMPT)))" >> "$LOG"
 
 # ---- Fiches Obsidian des nouvelles leçons ----
