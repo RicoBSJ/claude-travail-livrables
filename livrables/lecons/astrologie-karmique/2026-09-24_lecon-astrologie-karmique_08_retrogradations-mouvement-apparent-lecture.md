@@ -46,6 +46,8 @@ Document source : [[2026-09-24_lecon-astrologie-karmique_08_retrogradations-mouv
 
 - **⬅️ Précédente** · [[2026-09-17_lecon-astrologie-karmique_07_saturne-retour-cycle-karma]]
   **elle prêtait une théorie de Saturne à Schulman et Greene via des synthèses qui ne les nomment pas, et inventait deux titres.** La 08 fait l'inverse, et le prouve : Schulman déclaré non lu, zéro occurrence vérifiée sur les deux pages ouvertes, attributions rendues à Astrotheme et Kerykeion. La règle écrite après la 07 a tenu — avec le prompt d'avant le durcissement du 24/09 au soir
+- **➡️ Suivante** · [[2026-10-01_lecon-astrologie-karmique_09_chiron-corps-reel-blessure-symbolique]]
+  **la 09 a des chiffres justes et une adresse qui ne les porte pas** : les 50,41 ans et les 83 km viennent d'une API dont l'URL publiée est un formulaire JavaScript à 0 caractère. L'inverse du défaut de la 08, où la page était lue et le chiffre inventé
 - **🔗 Pont** · [[2026-09-10_lecon-astrologie-karmique_06_noeuds-par-maison-domaine-vie]]
   **la 06 faisait dire quatre thèses à Liz Greene sur une façade de 1 739 caractères** — le défaut de la source qu'on n'a pas lue. La 08 a réglé celui-là et déplacé le problème d'un cran : ses pages sont lues, longuement et exactement, et c'est un **chiffre** qu'elles ne portent pas qui leur est prêté
 - **🔗 Pont** · [[2026-09-24_lecon-stoicisme_16_exercices-spirituels-hadot]]
