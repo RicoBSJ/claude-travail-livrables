@@ -55,6 +55,12 @@ if "=== TEXTE COMPLET" not in t:
     sys.exit("EXTRACTION IMPOSSIBLE (fichier introuvable ou illisible) : " + DOCX)
 t = t[t.index("=== TEXTE COMPLET"):]
 t = t.split("Journal des corrections")[0]        # le journal cite volontairement les anciens comptes
+# ⚠️ et les marqueurs de correction EN LIGNE citent eux aussi les anciens comptes (02/10/2026) :
+#    « [Corrigé le … : la note annonçait « 9 sources consultées » ] » était relu comme une annonce
+#    VIVANTE, et le contrôle reprochait à la fois « 8 consultées » et « 9 consultées » au même
+#    document. controle_attributions.py écarte ces marqueurs depuis longtemps ; celui-ci ne le
+#    faisait pas, ce qui rendait la doctrine de correction du dépôt incompatible avec lui.
+t = re.sub(r"\[(?:Corrigé|Précisé|Ajouté|Reformulé) le \d\d/\d\d/\d{4}.*?\]", " ", t, flags=re.S)
 t = t.replace("\ufe0f", "")   # ⚠ = U+26A0 + sélecteur U+FE0F : sans ce retrait, une classe [⚠] coupe le symbole en deux
 lignes = []
 for l in t.split("\n"):
@@ -198,7 +204,15 @@ if start is not None:
     #   calculée PAR GROUPE (sous-titre) : un groupe « ✅ Exploitées : » fait de noms nus ne dit rien de l'ordre du groupe suivant
     def orientation(deb, fin):
         i_stat = next((i for i in range(deb, fin) if toks[i][0] == "STAT" and toks[i][1] != "autres"), None)
-        i_name = next((i for i in range(deb, fin) if toks[i][0] == "NAME"), None)
+        # ⚠️ UN NOM QUI OUVRE SON GROUPE NE DIT RIEN DE L'ORIENTATION (02/10/2026). « Consultée, sans
+        #    élément nouveau : » suivi du nom au run d'après n'ouvre pas une liste « nom puis statut » :
+        #    ce nom n'a pas de statut propre, il relève du groupe. Sans cette exclusion, une rubrique qui
+        #    enchaîne un tel groupe PUIS des entrées préfixées d'un symbole était jugée « statut après le
+        #    nom » en bloc, le nom du groupe empruntait le symbole de l'entrée suivante, et le décalage se
+        #    propageait jusqu'à perdre la dernière entrée — mesuré sur ai-act/2026-10-02 : liste lue 7
+        #    au lieu de 8, « consultées sans symbole » 2 au lieu de 3, verdict INCOHÉRENT à tort.
+        i_name = next((i for i in range(deb, fin)
+                       if toks[i][0] == "NAME" and not (i > deb and toks[i - 1][0] == "SUB")), None)
         return i_stat is not None and i_name is not None and i_name < i_stat
     bornes = [i for i, tk in enumerate(toks) if tk[0] == "SUB"] + [len(toks)]
     apres_de = {}
@@ -211,11 +225,20 @@ if start is not None:
                 toks[i][0] = "SKIP"     # dans un tableau, « Consultée — … » est la remarque d'une ligne, pas un statut
         deb = fin
     # appariement nom ↔ statut, par sous-titre
+    # ⚠️ UNE ENTRÉE À SYMBOLE FERME UN GROUPE SANS SYMBOLE (02/10/2026). « Consultée, sans élément
+    #    nouveau : » ouvre un groupe qui ne se refermait JAMAIS : les statuts des entrées suivantes
+    #    (⛔, ⚠️) étaient comptés comme appartenant à ce groupe, son indicateur « stat » passait à vrai,
+    #    et le nom du groupe tombait alors en « remarque » NON COMPTÉE. Mesuré sur ai-act/2026-10-02 :
+    #    liste lue 7 au lieu de 8, « consultées sans symbole » 2 au lieu de 3, INCOHÉRENT à tort.
+    def ferme(groupe, tk):
+        return None if (groupe is not None and not toks[groupe][1]
+                        and tk[0] in ("STAT", "ENTRY") and tk[1] and tk[1] != "autres") else groupe
     groupe = None
     grp = {}     # sous-titre -> {"stat": bool, "entry": bool}
     for i, tk in enumerate(toks):
         if tk[0] == "SUB":
             groupe = i; grp[groupe] = {"stat": False, "entry": False}; continue
+        groupe = ferme(groupe, tk)
         if tk[0] == "STAT": grp.setdefault(groupe, {"stat": False, "entry": False})["stat"] = True
         if tk[0] == "ENTRY": grp.setdefault(groupe, {"stat": False, "entry": False})["entry"] = True
     groupe = None
@@ -223,6 +246,7 @@ if start is not None:
         typ, sym = tk[0], tk[1]
         if typ == "SUB":
             groupe = i; continue
+        groupe = ferme(groupe, tk)
         if typ == "ENTRY":
             n_src = 1 + tk[2].split(" — ")[0].count(" & ")
             c[sym] += n_src; tk[3] = True
@@ -236,7 +260,16 @@ if start is not None:
             suivant = j if j < len(toks) and toks[j][0] == "STAT" and not toks[j][3] else None
             precedent = i - 1 if i >= 1 and toks[i - 1][0] == "STAT" and not toks[i - 1][3] else None
             apres = apres_de.get(i, False)
-            st = (suivant if suivant is not None else precedent) if apres else (precedent if precedent is not None else suivant)
+            # ⚠️ UN NOM QUI OUVRE SON GROUPE N'EMPRUNTE PAS UN STATUT SITUÉ APRÈS LUI (02/10/2026).
+            #    Dans une liste où le statut PRÉCÈDE le nom, un nom placé juste sous un sous-titre
+            #    (« Consultée, sans élément nouveau : » puis le nom au run suivant) n'a pas de statut
+            #    propre : il relève du groupe. Sans ce garde-fou il attrapait le symbole de l'ENTRÉE
+            #    SUIVANTE, et le décalage se propageait jusqu'à perdre la dernière entrée de la liste
+            #    — mesuré sur ai-act/2026-10-02 : la 3e « Consultée » recevait le ⛔ de consilium,
+            #    iapp le ⚠️ d'EUR-Lex, EUR-Lex tombait en « remarque », liste lue 7 au lieu de 8.
+            ouvre_groupe = i >= 1 and toks[i - 1][0] == "SUB"
+            st = (suivant if suivant is not None else precedent) if apres \
+                 else (precedent if precedent is not None else (None if ouvre_groupe else suivant))
             g = grp.get(groupe, {"stat": False, "entry": False})
             if st is not None:
                 toks[st][3] = True; tk[3] = True
