@@ -44,7 +44,16 @@ MODE="${1:-}"
 # Les trois boucles portent le qualificateur zsh (N) : sans lui, un lot VIDE fait mourir le script sur
 # « no matches found » avant même le diff des verdicts — refus, mais sans message lisible. Avec (N), le
 # motif vide rend zéro fichier, le compteur reste à 0 et le contrôle ci-dessous dit ce qui manque.
-ATTENDU_DECOMPTE=14   # temoins_decompte_avant_correction/
+ATTENDU_DECOMPTE=15   # temoins_decompte_avant_correction/ — 15 depuis le 02/10/2026 :
+                      #   + ai-act/2026-10-02 TELLE QUE LIVRÉE (en-tête 8 sources, corps 9)
+ATTENDU_DEC_CONFORMES=1  # temoins_decompte_conformes/ — doivent sortir en 0.
+                      # ⚠️ POURQUOI CE LOT EXISTE (02/10/2026). Un témoin « d'avant correction » ne
+                      # prouve que la MORSURE, jamais la JUSTESSE : la veille ai-act du 02/10 telle que
+                      # livrée sort en 1 avec le contrôle bogué COMME avec le contrôle corrigé — elle ne
+                      # discrimine rien. Ce qui discrimine, c'est sa version CORRIGÉE : exit 1 avec
+                      # l'ancien contrôle (qui perdait une entrée sur les listes mêlant « ✅ Nom » et
+                      # « Consultée… : Nom »), exit 0 avec le contrôle corrigé. Sans ce lot, rien dans ce
+                      # harnais n'empêche de ramener le décalage d'appariement.
 ATTENDU_CONFORMES=6   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (3 copies figées)
                       # 3e copie figée le 27/09/2026 : appli-ia n°10, témoin de ㉛ — deux requêtes SQL de son
                       # exercice (« SELECT COUNT(*) as n FROM livrables WHERE slug LIKE @m ») étaient lues comme
@@ -138,6 +147,22 @@ if [ "$TEM_N" != "$ATTENDU_DECOMPTE" ]; then
   TEM_KO=$((TEM_KO+1))
 fi
 [ "$TEM_KO" = "0" ] && echo "  ✓ $TEM_N/$ATTENDU_DECOMPTE en exit 1"
+
+# ── 3 bis. les témoins CONFORMES du décompte : tous doivent sortir en 0 (02/10/2026)
+echo "▶ Témoins conformes du décompte (doivent sortir en 0)…"
+DEC_KO=0; DEC_N=0
+for f in "$NR"/temoins_decompte_conformes/*.docx(N); do
+  DEC_N=$((DEC_N+1))
+  env -i $PY "$ROOT/outils/scripts/controle_decompte.py" "$f" > /dev/null 2>&1; rc=$?
+  if [ "$rc" != "0" ]; then echo "  ✗ $(basename "$f") sort en $rc au lieu de 0"; DEC_KO=$((DEC_KO+1)); fi
+done
+if [ "$DEC_N" != "$ATTENDU_DEC_CONFORMES" ]; then
+  echo "  ✗ $DEC_N témoin(s) conforme(s) contrôlé(s), $ATTENDU_DEC_CONFORMES attendu(s) — un lot incomplet"
+  echo "    ne prouve rien : rétablis le témoin manquant, ou mets ATTENDU_DEC_CONFORMES à jour."
+  DEC_KO=$((DEC_KO+1))
+fi
+[ "$DEC_KO" = "0" ] && echo "  ✓ $DEC_N/$ATTENDU_DEC_CONFORMES en exit 0"
+[ "$DEC_KO" != "0" ] && TEM_KO=$((TEM_KO+DEC_KO))
 
 # ── 4. diff avec la référence
 STATUT=0
