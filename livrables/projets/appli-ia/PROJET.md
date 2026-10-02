@@ -8,13 +8,14 @@
 
 ## État de l'application
 
-**React + Vite avec build de production servi par Node.js — leçon 11 terminée (27/09/2026).**
+**React + Vite avec build de production servi par Node.js — leçon 12 terminée (02/10/2026). Parcours complet.**
 
 Le Portail Livrables dispose de trois couches :
 - **API + fichiers statiques (port 3000)** : `npm start` — sert `frontend/dist/` + routes API
 - **Frontend React (port 5173 en dev)** : `cd frontend && npm install && npm run dev`
 - **Index SQLite** : `node scripts/indexer.js` → crée `portail.db`, à relancer après chaque job
-- **Tests** : `npm test` — 33 tests (17 utils.js + 16 filtres.mts), 0 échec (mesuré le 27/09/2026)
+- **Tests** : `npm test` — 33 tests (17 utils.js + 16 filtres.mts), 0 échec (mesuré le 02/10/2026)
+- **Maintenance** : `npm run maintenance` — bilan de santé en une commande (4 contrôles), 0 point à traiter (mesuré le 02/10/2026 après mise à jour)
 - **Sauvegarde** : `npm run sauvegarder` → instantané horodaté dans `sauvegardes/`
 
 Flux recommandé au démarrage (production) :
@@ -45,6 +46,7 @@ npm start                      # sert l'API + le build React sur http://localhos
 | Tests utils | `scripts/tests.js` (node:test, CJS) — 17 tests pour extraireDate, extraireSlug, estLivrable | leçon 09 |
 | Tests filtres | `scripts/tests-filtres.mts` (node:test, types déshabillés sans drapeau) — 16 tests pour normaliser et matcheFiltres | leçon 09 |
 | Logique filtrage | `frontend/src/filtres.ts` — normaliser + matcheFiltres extraites de App.tsx | leçon 09 |
+| Maintenance | `scripts/maintenance.js` — 4 contrôles en une commande : tests, audit sécurité, dépendances, sauvegarde | leçon 12 |
 
 Aucune bibliothèque tierce côté serveur hors better-sqlite3. Côté frontend, les quatre dépendances sont **épinglées**
 (relevé `npm show` du 28/08/2026) : react et react-dom en `^19.2.8`, `@vitejs/plugin-react` en
@@ -64,7 +66,7 @@ reproductible et autorise l'installation d'une majeure incompatible.
 | `exercices/02_lister_livrables_avec_spec.js` | Exercice de la leçon 01 : lister selon `SPEC.md` |
 | `exercices/README.md` | Consignes des deux exercices de la leçon 01 |
 | `SPEC.md` | Spécification **v1.2** : problème, utilisateur, données, fonctions, hors périmètre, critère de réussite, journal des révisions |
-| `package.json` | **v1.0.0** · scripts `inventaire`, `demo-recursivite`, `serveur`, `indexer`, `requetes`, `test`, `audit-securite`, `sauvegarder`, `start`, `build`, `inventaire:ts` · dependencies better-sqlite3 · devDependencies typescript+@types/node |
+| `package.json` | **v1.1.0** (mis à jour leçon 12) · scripts `inventaire`, `demo-recursivite`, `serveur`, `indexer`, `requetes`, `test`, `audit-securite`, `maintenance`, `sauvegarder`, `start`, `build`, `inventaire:ts` · dependencies better-sqlite3 · devDependencies typescript+@types/node |
 | `tsconfig.json` | Configuration TypeScript : target ES2022, module commonjs, strict, types:[node], outDir ./dist, rootDir ./src |
 | `.gitignore` | Exclut `node_modules/`, `.env`, `*.log`, `dist/`, `.DS_Store`, `portail.db*` |
 | `portail.db` | Base SQLite locale, créée par `indexer.js`. Fichier de cache non versionné : peut être supprimé et recréé. |
@@ -96,6 +98,7 @@ reproductible et autorise l'installation d'une majeure incompatible.
 | `frontend/src/vite-env.d.ts` | 28/08 — déclare les imports gérés par Vite (CSS…) |
 | `frontend/tsconfig.json` | 28/08 — `strict`, `jsx: react-jsx`, `moduleResolution: bundler`, `noEmit` |
 | `frontend/src/index.css` | Leçon 06 — Styles complets |
+| `scripts/maintenance.js` | **Nouveau leçon 12** — 144 lignes (compté le 02/10/2026) · bilan de santé en une commande : tests, audit sécurité, dépendances obsolètes (racine + frontend), dernière sauvegarde |
 | `PROJET.md` | Ce fichier — mémoire du parcours |
 
 ## Livré à la leçon 01 (02/08/2026)
@@ -289,11 +292,29 @@ le commit `8322368` poussait tout le reste. La leçon 11 aurait lu une mémoire 
   parcours — « ne jamais écrire de version de bibliothèque ni de signature d'API de mémoire » — couvre aussi
   les drapeaux de la CLI, et c'est la première fois qu'il saute là-dessus.
 
+## Livré à la leçon 12 (02/10/2026)
+
+- Nouveau `scripts/maintenance.js` (144 lignes) : bilan de santé hebdomadaire en une commande —
+  1. `npm test` (extrait les compteurs pass/fail de la sortie node:test) ;
+  2. `node scripts/audit-securite.js` (5 contrôles de sécurité) ;
+  3. `npm outdated` en racine **et** dans `frontend/` (total des paquets obsolètes) ;
+  4. Dernière sauvegarde dans `sauvegardes/` (alerte si > 7 jours ou dossier absent).
+  Utilise `spawnSync` (jamais `execSync`) pour éviter l'injection de commande sur les arguments.
+  Sortie mesurée le 02/10/2026 après mise à jour : **4 OK · 0 point à traiter**.
+- Mise à jour `frontend/` via `npm update` : react et react-dom 19.2.8 → 19.3.0 ; vite 8.2.2 → 8.3.2 ;
+  @types/react et @types/react-dom alignés. `npm run typecheck` : exit 0 (mesuré le 02/10/2026).
+- Mise à jour `package.json` v1.1.0 : ajout du script `maintenance` ; @types/node mis à jour de
+  26.2.0 à 26.6.4 (vérifié `npm show @types/node version` le 02/10/2026).
+- Leçon : `livrables/lecons/appli-ia/2026-10-02_lecon-appli-ia_12_maintenance-evolution-bilan.docx`
+  (21 Ko, contrôle 5bis + contrôle attributions : 0 blocage).
+- `npm test` : **33 tests · 0 fail** (mesuré le 02/10/2026 — inchangé depuis leçon 09).
+- **Parcours complet** : 12 leçons, 12 semaines (02/08 → 02/10/2026).
+
 ## Reste à faire
 
 ~~10. Sécurité et données (RGPD, leçon 10)~~ ✅ soldé le 26/09/2026
 ~~11. Mise en production : build Vite → fichiers statiques servis par Node.js (leçon 11)~~ ✅ soldé le 27/09/2026
-12. Maintenance et évolution (leçon 12)
+~~12. Maintenance et évolution (leçon 12)~~ ✅ soldé le 02/10/2026
 
 ## Points en suspens
 

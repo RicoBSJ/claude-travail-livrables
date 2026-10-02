@@ -1,6 +1,6 @@
 {
   "name": "portail-livrables",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Consultation des livrables produits par les jobs Claude_Travail",
   "type": "commonjs",
@@ -12,6 +12,7 @@
     "requetes": "node scripts/requetes.js",
     "test": "node scripts/tests.js && node --test scripts/tests-filtres.mts",
     "audit-securite": "node scripts/audit-securite.js",
+    "maintenance": "node scripts/maintenance.js",
     "sauvegarder": "node scripts/sauvegarder.js",
     "start": "node scripts/serveur.js",
     "build": "tsc",
@@ -21,7 +22,7 @@
     "node": ">=24"
   },
   "devDependencies": {
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.6.4",
     "typescript": "^7.0.2"
   },
   "dependencies": {
