@@ -46,7 +46,7 @@ MODE="${1:-}"
 # motif vide rend zéro fichier, le compteur reste à 0 et le contrôle ci-dessous dit ce qui manque.
 ATTENDU_DECOMPTE=15   # temoins_decompte_avant_correction/ — 15 depuis le 02/10/2026 :
                       #   + ai-act/2026-10-02 TELLE QUE LIVRÉE (en-tête 8 sources, corps 9)
-ATTENDU_DEC_CONFORMES=1  # temoins_decompte_conformes/ — doivent sortir en 0.
+ATTENDU_DEC_CONFORMES=3  # temoins_decompte_conformes/ — doivent sortir en 0.
                       # ⚠️ POURQUOI CE LOT EXISTE (02/10/2026). Un témoin « d'avant correction » ne
                       # prouve que la MORSURE, jamais la JUSTESSE : la veille ai-act du 02/10 telle que
                       # livrée sort en 1 avec le contrôle bogué COMME avec le contrôle corrigé — elle ne
@@ -54,6 +54,25 @@ ATTENDU_DEC_CONFORMES=1  # temoins_decompte_conformes/ — doivent sortir en 0.
                       # l'ancien contrôle (qui perdait une entrée sur les listes mêlant « ✅ Nom » et
                       # « Consultée… : Nom »), exit 0 avec le contrôle corrigé. Sans ce lot, rien dans ce
                       # harnais n'empêche de ramener le décalage d'appariement.
+                      # ⚠️ TROIS FORMES DE LISTE, TROIS TÉMOINS — matrice mesurée le 02/10/2026 contre
+                      # trois mutations du contrôle (copies jetables, jamais commitées) :
+                      #   m1 = « Consultée… » classée avant le test du deux-points (ma 1re tentative de
+                      #        correctif, qui réparait le 02/10 et cassait trois autres notes)
+                      #   m2 = fermeture de groupe retirée (le défaut réellement corrigé le 02/10)
+                      #   m3 = marqueurs de correction en ligne non retirés
+                      #   ┌──────────────────────────────┬──────┬──────┬──────┬──────┐
+                      #   │ témoin (doit sortir en 0)    │ sain │  m1  │  m2  │  m3  │
+                      #   ├──────────────────────────────┼──────┼──────┼──────┼──────┤
+                      #   │ ai-act 2026-10-02            │  0   │  0   │  1   │  1   │
+                      #   │ ai-act 2026-09-18            │  0   │  1   │  0   │  0   │
+                      #   │ imac   2026-08-30            │  0   │  1   │  0   │  0   │
+                      #   └──────────────────────────────┴──────┴──────┴──────┴──────┘
+                      # Chaque mutation est attrapée par au moins un témoin, et AUCUN témoin ne les
+                      # attrape toutes : retirer l'un des trois rend une des trois mutations invisible.
+                      # ⚠️ Le témoin du 02/10 ne couvre m3 que parce que son marqueur de correction cite
+                      # le décompte d'origine EN CHIFFRES. Il avait d'abord été écrit en lettres pour
+                      # contourner le bug m3 ; ce contournement le rendait aveugle à sa propre correction.
+                      # Un marqueur qui cite fidèlement est donc aussi ce qui rend le test possible.
 ATTENDU_CONFORMES=6   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (3 copies figées)
                       # 3e copie figée le 27/09/2026 : appli-ia n°10, témoin de ㉛ — deux requêtes SQL de son
                       # exercice (« SELECT COUNT(*) as n FROM livrables WHERE slug LIKE @m ») étaient lues comme
