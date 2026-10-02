@@ -44,7 +44,8 @@ Document source : [[2026-09-27_lecon-appli-ia_11_mise-en-production-build.docx]]
 
 - **⬅️ Précédente** · [[2026-09-26_lecon-appli-ia_10_securite-donnees]]
   la n°10 avait tout mesuré et rien retenu : plafond dépassé à 102 %, `PROJET.md` non mis à jour, un champ npm inexistant publié comme résultat. **Les trois règles nées d'elle ce matin (25, 26, 27) sont passées ici dès la première exécution** — et cette leçon compte `audit-securite.js` à 151 lignes, c'est-à-dire après la correction, preuve qu'elle a lu le fichier réparé
-- **➡️ Suivante** · *leçon 12 sur 12, vendredi 8h03* — « Vivre avec son application : dette technique, mise à jour des dépendances, faire évoluer un code généré par IA, bilan du parcours ». `PROJET.md` n'a plus qu'une ligne dans « Reste à faire »
+- **➡️ Suivante** · [[2026-10-02_lecon-appli-ia_12_maintenance-evolution-bilan]]
+  **la dernière du parcours, et la mieux mesurée de la semaine** : les six numéros de version justes contre le registre npm, `maintenance.js` à 144 lignes comptées, et `npm run maintenance` qui reproduit son bloc de sortie mot pour mot — un seul « s » manquant. La ligne de « Reste à faire » que la 11 annonçait est barrée. Son seul défaut de fond est hors de portée des treize motifs : le Challenge fait appeler `npm build`, qui n'existe pas
 - **🔗 Pont** · [[2026-09-18_lecon-appli-ia_08_api-architecture-contrats]]
   la leçon qui a motivé la règle de l'étape 6 — elle avait réécrit `PROJET.md` « en plus court », −122 lignes pour +80. Le plafond de 40 lignes vient de là ; aujourd'hui il refuse 42 suppressions **légitimes**, et il est outrepassé. *Un seuil posé contre un abus finit par gêner l'usage normal*
 - **🔗 Pont** · [[2026-09-26_lecon-placement-financier_16_transmission-succession-demembrement]]
