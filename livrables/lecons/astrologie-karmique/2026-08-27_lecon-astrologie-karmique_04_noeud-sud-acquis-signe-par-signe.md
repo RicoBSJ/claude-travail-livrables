@@ -16,7 +16,11 @@ tags:
   - auteur/schulman
   - auteur/spiller
   - auteur/greene
-  - alerte/a-corriger
+  - alerte/corrige
+  - correction/2026-08-27
+  - correction/2026-10-02
+  - theme/correction-partielle-laisse-le-tableau
+  - source/abebooks
 ---
 
 # 2026-08-27_lecon-astrologie-karmique_04_noeud-sud-acquis-signe-par-signe
@@ -32,6 +36,8 @@ Première leçon d'interprétation du parcours — les douze positions du Nœud 
 **Deux marques de qualité par rapport à la leçon 03.** D'abord les sources : **NASA, Observatoire de Paris, IMCCE, et zéro Wikipédia** — la liste fermée imposée le 20/08 a été respectée sans intervention. Ensuite, les deux corrections faites à la main sur la leçon 03 ont **été reprises d'elles-mêmes** : le titre original de Schulman est exact (*Karmic Astrology, Volume 1*, Samuel Weiser, 1975) et l'éditeur français aussi (Éditions Hélios, 1985). Le fil rouge a fonctionné. Le tableau des registres est également plus tranchant, avec cette ligne qui résume tout : **aucune propriété physique du nœud ne fonde cette lecture**. Et la note de méthode nomme explicitement l'**effet Barnum-Forer** — les descriptions sont assez riches pour que chacun y trouve quelque chose, ce qui ne diminue pas l'intérêt de la lecture mais situe son registre.
 
 **Une erreur d'astronomie contredisait la leçon précédente — corrigée le 27/08/2026**, avec journal. Le texte datait l'entrée du Nœud Nord en Verseau au moment où « le nœud ascendant a atteint **300°** de longitude écliptique ». Le Verseau occupe bien 300°–330°, mais **les nœuds sont rétrogrades** — la leçon 03 le pose noir sur blanc — et leur longitude décroît. Venant des Poissons (330°–360°), le nœud entre en Verseau en franchissant **330°** ; 300° est la borne où il en **sortira**, vers mars 2028. La date du 26 juillet n'a pas bougé : elle est cohérente avec le cycle de 18,6 ans, soit environ 1,55 an par signe — c'était le degré qui était faux. Corrigée en même temps, une régression typographique : « Noeud » était écrit sans ligature sur ses **93 occurrences**, quand la leçon 03 employait « Nœud » partout ; les URL, elles, n'ont pas été touchées.
+
+**Corrigée le 02/10/2026 : la valeur fausse a survécu cinq semaines à côté de sa propre correction.** Le 27/08, la leçon avait été reprise sur les 300° : le paragraphe de théorie porte depuis cette date l'explication complète — *« les nœuds étant RÉTROGRADES, leur longitude DÉCROÎT. Venant des Poissons (330°–360°), le nœud entre donc en Verseau en franchissant 330°, et non 300° »* — et le journal de corrections l'expose en détail. **Mais le tableau récapitulatif, lui, n'avait pas été touché** : il écrivait encore « Le 26 juillet 2026, le Nœud Nord a atteint **300°** de longitude écliptique (entrée en Verseau tropical). Fait calculable par mécanique céleste. » Le document contenait donc, publié, **son erreur et sa réfutation à huit paragraphes d'écart** — et la case fautive est celle que le lecteur consulte le plus. C'est cet incident qui a fait écrire dans le prompt du parcours, le 24/09, la règle *« quand tu corriges un chiffre, tu le cherches dans TOUT le document — tableaux, encadrés, corrigés d'exercices — pas seulement là où tu l'as vu »* ; **la règle a été écrite et le document est resté non corrigé cinq semaines de plus**. La case porte maintenant les 330° et l'explication du sens de parcours. **Seconde correction : aucune notice n'était liée** pour les deux éditions de Schulman, alors que la leçon en donne titre, éditeur, année et deux ISBN. L'édition anglaise est confirmée (**9780877282884**, notice de 10 031 caractères) ; **« Éditions Hélios, 1985 » ne l'est pas** et est déclarée non vérifiée — même constat que dans la fiche de la n°03, corrigée le même jour. Document **19 362 → 20 300 octets**, second journal daté. `controle_attributions` **0 bloquant** et **aucune ligne à relire**, étape 5 bis **OK**. Avec cette correction, **les neuf leçons du parcours passent les sept motifs** — c'est la première fois.
 
 ## Notes liées
 
