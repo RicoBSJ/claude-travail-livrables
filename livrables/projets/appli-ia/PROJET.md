@@ -294,6 +294,9 @@ le commit `8322368` poussait tout le reste. La leçon 11 aurait lu une mémoire 
 
 ## Livré à la leçon 12 (02/10/2026)
 
+> ⚠️ **Document de la leçon 12 corrigé le 02/10/2026, après relecture.** Le bloc annoncé « Le script complet — `scripts/maintenance.js` (144 lignes) » en publiait **97** : une version abrégée, sans l'en-tête de 10 lignes, sans la section Helpers, et **sans les deux `console.log` qui impriment la bannière et la phrase finale** que la leçon cite dans sa sortie attendue. Le bloc publié est désormais le contenu exact du fichier. Trois autres corrections : le repère de lignes de `lancer()` (annoncé 28–41, réel **37–48**), « 33 test(s) » → « 33 tests » (ce que le script imprime), et le Challenge qui faisait appeler `npm build`, **commande qui n'existe pas** — `lancer('npm', ['run', 'build'])`. **Le code du projet n'a pas été modifié** : le fichier était juste, c'est sa citation dans la leçon qui ne l'était pas.
+
+
 - Nouveau `scripts/maintenance.js` (144 lignes) : bilan de santé hebdomadaire en une commande —
   1. `npm test` (extrait les compteurs pass/fail de la sortie node:test) ;
   2. `node scripts/audit-securite.js` (5 contrôles de sécurité) ;
