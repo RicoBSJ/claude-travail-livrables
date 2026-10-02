@@ -1,0 +1,55 @@
+---
+type: fiche-document
+source: 2026-10-02_veille_ai-act.docx
+date_creation: 2026-10-02
+date_veille: 2026-10-02
+veille: ai-act
+statut: veille-active
+tags:
+  - veille/ai-act
+  - registre/pro
+  - theme/semaine-creuse
+  - theme/omnibus-ia
+  - theme/echeances-reglementaires
+  - theme/sanctions-art-99
+  - theme/deepfakes-csam
+  - theme/autorites-francaises-non-designees
+  - source/ai-act-service-desk
+  - source/cnil
+  - source/eur-lex
+  - source/future-of-life
+  - theme/chiffre-prete-a-une-page-qui-ne-le-porte-pas
+  - theme/decompte-contradictoire
+  - theme/livrable-orphelin-apres-plafond
+  - alerte/corrige
+  - correction/2026-10-02
+  - incident/plafond-depasse
+---
+
+# 2026-10-02_veille_ai-act
+
+Document source : [[2026-10-02_veille_ai-act.docx]]
+
+## Résumé
+
+**Cette note a été écrite par une exécution qui est morte juste après l'avoir écrite, et c'est la première fois que la règle née de l'incident hypnose s'applique dans le bon ordre.** Le job du 02/10 à 09h03 s'est arrêté sur son plafond de coût — **3,1205 $ pour 3,00 $ (104 %)**, `error_max_budget_usd`, `stop_reason=tool_use`, 27 tours, 16 min 41 s, **exit 1, aucun commit** — *après* avoir produit le `.docx` mais *avant* de le contrôler et de le publier. Le document est donc resté sur le disque, **complet et non vérifié**, pendant huit heures, et la marque `.echec_ai-act-veille` a été posée pour 72 h, de sorte que la prochaine exécution refusera un `exit 0` obtenu en moins de sept tours. **Le garde-fou du 29/09 a fonctionné exactement comme prévu** : le 29/09, `hypnose-lecon` avait fait l'inverse — mourir après avoir écrit, puis voir son rattrapage s'arrêter sur le doublon en deux tours, rendre `exit 0` et **publier un livrable que personne n'avait vérifié**. Ici rien n'a été publié, et le rattrapage a consisté non pas à relancer le job — `rattrapage_jobs.sh` aurait buté sur l'anti-doublon en deux tours et serait sorti en `exit 7`, pour 3 $ de plus et aucun livrable — mais à **relire la note à la main, la corriger et la publier**. Aucun plafond n'a eu besoin d'être relevé.
+
+**Les sources tiennent, et les statuts déclarés sont exacts au code HTTP près.** Les huit adresses rouvertes le 02/10/2026 : **EUR-Lex répond bien 202** et **consilium.europa.eu bien 403**, précisément comme la note l'écrit (⚠️ et ⛔) ; `iapp.org/news/` rend 200 pour **4 232 caractères** de coquille, ce qui confirme son diagnostic de « SPA JavaScript côté client, contenu éditorial non extractible en headless » — un 200 qui ne prouve rien, correctement déclaré bloqué. **Les quatre échéances sont littérales sur la page du calendrier** : « 02 Dec 2026 New prohibitions + Article 50(2) transition apply — Prohibitions, for AI systems generating non-consensual sexual deepfakes and child sexual abuse material, start to apply », « 02 Aug 2027 Member States should have at least one AI regulatory sandbox per country operational », « 02 Dec 2027 Rules for high-risk AI systems in Annex III apply », « 02 Aug 2028 Rules for high-risk AI embedded in regulated products covered by Annex I apply » — et la page précise elle-même qu'elle « takes into account the AI Act amendments introduced by Digital Omnibus on AI », ce qui fonde la mention de l'Omnibus. **Les trois actualités hors périmètre de digital-strategy sont aux dates annoncées** (01/10, 30/09, 29/09) et sur les sujets annoncés — l'EDIC agri-food et l'« Eurobaromètre sur les cybermenaces au travail » se lisent littéralement sur la page (« Three in four EU employees faced cyber threats at work »). **`cnil.fr/intelligence-artificielle` a bien pour dernière date le 26 août 2026** et **`artificialintelligenceact.eu` pour dernier article « AI Therapy under the EU AI Act, Aug 7, 2026 »**. Et le verdict lui-même — **semaine creuse, 0 fait marquant** — est un résultat honnête, pas une absence de travail : la note dit ce qu'elle a ouvert, ce qu'elle n'a pas pu ouvrir et pourquoi.
+
+**Deux défauts, dont un de la famille que je poursuis depuis trois jours.** ① **Le régime de sanctions est prêté à une page qui n'en porte rien.** La ligne « Source : AI Act Service Desk — calendrier d'implémentation — vérifié le 02/10/2026 » introduit la section des échéances, et l'entrée du 2 août 2026 ajoute : « Régime : jusqu'à **35 M€ ou 7 %** du CA mondial pour pratiques interdites ; jusqu'à **15 M€ ou 3 %** pour transparence et GPAI ». Cette page rend **2 760 caractères utiles** et **ne contient aucun des quatre chiffres** — « 35 » : 0 · « 15 » : 0 · « 7 % » : 0 · « 3 % » : 0 · « sanction » : 0. Les valeurs sont justes au fond, ce sont celles de l'**article 99** du règlement, mais elles venaient du cadrage du job et non de la page citée — et EUR-Lex, qui permettrait de les vérifier à la source primaire, répondait 202. La provenance et le statut non vérifié sont désormais écrits dans le document. **C'est exactement le défaut de la leçon d'astrologie n°09 du 01/10** (« Jupiter », « Neptune », « instable », « coma » rangés « établi (MPC/UAI) » sur une page qui ne les porte pas) et de la n°07 (trois formules par maison dont une absente de la page) : **un énoncé juste, sous une ligne de source qui ne le soutient pas**. Troisième parcours en deux jours, même forme. ② **Le corps annonçait neuf sources consultées** quand l'en-tête en annonce huit et que la rubrique en liste exactement huit — deux exploitées, trois consultées sans élément nouveau, deux bloquées, une partielle, soit 2+3+2+1 = 8. L'en-tête et la liste concordent et sont justes ; **c'est le chiffre du corps qui était seul**, et c'est le seul défaut de décompte de la note.
+
+**Et le contrôle qui devait attraper ce décompte en a deux, dans un script partagé par les cinq séries de veille.** ① **`controle_decompte.py` compte 7 entrées au lieu de 8 et 2 « consultées sans symbole » au lieu de 3**, parce qu'il **décale les symboles d'une ligne** dès que la liste mélange des entrées préfixées d'un symbole (`✅ Nom`) et des entrées dont le statut est écrit en mots (`Consultée, sans élément nouveau : Nom`). Le mode `DEBUG=1` le montre ligne à ligne : la troisième « Consultée » reçoit le ⛔ de `consilium`, `iapp` reçoit le ⚠️ d'EUR-Lex, et **EUR-Lex est classée « remarque » et purement perdue**. Conséquence : son verdict « INCOHÉRENT » porte **trois reproches dont deux sont faux** — les « 8 tentées » et les « 3 consultées sans nouveauté » de la note sont exacts. ② **Il ne retire pas les marqueurs de correction en ligne.** Il coupe bien à « Journal des corrections », mais un `[Corrigé le … : la note annonçait « 9 sources consultées »]` lui fait relire l'ancien chiffre **comme une annonce vivante** — constaté en direct : après ma première correction, il annonçait à la fois « 8 consultées » et « 9 consultées ». `controle_attributions.py` gère ce cas depuis longtemps (il écarte explicitement les citations des marqueurs) ; `controle_decompte.py` non. **La doctrine de correction du dépôt est donc incompatible avec l'un de ses deux contrôles communs** — j'ai contourné en écrivant le décompte d'origine en lettres dans le marqueur, et en le disant dans le marqueur lui-même. Les deux défauts sont à corriger dans le script, ce qui impose `non_regression.sh --complet` sur les 221 documents : **non fait ici, délibérément**, parce que ce n'est pas une retouche de veille.
+
+**Mesures, et ce qui reste ouvert.** **3,1205 $ / 3,00 $ (104 %)**, **27 tours**, 16 min 41 s, 25 424 tokens en sortie, 1 507 850 de cache lu, prompt de **39 463 octets** — un dépassement de 12 centimes, sur un job dont le plafond de 3 $ était justifié par « 7 sources socle + textes EUR-Lex + curl de chaque lien ». Le document final fait **13 757 octets** pour 5 334 caractères de texte, journal compris ; `controle_attributions` rend **0 bloquant**. Quatre réserves sont portées par la note elle-même, et toutes les quatre sont honnêtes : la référence au règlement **2026/1744** (8 juillet 2026, JOUE du 24 juillet, en vigueur le 27 juillet) est déclarée **héritée de l'édition du 29/08/2026** puisque EUR-Lex est inaccessible ; la **désignation des autorités françaises** est déclarée non vérifiée à une source primaire, les URL de l'Assemblée et du Sénat n'ayant rien rendu ; `consilium` et `iapp` sont déclarées bloquées avec leur cause. **Ce qui reste à faire après cette fiche** : la fiche de la veille du **25/09** est encore un stub de 305 octets, celle d'`imac` du **27/09** aussi, et la marque d'échec `.echec_ai-act-veille` court jusqu'au **05/10** — elle expirera d'elle-même avant le prochain créneau du vendredi 09/10. Le plafond n'a pas été relevé : à 104 %, le dépassement est marginal, mais **la décision de le relever t'appartient** — s'il reste à 3 $, un dépassement du même ordre se reproduira, et la note du vendredi finira régulièrement sur le disque sans être publiée.
+
+## Notes liées
+
+- **⬅️ Précédente** · [[2026-09-25_veille_ai-act.fiche]]
+  dont la fiche n'a jamais été écrite — stub de 305 octets posé le 25/09 et resté tel quel. La note du 02/10 s'y adosse explicitement (« Aucune nouveauté significative depuis le CR du 25 septembre 2026 ») : **une semaine creuse qui se réfère à une édition non relue**
+- **🔗 Pont** · [[2026-09-29_lecon-hypnose_16_resistances-echecs-non-repondeurs]]
+  **l'incident inverse, et la règle qui a servi ici.** Le 29/09, `hypnose-lecon` est mort après avoir écrit sa leçon, et son rattrapage s'est arrêté sur le doublon en deux tours, a rendu `exit 0` et **a publié un livrable que personne n'avait vérifié**. D'où la mémoire d'échec sur disque et le `exit 7` en dessous de sept tours. Ici la marque était posée, rien n'a été publié, et le rattrapage a été une relecture — pas une relance
+- **🔗 Pont** · [[2026-10-01_lecon-astrologie-karmique_09_chiron-corps-reel-blessure-symbolique]]
+  **même forme exacte, autre parcours** : quatre chiffres justes au fond, rangés sous une ligne de source qui ne les porte pas. Là-bas « Jupiter », « Neptune », « instable » et « coma » étaient donnés pour « établi (MPC/UAI) » sur une page de 337 927 caractères où ces quatre mots comptent zéro ; ici 35 M€, 7 %, 15 M€ et 3 % sous une page de 2 760 caractères qui n'en porte aucun
+- **🔗 Pont** · [[2026-09-28_veille_has-actualite.fiche]]
+  l'autre veille dont la relecture a trouvé un **décompte** et du **mobilier de site pris pour du contenu**. Ici le décompte de la note est juste à une occurrence près, et c'est **le contrôle** qui se trompe — premier cas où la relecture disculpe le document et accuse l'outil
+- **🗂️ Dossier** · [[AI-Act_dossier.fiche]] — série `ai-act`, créneau du **vendredi 9h03**, plafond **3,00 $** (dépassé à 104 % le 02/10/2026). Job supprimé le 25/07/2026 puis **recréé le 30/08/2026** : le trou de six semaines dans le dossier n'est pas un créneau manqué
