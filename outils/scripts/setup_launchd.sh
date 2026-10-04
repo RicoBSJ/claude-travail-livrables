@@ -5,9 +5,10 @@
 # Idempotent : relançable à volonté (décharge puis recharge).
 #
 # Horaires (= champ "cron" de jobs_config.json) :
-#   (revenus-passifs-lecon : ARRÊTÉ le 04/10/2026 — parcours de 10 leçons demandé,
-#    le job en avait produit 11 faute de clause de fermeture. Agent déchargé et plist
-#    retiré ; retiré de cette liste pour qu'un setup ne le recrée pas.)
+#   (revenus-passifs-lecon : SUPPRIMÉ le 04/10/2026 — parcours de 10 leçons demandé,
+#    le job en avait produit 11. Arrêté puis supprimé de jobs_config.json le même jour ;
+#    son prompt de 62 425 octets reste récupérable dans l'historique git, commit d39b132.
+#    Les 11 leçons produites sont conservées dans livrables/lecons/revenus-passifs/.)
 #   controle-livrables     dimanche 11h03 (contrôle qualité de la semaine)
 #   imac-veille        dimanche 8h03
 #   rbpp-pipeline      lundi    8h30

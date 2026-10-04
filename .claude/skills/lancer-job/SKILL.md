@@ -1,6 +1,6 @@
 ---
 name: lancer-job
-description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : revenus, imac, serafin, rbpp, dzogchen, psychopathologie, finance, hypnose, enneagramme, astro, appli, stoicisme, controle
+description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : imac, serafin, rbpp, dzogchen, psychopathologie, finance, hypnose, enneagramme, astro, appli, stoicisme, controle
 disable-model-invocation: false
 ---
 
@@ -13,9 +13,9 @@ L'argument reçu est : $ARGUMENTS
 Lis le fichier : /Users/utilisateur/kDrive/Claude_Travail/jobs_config.json
 
 Identifie le job correspondant à l'argument selon cette correspondance :
-- "revenus" ou "revenus-passifs" ou "passif" ou "business"           → ⛔ JOB ARRÊTÉ le 04/10/2026.
+- "revenus" ou "revenus-passifs" ou "passif" ou "business"           → ⛔ JOB SUPPRIMÉ le 04/10/2026.
   Le parcours Revenus passifs était commandé en 10 leçons ; le job en avait produit une 11e.
-  N'exécute rien : affiche « ⛔ Le job revenus-passifs-lecon est arrêté depuis le 04/10/2026 —
+  N'exécute rien : affiche « ⛔ Le job revenus-passifs-lecon a été supprimé le 04/10/2026 —
   parcours clos à 10 leçons (la 11e, hors feuille de route, est conservée et fichée). » et arrête-toi.
 - "imac" ou "mac" ou "apple" ou "imac-m4" ou "imac-m5"               → job id "imac-veille"
 - "serafin" ou "serafin-ph" ou "veille"                              → job id "serafin-ph-veille"
