@@ -5,7 +5,9 @@
 # Idempotent : relançable à volonté (décharge puis recharge).
 #
 # Horaires (= champ "cron" de jobs_config.json) :
-#   revenus-passifs-lecon  dimanche 7h03
+#   (revenus-passifs-lecon : ARRÊTÉ le 04/10/2026 — parcours de 10 leçons demandé,
+#    le job en avait produit 11 faute de clause de fermeture. Agent déchargé et plist
+#    retiré ; retiré de cette liste pour qu'un setup ne le recrée pas.)
 #   controle-livrables     dimanche 11h03 (contrôle qualité de la semaine)
 #   imac-veille        dimanche 8h03
 #   rbpp-pipeline      lundi    8h30
@@ -65,8 +67,7 @@ fi
 
 
 # job_id | minute | hour | weekday (vide = quotidien)
-JOBS="revenus-passifs-lecon|3|7|0
-imac-veille|3|8|0
+JOBS="imac-veille|3|8|0
 rbpp-pipeline|30|8|1
 psychopathologie-lecon|3|8|1
 dzogchen-lecon|3|8|2

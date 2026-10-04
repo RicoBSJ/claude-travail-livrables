@@ -35,7 +35,7 @@ fi
 #   entretien-motivationnel-lecon (jours intensifs 09→11/07)
 # Commente (#) les lignes que tu ne veux PAS rejouer.
 DEFAULT_JOBS=(
-  revenus-passifs-lecon
+  # revenus-passifs-lecon  ← ARRÊTÉ le 04/10/2026 (parcours clos à 10 leçons)
   stoicisme-lecon
   appli-ia-lecon
   placement-financier-lecon

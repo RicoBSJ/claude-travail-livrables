@@ -13,7 +13,10 @@ L'argument reçu est : $ARGUMENTS
 Lis le fichier : /Users/utilisateur/kDrive/Claude_Travail/jobs_config.json
 
 Identifie le job correspondant à l'argument selon cette correspondance :
-- "revenus" ou "revenus-passifs" ou "passif" ou "business"           → job id "revenus-passifs-lecon"
+- "revenus" ou "revenus-passifs" ou "passif" ou "business"           → ⛔ JOB ARRÊTÉ le 04/10/2026.
+  Le parcours Revenus passifs était commandé en 10 leçons ; le job en avait produit une 11e.
+  N'exécute rien : affiche « ⛔ Le job revenus-passifs-lecon est arrêté depuis le 04/10/2026 —
+  parcours clos à 10 leçons (la 11e, hors feuille de route, est conservée et fichée). » et arrête-toi.
 - "imac" ou "mac" ou "apple" ou "imac-m4" ou "imac-m5"               → job id "imac-veille"
 - "serafin" ou "serafin-ph" ou "veille"                              → job id "serafin-ph-veille"
 - "rbpp" ou "pipeline"                                               → job id "rbpp-pipeline"
@@ -30,7 +33,6 @@ Identifie le job correspondant à l'argument selon cette correspondance :
 Si l'argument est vide ou non reconnu, affiche la liste des jobs disponibles :
 ```
 Jobs disponibles :
-  /lancer-job revenus     — Leçon Revenus passifs (dimanche 7h03)
   /lancer-job imac        — Veille marché tout-en-un : iMac M4/M5 + PC Windows (dimanche 8h03)
   /lancer-job serafin     — Veille SERAFIN-PH (mercredi 8h03)
   /lancer-job rbpp        — Pipeline RBPP HAS (lundi 8h30)
