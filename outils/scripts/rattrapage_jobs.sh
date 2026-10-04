@@ -37,7 +37,7 @@ fi
 DEFAULT_JOBS=(
   # revenus-passifs-lecon  ← SUPPRIMÉ le 04/10/2026 (parcours clos à 10 leçons)
   stoicisme-lecon
-  appli-ia-lecon
+  # appli-ia-lecon  ← SUPPRIMÉ le 04/10/2026 (parcours fermé, 12 leçons livrées)
   placement-financier-lecon
   astrologie-karmique-lecon
 )

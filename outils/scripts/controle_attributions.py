@@ -7,7 +7,8 @@ Sort en 0 si aucun problème bloquant, en 1 sinon, en 2 si le fichier est illisi
 ne bloque mais qu'une vérification a été IMPOSSIBLE (page non lue, 0 octet) — un 3 n'est pas un 0.
 
 Copie CANONIQUE, extraite verbatim du bloc embarqué dans le prompt appli-ia-lecon
-(jobs_config.json) le 12/09/2026 — même contenu, même validation : dix-sept cas
+(jobs_config.json) le 12/09/2026 — ⚠️ ce job a été SUPPRIMÉ le 04/10/2026, son prompt
+reste lisible par « git show 14541bb:jobs_config.json » — même contenu, même validation : dix-sept cas
 connus, dans les deux sens, sous env -i. Historique des treize défauts du test
 et de leurs corrections : outils/scripts/JOBS.md (journée du 11/09/2026) ; ⑭ le
 12/09/2026, la passe A cesse d'ignorer un site nu cité comme source sans aucune page listée ;
