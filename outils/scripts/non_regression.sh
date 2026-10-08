@@ -283,6 +283,68 @@ if [ "$MODE" = "--complet" ]; then
   else
     echo "  ✓ $AVANT_N/$ATTENDU_AVANT témoin(s) d'avant correction contrôlé(s)"
   fi
+
+  # ── 5 ter. LES DEUX ÉTAPES 5 BIS SORTIES DES PROMPTS (08/10/2026) ───────────
+  # `controle_astrologie_karmique.py` (7 motifs) et `controle_psychopathologie.py`
+  # (4 motifs) étaient inlinés dans leurs prompts — 12 398 et 5 520 octets réémis à
+  # chaque tour. Sortis le 08/10/2026, ils sont devenus des scripts du dépôt que
+  # PLUS AUCUN HARNAIS NE TESTAIT : une retouche de l'un des deux ne se serait vue
+  # nulle part. Chacun se prouve ici DANS LES DEUX SENS.
+  #   • un témoin CONFORME doit sortir en 0 (le contrôle laisse passer ce qui est juste) ;
+  #   • une MUTATION du même document, fabriquée par muter_docx.py et détruite après,
+  #     doit sortir en 1 (le contrôle mord encore).
+  # ⚠️ POURQUOI UNE MUTATION ET PAS UN TÉMOIN FIGÉ DE REFUS : les seuls documents que
+  # controle_astrologie_karmique.py refuse aujourd'hui le font sur SIX FAUX POSITIFS du
+  # motif ⑤ — des exonymes français (« Cérès » pour « Ceres », « Alger » pour « Algiers »,
+  # « Centre » pour « Center ») et l'étiquette de section « Citation ». Figer un de ces
+  # refus comme témoin inscrirait le bug dans le harnais, qui échouerait le jour où on le
+  # corrige. La mutation ne prouve qu'une chose, et c'est la bonne : le test mord.
+  # ⚠️ EN --complet SEULEMENT : ces deux scripts rouvrent CHAQUE page listée du document
+  # (dix pour la leçon d'astrologie, dont quatre fiches du MPC de 600 000 à 900 000
+  # caractères). En --docs, qui est la porte des pushs de job et doit rester en secondes,
+  # ils n'ont rien à faire.
+  echo "▶ Étapes 5 bis du dépôt (témoin conforme en 0, mutation en 1)…"
+  ATTENDU_5BIS=2
+  CB_N=0
+  MUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/nr5bis.XXXXXX")
+  for duo in \
+    "controle_astrologie_karmique.py|astrologie-karmique/2026-10-01_lecon-astrologie-karmique_09_chiron-corps-reel-blessure-symbolique.docx|ligature" \
+    "controle_psychopathologie.py|psychopathologie/2026-10-05_lecon-psychopathologie_19_ethique-consentement-contrainte-sante-mentale.docx|fraction"; do
+    SC="${duo%%|*}"; RESTE="${duo#*|}"; REL="${RESTE%%|*}"; MOTIF="${RESTE##*|}"
+    DOC="$ROOT/livrables/lecons/$REL"
+    if [ ! -f "$DOC" ] || [ ! -f "$ROOT/outils/scripts/$SC" ]; then
+      echo "  ✗ $SC : témoin ou script introuvable ($REL) — rétablis-le, ou mets ce bloc à jour."
+      STATUT=1; continue
+    fi
+    CB_N=$((CB_N + 1))
+    env -i /usr/bin/python3 "$ROOT/outils/scripts/$SC" "$DOC" > "$CUR/5bis_$MOTIF.txt" 2>&1; rc=$?
+    if [ "$rc" != "0" ]; then
+      echo "  ✗ $SC : le témoin conforme sort en $rc — faux positif du contrôle : $(tail -1 "$CUR/5bis_$MOTIF.txt")"
+      STATUT=1
+    else
+      MUT="$MUTDIR/mutant_$MOTIF.docx"
+      if ! /usr/bin/python3 "$NR/muter_docx.py" "$DOC" "$MUT" "$MOTIF" > /dev/null 2>&1; then
+        echo "  ✗ $SC : la mutation « $MOTIF » n'a pas pu être fabriquée — rien n'est prouvé."
+        STATUT=1
+      else
+        env -i /usr/bin/python3 "$ROOT/outils/scripts/$SC" "$MUT" > "$CUR/5bis_mut_$MOTIF.txt" 2>&1; rcm=$?
+        if [ "$rcm" = "1" ]; then
+          echo "  ✓ $SC : témoin conforme exit 0, mutation « $MOTIF » exit 1"
+        else
+          echo "  ✗ $SC : la mutation « $MOTIF » sort en $rcm au lieu de 1 — LE CONTRÔLE NE MORD PLUS"
+          echo "    $(tail -1 "$CUR/5bis_mut_$MOTIF.txt")"
+          STATUT=1
+        fi
+      fi
+      rm -f "$MUT"
+    fi
+  done
+  rmdir "$MUTDIR" 2>/dev/null
+  if [ "$CB_N" != "$ATTENDU_5BIS" ]; then
+    echo "  ✗ $CB_N étape(s) 5 bis contrôlée(s), $ATTENDU_5BIS attendue(s) — un lot incomplet ne"
+    echo "    prouve rien : rétablis le script ou le témoin manquant, ou mets ATTENDU_5BIS à jour."
+    STATUT=1
+  fi
 fi
 # ---- Témoins du runner (27/09/2026) ----
 # run_job.sh décide ce qui est retenté et ce qui est PUBLIÉ pour les 14 jobs, et rien ne le
