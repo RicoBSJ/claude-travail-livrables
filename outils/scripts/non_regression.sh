@@ -73,7 +73,12 @@ ATTENDU_DEC_CONFORMES=3  # temoins_decompte_conformes/ — doivent sortir en 0.
                       # le décompte d'origine EN CHIFFRES. Il avait d'abord été écrit en lettres pour
                       # contourner le bug m3 ; ce contournement le rendait aveugle à sa propre correction.
                       # Un marqueur qui cite fidèlement est donc aussi ce qui rend le test possible.
-ATTENDU_CONFORMES=6   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (3 copies figées)
+ATTENDU_CONFORMES=7   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (4 copies figées)
+                      # 4e copie figée le 09/10/2026 : la leçon Ennéagramme n°06 APRÈS correction, témoin de
+                      # l'exemption de ㉜ — ses quatre citations d'ouvrages y sont DÉCLARÉES reformulations,
+                      # et elle doit donc sortir en 0 SANS aucune ligne « SOURCE NOMMÉE SANS PAGE ». C'est le
+                      # seul témoin qui garde la déclaration : si la détection devenait aveugle aux mots
+                      # « reformulation / non consulté / d'après », il refuserait un document juste.
                       # 3e copie figée le 27/09/2026 : appli-ia n°10, témoin de ㉛ — deux requêtes SQL de son
                       # exercice (« SELECT COUNT(*) as n FROM livrables WHERE slug LIKE @m ») étaient lues comme
                       # des citations anglaises et bloquaient un document juste. Elle doit sortir en 0.
@@ -82,7 +87,15 @@ ATTENDU_CONFORMES=6   # 3 documents vivants (stoïcisme 14, appli-ia 07, placeme
 #   dans les passes B, B-FR et B-NOM : il DOIT sortir en 0, et il sortait en 1 avant le correctif
 #   du 26/09 (mesuré dans les deux sens). Si une formulation citée pour mémoire redevient un jour
 #   une attribution, c'est lui qui le dira — aucun autre témoin conforme ne porte de marqueur.
-ATTENDU_AVANT=7       # temoins_attributions_avant_correction/ — 7 depuis le 25/09/2026 :
+ATTENDU_AVANT=8       # temoins_attributions_avant_correction/ — 8 depuis le 09/10/2026 :
+#   la leçon Ennéagramme n°06 d'AVANT sa correction est entrée dans le lot ce jour-là. C'est le SEUL
+#   témoin qui exerce la passe ㉜ : elle citait QUATRE ouvrages entre guillemets, en français, sans
+#   qu'aucun texte ait été ouvert, et le contrôle n'en signalait qu'UN comme bloquant — le seul à côté
+#   duquel un domaine était nommé. Les trois autres désignaient un LIVRE, et ㉖ ne déclenche que sur un
+#   domaine. Ce témoin doit sortir en 1 (pour la citation de Palmer, via ㉖) ET porter au moins une
+#   ligne « SOURCE NOMMÉE SANS PAGE » (via ㉜). Le code de sortie seul ne prouverait rien : il sortirait
+#   en 1 sur la seule citation de Palmer même si ㉜ perdait toute sa dent.
+#   7 depuis le 25/09/2026 :
 #   la leçon appli-ia n°05 d'avant le 11/09 (commit 4ed6de0) est entrée dans le lot ce jour-là.
 #   C'est le SEUL témoin qui exerce la passe C2 : « Vite v8.2.2 — vérifiée sur vite.dev/guide/
 #   le 28/08/2026 » alors que la page ne l'a jamais portée. Les six autres témoins exercent B,
@@ -266,6 +279,17 @@ if [ "$MODE" = "--complet" ]; then
     #    garde C2, la seule passe dont le sens REFUS n'avait aucun témoin permanent.
     #    On exige donc la LIGNE, pas seulement le code de sortie — même exigence que
     #    « lis la sortie, ne te contente pas du code de retour » (JOBS.md, 12/09/2026).
+    # ⚠️ MÊME EXIGENCE POUR ㉜ (09/10/2026) : ce témoin sortirait en 1 sur la seule citation de Palmer,
+    #    que ㉖ attrape. Ce qui prouve ㉜, c'est la LIGNE qui nomme l'ouvrage.
+    if [[ "$(basename "$f")" == "2026-07-08_lecon-enneagramme_06_avant.docx" ]]; then
+      if grep -q "SOURCE NOMMÉE SANS PAGE" "$CUR/temoin_attr_$(basename "$f" .docx).txt"; then
+        echo "        ↳ ✓ ㉜ tient : $(grep -c "SOURCE NOMMÉE SANS PAGE" "$CUR/temoin_attr_$(basename "$f" .docx).txt") citation(s) prêtée(s) à un ouvrage toujours nommée(s)"
+      else
+        echo "        ↳ ✗ ㉜ A PERDU SA DENT : aucune citation prêtée à un ouvrage n'est plus signalée."
+        echo "          Ce témoin sort en 1 pour la citation de Palmer (㉖) — lis sa sortie complète."
+        STATUT=1
+      fi
+    fi
     if [[ "$(basename "$f")" == "2026-08-28_lecon-appli-ia_05.docx" ]]; then
       if grep -q "INTERDIT   8.2.2" "$CUR/temoin_attr_$(basename "$f" .docx).txt"; then
         echo "        ↳ ✓ C2 tient : « 8.2.2 près de vite.dev/guide » toujours INTERDIT"

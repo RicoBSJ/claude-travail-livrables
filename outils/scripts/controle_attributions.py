@@ -763,6 +763,55 @@ def page_fr(u):
     t_ = textes.get(u, "")
     return len(FR.findall(t_)) / max(1, len(t_.split())) >= 0.08
 a_relire_fr = 0
+hors_page = 0
+# ── ㉜ (09/10/2026) UN OUVRAGE EST UNE SOURCE NOMMEE, ET IL N'A PAS DE PAGE.
+#    Jusqu'ici source_nommee_fr() ne reconnaissait que des DOMAINES : une citation prêtée à
+#    « — Helen Palmer, The Enneagram in Love and Work » tombait donc dans la branche « aucune source
+#    nommee » et sortait en « A RELIRE », noyee parmi les consignes d'exercice et les paroles de
+#    vignettes. CAS REELS, tous du 09/10/2026, tous sur le parcours Ennéagramme : la leçon n°06 citait
+#    QUATRE ouvrages entre guillemets, en français, sans qu'aucun texte ait été ouvert (Riso & Hudson,
+#    Naranjo, Palmer, Maitri) et le contrôle n'en signalait qu'UN comme bloquant — le seul à côté
+#    duquel un domaine était nommé ; la n°05 et la n°03 en portaient une chacune, non signalées pour
+#    la même raison. Un défaut sur six visible, parce que cinq attributions désignaient un livre et
+#    non un site.
+#    CE QUE LA PASSE FAIT MAINTENANT : elle reconnaît « — Auteur, Titre » comme une SOURCE NOMMEE
+#    SANS PAGE, et le dit dans une rubrique à elle, avec le nom de la source. Elle n'est pas bloquante :
+#    une citation d'ouvrage n'est pas vérifiable par cet outil, et l'exiger reviendrait à interdire de
+#    citer un livre. Ce qui est attendu, c'est une DECLARATION — « reformulation », « non citée »,
+#    « non consulté », « d'après », « synthèse » —, convention posée par les quatre corrections du
+#    09/10/2026. Déclarée, la citation sort en OK ; non déclarée, elle est listée nommément.
+#    PRECISION MESUREE le 09/10/2026 sur les 293 documents du dépôt : 8 détections, toutes réelles
+#    (3 ouvrages, 3 articles de revue, 2 sites dont la page n'est pas listée), et 0 sur les quatre
+#    leçons corrigées le même jour, contre 5 sur leurs copies d'avant correction. Le filtre qui donne
+#    cette précision est le RETRAIT des sources dont un domaine est listé : celles-là relèvent de ㉖.
+OUVRAGE_ = re.compile(r"[\u2014\u2013]\s*(?:(?:reformulation\s+)?d['\u2019]apr\u00e8s\s+)?"
+                      r"((?:[A-Z\u00c9\u00c8\u00c0\u00c2\u00ce\u00d4\u00db][\w\u00c0-\u00ff'\u2019.\-]*\s*){1,6}"
+                      r"(?:&\s*[A-Z\u00c9\u00c8\u00c0][\w\u00c0-\u00ff'\u2019.\-]*\s*){0,3}),\s*\u00ab?\s*"
+                      r"((?:[A-Z\u00c9\u00c8\u00c0\u00c2\u00ce\u00d4\u00db][\w\u00c0-\u00ff'\u2019.\-]*"
+                      r"(?:\s+(?:of|the|in|and|et|de|du|des|la|le|les)\b)?\s*){2,10})")
+DECLARE_ = re.compile(r"(?i)reformulation|non cit[\u00e9e]|non consult|synth[\u00e8e]se|paraphrase"
+                      r"|traduction libre|lecture de la le[\u00e7c]on|ne figure|absente")
+# les troncons des domaines LISTES : « enneagraminstitute », « lionsroar », « iapp »… Une « source »
+# qui les contient est un SITE, pas un ouvrage, et c'est ㉖ qui en repond.
+STEMS_ = set()
+for _d in doms_res | {sans_www(d_) for d_ in re.findall(r"[\w.-]+\.(?:com|org|net|fr|eu|lu|gov|edu|uk|be|ch|ca|io|se)\b", corps, re.I)}:
+    for _p in _d.split("."):
+        if len(_p) >= 4 and _p not in ("http", "https", "www"): STEMS_.add(cle_texte(_p))
+def source_hors_page(c):
+    """(auteur, titre, declaree) si la citation est pretee a une source nommee SANS page listee."""
+    i = corps.find(c)
+    if i < 0: return None
+    apres = corps[i + len(c):i + len(c) + 240]
+    if re.search(r"[\w.-]+\.(?:com|org|net|fr|eu|lu|gov|edu|uk|be|ch|ca|io|se)\b", apres[:140], re.I):
+        return None                                  # un domaine est nomme : c'est ㉖ qui tranche
+    mo = OUVRAGE_.search(apres)
+    if not mo: return None
+    aut, tit = mo.group(1).strip(), mo.group(2).strip()
+    if len(tit.split()) < 2: return None
+    blob = cle_texte(aut + tit)
+    if any(st in blob for st in STEMS_): return None  # le « titre » designe un site LISTE : ㉖ aussi
+    ctx = corps[max(0, i - 220):i + len(c) + 280]
+    return (aut, tit, bool(DECLARE_.search(ctx)))
 print("\nB-FR. CITATIONS FRANCAISES ENTRE GUILLEMETS (9 lettres ou plus ; sans source nommee, 4 mots ou plus) : %d" % len(cits_fr))
 if os.environ.get("DEBUG"):
     for c in sorted(cits_fr): print("   [debug] %r -> nommes %s" % (c[:60], sorted(cits_fr[c])))
@@ -770,6 +819,18 @@ for c in sorted(cits_fr):
     nommes = cits_fr[c]
     trouvees = ou_trouve_toutes(c)
     if not nommes:
+        hp = source_hors_page(c)
+        if hp and not trouvees:
+            aut_, tit_, decl_ = hp
+            if decl_:
+                print("   OK      %s\n             -> prêtée à %s, %s — source nommée SANS page, et la citation est DÉCLARÉE non littérale (㉜)"
+                      % (c[:76], aut_, tit_))
+            else:
+                hors_page += 1
+                print("   SOURCE NOMMÉE SANS PAGE %s\n             -> prêtée à %s, %s — ni page listée ni déclaration : cet outil ne peut pas"
+                      "\n                la vérifier. Ouvre la source et cite-la, ou déclare la reformulation (㉜)"
+                      % (c[:76], aut_, tit_))
+            continue
         if len(c.split()) < 4:
             continue                     # un terme entre guillemets sans source nommee (« saupoudrage ») n'est pas une citation a chercher
         if trouvees:
@@ -1092,11 +1153,12 @@ if non_lues:
     print(">>> PAGES NON LUES (0 octet) : %d — %s" % (len(non_lues), "; ".join(non_lues)))
     print(">>> Rien n'a pu etre verifie sur elles : relance plus tard, ou verifie a la main.")
 pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + len(sans_cible) + len(liens_morts) + ko_b + ko_nom + ko_c2
-print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + A6 + B + B-FR + B-NOM + C2)%s%s%s%s"
+print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + A6 + B + B-FR + B-NOM + C2)%s%s%s%s%s"
       % (pb, " — et %d verification(s) IMPOSSIBLE(S), pages non lues ou PDF" % non_verif if non_verif else "",
          " — et %d citation(s) francaise(s) A RELIRE (non bloquant)" % a_relire_fr if a_relire_fr else "",
          " — et %d attribution(s) sans guillemets A RELIRE (non bloquant)" % a_relire_nom if a_relire_nom else "",
-         " — et %d citation(s) reprise(s) nue(s) A RELIRE (㉚, non bloquant)" % a_relire_b if a_relire_b else ""))
+         " — et %d citation(s) reprise(s) nue(s) A RELIRE (㉚, non bloquant)" % a_relire_b if a_relire_b else "",
+         " — et %d citation(s) prêtée(s) à une SOURCE NOMMÉE SANS PAGE, non déclarée(s) (㉜, non bloquant)" % hors_page if hors_page else ""))
 print("          %d valeur(s) chiffree(s) a relire en D — a la main, D n'est pas bloquant"
       % ko_d)
 sys.exit(1 if pb else (3 if non_verif else 0))
