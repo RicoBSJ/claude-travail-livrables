@@ -284,7 +284,7 @@ if [ "$MODE" = "--complet" ]; then
     echo "  ✓ $AVANT_N/$ATTENDU_AVANT témoin(s) d'avant correction contrôlé(s)"
   fi
 
-  # ── 5 ter. LES DEUX ÉTAPES 5 BIS SORTIES DES PROMPTS (08/10/2026) ───────────
+  # ── 5 ter. LES TROIS ÉTAPES 5 BIS SORTIES DES PROMPTS (08 et 09/10/2026) ────
   # `controle_astrologie_karmique.py` (7 motifs) et `controle_psychopathologie.py`
   # (4 motifs) étaient inlinés dans leurs prompts — 12 398 et 5 520 octets réémis à
   # chaque tour. Sortis le 08/10/2026, ils sont devenus des scripts du dépôt que
@@ -299,19 +299,35 @@ if [ "$MODE" = "--complet" ]; then
   # « Centre » pour « Center ») et l'étiquette de section « Citation ». Figer un de ces
   # refus comme témoin inscrirait le bug dans le harnais, qui échouerait le jour où on le
   # corrige. La mutation ne prouve qu'une chose, et c'est la bonne : le test mord.
-  # ⚠️ EN --complet SEULEMENT : ces deux scripts rouvrent CHAQUE page listée du document
-  # (dix pour la leçon d'astrologie, dont quatre fiches du MPC de 600 000 à 900 000
-  # caractères). En --docs, qui est la porte des pushs de job et doit rester en secondes,
-  # ils n'ont rien à faire.
+  # ⚠️ EN --complet SEULEMENT : ces scripts rouvrent CHAQUE page listée du document (dix
+  # pour la leçon d'astrologie, dont quatre fiches du MPC de 600 000 à 900 000 caractères ;
+  # douze pour la veille ai-act, en 5 s). En --docs, qui est la porte des pushs de job et
+  # doit rester en secondes, ils n'ont rien à faire.
+  # 🆕 09/10/2026 — TROISIÈME DUO : controle_ai_act.py (11 motifs, 12 303 octets), sorti du
+  # prompt d'ai-act-veille le même jour. Sa mutation est « alerte » : un paragraphe
+  # « 🟢 Niveau d'alerte : VERT » injecté dans une note qui annonce des faits marquants,
+  # ce qui déclenche son motif (6) — le seul des onze qui ne coûte AUCUN appel réseau.
+  # ⚠️ ET CE CÂBLAGE A RÉVÉLÉ UN BUG DE muter_docx.py, resté invisible depuis le 08/10 :
+  # sa branche « document portant un journal des corrections » insérait la mutation entre
+  # <w:p> et <w:pPr> du paragraphe du titre, qui n'était alors plus un <w:p>…</w:p>
+  # complet ; plus aucun paragraphe ne contenait « Journal des corrections », et le
+  # contrôle lisait tout le journal. Le mutant restait un XML valide, donc rien ne le
+  # disait, et le témoin d'astrologie n°09 — qui porte un journal — passait depuis deux
+  # jours sur un document malformé. Corrigé : on repère le SPAN du paragraphe, et
+  # muter_docx.py vérifie désormais l'XML, l'équilibre des <w:p> et la position de la
+  # mutation avant le journal.
   echo "▶ Étapes 5 bis du dépôt (témoin conforme en 0, mutation en 1)…"
-  ATTENDU_5BIS=2
+  ATTENDU_5BIS=3
   CB_N=0
   MUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/nr5bis.XXXXXX")
+  # Le chemin du témoin est relatif à la racine du dépôt : le troisième duo est une VEILLE,
+  # pas une leçon, et l'ancien préfixe livrables/lecons/ était codé en dur (09/10/2026).
   for duo in \
-    "controle_astrologie_karmique.py|astrologie-karmique/2026-10-01_lecon-astrologie-karmique_09_chiron-corps-reel-blessure-symbolique.docx|ligature" \
-    "controle_psychopathologie.py|psychopathologie/2026-10-05_lecon-psychopathologie_19_ethique-consentement-contrainte-sante-mentale.docx|fraction"; do
+    "controle_astrologie_karmique.py|livrables/lecons/astrologie-karmique/2026-10-01_lecon-astrologie-karmique_09_chiron-corps-reel-blessure-symbolique.docx|ligature" \
+    "controle_psychopathologie.py|livrables/lecons/psychopathologie/2026-10-05_lecon-psychopathologie_19_ethique-consentement-contrainte-sante-mentale.docx|fraction" \
+    "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|alerte"; do
     SC="${duo%%|*}"; RESTE="${duo#*|}"; REL="${RESTE%%|*}"; MOTIF="${RESTE##*|}"
-    DOC="$ROOT/livrables/lecons/$REL"
+    DOC="$ROOT/$REL"
     if [ ! -f "$DOC" ] || [ ! -f "$ROOT/outils/scripts/$SC" ]; then
       echo "  ✗ $SC : témoin ou script introuvable ($REL) — rétablis-le, ou mets ce bloc à jour."
       STATUT=1; continue

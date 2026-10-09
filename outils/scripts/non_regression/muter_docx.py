@@ -23,12 +23,20 @@ Motifs :
               → doit déclencher le motif ① de controle_astrologie_karmique.py
   fraction  — injecte « Selon la HAS, un tiers des personnes … » sans effectif ni %
               → doit déclencher le motif (2) de controle_psychopathologie.py
+  alerte    — injecte un paragraphe « 🟢 Niveau d'alerte : VERT … » dans une note qui
+              annonce des faits marquants (ajouté le 09/10/2026, en sortant
+              controle_ai_act.py de son prompt)
+              → doit déclencher le motif (6) de controle_ai_act.py. Ce motif ne coûte
+                AUCUN appel réseau : la mutation se juge sur le document seul, même si
+                le reste du script, lui, rouvre les pages de la note.
 """
 import re, sys, zipfile
+import xml.etree.ElementTree as ET
 
 TEXTES = {
     "ligature": "Le Noeud Nord est ici cité sans sa ligature, hors de toute adresse web.",
     "fraction": "Selon la HAS, un tiers des personnes concernées ne sont pas informées de leurs droits.",
+    "alerte": "\U0001F7E2  Niveau d'alerte : VERT — paragraphe de mutation, injecté par le harnais.",
 }
 
 def main():
@@ -53,11 +61,22 @@ def main():
         sys.exit("sectPr introuvable dans %s" % src)
     j = x.find("Journal des corrections")
     if 0 <= j < i:
-        # le document porte un journal : on insère AVANT lui, sinon la mutation est ignorée
-        k = x.rfind("<w:p", 0, j)
-        if k < 0:
+        # Le document porte un journal : on insère AVANT lui, sinon la mutation est ignorée
+        # (les contrôles coupent à « Journal des corrections »).
+        # ⚠️ CORRIGÉ LE 09/10/2026. La première version faisait x.rfind("<w:p", 0, j), ce qui
+        # tombait sur le <w:pPr> DU paragraphe du journal : la mutation s'insérait ENTRE <w:p>
+        # et <w:pPr>, le paragraphe du titre n'était plus un <w:p>…</w:p> complet, aucun
+        # paragraphe ne contenait plus « Journal des corrections » — et le contrôle lisait
+        # tout le journal. Le mutant restait un XML valide, donc rien ne le signalait. La
+        # branche tournait depuis le 08/10 sur le témoin d'astrologie n°09, qui porte un
+        # journal ; son exit 1 venait du bon motif, mais le document était malformé.
+        # On repère désormais le SPAN du paragraphe qui contient le texte, et on insère à son
+        # début.
+        spans = [(m.start(), m.end()) for m in re.finditer(r"<w:p(?:\s[^>]*)?>.*?</w:p>", x, re.S)]
+        debut = [a for a, b in spans if a <= j < b]
+        if not debut:
             sys.exit("impossible de placer la mutation avant le journal de %s" % src)
-        i = k
+        i = debut[0]
     x = x[:i] + para + x[i:]
     with zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED) as out:
         for it in z.infolist():
@@ -66,6 +85,21 @@ def main():
     bad = zipfile.ZipFile(dst).testzip()
     if bad:
         sys.exit("archive mutée invalide : %s" % bad)
+    # Le mutant doit rester un document VALIDE : un refus obtenu sur un XML cassé ne prouve
+    # pas que le contrôle mord, il prouve qu'il trébuche. (Ajouté le 09/10/2026, après le
+    # bug ci-dessus, qui produisait un <w:p> imbriqué sans que rien ne le dise.)
+    xm = zipfile.ZipFile(dst).read("word/document.xml").decode("utf-8")
+    try:
+        ET.fromstring(xm)
+    except Exception as e:
+        sys.exit("XML du mutant non conforme : %s" % e)
+    ouvre = len(re.findall(r"<w:p(?:\s[^>]*)?>", xm))
+    ferme = xm.count("</w:p>")
+    if ouvre != ferme:
+        sys.exit("mutant déséquilibré : %d <w:p> pour %d </w:p>" % (ouvre, ferme))
+    jj = xm.find("Journal des corrections")
+    if jj >= 0 and xm.find(txt) > jj:
+        sys.exit("la mutation est tombée APRÈS le journal des corrections : elle serait ignorée")
     print("mutation « %s » injectée : %s" % (motif, dst))
 
 main()

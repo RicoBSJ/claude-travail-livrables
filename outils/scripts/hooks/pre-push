@@ -18,7 +18,7 @@
 # défectueux n'est pas publié, le log du job dit pourquoi (run_job.sh retente trois fois puis abandonne).
 # Règle de JOBS.md (12/09/2026), rendue exécutable.
 ROOT="$(git rev-parse --show-toplevel)"
-SURVEILLES='^outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push|controle_astrologie_karmique\.py|controle_psychopathologie\.py|non_regression/muter_docx\.py)$'
+SURVEILLES='^outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push|controle_astrologie_karmique\.py|controle_psychopathologie\.py|controle_ai_act\.py|non_regression/muter_docx\.py)$'
 ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'
 # (2 bis) LES DEUX ÉTAPES 5 BIS SORTIES DES PROMPTS LE 08/10/2026 et leur fabricant de
 # mutations → non_regression.sh --complet, parce que c'est LÀ que vivent leurs témoins
@@ -27,7 +27,7 @@ ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'
 # normal — 90 s qui ne les exécutent pas — et une étape 5 bis cassée partait sur le dépôt
 # sans que rien ne le dise. Vérifié au harnais le 08/10/2026 : motif ① neutralisé →
 # « ✗ LE CONTRÔLE NE MORD PLUS », exit 1 ; script restauré, sha256 identique.
-CINQBIS='^outils/scripts/(controle_astrologie_karmique\.py|controle_psychopathologie\.py|non_regression/muter_docx\.py)$'
+CINQBIS='^outils/scripts/(controle_astrologie_karmique\.py|controle_psychopathologie\.py|controle_ai_act\.py|non_regression/muter_docx\.py)$'
 # (3) LE RUNNER modifié → non_regression_runner.sh --mutations (auto-tests du juge, 14 scénarios de décision, PUIS dix-huit
 #     mutations du runner qui vérifient que ces témoins tombent quand on le casse exprès, ≈ 30 s,
 # sans réseau). run_job.sh décide ce qui est retenté et ce qui est publié pour les 14 jobs ;
