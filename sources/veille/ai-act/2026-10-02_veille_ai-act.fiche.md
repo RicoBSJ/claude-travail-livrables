@@ -48,6 +48,8 @@ Document source : [[2026-10-02_veille_ai-act.docx]]
 
 - **⬅️ Précédente** · [[2026-09-25_veille_ai-act.fiche]]
   dont la fiche a été écrite le **03/10/2026**, après celle-ci — et sa relecture a trouvé le défaut ③ de cette note, par comparaison des deux éditions : 16 208 d'un côté, 255 638 de l'autre, pour la même page. La note du 02/10 s'y adosse explicitement (« Aucune nouveauté significative depuis le CR du 25 septembre 2026 ») : **une semaine creuse qui se réfère à une édition non relue**
+- **➡️ Suivante** · [[2026-10-09_veille_ai-act.fiche]]
+  l'édition qui **tient son plafond** (69 %) et ne relève rien — mais qui reconduit la réserve « non vérifié à EUR-Lex » sur le règlement **2026/1744**, alors que la Q/R CNIL citée ici comme là-bas en porte le numéro dans un `href`, la date d'adoption et l'entrée en vigueur
 - **🔗 Pont** · [[2026-09-29_lecon-hypnose_16_resistances-echecs-non-repondeurs]]
   **l'incident inverse, et la règle qui a servi ici.** Le 29/09, `hypnose-lecon` est mort après avoir écrit sa leçon, et son rattrapage s'est arrêté sur le doublon en deux tours, a rendu `exit 0` et **a publié un livrable que personne n'avait vérifié**. D'où la mémoire d'échec sur disque et le `exit 7` en dessous de sept tours. Ici la marque était posée, rien n'a été publié, et le rattrapage a été une relecture — pas une relance
 - **🔗 Pont** · [[2026-10-01_lecon-astrologie-karmique_09_chiron-corps-reel-blessure-symbolique]]
