@@ -284,7 +284,7 @@ if [ "$MODE" = "--complet" ]; then
     echo "  ✓ $AVANT_N/$ATTENDU_AVANT témoin(s) d'avant correction contrôlé(s)"
   fi
 
-  # ── 5 ter. LES TROIS ÉTAPES 5 BIS SORTIES DES PROMPTS (08 et 09/10/2026) ────
+  # ── 5 ter. LES TROIS ÉTAPES 5 BIS SORTIES DES PROMPTS — QUATRE DUOS ─────────
   # `controle_astrologie_karmique.py` (7 motifs) et `controle_psychopathologie.py`
   # (4 motifs) étaient inlinés dans leurs prompts — 12 398 et 5 520 octets réémis à
   # chaque tour. Sortis le 08/10/2026, ils sont devenus des scripts du dépôt que
@@ -293,12 +293,21 @@ if [ "$MODE" = "--complet" ]; then
   #   • un témoin CONFORME doit sortir en 0 (le contrôle laisse passer ce qui est juste) ;
   #   • une MUTATION du même document, fabriquée par muter_docx.py et détruite après,
   #     doit sortir en 1 (le contrôle mord encore).
-  # ⚠️ POURQUOI UNE MUTATION ET PAS UN TÉMOIN FIGÉ DE REFUS : les seuls documents que
-  # controle_astrologie_karmique.py refuse aujourd'hui le font sur SIX FAUX POSITIFS du
-  # motif ⑤ — des exonymes français (« Cérès » pour « Ceres », « Alger » pour « Algiers »,
-  # « Centre » pour « Center ») et l'étiquette de section « Citation ». Figer un de ces
-  # refus comme témoin inscrirait le bug dans le harnais, qui échouerait le jour où on le
-  # corrige. La mutation ne prouve qu'une chose, et c'est la bonne : le test mord.
+  # ⚠️ POURQUOI UNE MUTATION ET PAS UN TÉMOIN FIGÉ DE REFUS. Au 08/10/2026, les seuls
+  # documents que controle_astrologie_karmique.py refusait le faisaient sur SIX FAUX POSITIFS
+  # du motif ⑤ — des exonymes français (« Cérès » pour « Ceres », « Alger » pour « Algiers »,
+  # « Centre » pour « Center ») et l'étiquette de section « Citation » ; figer un de ces refus
+  # aurait inscrit le bug dans le harnais, qui aurait échoué le jour de sa correction. 🟢 CE
+  # JOUR EST ARRIVÉ LE 09/10/2026 : le correctif du prompt `stoicisme` a été porté, les six
+  # faux positifs ont disparu, et la leçon n°10 sort désormais en 0. Le raisonnement ci-dessus
+  # est donc HISTORIQUE — mais la mutation reste le bon instrument, pour une autre raison : un
+  # témoin figé de refus prouve qu'un contrôle refuse encore un document DONNÉ, la mutation
+  # prouve qu'il refuse encore une FAUTE, et c'est elle qui survit à une correction du document.
+  # ⚠️ ET LA MUTATION DOIT TOMBER LÀ OÙ LE MOTIF REGARDE. Le motif ⑤ n'examine que les
+  # paragraphes qui portent un lien dont la page répond 200 : un paragraphe AJOUTÉ en fin de
+  # document ne l'atteint jamais. D'où le motif « nompropre », qui MODIFIE le premier paragraphe
+  # à la fois lié et porteur d'un marqueur de source. Mesuré le 09/10/2026 : il sort en 1 sur le
+  # seul motif ⑤.
   # ⚠️ EN --complet SEULEMENT : ces scripts rouvrent CHAQUE page listée du document (dix
   # pour la leçon d'astrologie, dont quatre fiches du MPC de 600 000 à 900 000 caractères ;
   # douze pour la veille ai-act, en 5 s). En --docs, qui est la porte des pushs de job et
@@ -317,7 +326,17 @@ if [ "$MODE" = "--complet" ]; then
   # muter_docx.py vérifie désormais l'XML, l'équilibre des <w:p> et la position de la
   # mutation avant le journal.
   echo "▶ Étapes 5 bis du dépôt (témoin conforme en 0, mutation en 1)…"
-  ATTENDU_5BIS=3
+  # Quatre duos pour trois scripts : l'astrologie en a DEUX, et SUR DEUX DOCUMENTS DIFFÉRENTS.
+  #   • n°09 + « ligature » → prouve que le motif ① mord ;
+  #   • n°10 + « nompropre » → prouve que le motif ⑤ mord.
+  # ⚠️ LE CHOIX DE LA n°10 N'EST PAS INDIFFÉRENT, c'est lui qui garde le correctif des exonymes
+  # dans L'AUTRE SENS. La n°10 est le document qui portait les six faux positifs du motif ⑤ ;
+  # elle sort en 0 depuis le portage du 09/10/2026, et elle est la SEULE chose du dépôt qui
+  # retomberait en 1 si quelqu'un défaisait sa (sa(), EXO_, STRUCT_). Une mutation prouve qu'un
+  # contrôle MORD ; un témoin conforme bien choisi prouve qu'il NE MORD PAS À TORT — il fallait
+  # les deux, et c'est pourquoi ce duo-là ne réutilise pas le témoin de « ligature ».
+  # Coût : 11 s par passage du contrôle astro, mesuré — négligeable sur un --complet de 7 min.
+  ATTENDU_5BIS=4
   CB_N=0
   MUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/nr5bis.XXXXXX")
   # Le chemin du témoin est relatif à la racine du dépôt : le troisième duo est une VEILLE,
@@ -325,7 +344,8 @@ if [ "$MODE" = "--complet" ]; then
   for duo in \
     "controle_astrologie_karmique.py|livrables/lecons/astrologie-karmique/2026-10-01_lecon-astrologie-karmique_09_chiron-corps-reel-blessure-symbolique.docx|ligature" \
     "controle_psychopathologie.py|livrables/lecons/psychopathologie/2026-10-05_lecon-psychopathologie_19_ethique-consentement-contrainte-sante-mentale.docx|fraction" \
-    "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|alerte"; do
+    "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|alerte" \
+    "controle_astrologie_karmique.py|livrables/lecons/astrologie-karmique/2026-10-08_lecon-astrologie-karmique_10_lilith-points-fictifs-statut-objets.docx|nompropre"; do
     SC="${duo%%|*}"; RESTE="${duo#*|}"; REL="${RESTE%%|*}"; MOTIF="${RESTE##*|}"
     DOC="$ROOT/$REL"
     if [ ! -f "$DOC" ] || [ ! -f "$ROOT/outils/scripts/$SC" ]; then

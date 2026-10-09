@@ -27,7 +27,7 @@ import sys
 if len(sys.argv) < 2:
     sys.exit("usage : controle_astrologie_karmique.py <chemin du .docx>")
 
-import zipfile, re, sys, html, subprocess
+import zipfile, re, sys, html, subprocess, unicodedata
 p = sys.argv[1]
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
 SIGNES = {"Bélier":0, "Taureau":30, "Gémeaux":60, "Cancer":90, "Lion":120, "Vierge":150, "Balance":180,
@@ -137,6 +137,32 @@ for i, t in enumerate(T[:n_fin]):
         if norm4(ph) in norm4(" ".join(page(u) for u in lus4)): continue
         print("④ CITATION COURTE HORS PAGE (¶%d) : « %s »" % (i, ph)); pb.append("¶%d cit. %s" % (i, ph[:26]))
 
+# ─── CORRECTIF DU MOTIF ⑤, PORTÉ DU PROMPT `stoicisme` LE 09/10/2026 ────────
+# Le motif ⑤ comparait « nom.lower() in page.lower() » : ni pliage des accents, ni exonymes, et
+# ses mots de structure vivaient dans un STOP sensible à la casse ET aux accents. SIX FAUX
+# POSITIFS mesurés le 09/10/2026 sur la leçon n°10 du 08/10 — le correctif existait depuis le
+# 01/10/2026 dans le prompt `stoicisme` (sa(), FREN_/formes_(), STRUCT_) et n'avait jamais été
+# porté : trois parcours portaient trois états du même code. Un test qui accuse à tort fait
+# retirer du vrai.
+def sa(s_):
+    return "".join(c for c in unicodedata.normalize("NFD", s_) if unicodedata.category(c) != "Mn").lower()
+# Exonymes : la leçon écrit le nom en français, la page le porte en anglais. CHAQUE ENTRÉE PORTE LE
+# FAUX POSITIF QUI L'A JUSTIFIÉE, mesuré le 09/10/2026 sur la n°10 :
+EXO_ = {
+    "alger":  "algiers",   # ¶73 « découvert le 11/02/1927 à Alger » ; la fiche du MPC écrit « Algiers »
+    "centre": "center",    # ¶10 « la fiche officielle du Centre des planètes mineures » ; la page écrit
+                           #     « Minor Planet Center » — c'est aussi l'orthographe du domaine
+}
+def formes_(w):
+    b = sa(w).strip("'’"); b = re.sub(r"^[a-z]['’]", "", b)      # « L'Observatoire » → « observatoire »
+    return {b, EXO_.get(b, b)}
+# Mots de STRUCTURE du document : des intitulés de rubrique, pas des noms prêtés à une source.
+# ¶18 « Citation directe : "The Moon's center-to-center…" » — « Citation » était accusé d'être absent
+# d'une page de la NASA qui n'a aucune raison de porter ce mot français.
+STRUCT_ = {"citation", "citations", "encadre", "tableau", "figure", "annexe", "legende", "rubrique",
+           "intitule", "paragraphe", "colonne", "ligne", "etape", "partie", "chapitre", "extrait",
+           "traduction", "edition", "consigne", "format", "duree", "journal", "pont", "bilan",
+           "synthese", "rappel", "corrige", "methode", "exemple", "remarque", "reserve", "verdict"}
 # ─── ⑤ NOM PROPRE D'UN ¶ QUI DÉSIGNE SA SOURCE ─────────────────────────────
 SRC = r"(?i)\bsource\s*:|\bétabli\b|page citée|\bd['’]après\b|\bselon\b"
 STOP = set("""Chiron Chiron's Centaure Centaures Régime Régimes Nœud Nœuds Leçon Objectif Source Sources
@@ -145,6 +171,10 @@ Gémeaux Cancer Lion Vierge Balance Scorpion Sagittaire Capricorne Poissons Cont
 Elle Cette Avant Après Depuis Chez Pour Avec Sans Mais Donc Distant HTTP ISBN Attribution Système
 Astronomie Astrologie Observatoire Statut Fait Lecture Retour Classification Présence Double Zone"""
            .split())
+# STOP vivait en casse et accents bruts : on le plie une fois pour toutes, et STRUCT_ le complète.
+# (⚠️ cette ligne doit rester APRÈS la définition de STOP : placée avant, elle lève un NameError —
+#  constaté le 09/10/2026 en portant le correctif, sur les dix leçons du parcours d'un coup.)
+STOP_ = {sa(w) for w in STOP} | STRUCT_
 T5 = []
 ABSENCE = (r"(?i)z[ée]ro occurrence|0 occurrence|ne porte ni|n['’]y figure|ne figure (?:pas|sur aucune)"
            r"|compt(?:e|ent) z[ée]ro|absent|impossible|n['’]a pas été consult|non consult|ne mentionne"
@@ -167,15 +197,15 @@ for i, t in enumerate(T[:n_fin]):
         # est un nom commun français capitalisé en tête de phrase. ⚠️ NE PAS utiliser MOTS_FR ici : il est
         # construit sur la prose .lower(), il contient donc TOUS les noms propres et exempterait tout
         # (constaté le 01/10/2026 : ⑤ est passé à 0 nom testé sur les neuf leçons).
-        if nom in STOP or nom.lower() in MINUSCULES: continue
-        if nom.lower() in dom: continue                                  # le nom de la source elle-même
+        if sa(nom) in STOP_ or nom.lower() in MINUSCULES: continue
+        if any(f in sa(dom) for f in formes_(nom)): continue             # le nom de la source elle-même
         # ⚠️ le ¶ DÉCLARE lui-même le décompte : « Schulman=0, Spiller=0, Greene=0 » (n°08 du 24/09/2026,
         # la leçon la mieux sourcée du parcours — ⑤ l'accusait de dire que ces noms manquent)
         if re.search(r"\b%s\s*=\s*0\b" % re.escape(nom), t): continue
         # ⚠️ le nom est SUIVI de son adresse : « Tristan Balguerie (astrologie-autrement.com/…) » (n°07)
         if re.search(r"\b%s\b.{0,60}?[\w.-]+\.(?:com|org|net|fr|gov|edu|uk)/" % re.escape(nom), t): continue
         T5.append((i, nom))
-        if nom.lower() in pg: continue
+        if any(f in sa(pg) for f in formes_(nom)): continue
         print("⑤ NOM PROPRE HORS SOURCE (¶%d) : « %s »" % (i, nom)); pb.append("¶%d nom %s" % (i, nom))
 
 # ─── ⑥ UNE FAÇADE QUI RÉPOND 200 NE PORTE RIEN ─────────────────────────────

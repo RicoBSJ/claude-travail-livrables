@@ -23,6 +23,15 @@ Motifs :
               → doit déclencher le motif ① de controle_astrologie_karmique.py
   fraction  — injecte « Selon la HAS, un tiers des personnes … » sans effectif ni %
               → doit déclencher le motif (2) de controle_psychopathologie.py
+  nompropre — ⚠️ MOTIF D'UN AUTRE GENRE : il ne JOINT pas un paragraphe, il MODIFIE le premier
+              paragraphe qui porte à la fois un lien et un marqueur de source, en y glissant un
+              nom propre inventé (ajouté le 09/10/2026, en portant le correctif du motif ⑤ de
+              controle_astrologie_karmique.py)
+              → doit déclencher le motif ⑤ de controle_astrologie_karmique.py.
+                Un paragraphe AJOUTÉ en fin de document n'aurait pas suffi : ⑤ ne regarde que les
+                paragraphes qui portent un lien (« if not LIENS[i]: continue ») et dont la page
+                répond 200 avec au moins 500 caractères. Une mutation doit tomber LÀ OÙ LE MOTIF
+                REGARDE, sinon elle ne prouve rien.
   alerte    — injecte un paragraphe « 🟢 Niveau d'alerte : VERT … » dans une note qui
               annonce des faits marquants (ajouté le 09/10/2026, en sortant
               controle_ai_act.py de son prompt)
@@ -30,7 +39,7 @@ Motifs :
                 AUCUN appel réseau : la mutation se juge sur le document seul, même si
                 le reste du script, lui, rouvre les pages de la note.
 """
-import re, sys, zipfile
+import re, sys, zipfile, html
 import xml.etree.ElementTree as ET
 
 TEXTES = {
@@ -38,15 +47,60 @@ TEXTES = {
     "fraction": "Selon la HAS, un tiers des personnes concernées ne sont pas informées de leurs droits.",
     "alerte": "\U0001F7E2  Niveau d'alerte : VERT — paragraphe de mutation, injecté par le harnais.",
 }
+# Mutations qui s'insèrent DANS un paragraphe existant, et non en fin de document.
+DEDANS = {
+    # « Zorblax » n'est sur aucune page du web consultée par le contrôle, n'est pas un mot de la prose
+    # française de la leçon, n'est dans aucun domaine cité, et ne ressemble à aucun exonyme : il ne peut
+    # être exempté par aucune des gardes du motif ⑤. Le marqueur « Selon » est là pour que la phrase
+    # attribue, puisque c'est la condition d'examen du motif.
+    "nompropre": " Selon Zorblax, ce relevé est confirmé.",
+}
 
 def main():
     if len(sys.argv) != 4:
         sys.exit("usage : muter_docx.py <source.docx> <destination.docx> <%s>" % "|".join(TEXTES))
     src, dst, motif = sys.argv[1:4]
-    if motif not in TEXTES:
-        sys.exit("motif inconnu : %s (connus : %s)" % (motif, ", ".join(TEXTES)))
+    if motif not in TEXTES and motif not in DEDANS:
+        sys.exit("motif inconnu : %s (connus : %s)" % (motif, ", ".join(list(TEXTES) + list(DEDANS))))
     z = zipfile.ZipFile(src)
     x = z.read("word/document.xml").decode("utf-8")
+    if motif in DEDANS:
+        # On cherche le premier paragraphe qui porte un lien ET un marqueur de source : c'est la seule
+        # zone que le motif ⑤ examine. On y ajoute un run APRÈS le dernier, donc hors de l'hyperlien —
+        # le motif lit le texte « hors lien » du paragraphe.
+        rels_ = dict(re.findall(r'Id="([^"]+)"[^>]*Target="(https?://[^"]+)"',
+                                z.read("word/_rels/document.xml.rels").decode("utf-8")))
+        SRC_ = r"(?i)\bsource\s*:|\bétabli\b|page citée|\bd['’]après\b|\bselon\b"
+        spans = [(m.start(), m.end()) for m in re.finditer(r"<w:p(?:\s[^>]*)?>.*?</w:p>", x, re.S)]
+        jj = x.find("Journal des corrections")
+        cible = None
+        for a_, b_ in spans:
+            if 0 <= jj < a_: break
+            q_ = x[a_:b_]
+            if not [r for r in re.findall(r'r:id="([^"]+)"', q_) if r in rels_]: continue
+            txt_ = html.unescape("".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", q_)))
+            if re.search(SRC_, txt_): cible = (a_, b_); break
+        if cible is None:
+            sys.exit("aucun paragraphe à la fois lié et porteur d'un marqueur de source dans %s" % src)
+        a_, b_ = cible
+        txt = (DEDANS[motif].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                            .replace("'", "&apos;"))
+        run = ('<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:cs="Times New Roman" '
+               'w:hAnsi="Times New Roman"/><w:sz w:val="22"/></w:rPr><w:t xml:space="preserve">'
+               + txt + '</w:t></w:r>')
+        q_ = x[a_:b_]
+        k_ = q_.rfind("</w:p>")
+        x = x[:a_] + q_[:k_] + run + "</w:p>" + x[b_:]
+        with zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED) as out:
+            for it in z.infolist():
+                data = x.encode("utf-8") if it.filename == "word/document.xml" else z.read(it.filename)
+                out.writestr(it, data)
+        xm = zipfile.ZipFile(dst).read("word/document.xml").decode("utf-8")
+        ET.fromstring(xm)
+        if len(re.findall(r"<w:p(?:\s[^>]*)?>", xm)) != xm.count("</w:p>"):
+            sys.exit("mutant déséquilibré")
+        print("mutation « %s » insérée dans un paragraphe sourcé : %s" % (motif, dst))
+        return
     font = ('<w:rFonts w:ascii="Times New Roman" w:cs="Times New Roman" '
             'w:hAnsi="Times New Roman"/>')
     txt = (TEXTES[motif].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
