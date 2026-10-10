@@ -504,10 +504,24 @@ def ou_trouve_nombre(n):
     un nombre a deux chiffres est trouve dans n'importe quelle page. Le brut est
     consulte en second : nodejs.org/en/download n'expose ses numeros de version
     que dans sa charge JavaScript (mesure du 11/09/2026)."""
-    # ㉕ (14/09/2026) l'espace du nombre (normale, insecable, fine) est neutralisee ici — re.escape ne l'echappe
-    #    plus depuis Python 3.7 — et « ,00 » / « .00 » apres le nombre ne le rendent pas absent : « 1 689,00 € »
-    #    porte bien 1 689 (consomac, note de controle du 13/09 : faux positif).
-    corps_n = re.sub(r"[ \u00a0\u202f]", "[ \u00a0\u202f]?", re.escape(n))
+    # ㉕ (14/09/2026) l'espace du nombre (normale, insecable, fine) est neutralisee ici, et « ,00 » / « .00 »
+    #    apres le nombre ne le rendent pas absent : « 1 689,00 € » porte bien 1 689 (consomac, note de
+    #    controle du 13/09 : faux positif).
+    # ⚠️ CORRIGE LE 10/10/2026 — « \\?» AJOUTE DEVANT LA CLASSE. Le commentaire d'origine affirmait que
+    #    « re.escape ne l'echappe plus depuis Python 3.7 » : c'est FAUX. La 3.7 a reduit l'ensemble des
+    #    caracteres echappes, mais elle y a GARDE l'espace — re.escape("1 782") rend « 1\\ 782 » en
+    #    Python 3.9.6, l'interpreteur du depot. La substitution inserait donc la classe APRES le
+    #    antislash et produisait « 1\\[ \u00a0\u202f]?782 », ou « \\[ » est un crochet LITTERAL : le
+    #    controle cherchait la chaine « 1[ ...]?782 », qui n'existe nulle part. Consequence : la passe D
+    #    n'a JAMAIS pu confirmer un nombre a separateur de milliers depuis le 14/09/2026, et un nombre
+    #    reellement absent sortait avec le MEME libelle qu'un nombre reellement present.
+    #    INCIDENTS MESURES : lecon placement-financier n°17 du 03/10/2026 — « 1 300 », « 19 000 »,
+    #    « 29 000 » et « 70 000 » donnes pour « absents des pages citees », les quatre presents ;
+    #    n°18 du 10/10/2026 — « 1 782 » etait la SEULE reserve du document, et elle etait fausse
+    #    (le nombre figure sur DEUX des pages listees), puis « 38 400 » et « 16 060 », reprises
+    #    litteralement de service-public.fr, s'y sont ajoutees. 108 des 293 documents du depot portent
+    #    au moins un nombre a separateur (corpus mesure le 10/10/2026 : 274 .docx).
+    corps_n = re.sub(r"\\?[ \u00a0\u202f]", "[ \u00a0\u202f]?", re.escape(n))
     motif = re.compile(r"(?<![\d.,])" + corps_n + r"(?:[.,]0+)?(?![\d.,])")
     motif_v = re.compile(r"(?<![\d.])v" + re.escape(n) + r"(?![\d.])")
     for u, r in textes.items():
@@ -1120,7 +1134,19 @@ for phrase in re.split(r"(?<=[.!?:])\s+|\n", avant_res):
         continue
     if re.search(r"\bv?\d+\.\d+\.\d+\b", phrase):
         phrase = re.sub(r"\bv?\d+\.\d+\.\d+\b", " ", phrase)   # deja traite en C
-    for m in re.finditer(r"\b\d{1,3}(?:[  ]\d{3})+\b|\b\d+[,.]\d+\b|\b\d{3,6}\b", phrase):
+    # ⚠️ CORRIGE LE 10/10/2026 — DEUX AJOUTS A CETTE LIGNE.
+    #    (a) « (?:[,.]\d+)? » : sans lui le controle TRONQUAIT le nombre qu'il allait chercher.
+    #        « 16 060,24 € » donnait le candidat « 16 060 », que la recherche bornee ne retrouvait plus
+    #        sur la page, puisque « 16 060 » y est suivi d'une virgule et d'un 24 — et « (?:[.,]0+)? »
+    #        n'absorbe que des zeros, volontairement (« 1 300,99 » n'est pas « 1 300 »). La passe
+    #        signalait donc comme absente SA PROPRE TRONCATURE. Cas reel : lecon placement-financier
+    #        n°18 corrigee le 10/10/2026, qui reprend litteralement « 38 400 € x 45 % x (158 / 170)
+    #        = 16 060,24 € » de service-public.fr — avec le seul correctif du separateur, « 38 400 »
+    #        redevenait OK et « 16 060 » restait A VERIFIER.
+    #    (b) « \u202f » : l'espace fine insecable etait absente de CETTE classe alors qu'elle est
+    #        presente dans celle de ou_trouve_nombre() — un nombre ecrit avec elle n'etait meme pas
+    #        extrait, donc jamais verifie.
+    for m in re.finditer(r"\b\d{1,3}(?:[   ]\d{3})+(?:[,.]\d+)?\b|\b\d+[,.]\d+\b|\b\d{3,6}\b", phrase):
         n = m.group(0)
         if IGNORE.match(n):                     continue
         if n in ("3000", "5173", "1024", "1000"):  continue   # ports et conversions du projet

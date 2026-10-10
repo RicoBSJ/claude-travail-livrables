@@ -73,7 +73,9 @@ ATTENDU_DEC_CONFORMES=3  # temoins_decompte_conformes/ — doivent sortir en 0.
                       # le décompte d'origine EN CHIFFRES. Il avait d'abord été écrit en lettres pour
                       # contourner le bug m3 ; ce contournement le rendait aveugle à sa propre correction.
                       # Un marqueur qui cite fidèlement est donc aussi ce qui rend le test possible.
-ATTENDU_CONFORMES=7   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (4 copies figées)
+ATTENDU_CONFORMES=8   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (5 copies figées)
+                      # 8 depuis le 10/10/2026 : 2026-10-10_lecon-placement-financier_18_passeD.docx entre
+                      # pour garder la PASSE D, qui n'est pas dans la référence et qu'aucun verdict ne protège.
                       # 4e copie figée le 09/10/2026 : la leçon Ennéagramme n°06 APRÈS correction, témoin de
                       # l'exemption de ㉜ — ses quatre citations d'ouvrages y sont DÉCLARÉES reformulations,
                       # et elle doit donc sortir en 0 SANS aucune ligne « SOURCE NOMMÉE SANS PAGE ». C'est le
@@ -254,6 +256,29 @@ if [ "$MODE" = "--complet" ]; then
     case $rc in 0) l="✓ exit 0";; 3) l="⟳ exit 3 après $ESSAIS essais — pages non lues, rien prouvé sur B : relancer --complet";; *) l="✗ exit $rc — un témoin conforme bloque : faux positif du contrôle"; STATUT=1;; esac
     [ "$ESSAIS" = "2" ] && [ "$rc" != "3" ] && l="$l (au 2e essai)"
     echo "  $l  $(basename "$f")  ($(grep -m1 '^VERDICT' "$CUR/$(basename "$f" .docx).txt" | cut -c1-80))"
+    # ⚠️ LA PASSE D N'EST PAS DANS LA RÉFÉRENCE (10/10/2026). passe_A.tsv ne stocke que le NOMBRE de
+    #    problèmes bloquants des passes A/A2/A3/A4 : une passe non bloquante est invisible au diff —
+    #    même piège que ㉜ le 09/10 et que le motif ② d'ai-act, inerte trois semaines. On exige donc
+    #    la LIGNE, dans les DEUX sens, sur ce témoin : il reprend littéralement « 1 782 € » de
+    #    lafinancepourtous.com et « 38 400 € x 45 % x (158 / 170) = 16 060,24 € » de service-public.fr,
+    #    trois nombres à SÉPARATEUR DE MILLIERS qui sont tous sur leurs pages. Le bug corrigé le
+    #    10/10/2026 les rendait tous les trois « A VERIFIER … absente des pages citees », et un nombre
+    #    réellement absent sortait avec le même libellé qu'un nombre réellement présent.
+    if [[ "$(basename "$f")" == "2026-10-10_lecon-placement-financier_18_passeD.docx" ]]; then
+      TD="$CUR/$(basename "$f" .docx).txt"
+      # le séparateur est l'une des trois espaces que le contrôle neutralise (normale, insécable, fine) :
+      # une virgule ne doit PAS compter, sinon « OK 0,625 » serait pris pour un nombre à séparateur.
+      D_OK=$(grep -cE '^ +OK +[0-9]{1,3}[   ][0-9]{3}' "$TD")
+      D_KO=$(grep -cE '^ +A VERIFIER [0-9]{1,3}[   ][0-9]{3}' "$TD")
+      if [ "$D_OK" -ge 3 ] && [ "$D_KO" = "0" ]; then
+        echo "        ↳ ✓ passe D tient : $D_OK nombre(s) à séparateur de milliers appariés, 0 donné pour absent"
+      else
+        echo "        ↳ ✗ PASSE D A PERDU SA DENT : $D_OK apparié(s) (3 attendus au minimum) et $D_KO donné(s)"
+        echo "          pour absent(s) — « 1 782 », « 38 400 » et « 16 060,24 » sont sur leurs pages."
+        echo "          Ce témoin sort en 0 de toute façon : la passe D n'est pas bloquante. Lis sa section D."
+        STATUT=1
+      fi
+    fi
   done
   if [ "$CONF_N" != "$ATTENDU_CONFORMES" ]; then
     echo "  ✗ $CONF_N témoin(s) conforme(s) contrôlé(s), $ATTENDU_CONFORMES attendu(s) — un document vivant a changé"
