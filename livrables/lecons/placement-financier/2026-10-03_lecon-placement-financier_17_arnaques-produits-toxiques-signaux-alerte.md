@@ -57,6 +57,8 @@ Document source : [[2026-10-03_lecon-placement-financier_17_arnaques-produits-to
 
 - **⬅️ Précédente** · [[2026-09-26_lecon-placement-financier_16_transmission-succession-demembrement]]
   **elle a annoncé six thèmes et les six sont tenus** — premier enchaînement du parcours où le motif ⑥ travaille sur une annonce réelle au lieu d'être inerte, et il passe. C'est aussi elle qui a fait écrire ⑥, après avoir laissé tomber le pacte Dutreil promis par la 15. La dette est remboursée dans ce sens-là ; ce que ⑥ ne regarde toujours pas, c'est la feuille de route du parcours
+- **➡️ Suivante** · [[2026-10-10_lecon-placement-financier_18_droits-retraite-reconstitution-estimation]]
+  **les sept thèmes qu'elle annonçait sont tenus et réellement traités** — deuxième enchaînement de suite où le motif ⑥ travaille sur une annonce réelle. Et le même angle mort y revient par l'autre bout : ici cinq motifs sur six inertes faute de calcul, là-bas **la seule faute de calcul est celle qu'aucun motif ne connaît** — la formule de pension, énoncée juste et appliquée amputée de son coefficient de proratisation
 - **🔗 Pont** · [[2026-10-01_lecon-stoicisme_17_stoicisme-christianisme-emprunts-divergences-posterite]]
   **le même angle mort, pris par l'autre bout.** Là-bas une leçon **sans aucune citation** rendait six passes sur dix inertes, dont B-NOM, écrite exactement pour les affirmations prêtées à une source nommée. Ici une leçon **sans aucun calcul** rend cinq motifs sur six inertes. Dans les deux cas le contrôle répond OK parce qu'il n'a rien eu à lire — et dans les deux cas c'est la forme du document, pas son contenu, qui l'a mis hors de portée
 - **🔗 Pont** · [[2026-09-28_veille_has-actualite.fiche]]
