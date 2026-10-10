@@ -32,6 +32,21 @@ Motifs :
                 paragraphes qui portent un lien (« if not LIENS[i]: continue ») et dont la page
                 répond 200 avec au moins 500 caractères. Une mutation doit tomber LÀ OÙ LE MOTIF
                 REGARDE, sinon elle ne prouve rien.
+  citation  — injecte « Le rapport cite « zorblax quantique indéterminé » sans page. »
+              (ajouté le 10/10/2026, en portant norm4 dans controle_ai_act.py)
+              → doit déclencher le motif (1) de controle_ai_act.py : une citation courte
+                qui n'est sur aucune page de la note. C'est LUI qui garde le motif après
+                l'élargissement du normaliseur : « alerte » n'exerce que le motif (6),
+                qui ne compare aucune citation.
+  typo      — ⚠️ MUTATION ATTENDUE EN EXIT 0, la seule du lot. Injecte
+              « La CNIL titre « Quels sont mes droits? » sur sa page de questions-réponses. »
+              (ajouté le 10/10/2026). La page cnil.fr que la note du 09/10 liste écrit
+              « Quels sont mes droits ? » avec une espace fine AVANT le point
+              d'interrogation — typographie française. Avant le portage de norm4, la note
+              qui la citait sans cette espace était refusée DEUX FOIS : motif (1)
+              « citation courte absente des pages » et motif ⑦ « ponctuation inventée ».
+              → le contrôle doit l'ACCEPTER. C'est le sens « il ne mord pas à tort » du
+                normaliseur, et sans lui l'élargissement n'est prouvé dans aucun sens.
   alerte    — injecte un paragraphe « 🟢 Niveau d'alerte : VERT … » dans une note qui
               annonce des faits marquants (ajouté le 09/10/2026, en sortant
               controle_ai_act.py de son prompt)
@@ -46,6 +61,14 @@ TEXTES = {
     "ligature": "Le Noeud Nord est ici cité sans sa ligature, hors de toute adresse web.",
     "fraction": "Selon la HAS, un tiers des personnes concernées ne sont pas informées de leurs droits.",
     "alerte": "\U0001F7E2  Niveau d'alerte : VERT — paragraphe de mutation, injecté par le harnais.",
+    # « zorblax quantique indéterminé » : trois mots, donc dans la fenêtre 2–5 du motif (1) ;
+    # sur aucune page du web ; et la citation ne se termine PAS par une ponctuation forte, pour
+    # que seul le motif (1) soit en cause et non ⑦. « Le rapport cite » n'est aucun des mots
+    # (édition|note|cadrage|prompt|consigne|rubrique|section) qui exemptent une citation.
+    "citation": "Le rapport cite « zorblax quantique indéterminé » sans page.",
+    # ⚠️ ATTENDUE EN EXIT 0 : la page cnil.fr listée par la note du 09/10 écrit
+    # « Quels sont mes droits ? » avec une espace avant le point d'interrogation.
+    "typo": "La CNIL titre « Quels sont mes droits? » sur sa page de questions-réponses.",
 }
 # Mutations qui s'insèrent DANS un paragraphe existant, et non en fin de document.
 DEDANS = {

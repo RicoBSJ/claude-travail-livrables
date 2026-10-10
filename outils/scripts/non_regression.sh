@@ -385,7 +385,10 @@ if [ "$MODE" = "--complet" ]; then
   # contrôle MORD ; un témoin conforme bien choisi prouve qu'il NE MORD PAS À TORT — il fallait
   # les deux, et c'est pourquoi ce duo-là ne réutilise pas le témoin de « ligature ».
   # Coût : 11 s par passage du contrôle astro, mesuré — négligeable sur un --complet de 7 min.
-  ATTENDU_5BIS=4
+  # 6 depuis le 10/10/2026 : deux duos ajoutés sur controle_ai_act.py en portant norm4 — « citation »
+  # (le motif (1) doit continuer à refuser une citation fabriquée) et « 0:typo » (il ne doit PAS
+  # refuser une citation que la page écrit avec une espace avant sa ponctuation).
+  ATTENDU_5BIS=6
   CB_N=0
   MUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/nr5bis.XXXXXX")
   # Le chemin du témoin est relatif à la racine du dépôt : le troisième duo est une VEILLE,
@@ -394,8 +397,17 @@ if [ "$MODE" = "--complet" ]; then
     "controle_astrologie_karmique.py|livrables/lecons/astrologie-karmique/2026-10-01_lecon-astrologie-karmique_09_chiron-corps-reel-blessure-symbolique.docx|ligature" \
     "controle_psychopathologie.py|livrables/lecons/psychopathologie/2026-10-05_lecon-psychopathologie_19_ethique-consentement-contrainte-sante-mentale.docx|fraction" \
     "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|alerte" \
-    "controle_astrologie_karmique.py|livrables/lecons/astrologie-karmique/2026-10-08_lecon-astrologie-karmique_10_lilith-points-fictifs-statut-objets.docx|nompropre"; do
+    "controle_astrologie_karmique.py|livrables/lecons/astrologie-karmique/2026-10-08_lecon-astrologie-karmique_10_lilith-points-fictifs-statut-objets.docx|nompropre" \
+    "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|citation" \
+    "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|0:typo"; do
     SC="${duo%%|*}"; RESTE="${duo#*|}"; REL="${RESTE%%|*}"; MOTIF="${RESTE##*|}"
+    # ⚠️ CONVENTION « 0:motif » (10/10/2026) : le mutant doit être ACCEPTÉ, pas refusé. Un
+    #    normaliseur qu'on ÉLARGIT doit se prouver DANS LES DEUX SENS — une mutation qui doit
+    #    sortir en 1 garde sa dent, une mutation qui doit sortir en 0 garde l'élargissement.
+    #    Sans la seconde, rien n'empêche de resserrer le normaliseur demain : les quatre autres
+    #    duos continueraient de passer.
+    ATTENDU_MUT=1
+    case "$MOTIF" in 0:*) ATTENDU_MUT=0; MOTIF="${MOTIF#0:}";; esac
     DOC="$ROOT/$REL"
     if [ ! -f "$DOC" ] || [ ! -f "$ROOT/outils/scripts/$SC" ]; then
       echo "  ✗ $SC : témoin ou script introuvable ($REL) — rétablis-le, ou mets ce bloc à jour."
@@ -413,8 +425,14 @@ if [ "$MODE" = "--complet" ]; then
         STATUT=1
       else
         env -i /usr/bin/python3 "$ROOT/outils/scripts/$SC" "$MUT" > "$CUR/5bis_mut_$MOTIF.txt" 2>&1; rcm=$?
-        if [ "$rcm" = "1" ]; then
-          echo "  ✓ $SC : témoin conforme exit 0, mutation « $MOTIF » exit 1"
+        if [ "$rcm" = "$ATTENDU_MUT" ]; then
+          echo "  ✓ $SC : témoin conforme exit 0, mutation « $MOTIF » exit $ATTENDU_MUT$([ "$ATTENDU_MUT" = "0" ] && echo " (acceptation attendue)")"
+        elif [ "$ATTENDU_MUT" = "0" ]; then
+          echo "  ✗ $SC : la mutation « $MOTIF » sort en $rcm au lieu de 0 — LE CONTRÔLE MORD À TORT"
+          echo "    (une citation que la page écrit avec une espace avant sa ponctuation est refusée :"
+          echo "     le portage de norm4 a été défait, ou resserré)"
+          echo "    $(tail -1 "$CUR/5bis_mut_$MOTIF.txt")"
+          STATUT=1
         else
           echo "  ✗ $SC : la mutation « $MOTIF » sort en $rcm au lieu de 1 — LE CONTRÔLE NE MORD PLUS"
           echo "    $(tail -1 "$CUR/5bis_mut_$MOTIF.txt")"

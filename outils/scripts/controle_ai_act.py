@@ -54,7 +54,23 @@ fin = [i for i, q in enumerate(ps) if "Journal des corrections" in t_of(q)]
 if fin: ps = ps[:fin[0]]
 T = [t_of(q) for q in ps]; L = [liens(q) for q in ps]
 urls = sorted({u for l in L for u in l})
-def norm(s): return re.sub(r"\s+", " ", s.replace("’", "'").replace("‘", "'").replace("“", '"').replace("”", '"').replace(" ", " ")).strip().lower()
+# ⚠️ PORTE LE 10/10/2026 DEPUIS norm4() DE controle_astrologie_karmique.py (qui l'a depuis le
+#    02/10/2026), ET ELARGI. norm() pliait les apostrophes et les guillemets et ecrasait les suites
+#    d'espaces, mais gardait l'ESPACE AVANT LA PONCTUATION — alors que la typographie francaise en met
+#    une devant ; : ! ? et que les pages de la Commission, de la CNIL et du Parlement l'ecrivent en
+#    espace fine insecable. Une citation recopiee sans cette espace, ou avec elle quand la page ne l'a
+#    pas, etait donnee pour ABSENTE — et les motifs 1, 2 et ⑦ sont BLOQUANTS.
+#    norm4 ne couvre que « ,.;:) » : la classe est elargie a « ! ? » et aux fermantes « ] » et « » »,
+#    parce que « Pourquoi ? » est le cas francais le plus courant et que norm4 le rate.
+#    MESURE DU 10/10/2026 sur sept cas typographiques reels : norm() en manquait 4, norm4 1, celui-ci 0.
+#    ⚠️ Et ce correctif N'A PAS ETE PORTE dans controle_attributions.py : mesure faite le meme jour,
+#    son cle_texte() retire DEJA toute la ponctuation et tous les espaces, il est donc strictement plus
+#    fort que norm4 (verifie sur les memes sept cas : 0 manque). Ni dans controle_psychopathologie.py,
+#    dont le norm() ne compare que des mots simples (noms de section, DCI, mots de 8 lettres).
+def norm(s):
+    z = re.sub(r"\s+", " ", s.replace("’", "'").replace("‘", "'").replace("“", '"')
+                             .replace("”", '"').replace(" ", " ")).strip().lower()
+    return re.sub(r"\s+([,.;:!?)\]»])", r"\1", z)
 cache, cbrut = {}, {}
 def brut(u):
     if u not in cbrut:
