@@ -547,6 +547,46 @@ def pages_de(dom):
     """les pages listees du domaine nomme (ou de ses sous-domaines)"""
     return [u for u in urls if hote(u) == dom or hote(u).endswith("." + dom)]
 
+def variantes_locale(n):
+    """㉟ (11/10/2026) UN NOMBRE FRANCAIS PEUT ETRE ECRIT A L'ANGLAISE SUR LA PAGE CITEE.
+    La passe D cherchait la graphie du DOCUMENT, telle quelle. Une lecon francaise ecrit
+    « 50,4 ans » et « 54 000 € » ; une page anglaise ecrit « 50.4 » et « 54,000 ». Le nombre est
+    le MEME et la passe le declarait « absente des pages citees ».
+    INCIDENT MESURE le 11/10/2026 sur la lecon astrologie-karmique n°09 du 01/10 : « 50,4 » et
+    « 50,6 » — la periode orbitale de Chiron — etaient donnes pour absents, et les deux pages du
+    Minor Planet Center les portent, ecrits « 50.4 » et « 50.6 ». Deux reserves, deux fausses.
+    C'est le dernier des quatre defauts de passe D listes le 03/10/2026 (« percent », disait la
+    note) : ce n'est pas le MOT « percent » qui manquait — la recherche ne regarde que le nombre,
+    « 30 » se trouve aussi bien dans « 30 % » que dans « 30 percent » — c'est la LOCALE du nombre.
+    BORNES, pour ne pas fabriquer de faux appariement :
+      · separateur de milliers : seulement si le candidat porte une ESPACE (forme francaise sans
+        ambiguite), et seulement vers la VIRGULE anglaise ou la forme collee.
+        « 54 000 » -> « 54,000 », « 54000 ».
+        ⚠️ LE POINT COMME SEPARATEUR DE MILLIERS (forme allemande, « 54.000 ») A ETE ESSAYE PUIS
+        RETIRE LE 11/10/2026, sur mesure : il fabriquait DEUX faux appariements en trois documents.
+        « 7 918 » etait declare trouve dans doi.org parce que la page porte « 7.918 », qui vaut
+        SEPT VIRGULE NEUF-UN-HUIT ; et « 1 049 » trouve dans apple.com qui porte « 1.049 ». Dans un
+        texte anglais le point est la DECIMALE : chercher le millier sous cette forme, c'est
+        fabriquer un faux negatif — declarer present un nombre absent, la pire direction.
+      · decimale : seulement 1 ou 2 chiffres apres la virgule. « 50,4 » -> « 50.4 ». A TROIS
+        chiffres on s'abstient : « 1,234 » est une decimale en francais et un millier en anglais,
+        et echanger le separateur changerait la VALEUR."""
+    v = {n}
+    if re.fullmatch(r"\d{1,3}(?:[ \u00a0\u202f]\d{3})+", n):
+        nu = re.sub(r"[ \u00a0\u202f]", "", n)
+        v.add(nu)
+        v.add(",".join(re.split(r"[ \u00a0\u202f]", n)))
+    m_ = re.fullmatch(r"(\d+),(\d+)", n)
+    # EXACTEMENT TROIS chiffres apres la virgule : on s'abstient, et c'est la seule ambiguite reelle.
+    # « 1,234 » est une decimale en francais et un GROUPE DE MILLIERS en anglais — echanger le
+    # separateur changerait la valeur. A un, deux, quatre chiffres ou plus, aucun groupe de milliers
+    # ne peut avoir cette longueur : l'echange est sans risque. (Borne elargie le 11/10/2026, apres
+    # avoir constate que « 29,447498 » — periode siderale de Saturne, lecon astro n°07 — tombait
+    # hors d'une borne a deux chiffres sans qu'aucune ambiguite ne le justifie.)
+    if m_ and len(m_.group(2)) != 3:
+        v.add(m_.group(1) + "." + m_.group(2))
+    return v
+
 def ou_trouve_nombre(n):
     """Nombres : recherche BORNEE. Sans bornes, 0.1.0 est 'trouve' dans 10.1.0 et
     un nombre a deux chiffres est trouve dans n'importe quelle page. Le brut est
@@ -578,6 +618,15 @@ def ou_trouve_nombre(n):
     for u, raw in bruts.items():
         if motif.search(raw) or motif_v.search(raw):
             return u, "brut (rendu JS)"
+    # ㉟ la graphie du document n'a rien donne : on essaie les AUTRES LOCALES du meme nombre
+    for alt in sorted(variantes_locale(n) - {n}):
+        ma = re.compile(r"(?<![\d.,])" + re.escape(alt) + r"(?:[.,]0+)?(?![\d.,])")
+        for u, r in textes.items():
+            if ma.search(r):
+                return u, "texte, ecrit « %s »" % alt
+        for u, raw in bruts.items():
+            if ma.search(raw):
+                return u, "brut (rendu JS), ecrit « %s »" % alt
     return None, None
 
 # ── B. citations anglaises de 6 mots ou plus (㉔, 13/09/2026 : huit auparavant)

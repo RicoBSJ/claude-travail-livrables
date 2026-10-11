@@ -73,7 +73,11 @@ ATTENDU_DEC_CONFORMES=3  # temoins_decompte_conformes/ — doivent sortir en 0.
                       # le décompte d'origine EN CHIFFRES. Il avait d'abord été écrit en lettres pour
                       # contourner le bug m3 ; ce contournement le rendait aveugle à sa propre correction.
                       # Un marqueur qui cite fidèlement est donc aussi ce qui rend le test possible.
-ATTENDU_CONFORMES=9   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (6 copies figées)
+ATTENDU_CONFORMES=10  # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (7 copies figées)
+                      # 10 depuis le 11/10/2026 : 2026-10-01_lecon-astrologie-karmique_09_locale.docx entre pour
+                      # garder ㉟ (un nombre français écrit à l'anglaise sur la page citée). ⚠️ CE TÉMOIN SORT EN 3,
+                      # durablement : deux de ses citations sont sur des pages que le contrôle ne peut pas lire. Ce
+                      # n'est pas son code de sortie qui prouve quelque chose, c'est sa LIGNE — comme pour ㉜.
                       # 9 depuis le 11/10/2026 : 2026-06-10_lecon-enneagramme_02_declaree.docx entre pour garder
                       # l'EXEMPTION de ㉞ — un lien dont le document declare qu'il ne resout pas n'est pas une faute.
                       # 8 depuis le 10/10/2026 : 2026-10-10_lecon-placement-financier_18_passeD.docx entre
@@ -268,6 +272,21 @@ if [ "$MODE" = "--complet" ]; then
     #    trois nombres à SÉPARATEUR DE MILLIERS qui sont tous sur leurs pages. Le bug corrigé le
     #    10/10/2026 les rendait tous les trois « A VERIFIER … absente des pages citees », et un nombre
     #    réellement absent sortait avec le même libellé qu'un nombre réellement présent.
+    # ⚠️ ㉟ (11/10/2026) : « 50,4 » et « 50,6 » — la période orbitale de Chiron — sont écrits
+    #    « 50.4 » et « 50.6 » par le Minor Planet Center. Avant ㉟ la passe D les donnait pour
+    #    ABSENTS. Ce témoin ne prouve rien par son code de sortie (il sort en 3, deux de ses
+    #    citations étant sur des pages illisibles) : c'est la LIGNE qui est exigée.
+    if [[ "$(basename "$f")" == "2026-10-01_lecon-astrologie-karmique_09_locale.docx" ]]; then
+      TL="$CUR/$(basename "$f" .docx).txt"
+      N_LOC=$(grep -cE "^ +OK +50,[46] +-> .*ecrit « 50\.[46] »" "$TL")
+      if [ "$N_LOC" -ge 2 ]; then
+        echo "        ↳ ✓ ㉟ tient : $N_LOC nombre(s) français retrouvé(s) sous leur graphie anglaise"
+      else
+        echo "        ↳ ✗ ㉟ A PERDU SA DENT : « 50,4 » et « 50,6 » ne sont plus appariés à « 50.4 » et"
+        echo "          « 50.6 » du Minor Planet Center ($N_LOC/2) — la passe D a reperdu la locale."
+        STATUT=1
+      fi
+    fi
     # ⚠️ L'EXEMPTION DE ㉞ SE GARDE AUSSI (11/10/2026) : ce témoin est la même leçon, dont le lien
     #    mort est DÉCLARÉ. S'il se mettait à bloquer, ㉞ refuserait un document honnête.
     if [[ "$(basename "$f")" == "2026-06-10_lecon-enneagramme_02_declaree.docx" ]]; then
