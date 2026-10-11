@@ -73,7 +73,9 @@ ATTENDU_DEC_CONFORMES=3  # temoins_decompte_conformes/ — doivent sortir en 0.
                       # le décompte d'origine EN CHIFFRES. Il avait d'abord été écrit en lettres pour
                       # contourner le bug m3 ; ce contournement le rendait aveugle à sa propre correction.
                       # Un marqueur qui cite fidèlement est donc aussi ce qui rend le test possible.
-ATTENDU_CONFORMES=8   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (5 copies figées)
+ATTENDU_CONFORMES=9   # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (6 copies figées)
+                      # 9 depuis le 11/10/2026 : 2026-06-10_lecon-enneagramme_02_declaree.docx entre pour garder
+                      # l'EXEMPTION de ㉞ — un lien dont le document declare qu'il ne resout pas n'est pas une faute.
                       # 8 depuis le 10/10/2026 : 2026-10-10_lecon-placement-financier_18_passeD.docx entre
                       # pour garder la PASSE D, qui n'est pas dans la référence et qu'aucun verdict ne protège.
                       # 4e copie figée le 09/10/2026 : la leçon Ennéagramme n°06 APRÈS correction, témoin de
@@ -89,7 +91,9 @@ ATTENDU_CONFORMES=8   # 3 documents vivants (stoïcisme 14, appli-ia 07, placeme
 #   dans les passes B, B-FR et B-NOM : il DOIT sortir en 0, et il sortait en 1 avant le correctif
 #   du 26/09 (mesuré dans les deux sens). Si une formulation citée pour mémoire redevient un jour
 #   une attribution, c'est lui qui le dira — aucun autre témoin conforme ne porte de marqueur.
-ATTENDU_AVANT=8       # temoins_attributions_avant_correction/ — 8 depuis le 09/10/2026 :
+ATTENDU_AVANT=9       # temoins_attributions_avant_correction/ — 9 depuis le 11/10/2026 :
+                      # 2026-06-10_lecon-enneagramme_02_avant.docx entre pour garder ㉞ (un nom de domaine
+                      # qui ne resout pas est un lien mort). C'est le SEUL des 394 hotes du depot dans ce cas.
 #   la leçon Ennéagramme n°06 d'AVANT sa correction est entrée dans le lot ce jour-là. C'est le SEUL
 #   témoin qui exerce la passe ㉜ : elle citait QUATRE ouvrages entre guillemets, en français, sans
 #   qu'aucun texte ait été ouvert, et le contrôle n'en signalait qu'UN comme bloquant — le seul à côté
@@ -264,6 +268,17 @@ if [ "$MODE" = "--complet" ]; then
     #    trois nombres à SÉPARATEUR DE MILLIERS qui sont tous sur leurs pages. Le bug corrigé le
     #    10/10/2026 les rendait tous les trois « A VERIFIER … absente des pages citees », et un nombre
     #    réellement absent sortait avec le même libellé qu'un nombre réellement présent.
+    # ⚠️ L'EXEMPTION DE ㉞ SE GARDE AUSSI (11/10/2026) : ce témoin est la même leçon, dont le lien
+    #    mort est DÉCLARÉ. S'il se mettait à bloquer, ㉞ refuserait un document honnête.
+    if [[ "$(basename "$f")" == "2026-06-10_lecon-enneagramme_02_declaree.docx" ]]; then
+      if grep -q "LE NOM DE DOMAINE NE RESOUT PAS" "$CUR/$(basename "$f" .docx).txt"; then
+        echo "        ↳ ✗ ㉞ MORD À TORT : le lien est déclaré « ⛔ LIEN MORT … NE RESOUT PAS » dans le"
+        echo "          document, et A6 le signale quand même — l'exemption de déclaration est cassée."
+        STATUT=1
+      else
+        echo "        ↳ ✓ l'exemption de ㉞ tient : un lien mort déclaré ne bloque pas"
+      fi
+    fi
     if [[ "$(basename "$f")" == "2026-10-10_lecon-placement-financier_18_passeD.docx" ]]; then
       TD="$CUR/$(basename "$f" .docx).txt"
       # le séparateur est l'une des trois espaces que le contrôle neutralise (normale, insécable, fine) :
@@ -328,6 +343,17 @@ if [ "$MODE" = "--complet" ]; then
       else
         echo "        ↳ ✗ ㉜ A PERDU SA DENT : aucune citation prêtée à un ouvrage n'est plus signalée."
         echo "          Ce témoin sort en 1 pour la citation de Palmer (㉖) — lis sa sortie complète."
+        STATUT=1
+      fi
+    fi
+    # ⚠️ MÊME EXIGENCE POUR ㉞ (11/10/2026) : ce témoin n'a qu'UN défaut, et c'est le lien mort.
+    #    S'il sortait en 1 pour autre chose, on ne saurait pas que A6 a perdu le HTTP 000 — d'où la LIGNE.
+    if [[ "$(basename "$f")" == "2026-06-10_lecon-enneagramme_02_avant.docx" ]]; then
+      if grep -q "LE NOM DE DOMAINE NE RESOUT PAS" "$CUR/temoin_attr_$(basename "$f" .docx).txt"; then
+        echo "        ↳ ✓ ㉞ tient : le nom de domaine qui ne résout pas est toujours un lien mort"
+      else
+        echo "        ↳ ✗ ㉞ A PERDU SA DENT : www.davidstamile.com ne résout pas (HTTP 000, curl 6) et"
+        echo "          n'est plus signalé. A6 est redevenue aveugle au 000 — lis sa section A6."
         STATUT=1
       fi
     fi

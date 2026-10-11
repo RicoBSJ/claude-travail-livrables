@@ -378,6 +378,11 @@ print("      (aucun)" if not sans_cible else "")
 pages, textes, bruts = {}, {}, {}
 non_textuels = []
 codes = {}                                  # ㉘ dernier code HTTP de chaque adresse
+# ㉞ (11/10/2026) le CODE DE SORTIE DE CURL, en plus du code HTTP : un « 000 » ne dit pas
+#    pourquoi. curl le detaille — 6 le nom ne resout pas, 7 connexion refusee, 28 delai
+#    depasse, 35/60 probleme TLS. Ces cas n'ont pas la meme valeur de preuve, et A6 les
+#    confondait tous avec un mur passager.
+sorties = {}                                # ㉞ code de sortie de curl (6 = ne resout pas)
 for u in urls:
     # ⚠️ PAS de text=True : une ressource peut etre un PDF, et le decodage utf-8
     #    d'un binaire leve UnicodeDecodeError — le controle mourait alors en cours de
@@ -406,6 +411,7 @@ for u in urls:
                              capture_output=True, text=True)
         code = rep.stdout.strip()[-3:]
         codes[u] = code
+        sorties[u] = rep.returncode
         try:
             brut = open("/tmp/.controle_page", "rb").read()
         except FileNotFoundError:
@@ -441,32 +447,74 @@ for u in urls:
 #    tous les prompts : « 404 = ne cite pas ». Exemption : un lien que le document DECLARE mort a cote de son
 #    libelle (« ⛔ 404 », « lien mort », « inaccessible ») — enneagramme n°15 declare psychologytoday en 404 —
 #    est une information donnee au lecteur, pas une adresse pretendue vivante.
-liens_morts = []
-for u in urls:
-    if codes.get(u) not in ("404", "410"):
-        continue
+# ━━ ㉞ (11/10/2026) A6 APPREND LE HTTP 000, ET LE DECOUPE EN DEUX.
+#    Jusqu'ici A6 ne regardait que 404/410 : un « 000 » — curl n'a RIEN obtenu — lui etait invisible, et le
+#    verdict annoncait « (aucun) ». INCIDENT MESURE le 09/10/2026 sur la lecon enneagramme n°03 : deux
+#    ressources listees et cliquables dont une ne resolvait plus du tout, A6 muette, 0 bloquant.
+#    ⚠️ MAIS UN 000 NE DIT PAS POURQUOI, et les raisons n'ont pas la meme valeur de preuve. Mesure du
+#    11/10/2026 sur cette meme lecon : psychologie-enneagramme.fr rend curl 6 — « couldn't resolve host », le
+#    nom de domaine n'existe pas —, et enneade.lu rend curl 60 — « SSL certificate problem », l'hote repond
+#    mais son certificat n'est pas verifiable. Le premier est aussi conclusif qu'un 404 : il n'y a PAS de
+#    serveur a citer. Le second ne l'est pas du tout : un navigateur affiche un avertissement et passe, et un
+#    certificat se renouvelle. Les ranger ensemble, c'est soit refuser a tort, soit ne rien dire.
+#    DONC : curl 6 = BLOQUANT, comme un 404. Tout autre 000 = INJOIGNABLE, signale et NON bloquant.
+#    GARDE RESEAU : si AUCUNE adresse du document n'a repondu en 2xx, ce n'est pas le document qui est en
+#    cause, c'est la liaison — on ne signale rien et on le dit. Trois essais ont deja eu lieu (⑱).
+#    MESURE SUR LE DEPOT (11/10/2026) : sur 394 hotes reellement lies par les 274 documents, DEUX ne
+#    resolvent pas — www.davidstamile.com (enneagramme n°02) et www.growingself.com (enneagramme n°17) —, et
+#    aucun des deux n'est declare : leur domaine ne vit que dans la cible du lien, jamais dans le texte.
+def declare_mort(u):
+    """le document declare-t-il cette adresse morte a cote de son libelle ? (㉘ bis)"""
     libs = [l.rsplit(" → ", 1)[0].strip() for l in entete.split("\n") if l.strip().endswith(u)]
     chemin_u = re.sub(r"^https?://(?:www\.)?", "", u).rstrip("/")
-    declare = False
     for cle_u in libs + [chemin_u, chemin_u.split("/")[0]]:
         for m_ in re.finditer(re.escape(cle_u), corps):
             fen = corps[max(0, m_.start() - 200): m_.end() + 200]
-            # ㉘ bis (20/09/2026) : un ⛔ seul ne declare pas un lien mort — revenus-passifs n°09 marquait plausible.io/pricing
-            #   « ⛔ page JS-only » alors que l'adresse repond 404 : la raison ecrite etait fausse et le lecteur renvoye vers une
-            #   erreur. La declaration doit nommer le fait : le code, ou « lien mort / introuvable / n'existe plus / supprimee ».
-            if re.search(r"404|410|lien mort|introuvable|n['’]existe plus|page supprim", fen, re.I):
-                declare = True
-                break
-        if declare:
-            break
-    if declare:
-        print("     (lien mort DECLARE dans le document, non bloquant : %s)" % u)
+            # ㉘ bis (20/09/2026) : un ⛔ seul ne declare pas un lien mort — revenus-passifs n°09 marquait
+            #   plausible.io/pricing « ⛔ page JS-only » alors que l'adresse repond 404 : la raison ecrite
+            #   etait fausse et le lecteur renvoye vers une erreur. La declaration doit NOMMER le fait.
+            if re.search(r"404|410|lien mort|introuvable|n['’]existe plus|page supprim"
+                         r"|ne r[ée]sout pas|aucune connexion|injoignable|HTTP 000", fen, re.I):
+                return True
+    return False
+
+a_repondu = any(str(codes.get(u, "")).startswith("2") for u in urls)
+liens_morts, injoignables = [], []
+for u in urls:
+    c, sortie = codes.get(u), sorties.get(u)
+    if c in ("404", "410"):
+        famille = "mort"
+    elif c == "000" and sortie == 6:
+        famille = "resout"
+    elif c == "000":
+        famille = "injoignable"
     else:
-        liens_morts.append(u)
-print("A6. LIENS MORTS (HTTP 404/410, non declares dans le document) :")
-for u in liens_morts:
-    print("      INTERDIT", u, "- HTTP", codes.get(u), ": la page n'existe pas, le document la cite comme vivante (㉘)")
+        continue
+    if famille != "mort" and not a_repondu:
+        continue                      # garde reseau : aucune 2xx du tout, la liaison est en cause
+    if declare_mort(u):
+        print("     (lien mort DECLARE dans le document, non bloquant : %s)" % u)
+        continue
+    (liens_morts if famille in ("mort", "resout") else injoignables).append((u, famille, sortie))
+print("A6. LIENS MORTS (HTTP 404/410, ou nom de domaine qui ne resout pas — non declares) :")
+for u, famille, sortie in liens_morts:
+    if famille == "mort":
+        print("      INTERDIT", u, "- HTTP", codes.get(u),
+              ": la page n'existe pas, le document la cite comme vivante (㉘)")
+    else:
+        print("      INTERDIT", u, "- HTTP 000, curl 6 : LE NOM DE DOMAINE NE RESOUT PAS,"
+              " le document le cite comme vivant (㉞)")
 print("      (aucun)" if not liens_morts else "")
+if not a_repondu and urls:
+    print("A6 bis. AUCUNE adresse n'a repondu en 2xx : la liaison reseau est en cause, pas le document —"
+          " aucun 000 n'est impute (㉞). Relance plus tard.")
+elif injoignables:
+    print("A6 bis. INJOIGNABLES (HTTP 000, mais le nom resout — non bloquant, %d) :" % len(injoignables))
+    RAISON = {7: "connexion refusee", 28: "delai depasse", 35: "probleme TLS",
+              60: "certificat non verifiable", 56: "connexion rompue", 52: "reponse vide"}
+    for u, _f, sortie in injoignables:
+        print("      A RELIRE  %s - curl %s : %s. Trois essais (⑱). Un certificat ou un delai n'est pas"
+              " une page morte : verifie a la main." % (u, sortie, RAISON.get(sortie, "cause non identifiee")))
 
 def ou_trouve(aiguille):
     """Citations : ponctuation et espaces neutralises des deux cotes ; une citation coupee par « […] » ou « [...] »
