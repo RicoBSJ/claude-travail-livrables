@@ -1125,11 +1125,28 @@ if not vus:
     print("   (aucune version a proximite d'un domaine cite)")
 
 # ── D. valeurs chiffrees presentees comme venant d'une source
+# ⚠️ AJOUTE LE 11/10/2026 — LA PASSE D LIT LE CORPS PRIVE DE SES MARQUEURS, comme B et B-FR.
+#    B et B-FR partagent la meme boucle et ecartent les marqueurs depuis le 26/09/2026 (le
+#    « continue » de dans_marqueur() tombe AVANT la branche anglaise) ; la passe D, elle, lisait
+#    « avant_res », marqueurs compris. Consequence mesuree le 11/10/2026 sur la veille iMac que je
+#    venais de corriger : 7 reserves en passe D, dont QUATRE venaient de mes propres marqueurs —
+#    « 1 349 » et « 1 699,95 », chiffres cites POUR MEMOIRE comme libelles d'origine, et « 33 081 »
+#    et « 500 559 », mesures que j'avais faites moi-meme et ecrites dans la trace. Corriger un
+#    document AUGMENTAIT donc mecaniquement ses reserves D, en proportion du soin mis a conserver
+#    les libelles d'origine — le contraire de ce qu'on veut encourager. Meme piege que le 26/09,
+#    ou corriger la lecon placement-financier n°03 la faisait passer de 1 a 3 BLOQUANTS en passe B.
+#    corps_hm est le corps avec les marqueurs remplaces par des blancs DE MEME LONGUEUR : les
+#    indices restent alignes, donc la coupe a « res » (debut des Ressources), calculee sur corps,
+#    reste valide.
+avant_res_hm = corps_hm[:res] if res != -1 else corps_hm
 ATTRIB = re.compile(r"(" + DOM + r")|\b(v[ée]rifi[ée]e?s?|selon|d'apr[eè]s|la doc|"
                     r"documentation|source|annonce|indique|pr[ée]cise)\b", re.I)
 IGNORE = re.compile(r"^(19|20)\d\d$")          # annees
+# le motif est NOMME : la boucle principale et celle qui compte les valeurs ecartees doivent
+# extraire exactement la meme chose, sinon le decompte de l'exemption mentirait (11/10/2026).
+MOTIF_D = r"\b\d{1,3}(?:[   ]\d{3})+(?:[,.]\d+)?\b|\b\d+[,.]\d+\b|\b\d{3,6}\b"
 chiffres = {}
-for phrase in re.split(r"(?<=[.!?:])\s+|\n", avant_res):
+for phrase in re.split(r"(?<=[.!?:])\s+|\n", avant_res_hm):
     if not ATTRIB.search(phrase):
         continue
     if re.search(r"\bv?\d+\.\d+\.\d+\b", phrase):
@@ -1146,12 +1163,26 @@ for phrase in re.split(r"(?<=[.!?:])\s+|\n", avant_res):
     #    (b) « \u202f » : l'espace fine insecable etait absente de CETTE classe alors qu'elle est
     #        presente dans celle de ou_trouve_nombre() — un nombre ecrit avec elle n'etait meme pas
     #        extrait, donc jamais verifie.
-    for m in re.finditer(r"\b\d{1,3}(?:[   ]\d{3})+(?:[,.]\d+)?\b|\b\d+[,.]\d+\b|\b\d{3,6}\b", phrase):
+    for m in re.finditer(MOTIF_D, phrase):
         n = m.group(0)
         if IGNORE.match(n):                     continue
         if n in ("3000", "5173", "1024", "1000"):  continue   # ports et conversions du projet
         chiffres.setdefault(n, phrase.strip()[:110])
+# les valeurs qui n'apparaissent QUE dans un marqueur : comptees, pour que l'exemption se voie
+chiffres_marq = {}
+for phrase in re.split(r"(?<=[.!?:])\s+|\n", avant_res):
+    if not ATTRIB.search(phrase):
+        continue
+    for m in re.finditer(MOTIF_D, phrase):
+        n = m.group(0)
+        if IGNORE.match(n) or n in ("3000", "5173", "1024", "1000"):
+            continue
+        if n not in chiffres:
+            chiffres_marq.setdefault(n, phrase.strip()[:90])
 print("\nD. VALEURS CHIFFREES EN CONTEXTE D'ATTRIBUTION : %d" % len(chiffres))
+if chiffres_marq:
+    print("   (%d valeur(s) ecartee(s) : elles ne figurent que dans un marqueur de correction —\n          un chiffre cite POUR MEMOIRE comme libelle d'origine n'est pas une affirmation : %s)"
+          % (len(chiffres_marq), ", ".join(sorted(chiffres_marq))))
 ko_d = 0
 for n in sorted(chiffres, key=lambda s: (len(s), s)):
     u, how = ou_trouve_nombre(n)

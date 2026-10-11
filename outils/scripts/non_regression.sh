@@ -270,11 +270,27 @@ if [ "$MODE" = "--complet" ]; then
       # une virgule ne doit PAS compter, sinon « OK 0,625 » serait pris pour un nombre à séparateur.
       D_OK=$(grep -cE '^ +OK +[0-9]{1,3}[   ][0-9]{3}' "$TD")
       D_KO=$(grep -cE '^ +A VERIFIER [0-9]{1,3}[   ][0-9]{3}' "$TD")
-      if [ "$D_OK" -ge 3 ] && [ "$D_KO" = "0" ]; then
-        echo "        ↳ ✓ passe D tient : $D_OK nombre(s) à séparateur de milliers appariés, 0 donné pour absent"
+      # ⚠️ SEUIL RAMENÉ DE 3 À 1 LE 11/10/2026, et ce n'est pas un affaiblissement : c'est la
+      #    découverte que ce témoin reposait sur du CONTENU DE MARQUEUR. « 38 400 » et
+      #    « 16 060,24 » ne figurent, dans ce document, que dans le marqueur du ¶110, qui cite
+      #    l'exemple de service-public.fr. Depuis que la passe D écarte les marqueurs comme B et
+      #    B-FR le font, elle ne les voit plus — à juste titre. Le seul nombre à séparateur du
+      #    CORPS en contexte d'attribution est « 1 782 » (¶26). Exiger 3 reviendrait à exiger que
+      #    la passe D relise les marqueurs.
+      # 🧪 LA FORCE PERDUE EST REPRISE PAR UNE SECONDE EXIGENCE DE LIGNE : la ligne d'exemption
+      #    doit être là ET nommer au moins deux nombres à séparateur. Ce témoin prouve donc
+      #    maintenant les DEUX correctifs du même coup — le séparateur de milliers (10/10) et
+      #    l'exclusion des marqueurs (11/10).
+      D_EXEMPT=$(grep -cE 'valeur\(s\) ecartee\(s\) : elles ne figurent que dans un marqueur' "$TD")
+      D_EXSEP=$(grep -oE 'un chiffre cite POUR MEMOIRE.*' "$TD" | grep -oE '[0-9]{1,3}[   ][0-9]{3}' | wc -l | tr -d ' ')
+      if [ "$D_OK" -ge 1 ] && [ "$D_KO" = "0" ] && [ "$D_EXEMPT" -ge 1 ] && [ "$D_EXSEP" -ge 2 ]; then
+        echo "        ↳ ✓ passe D tient : $D_OK nombre(s) à séparateur apparié(s), 0 donné pour absent,"
+        echo "          et $D_EXSEP nombre(s) à séparateur écarté(s) parce qu'ils ne vivent que dans un marqueur"
       else
-        echo "        ↳ ✗ PASSE D A PERDU SA DENT : $D_OK apparié(s) (3 attendus au minimum) et $D_KO donné(s)"
-        echo "          pour absent(s) — « 1 782 », « 38 400 » et « 16 060,24 » sont sur leurs pages."
+        echo "        ↳ ✗ PASSE D A PERDU SA DENT : $D_OK apparié(s) (1 au minimum), $D_KO donné(s) pour"
+        echo "          absent(s) — « 1 782 » est sur sa page —, ligne d'exemption des marqueurs : $D_EXEMPT,"
+        echo "          dont $D_EXSEP nombre(s) à séparateur (2 au minimum : « 38 400 » et « 16 060,24 »,"
+        echo "          qui ne vivent que dans le marqueur du ¶110)."
         echo "          Ce témoin sort en 0 de toute façon : la passe D n'est pas bloquante. Lis sa section D."
         STATUT=1
       fi
