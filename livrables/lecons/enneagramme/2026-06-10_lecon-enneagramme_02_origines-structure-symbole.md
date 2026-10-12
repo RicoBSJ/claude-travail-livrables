@@ -14,6 +14,7 @@ tags:
   - concept/loi-de-trois
   - concept/loi-de-sept
   - concept/validite
+  - theme/lien-mort-non-declare
 ---
 
 # 2026-06-10_lecon-enneagramme_02_origines-structure-symbole
@@ -29,6 +30,10 @@ Trois sources historiques, distinctes et datées : **Gurdjieff** (~1923) introdu
 La construction du symbole est expliquée précisément : cercle divisé en neuf, triangle 3-6-9 (loi de trois), hexade 1-4-2-8-5-7 (loi de sept) — cette dernière n'étant autre que **la décimale périodique de 1÷7 = 0,142857…**. Détail qui en dit long : la structure est arithmétique avant d'être psychologique.
 
 Surtout, la leçon porte un **avertissement épistémique explicite** : la validité psychométrique de l'ennéagramme n'est pas établie scientifiquement. Poser cela dès la leçon 02 est ce qui rend le reste du parcours fréquentable.
+
+## Correction du 12/10/2026
+
+**Un lien mort, déclaré le 12/10/2026 — c'était le seul problème bloquant du document.** La ressource « David Stamile — The Meaning and History of the Enneagram Symbol » était listée sans réserve. Le domaine `davidstamile.com` **ne résout plus** : NXDOMAIN sur l'apex comme sur `www`, trois essais le 12/10/2026, `HTTP 000` / `curl 6`, alors que `wikipedia.org` répondait 200 dans la même minute — la garde réseau est donc levée. La ligne porte désormais la déclaration du lien mort, et `controle_attributions.py` passe de **1 à 0 problème bloquant**. ⚠️ Le défaut avait été rendu visible par la passe **㉞**, ajoutée la veille, le 11/10/2026 : A6 ne regardait jusque-là que les 404 et 410, et un domaine qui ne résout pas lui était invisible. **Aucune affirmation du corps ne reposait sur cette source** — seule la ligne de ressource est touchée, et le fond de la leçon est intact.
 
 ## Notes liées
 

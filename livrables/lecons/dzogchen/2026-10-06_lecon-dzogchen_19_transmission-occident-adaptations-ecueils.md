@@ -26,7 +26,8 @@ tags:
   - theme/auteur-ignore-en-silence
   - theme/passe-d-inerte
   - theme/contradiction-entre-sources
-  - alerte/a-corriger
+  - theme/traduction-en-guillemets
+  - alerte/corrige
 ---
 
 # 2026-10-06_lecon-dzogchen_19_transmission-occident-adaptations-ecueils
@@ -52,6 +53,10 @@ Document source : [[2026-10-06_lecon-dzogchen_19_transmission-occident-adaptatio
 **Le contrôle commun est passé à côté du seul vrai défaut d'attribution, et la raison est un verbe manquant.** La passe **B-NOM** existe exactement pour ça : une affirmation sans guillemets prêtée à un nom. Elle a rendu **0** et s'est déclarée inerte. Sa liste de verbes est `indique|précise|rapporte|écrit|souligne|estime|recense|signale|rappelle|explique|affirme|constate|observe|montre|recommande|publié|alerte`. La leçon attribue avec dix verbes : **huit sont absents** de cette liste — `identifie`, `distingue`, `note`, `analyse`, `conclut`, `soutient`, `appelle`, `cite` — et les deux présents (`précise`, `écrit`) portent chacun une citation, donc sortent du champ de B-NOM par construction. La liste des quatre malentendus tient sur `identifie` ; les deux orientations tiennent sur `distingue` ; la conclusion tronquée tient sur `conclut`. **Et la passe D n'a rien eu à mordre non plus** : 36 phrases de la leçon portent un chiffre, **aucune** ne porte un marqueur d'attribution dans la même phrase, parce que la leçon nomme sa source en tête de paragraphe puis énonce ses chiffres dans les phrases suivantes. C'est la limite résiduelle déjà notée sur la passe D, vue sous un autre angle : elle ne regarde pas plus loin que la phrase.
 
 **La continuité est tenue au titre près pour la troisième semaine.** La fiche de la 18 annonçait la 19 sous le titre *« La transmission en Occident : adaptations, malentendus, écueils »* ; c'est le titre exact du livrable, et c'est aussi l'entrée 19 de la feuille de route du prompt. L'annonce de la 20 reprend mot pour mot l'entrée 20 (*BILAN — tenir la vue dans la vie ordinaire, et ce que le parcours n'aura pas pu transmettre par l'écrit*), et la leçon écrit explicitement qu'elle ne traitera pas un thème de plus. Le parcours est à **19 `.docx` sur 20 annoncés**, la clause **⛔ PARCOURS FERMÉ — 20 LEÇONS** et la limite *« dans la limite de 20 »* sont en place, et `controle_clauses_parcours.py` sort **exit 0** sur les sept parcours. Aucune trace du piège de `revenus-passifs` : le prompt ne contient nulle part l'ordre de prolonger. La 20 tombe le **mardi 13/10 à 8h03**, la clause mordra pour la première fois le **20/10**. ⚠️ **Marge à surveiller sur la 20** : c'est un bilan qui doit relier dix-neuf leçons, et le record du parcours est **2,8525 $ sur un plafond de 3,00 $** (22/09, 64 tours) avec un prompt alors 35 % plus court qu'aujourd'hui. Les deux marques d'échec encore sur le disque (`ai-act-veille` du 02/10, `enneagramme-lecon` du 30/09) sont **périmées** — plus de 72 h — et seront balayées au prochain créneau de ces jobs ; elles ne pèsent sur rien.
+
+## Correction du 12/10/2026
+
+**Correction du 12/10/2026 — la description du rigpa était une traduction donnée pour une citation.** La deuxième partie de la pratique citait entre guillemets, en français, le rigpa qui « n'est pas notre mental ordinaire de tous les jours. Ce n'est pas le mental conceptuel. C'est le mental qui est au-delà du concept, le mental libre du sujet et de l'objet. », comme parole de Mingyur Rinpoche. Le forum de Lion's Roar, rouvert le 12/10/2026 (HTTP 200, 33 182 caractères utiles), écrit *« Rigpa is not our ordinary, everyday mind. It is not conceptual mind. It is the mind that is beyond concept, the mind that is free from subject and object »* : **la traduction est fidèle, mais c'était une traduction**. L'anglais littéral est rétabli, la traduction déclarée, et la citation sort **appariée (OK)**. ⚠️ Ces deux citations comptaient pour deux des huit détections ㉜ du 09/10/2026 ; au 12/10 le contrôle les reclassait en « sur aucune page lue » et en « prêtée à lionsroar.com, page(s) en anglais » — non bloquantes, donc invisibles à la référence.
 
 ## Notes liées
 

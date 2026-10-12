@@ -19,7 +19,7 @@ tags:
   - theme/attribution-inferee-donnee-pour-lue
   - theme/declaration-de-source-perdue
   - theme/locale-anglaise-non-corrigee
-  - alerte/a-corriger
+  - alerte/corrige
 ---
 
 # 2026-10-12_veille_has-actualite
@@ -45,6 +45,12 @@ Document source : [[2026-10-12_veille_has-actualite.docx]]
 **Mesures. 2,3661 $ pour un plafond de 4,00 $ (59 %)**, **47 tours**, 13 min 12 s, 48 838 tokens en sortie, 3 087 270 de cache lu, **une seule tentative**, `exit 0`, prompt à **42 556 octets**. Document de **15 066 octets** pour 9 162 caractères, **63 paragraphes, 26 hyperliens pour 12 adresses distinctes, aucun tableau** — contre 52 ¶ et 22 liens le 05/10 : la note grossit avec la semaine. Niveau d'activité **🟡 À suivre**, contre 🟢 Calme le 05/10, ce qui est juste : trois lancements et un appel ouvert. Les **9 contrôles du vault au vert** (1 288 liens wiki résolus), `--docs` à **0 bloquant** sur le document et **décompte exit 0**, push en une tentative. Le **📝 Journal des corrections est présent et vide** — « Aucune correction — note produite le 12/10/2026 » —, ce qui est la bonne forme pour une première édition.
 
 **Avocat du diable, et c'est la troisième fois que j'écris cette ligne cette semaine.** Deux des trois défauts de cette note — la phrase de justification recopiée et la date du 11/03/2025 — auraient été attrapés par **un contrôle qui relit l'édition précédente et sa fiche**. L'un est un gabarit vrai en septembre et faux en octobre ; l'autre est une erreur que j'ai écrite noir sur blanc il y a sept jours, avec la bonne valeur à côté. **Aucune des cinq veilles n'a ce contrôle**, et aucun prompt de veille ne porte de ligne « Thèmes annoncés » qui permettrait l'équivalent du motif ⑥ des leçons. Deuxième point : **`--docs`, la porte par laquelle cette note a été publiée, ne vérifie que la passe A** — ni ㉜, ni D, ni ㉞, ni ㉟ n'y passent, et pas davantage l'étape 7.6 bis, qui n'est appelée que par le prompt du job lui-même.
+
+## Correction du 12/10/2026
+
+**Les quatre défauts ont été corrigés le 12/10/2026, le jour même de la production.** ① **La justification fausse** est remplacée par ce que le flux dit réellement : ses trois entrées du secteur datées de la fenêtre sont des **notes de cadrage**, donc des lancements de travaux, et non des recommandations publiées — la conclusion est conservée, son appui devient exact. ② **La date du 11/03/2025** devient « validée le 11/03/2025, mise en ligne le 19/03/2025 », et **les deux adresses en locale `/en/` passent en `/fr/`**, ce qui supprime la cause : la page française écrit « Date de validation : 11 mars 2025 » et « Mis en ligne le 19 mars 2025 » sans ambiguïté. La recommandation de la fiche du 05/10 est donc appliquée, une semaine plus tard. ③ **L'attribution à la CSMS** redevient la déduction qu'elle est : les trois pages ne portent que « Date de validation : 29 septembre 2026 », et cette mention sort maintenant **appariée (OK)** par la passe B-FR sur les trois pages. ④ **Les quatre pages liées sans déclaration** sont nommées dans l'inventaire, et le calendrier de la RBPP 3-11 ans porte sa provenance réelle : le document téléchargeable de la note de cadrage, hérité de l'édition du 28/09/2026.
+
+⚠️ **Une correction a cassé un contrôle, et il l'a dit.** Ma phrase ajoutée à l'inventaire des sources contenait « hérités des éditions du 28/09 et du 05/10 » : `controle_decompte.py` a lu « 05/10 » comme une annonce « 5 ouvertes sur 10 » et rendu **INCOHÉRENT — 5 ouvertes annoncées, liste ✅ 7 ; 10 au total annoncées, liste 8**. Dates réécrites en clair, retour à **COHÉRENT**. Le contrôle ne se trompait pas sur la forme : une note de veille annonce ses décomptes sous la forme `N/M`, et j'en avais écrit un sans le vouloir. État final : **0 bloquant**, 1 citation à relire (le gabarit `« d'après l'édition du JJ/MM/AAAA »`, faux positif inoffensif), `controle_decompte` **COHÉRENT**, étape **7.6 bis** rejouée verbatim sous `env -i` **OK exit 0**, document de **16 940 octets** pour **69 paragraphes**.
 
 ## Notes liées
 

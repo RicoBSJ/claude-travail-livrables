@@ -17,6 +17,8 @@ tags:
   - auteur/nyoshul-khenpo
   - auteur/longchenpa
   - texte/yeshe-lama
+  - theme/citation-composite
+  - theme/traduction-attribuee-au-traducteur
 ---
 
 # 2026-08-14_lecon-dzogchen_11_rushen-separer-samsara-nirvana
@@ -32,6 +34,10 @@ Trois formes sont exposées. Le **Rushen externe** est la plus déroutante et la
 Le point doctrinal le plus fort tient en trois différences relevées par Nyoshul Khenpo : le Rushen **coupe directement l'attachement, l'aversion et l'ignorance — sans les contourner ni les sublimer**. Longchenpa précise l'enjeu : seul le dzogchen réaliserait « l'inséparabilité de la cause et de l'effet », c'est-à-dire transformer le poison en remède sans passer ni par l'évitement du Vinaya ni par la sublimation du tantra classique.
 
 Situation dans le chemin : le Rushen relève du **ngöndro spécifiquement dzogchen**, distinct du ngöndro général vu en leçon 09. Il prépare l'introduction à la nature de l'esprit, donc le trekchö et le tögal. Dans la tradition Bön, il se pratique en retraites de 49 jours ; côté Nyingma, le texte de référence est le *Yeshe Lama* de Jigme Lingpa, annoncé pour la leçon 16.
+
+## Correction du 12/10/2026
+
+**Une citation composite, et un traducteur crédité d'une traduction qu'il n'a pas faite — corrigé le 12/10/2026.** La théorie posait entre guillemets, en français, « Chaque esprit contient la nature de bouddha — conscience vide et cognisante, contenant les trois corps de l'Éveil. Mais cette nature est obscurcie par les perceptions ordinaires. La pratique consiste à séparer le mental ordinaire (sems) de la pure conscience (rigpa). » — Nyoshul Khenpo Jamyang Dorje, Principles of Khordé Rushen, **trad. Lotsawa House**. Trois écarts, mesurés sur la page rouverte le 12/10/2026 (HTTP 200, 9 144 caractères utiles) : ① la page porte le texte **anglais** et aucune phrase française ; ② les guillemets réunissaient en une citation continue **trois passages distincts** ; ③ « trad. Lotsawa House » désignait la traduction tibétain-anglais, pas la version française, qui est celle de la leçon. **Le fond est exact au mot** : la page écrit *« within our minds there resides the buddha nature, the actual dharmatā, which is empty and cognizant self-arising rigpa, in which the three kāyas are all fully present »*, *« like the sun obscured by clouds »*, et *« a clear distinction or separation between the ordinary mind (sems) and pure awareness (rig pa) »*. Le passage est en style indirect, deux fragments littéraux sont cités en anglais — tous deux **appariés (OK)** par la passe B après correction — et la synthèse est déclarée. C'était la **dernière détection ㉜ vivante du dépôt** au 12/10/2026.
 
 ## Notes liées
 

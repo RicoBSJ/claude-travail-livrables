@@ -13,6 +13,7 @@ tags:
   - centre/mental
   - concept/avarice
   - concept/isolement
+  - theme/traduction-en-guillemets
 ---
 
 # 2026-07-15_lecon-enneagramme_07_type-5-investigateur-observateur
@@ -30,6 +31,10 @@ Mécanisme de défense : **l'isolement** — compartimenter, séparer l'émotion
 Le rapport au Type 4 est explicite : deux stratégies opposées face au même sentiment de vide — l'intensité émotionnelle pour l'un, le retrait et l'accumulation de savoir pour l'autre.
 
 Vertu : le non-attachement, avec l'idée sainte que le savoir n'a pas à être thésaurisé — la vie se comprend en y participant.
+
+## Correction du 12/10/2026
+
+**Une traduction présentée comme une citation, corrigée le 12/10/2026.** La théorie donnait entre guillemets, en français, « Le Cinq sain devient un visionnaire pionnier, ouvrant des voies nouvelles pour comprendre le monde. » — Riso & Hudson, The Enneagram Institute. La page `enneagraminstitute.com/type-5`, rouverte le 12/10/2026 (HTTP 200, 14 879 caractères utiles), **est en anglais** et écrit, sous « At their Best » : *« visionary pioneers, often ahead of their time, and able to see the world in an entirely new way »*. **Le fond est exact** ; c'était la forme qui mentait. L'anglais littéral est rétabli, la traduction est déclarée, et la citation sort désormais **appariée (OK)** sur sa page. ⚠️ Cette citation faisait partie des huit détections de la passe ㉜ du 09/10/2026 ; au 12/10 le contrôle la reclassait en « traduction possible, non tranché » — non bloquante, donc invisible à la référence du harnais.
 
 ## Notes liées
 
