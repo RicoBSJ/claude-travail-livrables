@@ -141,7 +141,19 @@ PYH
       env -i $PY "$ROOT/outils/scripts/controle_decompte.py" "$f" > "$CUR/doc_dec.txt" 2>&1; rc=$?
       nom="${f#*sources/veille/}"; ref=$(awk -F'\t' -v n="$nom" '$2==n{print $1}' "$REF/decompte.tsv" 2>/dev/null)
       if [ "$rc" = "1" ] && [ "${ref:-0}" != "1" ]; then echo "  ✗ $nom : décompte INCOHÉRENT (exit 1) — $(tail -1 "$CUR/doc_dec.txt")"; STATUT=1
-      else echo "  ✓ $nom : décompte exit $rc"; fi;;
+      else echo "  ✓ $nom : décompte exit $rc"; fi
+      # 12/10/2026 — relecture à l'édition PRÉCÉDENTE et à sa fiche. Aucun appel réseau, 0,3 s :
+      # ce contrôle a sa place ici, dans la porte des pushs de job, et c'est le seul motif de
+      # cette porte qui regarde AILLEURS que dans le document poussé.
+      if [ -f "$ROOT/outils/scripts/controle_edition_precedente.py" ]; then
+        env -i $PY "$ROOT/outils/scripts/controle_edition_precedente.py" "$f" > "$CUR/doc_edprec.txt" 2>&1; rce=$?
+        case "$rce" in
+          1) echo "  ✗ $nom : REJEU d'une correction de l'édition précédente — $(tail -1 "$CUR/doc_edprec.txt")"; STATUT=1;;
+          2) echo "  ○ $nom : pas d'édition précédente — relecture INERTE";;
+          *) RL=$(grep -c "^   A RELIRE" "$CUR/doc_edprec.txt")
+             echo "  ✓ $nom : aucun rejeu de l'édition précédente$([ "$RL" != "0" ] && echo " ($RL point(s) à relire)")";;
+        esac
+      fi;;
     esac
   done
   exit $STATUT
@@ -507,6 +519,54 @@ if [ "$MODE" = "--complet" ]; then
   if [ "$CB_N" != "$ATTENDU_5BIS" ]; then
     echo "  ✗ $CB_N étape(s) 5 bis contrôlée(s), $ATTENDU_5BIS attendue(s) — un lot incomplet ne"
     echo "    prouve rien : rétablis le script ou le témoin manquant, ou mets ATTENDU_5BIS à jour."
+    STATUT=1
+  fi
+
+  # ── 5 quater. RELECTURE À L'ÉDITION PRÉCÉDENTE ET À SA FICHE (12/10/2026) ────
+  # `controle_edition_precedente.py` est le premier contrôle du dépôt qui regarde AILLEURS que
+  # dans le document qu'on lui donne. Il n'est donc PAS dans la référence (passe_A.tsv ne stocke
+  # que les passes A/A2/A3/A4 d'un document isolé) : comme ㉜, la passe D, ㉞ et ㉟, il lui faut
+  # son témoin et une EXIGENCE DE LIGNE.
+  # LE DUO EST UN VRAI INCIDENT, FIGÉ DANS LES DEUX ÉTATS. L'entrée 7 du journal de la veille
+  # iMac du 04/10/2026 retirait « TSMC » du procédé du M6, « le fondeur n'étant pas nommé sur la
+  # page citée ». L'édition du 11/10 l'a réécrit « 2 nm (TSMC N2) » — correction défaite, sept
+  # jours plus tard, dans le document même que la note avait relu pour sa continuité.
+  #   • temoins_edition_precedente/rejeu/      : le 11/10 AVANT correction → doit sortir en 1
+  #     ET porter la ligne « INTERDIT « TSMC » ». Sans la ligne, n'importe quel autre jeton
+  #     ferait passer le témoin : le code de sortie seul ne prouve pas QUEL rejeu est vu.
+  #   • temoins_edition_precedente/conforme/   : le 11/10 APRÈS correction → doit sortir en 0.
+  # Chaque dossier porte sa propre copie de l'édition N-1 et de la FICHE de celle-ci, puisque le
+  # contrôle les cherche à côté du document : deux fichiers de même nom ne peuvent pas cohabiter.
+  echo "▶ Relecture à l'édition précédente (rejeu en 1 avec sa ligne, conforme en 0)…"
+  ATTENDU_EDPREC=2
+  EP_N=0; EPD="$NR/temoins_edition_precedente"
+  for cas in "rejeu|1|INTERDIT « TSMC »" "conforme|0|"; do
+    NOM="${cas%%|*}"; RST="${cas#*|}"; ATT="${RST%%|*}"; LIGNE="${RST##*|}"
+    DOC="$EPD/$NOM/2026-10-11_veille_imac.docx"
+    if [ ! -f "$DOC" ] || [ ! -f "$EPD/$NOM/2026-10-04_veille_imac.docx" ] \
+       || [ ! -f "$EPD/$NOM/2026-10-04_veille_imac.fiche.md" ]; then
+      echo "  ✗ témoin « $NOM » incomplet — il lui faut l'édition N, l'édition N-1 et la fiche de N-1."
+      STATUT=1; continue
+    fi
+    EP_N=$((EP_N + 1))
+    env -i /usr/bin/python3 "$ROOT/outils/scripts/controle_edition_precedente.py" "$DOC" \
+        > "$CUR/edprec_$NOM.txt" 2>&1; rc=$?
+    if [ "$rc" != "$ATT" ]; then
+      echo "  ✗ témoin « $NOM » sort en $rc au lieu de $ATT — $(tail -1 "$CUR/edprec_$NOM.txt")"
+      [ "$ATT" = "1" ] && echo "    LA RELECTURE NE MORD PLUS : une correction défaite ne serait plus vue."
+      [ "$ATT" = "0" ] && echo "    LA RELECTURE MORD À TORT : une édition honnête serait refusée."
+      STATUT=1
+    elif [ -n "$LIGNE" ] && ! grep -q "$LIGNE" "$CUR/edprec_$NOM.txt"; then
+      echo "  ✗ témoin « $NOM » sort bien en 1, mais SANS la ligne « $LIGNE » :"
+      echo "    le code de sortie ne dit pas QUEL rejeu est vu — le jeton attendu n'est plus détecté."
+      STATUT=1
+    else
+      echo "  ✓ témoin « $NOM » exit $ATT$([ -n "$LIGNE" ] && echo " avec sa ligne « $LIGNE »")"
+    fi
+  done
+  if [ "$EP_N" != "$ATTENDU_EDPREC" ]; then
+    echo "  ✗ $EP_N témoin(s) de relecture contrôlé(s), $ATTENDU_EDPREC attendu(s) — rétablis le"
+    echo "    dossier manquant, ou mets ATTENDU_EDPREC à jour."
     STATUT=1
   fi
 fi
