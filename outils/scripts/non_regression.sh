@@ -538,13 +538,26 @@ if [ "$MODE" = "--complet" ]; then
   # Chaque dossier porte sa propre copie de l'édition N-1 et de la FICHE de celle-ci, puisque le
   # contrôle les cherche à côté du document : deux fichiers de même nom ne peuvent pas cohabiter.
   echo "▶ Relecture à l'édition précédente (rejeu en 1 avec sa ligne, conforme en 0)…"
-  ATTENDU_EDPREC=2
+  # 🔴 TROISIÈME TÉMOIN AJOUTÉ LE 14/10/2026, APRÈS UN FAUX REFUS EN PRODUCTION. Le contrôle a
+  # refusé trois fois le push du job serafin-ph-veille du 14/10 sur deux jetons — « Inaccessible »
+  # (de « ⛔ Inaccessible (404) ») et « Semaine » (de « Semaine creuse ») : deux mots ordinaires,
+  # capitalisés parce qu'ils ouvrent une cellule, et que la série emploie chaque semaine. La borne a
+  # été resserrée (dénonciation EXIGÉE, et jeton hors tête de citation). ⚠️ ET LES DEUX TÉMOINS
+  # EXISTANTS NE GARDENT PAS CE RESSERREMENT : sabotage vérifié le 14/10/2026 — en retirant
+  # l'exigence de dénonciation, « rejeu » sort toujours en 1 AVEC sa ligne TSMC et « conforme »
+  # toujours en 0, tandis que la paire SERAFIN rebascule en 1. C'est la même leçon que la convention
+  # « 0: » du 10/10 : un motif qu'on RESSERRE a besoin d'un témoin qui doit être ACCEPTÉ, sinon rien
+  # n'empêche de le réélargir demain et de refuser à nouveau un livrable juste.
+  ATTENDU_EDPREC=3
   EP_N=0; EPD="$NR/temoins_edition_precedente"
-  for cas in "rejeu|1|INTERDIT « TSMC »" "conforme|0|"; do
-    NOM="${cas%%|*}"; RST="${cas#*|}"; ATT="${RST%%|*}"; LIGNE="${RST##*|}"
-    DOC="$EPD/$NOM/2026-10-11_veille_imac.docx"
-    if [ ! -f "$DOC" ] || [ ! -f "$EPD/$NOM/2026-10-04_veille_imac.docx" ] \
-       || [ ! -f "$EPD/$NOM/2026-10-04_veille_imac.fiche.md" ]; then
+  for cas in "rejeu|1|INTERDIT « TSMC »|2026-10-11_veille_imac.docx|2026-10-04_veille_imac" \
+             "conforme|0||2026-10-11_veille_imac.docx|2026-10-04_veille_imac" \
+             "faux_refus|0||2026-10-14_veille_SERAFIN-PH.docx|2026-10-07_veille_SERAFIN-PH"; do
+    NOM="${cas%%|*}"; RST="${cas#*|}"; ATT="${RST%%|*}"; RST2="${RST#*|}"
+    LIGNE="${RST2%%|*}"; RST3="${RST2#*|}"; FICH="${RST3%%|*}"; PREC="${RST3##*|}"
+    DOC="$EPD/$NOM/$FICH"
+    if [ ! -f "$DOC" ] || [ ! -f "$EPD/$NOM/$PREC.docx" ] \
+       || [ ! -f "$EPD/$NOM/$PREC.fiche.md" ]; then
       echo "  ✗ témoin « $NOM » incomplet — il lui faut l'édition N, l'édition N-1 et la fiche de N-1."
       STATUT=1; continue
     fi
@@ -554,7 +567,7 @@ if [ "$MODE" = "--complet" ]; then
     if [ "$rc" != "$ATT" ]; then
       echo "  ✗ témoin « $NOM » sort en $rc au lieu de $ATT — $(tail -1 "$CUR/edprec_$NOM.txt")"
       [ "$ATT" = "1" ] && echo "    LA RELECTURE NE MORD PLUS : une correction défaite ne serait plus vue."
-      [ "$ATT" = "0" ] && echo "    LA RELECTURE MORD À TORT : une édition honnête serait refusée."
+      [ "$ATT" = "0" ] && echo "    LA RELECTURE MORD À TORT : une édition honnête serait refusée$([ "$NOM" = "faux_refus" ] && echo " — c'est le faux refus du 14/10/2026 qui revient")."
       STATUT=1
     elif [ -n "$LIGNE" ] && ! grep -q "$LIGNE" "$CUR/edprec_$NOM.txt"; then
       echo "  ✗ témoin « $NOM » sort bien en 1, mais SANS la ligne « $LIGNE » :"

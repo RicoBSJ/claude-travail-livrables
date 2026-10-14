@@ -46,15 +46,33 @@ JETON_MINI = 3         # ① longueur minimale d'un jeton
 
 MARQUEUR = re.compile(r"\[(?:Corrigé|Corrige|Précisé|Precise|Ajouté|Ajoute|Note du|Vérifié|Verifie)\b"
                       r"[^\[\]]*(?:\[[^\]]*\][^\[\]]*)*\]", re.S)
-# ① la BORNE, mesurée le 12/10/2026 sur les 73 éditions des cinq séries. Sans borne, le motif rend
-#    8 détections dont UNE vraie (« TSMC ») : les sept autres sont des mots courants — « Ouverture »,
-#    « HTTP », « Annex », « Article », « Habitat », « Boulanger », « Bloomberg » — extraits de longues
-#    lignes de tableau réécrites en bloc, et qui reviennent parce que l'édition parle du même sujet.
-#    Ce qui distingue « TSMC » : sa citation d'origine est COURTE (« Procédé 2 nm TSMC », 4 mots), donc
-#    le jeton EST l'objet de la correction, et elle est suivie d'une DÉNONCIATION explicite (« le
-#    fondeur n'étant pas nommé sur la page citée »). On ne retient donc un jeton que si l'une des deux
-#    tient. Mesure des bornes : ≤4 mots → 0 faux positif · ≤5 mots → 1 · dénoncée → 0 · et « TSMC »
-#    est retenu par les deux. Un jeton tiré d'une ligne longue et sans explication ne prouve rien.
+# ① la BORNE. Première version le 12/10/2026, RESSERRÉE le 14/10/2026 après un faux refus EN
+#    PRODUCTION : le contrôle a refusé trois fois le push du job serafin-ph-veille du 14/10 sur deux
+#    jetons — « Inaccessible », tiré de « ⛔ Inaccessible (404) », et « Semaine », tiré de « Semaine
+#    creuse ». Deux mots ordinaires de la langue, capitalisés seulement parce qu'ils ouvrent une
+#    cellule de tableau, et qui reviennent parce que la série en parle chaque semaine. Le livrable
+#    était juste ; le contrôle avait tort, et il a laissé un commit non poussé.
+#    CE QUI AVAIT ÉTÉ MAL BORNÉ. La version du 12/10 retenait une citation si elle était COURTE
+#    (≤ 4 mots) **OU** suivie d'une dénonciation. La prémisse du « court » était qu'un jeton tiré
+#    d'une citation brève EST l'objet de la correction. C'est faux : une citation brève est le plus
+#    souvent une ÉTIQUETTE — « ⛔ Inaccessible (404) », « Semaine creuse » — dont les mots sont le
+#    vocabulaire ordinaire de la série. Ce qui distinguait « TSMC », ce n'était pas la brièveté de
+#    « Procédé 2 nm TSMC », c'était que TSMC est un NOM PROPRE et que la citation est suivie d'une
+#    dénonciation explicite (« le fondeur n'étant pas nommé sur la page citée »).
+#    LA BORNE EST DONC UN ET, SUR DEUX AXES INDÉPENDANTS, mesurés le 14/10/2026 :
+#      · la citation doit être suivie d'une DÉNONCIATION explicite (le 12/10 déjà : 0 faux positif
+#        sur les 73 éditions, et « TSMC » retenu) ;
+#      · le jeton ne doit pas OUVRIR la citation — un mot capitalisé en tête de citation ou juste
+#        après un symbole n'est pas un nom propre, c'est un début de phrase ou de cellule.
+#      Mesure : « Inaccessible » et « Semaine » sont tous deux en TÊTE et NON dénoncés ; « TSMC » est
+#      au MILIEU et dénoncé. Les deux axes séparent, et on exige les deux.
+#    CE QUE LA BORNE COÛTE, et il faut le dire : un jeton réellement retiré par une correction mais
+#    dont la citation d'origine n'est pas suivie d'une explication échappe désormais au motif. Le
+#    journal d'une veille corrigée liste souvent ses formulations d'origine sans les commenter une
+#    par une — c'est le cas de huit des dix entrées du 04/10 sur la série iMac. Le motif ne voit donc
+#    que les corrections EXPLIQUÉES. C'est le prix d'un contrôle bloquant qui ne doit jamais refuser
+#    un livrable juste : en production, un faux refus coûte un livrable non publié, un vrai manqué ne
+#    coûte qu'une relecture humaine.
 MOTS_CITATION = 4
 DENONCE = re.compile(r"(?i)n['’]?(?:est|était|étant|e figure|e figurait)? ?(?:pas|plus)? ?nomm"
                      r"|pas sur la page|ne figure|absent|z[ée]ro occurrence|invent|fabriqu|non v[ée]rifi"
@@ -124,12 +142,15 @@ def citations_retenues(*sources):
         for m in re.finditer(r"«\s*(.+?)\s*»", src, re.S):
             c = re.sub(r"\s+", " ", m.group(1)).strip()
             vues += 1
-            if len(mots(c)) <= MOTS_CITATION or DENONCE.search(src[m.end():m.end()+140]):
-                gardees.append(c)
+            if DENONCE.search(src[m.end():m.end() + 140]):
+                gardees.append((c, src[m.end():m.end() + 140]))
     return gardees, vues
 
 def jetons(s):
-    """ce qui, dans une formulation, est assez distinctif pour qu'un retour soit un retour"""
+    """ce qui, dans une formulation, est assez distinctif pour qu'un retour soit un retour.
+    Un jeton qui OUVRE la citation (rien, ou seulement des symboles, devant lui) est écarté :
+    « ⛔ Inaccessible (404) » et « Semaine creuse » ont fait refuser à tort un livrable juste
+    le 14/10/2026, parce qu'un mot capitalisé en tête de cellule n'est pas un nom propre."""
     out = set()
     for m in re.finditer(r"\b\d{1,3}(?:[   ]\d{3})+(?:[.,]\d+)?\b|\b\d{3,}(?:[.,]\d+)?\b", s):
         out.add(m.group(0))
@@ -137,7 +158,14 @@ def jetons(s):
         out.add(m.group(0))
     for m in re.finditer(r"\b[A-Z][a-zà-ÿ]{3,}\b", s):        # Lenovo, Boulanger, Autodétermination
         out.add(m.group(0))
-    return {j for j in out if len(j) >= JETON_MINI}
+    gardes = set()
+    for j in out:
+        if len(j) < JETON_MINI: continue
+        for m in re.finditer(r"(?<![0-9A-Za-zÀ-ÿ])" + re.escape(j) + r"(?![0-9A-Za-zÀ-ÿ])", s):
+            avant = s[:m.start()].strip()
+            if avant and not re.fullmatch(r"[^0-9A-Za-zÀ-ÿ]+", avant):
+                gardes.add(j); break                      # vu au moins une fois en milieu de citation
+    return gardes
 
 def suites(s, n):
     w = mots(s)
@@ -186,17 +214,18 @@ pb = []
 print("\n① JETONS RETIRÉS PAR UNE CORRECTION DE L'ÉDITION PRÉCÉDENTE ET REVENUS (bloquant)")
 cites_p, n_vues = citations_retenues(journal_p, marq_p)
 cands = set()
-for c in cites_p:
+for c, _ctx in cites_p:
     cands |= jetons(c)
 plat_p, plat_c = plat(corps_p), plat(corps_c)
 retires = sorted(j for j in cands if not present(j, plat_p))
 revenus = [j for j in retires if present(j, plat_c)]
 print("   %d citation(s) d'origine dans le journal et les marqueurs de N-1, dont %d retenue(s)"
-      " (≤%d mots, ou dénonciation explicite) · %d jeton(s) distinctif(s) · %d retiré(s) du corps corrigé"
-      % (n_vues, len(cites_p), MOTS_CITATION, len(cands), len(retires)))
+      " (suivie d'une dénonciation explicite) · %d jeton(s) distinctif(s), hors tête de citation"
+      " · %d retiré(s) du corps corrigé"
+      % (n_vues, len(cites_p), len(cands), len(retires)))
 if revenus:
     for j in revenus:
-        ou = [c for c in cites_p if j in c]
+        ou = [c for c, _ in cites_p if j in c]
         print("   INTERDIT « %s » — retiré du corps de %s par une correction, présent dans celui-ci"
               % (j, os.path.basename(PREC)[:10]))
         if ou: print("             formulation d'origine : « %s »" % ou[0][:150])
