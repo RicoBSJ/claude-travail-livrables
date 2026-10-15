@@ -1030,3 +1030,43 @@ les seules lignes dont le job est dans la config : **il n'ajoute ni ne retire ja
 ligne**. Les cinq lignes mortes ne seront donc **jamais** nettoyées automatiquement, et le
 titre restera faux. **Non corrigé** : retirer cinq lignes d'un livrable et renommer un
 fichier daté sont des gestes à valider.
+
+### 15/10/2026 — CLASSEUR DE SUIVI REFAIT : `2026-10-15_Les 9 Jobs.xlsx`
+
+**Ordre** : « produis le 2026-10-15_Les 9 Jobs.xlsx et archive l'ancien ».
+
+Construit **depuis `jobs_config.json`**, pas recopié : les créneaux sont déduits des
+expressions `cron` (`JOURS[weekday]`, `%dh%02d`), la colonne « Type » est **reportée de
+l'ancien classeur** pour ne rien inventer — avec une assertion qui échoue si un job n'y
+avait pas de type —, les styles de titre, d'en-tête et de corps sont copiés cellule par
+cellule, et les largeurs de colonnes conservées. Les numéros de leçon sont ensuite remplis
+par `maj_xlsx_jobs.py` **depuis le disque** : hypnose 18 · stoïcisme 19 · astrologie 10 ·
+placement-financier 18. Relancé une seconde fois : **aucune écriture**, l'idempotence tient.
+
+| | avant | après |
+|---|---|---|
+| titre | « Tes 14 jobs » | **« Tes 9 jobs »** |
+| lignes de job | 14, dont **5 jobs supprimés** | **9**, égales à `jobs_config.json` |
+| plage | `A1:E16` | `A1:E11` |
+
+Ancien déplacé par `git mv` dans **`livrables/documents/archives/`** (sous-dossier créé pour
+l'occasion, sur le modèle de `lecons/archives/`, `contexte/archives/` et
+`outils/prompts/archives/`). L'historique du fichier est donc conservé.
+
+⚠️ **ET LE GESTE QU'IL NE FAUT PAS OUBLIER, SANS QUOI LE LIVRABLE EST MORT-NÉ** :
+`maj_xlsx_jobs.py` porte le chemin du classeur **en dur** (`CLASSEUR`). Sans le repointer,
+il aurait continué d'écrire dans le fichier **archivé** après chaque job réussi, et le
+nouveau classeur se serait figé le jour de sa création. Repointé, et le commentaire dit
+désormais pourquoi c'est la seule chose à changer quand on refait le classeur.
+🔵 Un commentaire de `run_job.sh` (¶399) citait aussi l'ancien chemin : corrigé. Vérifié
+qu'il ne reste **aucune référence active** à `Les 14 Jobs` dans les `.py`, `.sh` et `.json`.
+
+📌 **CE QUI RESTE OUVERT, ET C'EST LA CAUSE, PAS LE SYMPTÔME.** `maj_xlsx_jobs.py` ne met à
+jour **qu'une colonne** et ne touche jamais au jeu de lignes : il est **structurellement
+incapable de suivre une suppression de job**. Le classeur dérivera donc encore à la
+prochaine — `astrologie-karmique`, après sa leçon 12 du 22/10. **La correction est à dix
+lignes** : le script ouvre déjà le classeur **et** la config, il lui suffirait de comparer
+les deux jeux d'ids et d'AVERTIR quand ils divergent. Non fait : l'ordre portait sur le
+classeur, pas sur le script. C'est le seul endroit où un humain lit la liste des jobs, et
+le seul que rien ne vérifie — `controle_clauses_parcours.py` compare le prompt aux `.docx`,
+`audit_vault.py` les fiches aux documents, **personne ne compare le classeur à la config**.

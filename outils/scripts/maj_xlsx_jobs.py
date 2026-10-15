@@ -25,7 +25,12 @@ from pathlib import Path
 RACINE = Path(__file__).resolve().parent.parent.parent
 CONFIG = RACINE / "jobs_config.json"
 LECONS = RACINE / "livrables" / "lecons"
-CLASSEUR = RACINE / "livrables" / "documents" / "2026-08-09_Les 14 Jobs.xlsx"
+# ⚠ 15/10/2026 : ce chemin est la SEULE chose à changer quand le classeur est refait.
+# L'ancien « 2026-08-09_Les 14 Jobs.xlsx » portait cinq jobs supprimés et un titre faux
+# (« Tes 14 jobs » pour 9 réels) parce que ce script ne met à jour QU'UNE COLONNE : il
+# n'ajoute ni ne retire jamais une ligne. Il est donc incapable de corriger une
+# suppression de job, et le classeur dérive en silence à chaque fois.
+CLASSEUR = RACINE / "livrables" / "documents" / "2026-10-15_Les 9 Jobs.xlsx"
 
 EN_TETE = "Numéro de la dernière leçon"
 SANS_OBJET = "—"          # jobs qui ne produisent pas de leçon (veilles, contrôle)

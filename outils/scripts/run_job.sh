@@ -396,7 +396,7 @@ fi
 
 # ---- Tableau de bord des jobs (informatif, JAMAIS bloquant) ----
 # Met à jour la colonne « Numéro de la dernière leçon » du classeur
-# livrables/documents/2026-08-09_Les 14 Jobs.xlsx. Le numéro est LU dans le nom du
+# livrables/documents/2026-10-15_Les 9 Jobs.xlsx. Le numéro est LU dans le nom du
 # dernier .docx du parcours, pas compté : un créneau manqué crée un trou de
 # numérotation, et compter donnerait alors un chiffre faux.
 # Idempotent : n'écrit le fichier que si une valeur a changé — donc pas de commit
