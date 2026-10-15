@@ -113,6 +113,35 @@ ATTENDU_AVANT=9       # temoins_attributions_avant_correction/ — 9 depuis le 1
 #   retouchée deux fois le 25/09/2026 (acquittement de la dérive déclarée, et retrait du repli
 #   qui cherchait le numéro de remplacement dans toute la fenêtre).
 
+# ── 0 bis. AUTO-TESTS DE chercher.py — DANS TOUS LES MODES, --docs COMPRIS (15/10/2026)
+# `chercher.py` n'est pas un contrôle de publication : c'est l'outil par lequel Claude vérifie
+# qu'une citation, un chiffre ou une date figure bien sur une page aspirée, SANS que la page
+# entre dans son contexte. Il ne peut donc pas être gardé par un témoin .docx ni par la
+# référence. Mais ses bornes sont exactement celles que le dépôt a déjà payées cher :
+#   • le « \? » devant la classe d'espaces — bug de la passe D réparé le 10/10/2026, reproduit
+#     à l'identique à l'écriture de chercher.py le 15/10 (nombres présents donnés pour absents) ;
+#   • le point JAMAIS séparateur de milliers — borne de ㉟ du 11/10, deux faux appariements
+#     mesurés (« 7 918 » dans le « 7.918 » de doi.org, « 1 049 » dans le « 1.049 » d'apple.com) ;
+#   • un jeton se cherche ponctuation CONSERVÉE — borne du 12/10 ;
+#   • et le degré ④ doit MONTRER ce que la page écrit à la place, règle du 14/10 née de quatre
+#     quasi-fausses accusations en deux jours.
+# 21 auto-tests, 0,1 s, AUCUN appel réseau — donc il tourne même à la porte des pushs de job.
+# Les neuf mutations qui les prennent en défaut sont dans le docstring de chercher.py.
+if [ -x "$ROOT/outils/scripts/chercher.py" ]; then
+  echo "▶ Auto-tests de chercher.py (appariement exact, aucun réseau)"
+  # ⚠ PAS de pipe ici. La première écriture était « ... --autotest | tail -1 », qui teste le
+  # code de sortie de TAIL : le sabotage s'affichait et le harnais sortait en 0 quand même.
+  # Mesuré le 15/10/2026 à la pose du garde. Un garde qui ne fait pas sortir en 1 est décoratif.
+  CH_OUT="$CUR/chercher_autotest.txt"
+  if env -i $PY "$ROOT/outils/scripts/chercher.py" --autotest > "$CH_OUT" 2>&1; then
+    tail -1 "$CH_OUT"
+  else
+    grep '✗' "$CH_OUT" | head -5
+    echo "  ✗ chercher.py A PERDU UNE BORNE — un « ABSENT » de cet outil ne vaut plus rien"
+    exit 1
+  fi
+fi
+
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then
   shift; STATUT=0
