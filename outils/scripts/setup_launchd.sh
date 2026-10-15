@@ -12,9 +12,7 @@
 #   controle-livrables     dimanche 11h03 (contrôle qualité de la semaine)
 #   imac-veille        dimanche 8h03
 #   rbpp-pipeline      lundi    8h30
-#   dzogchen-lecon     mardi    8h03
 #   serafin-ph-veille  mercredi 8h03
-#   enneagramme-lecon  mercredi 9h03
 #   stoicisme-lecon    jeudi    8h03
 #   (appli-ia-lecon : SUPPRIMÉ le 04/10/2026 — parcours fermé de 12 leçons, bilan livré
 #    le 02/10. Son prompt de 121 604 octets, le plus gros du dépôt, reste récupérable
@@ -72,16 +70,29 @@ fi
 # job_id | minute | hour | weekday (vide = quotidien)
 JOBS="imac-veille|3|8|0
 rbpp-pipeline|30|8|1
-psychopathologie-lecon|3|8|1
-dzogchen-lecon|3|8|2
 serafin-ph-veille|3|8|3
-enneagramme-lecon|3|9|3
 stoicisme-lecon|3|8|4
 placement-financier-lecon|3|8|6
 hypnose-lecon|3|9|2
 astrologie-karmique-lecon|33|9|4
 controle-livrables|3|11|0
 ai-act-veille|3|9|5"
+
+# ⚠ AGENTS ORPHELINS — DÉFAUT MESURÉ LE 15/10/2026, À LA SUPPRESSION DE TROIS JOBS.
+# Ce script porte sa PROPRE liste de créneaux (JOBS ci-dessus) et ne lit PAS
+# jobs_config.json. Constaté ce jour-là : les trois jobs retirés de jobs_config.json ont
+# été RÉINSTALLÉS par ce script, et il n'a jamais su retirer un .plist dont le job
+# n'existe plus. Un job supprimé restait donc planifié indéfiniment, à appeler un id que
+# run_job.sh ne connaît plus. Le script ne supprime rien de lui-même — effacer un fichier
+# reste une décision d'opérateur — mais il le DIT désormais, nommément.
+# 📌 Piste bornée : faire lire JOBS depuis jobs_config.json, qui est déclaré « source de
+# vérité unique des jobs ». Il ne l'est pas pour les créneaux, et c'est tout le défaut.
+ORPHELINS=""
+for PLIST in "$HOME/Library/LaunchAgents"/com.claudetravail.*.plist; do
+  [ -e "$PLIST" ] || continue
+  ID="${PLIST##*/com.claudetravail.}"; ID="${ID%.plist}"
+  echo "$JOBS" | grep -q "^$ID|" || ORPHELINS="$ORPHELINS $ID"
+done
 
 echo "=== Installation des agents launchd Claude_Travail ==="
 echo ""
@@ -153,6 +164,17 @@ PLISTEOF
 done <<< "$JOBS"
 
 echo ""
+if [ -n "$ORPHELINS" ]; then
+  echo ""
+  echo "⛔ AGENT(S) ORPHELIN(S) — planifié(s) mais absent(s) de la liste de ce script :"
+  for ID in $ORPHELINS; do
+    echo "   $ID"
+    echo "     launchctl unload $HOME/Library/LaunchAgents/com.claudetravail.$ID.plist"
+    echo "     rm $HOME/Library/LaunchAgents/com.claudetravail.$ID.plist"
+  done
+  echo "   Ils se déclencheront à leur créneau et appelleront un id que run_job.sh ignore."
+fi
+
 echo "=== ${COUNT} agents installés ==="
 echo "Vérifier  : launchctl list | grep claudetravail"
 echo "Désactiver: $PROJECT/outils/scripts/teardown_launchd.sh"

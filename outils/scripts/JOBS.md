@@ -921,3 +921,61 @@ tenir un chiffre.
 que ce qu'on lui demande, là où la lecture d'une page entière repère parfois un défaut
 qu'on ne cherchait pas. D'où l'obligation nouvelle : **toute fiche liste les requêtes
 passées**, pour qu'on voie ce qui n'a pas été interrogé.
+
+---
+
+## 15/10/2026 — SUPPRESSION DE TROIS JOBS DE PARCOURS CLOS (42 → 32 $/SEMAINE)
+
+**Ordre** : « supprime les trois jobs des parcours clos ».
+
+**Prémisse vérifiée AVANT de toucher quoi que ce soit**, parce que trois listes de
+chantiers de la semaine reposaient sur une prémisse fausse. `controle_clauses_parcours.py`
+sur les trois : `annoncé 20 · réels 20 · clause oui · limite oui`, et 20 `.docx` comptés
+sur disque pour chacun. Bilans livrés les **12/10** (psychopathologie), **13/10**
+(dzogchen) et **14/10** (ennéagramme).
+
+| job | créneau libéré | plafond | prompt |
+|---|---|---|---|
+| `psychopathologie-lecon` | lundi 8h03 | 4,00 $ | 63 560 o |
+| `dzogchen-lecon` | mardi 8h03 | 3,00 $ | 48 272 o |
+| `enneagramme-lecon` | mercredi 9h03 | 3,00 $ | 41 350 o |
+
+**Cumul recompté sur `run_job.sh` : 9 `case`, 9 plafonds, `32.00 $`** — exactement les
+10 $ retirés. Prompts récupérables par `git show 4b697a6:jobs_config.json`.
+**Les 60 leçons sont conservées.** Sixième, septième et huitième suppressions du dépôt.
+
+🔴 **ET LE GESTE QUE LA DOCTRINE DÉCRIVAIT MAL : SUPPRIMER UN JOB DEMANDE QUATRE ACTIONS.**
+`CLAUDE.md` disait depuis le 11/09/2026 que `setup_launchd.sh` « ne synchronise que les
+CRÉNEAUX ». C'est vrai et **dangereusement incomplet** : le script porte sa **propre liste
+`JOBS` en dur** et ne lit **pas** `jobs_config.json`. Mesuré ce jour : les trois jobs
+retirés de la config, puis `setup_launchd.sh` lancé → **« 12 agents installés »**, les trois
+supprimés **réinstallés**. Et le script n'a jamais su retirer un `.plist` dont le job
+n'existe plus : un job supprimé restait **planifié indéfiniment**, à appeler un id que
+`run_job.sh` ne connaît plus — donc un créneau qui part en erreur chaque semaine, en
+silence. ⚠️ **Les cinq suppressions précédentes sont à vérifier sous cet angle** : rien ne
+garantit que leurs `.plist` ont été retirés.
+
+🟢 **`setup_launchd.sh` NOMME DÉSORMAIS LES ORPHELINS**, avec les deux commandes à passer :
+tout `.plist` `com.claudetravail.*` absent de sa liste est signalé en fin de sortie. Validé
+dans les deux sens : avec les trois lignes encore présentes → `12 agents`, aucun orphelin ;
+les trois retirées → `9 agents` + les trois orphelins nommés ; après `launchctl unload` et
+`rm` → `9 agents`, aucun orphelin. **État final : 9 `.plist`, 9 chargés dans `launchctl`.**
+📌 **Piste bornée** : faire lire `JOBS` depuis `jobs_config.json`. Celui-ci est déclaré
+« source de vérité unique des jobs » et **ne l'est pas pour les créneaux** — c'est tout le
+défaut, et il a survécu à cinq suppressions.
+
+🔵 **Séquence complète, à suivre pour la prochaine (`astrologie-karmique` après le 22/10)** :
+① `jobs_config.json` · ② `case BUDGET` de `run_job.sh` · ③ liste `JOBS` de
+`setup_launchd.sh` puis le relancer · ④ `launchctl unload` **et** `rm` le `.plist` ·
+⑤ `.claude/skills/lancer-job/SKILL.md`, **corps ET description du frontmatter**.
+
+⚠️ **Le skill était un cinquième point d'oubli** : sa table de correspondance pointait
+encore `revenus` et `appli`, supprimés le **04/10/2026** — onze jours d'un skill qui
+renvoyait vers deux jobs inexistants. Nettoyé, et sa cohérence est maintenant **vérifiable
+en une ligne** : les ids du skill et ceux de `jobs_config.json` sont désormais égaux (9 = 9).
+🆕 **Et le balayage a trouvé un manque préexistant** : `ai-act-veille`, actif depuis le
+20/09, **n'avait aucune entrée dans le skill** — il n'était pas lançable à la main. Ajouté.
+
+📌 **`controle_psychopathologie.py` est CONSERVÉ** bien que son job n'existe plus : il porte
+un témoin conforme et la mutation « fraction » de la section 5 ter du harnais. Le supprimer
+ferait tomber `ATTENDU_5BIS`.

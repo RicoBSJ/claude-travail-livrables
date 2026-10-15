@@ -32,8 +32,8 @@ Claude_Travail/
 │
 ├── livrables/              ← SORTIES
 │   ├── lecons/             ← leçons Word — UN SOUS-DOSSIER PAR PARCOURS, racine vide
-│   │   ├── psychopathologie/ · enneagramme/ · dzogchen/ · stoicisme/ · hypnose/   ← parcours actifs
-│   │   ├── placement-financier/ · astrologie-karmique/   ← parcours actifs
+│   │   ├── stoicisme/ · hypnose/ · placement-financier/ · astrologie-karmique/   ← parcours actifs
+│   │   ├── psychopathologie/ · enneagramme/ · dzogchen/   ← CLOS 20/20, jobs supprimés le 15/10/2026
 │   │   ├── appli-ia/   ← parcours TERMINÉ 12/12 (job supprimé le 04/10/2026)
 │   │   ├── revenus-passifs/   ← parcours CLOS (job supprimé le 04/10/2026, 11 leçons conservées)
 │   │   └── nocode-ia/ · entretien-motivationnel/ (parcours clos) · archives/ (leçons Claude Code d'avril)
@@ -116,18 +116,20 @@ Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `li
 
 ## Parcours clos — rien à produire
 
+**`psychopathologie` · `dzogchen` · `enneagramme`** : 20/20, bilans livrés les 12, 13 et 14/10/2026, jobs supprimés le **15/10/2026**. Les 60 leçons sont conservées. Créneaux libérés : **lundi 8h03, mardi 8h03, mercredi 9h03**.
+
 `appli-ia` (12/12, job supprimé le 04/10/2026, projet fil rouge conservé dans `livrables/projets/appli-ia/`) · `revenus-passifs` (11 leçons, supprimé le 04/10/2026) · `nocode-ia` (16 leçons) · `entretien-motivationnel`. Détail et commits des prompts : `outils/scripts/JOBS.md`.
 
 ## Jobs planifiés
 
-**12 jobs** hebdomadaires via **launchd** (app fermée) : launchd → `outils/scripts/run_job.sh <job_id>` → `claude -p` headless.
+**9 jobs** hebdomadaires via **launchd** (app fermée) : launchd → `outils/scripts/run_job.sh <job_id>` → `claude -p` headless.
 
 ### Invariants — à ne pas réapprendre
 
 | Règle | Détail |
 |---|---|
 | Source de vérité des **prompts** | `jobs_config.json`. `run_job.sh` le relit à chaque run → **aucun reload launchd pour un changement de prompt** |
-| Source de vérité des **plafonds** | `run_job.sh`, bloc `case "$JOB_ID"`. Cumul **42 $/semaine** sur 12 jobs |
+| Source de vérité des **plafonds** | `run_job.sh`, bloc `case "$JOB_ID"`. Cumul **32 $/semaine** sur 9 jobs (42 → 32 le 15/10/2026, trois parcours clos supprimés) |
 | Le plafond s'applique **par tentative** | pas au cumul : un job à 3 tentatives peut dépenser 3× son plafond. Un dépassement coupe les tentatives |
 | `TOURS_MINI=7` | un `exit 0` obtenu en moins de 7 tours **après un échec** n'est pas publié → **exit 7** |
 | Mémoire d'échec sur disque | `outils/scripts/logs/.echec_<job>`, gitignoré, **72 h**. Un `exit 7` la maintient, seul un `exit 0` franc la lève |
@@ -136,7 +138,12 @@ Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `li
 | Clause de fermeture | tout parcours fermé porte **⛔ PARCOURS FERMÉ — N LEÇONS** + la limite sur la numérotation. `controle_clauses_parcours.py` **refuse** un parcours arrivé à sa limite sans clause |
 | Toute création/suppression de job | se répercute **ici ET dans `jobs_config.json`** |
 
-Six jobs supprimés à ce jour : `rgpd-veille`, `nocode-ia-veille`, `entretien-motivationnel-lecon`, `revenus-passifs-lecon`, `appli-ia-lecon`, `astrologie-karmique-lecon` (à venir). **Les prompts restent récupérables dans l'historique git** — voir `JOBS.md` pour les commits.
+**Huit jobs supprimés à ce jour** : `rgpd-veille`, `nocode-ia-veille`, `entretien-motivationnel-lecon`, `revenus-passifs-lecon`, `appli-ia-lecon`, puis **`psychopathologie-lecon`, `dzogchen-lecon` et `enneagramme-lecon` le 15/10/2026** (parcours clos 20/20, bilans livrés les 12, 13 et 14/10). `astrologie-karmique-lecon` suivra après sa leçon 12 du 22/10. **Les prompts restent récupérables dans l'historique git** — les trois derniers par `git show 4b697a6:jobs_config.json` (63 560, 48 272 et 41 350 octets).
+
+🔴 **⚠️ SUPPRIMER UN JOB DEMANDE QUATRE GESTES, PAS UN — mesuré le 15/10/2026.** `setup_launchd.sh` porte sa **propre liste de créneaux en dur** et ne lit **pas** `jobs_config.json` : le lancer après avoir retiré un job de la config **le réinstalle**, et il n'a jamais su retirer un `.plist` orphelin. Un job supprimé restait donc **planifié indéfiniment**, à appeler un id que `run_job.sh` ne connaît plus. La séquence complète :
+> ① retirer le job de `jobs_config.json` · ② retirer son `case BUDGET` de `run_job.sh` · ③ retirer sa ligne de la liste `JOBS` de `setup_launchd.sh`, puis le relancer · ④ `launchctl unload` **et** `rm` le `.plist`. Puis ⑤ le skill `.claude/skills/lancer-job/SKILL.md`, qui porte sa propre table de correspondance.
+>
+> `setup_launchd.sh` **nomme désormais les orphelins** avec les deux commandes à passer. 📌 Piste bornée : lui faire lire `JOBS` depuis `jobs_config.json` — déclaré « source de vérité unique des jobs », il ne l'est pas pour les créneaux, et c'est tout le défaut.
 
 ### Les contrôles — appelés par les prompts, jamais copiés
 
@@ -146,7 +153,7 @@ Six jobs supprimés à ce jour : `rgpd-veille`, `nocode-ia-veille`, `entretien-m
 | `controle_decompte.py` | décompte des éditions d'une série de veille |
 | `controle_edition_precedente.py` | relit une veille à l'**édition précédente et à sa fiche**. 3 motifs ; ① seul est bloquant |
 | `controle_clauses_parcours.py` | annoncé vs réel vs clause vs limite |
-| `controle_astrologie_karmique.py` · `controle_psychopathologie.py` · `controle_ai_act.py` | étapes **5 bis** sorties des prompts (7, 4 et 11 motifs) |
+| `controle_astrologie_karmique.py` · `controle_psychopathologie.py` · `controle_ai_act.py` | étapes **5 bis** sorties des prompts (7, 4 et 11 motifs). ⚠️ `controle_psychopathologie.py` est **conservé** après la suppression de son job : il garde un témoin et une mutation du harnais |
 | `audit_vault.py` | 9 contrôles du coffre Obsidian après chaque job |
 | `aspirer.py` + `chercher.py` | 🆕 15/10/2026 — **vérifier une citation sans faire entrer la page dans le contexte**. Voir « Calibrage » ci-dessous |
 
