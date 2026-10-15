@@ -30,7 +30,9 @@ REFUSE la note si :
        texte OU dans un de ses liens (forme du Journal officiel : OJ:L_<année><5 chiffres>)
   (9)  une page dite « sans élément nouveau » porte, dans la fenêtre, une date que la note
        ne cite nulle part
-  (10) une taille de page annoncée s'écarte de plus de 2 % de la taille mesurée ici
+  (10) une taille de page annoncée s'écarte de plus de 2 % de la taille mesurée ici.
+       ⚠️ EXEMPTE depuis le 15/10/2026 les URL de LISTING (/news/, /press/, /blog/…) :
+       la taille d'un index change a chaque publication, elle perime le temoin
   (11) un nom d'acte prêté à un article n'existe sur sa page que dans le dernier quart du
        texte, c'est-à-dire dans le mobilier de fin de page, sans que le CORPS le signale
 
@@ -198,6 +200,29 @@ if fen:
                 print("DATE DANS LA FENÊTRE, JAMAIS CITÉE PAR LA NOTE, SUR UNE PAGE DITE SANS ÉLÉMENT NOUVEAU (¶%d) : %s -> %s" % (i, u, ", ".join("%04d-%02d-%02d" % d for d in dd[:4]))); pb.append("%s : date non citée dans la fenêtre" % re.sub(r"^https?://(www\.)?", "", u).split("/")[0])
 
 # ⑩ TAILLE DE PAGE ANNONCÉE CONTRE TAILLE MESURÉE (±2 %) — la mesure de référence est celle de ce script
+#
+# 🔴 15/10/2026 — EXEMPTION DES PAGES D'INDEX, ET C'EST CE MOTIF QUI A REFUSÉ SON PROPRE TÉMOIN.
+#    Le harnais prend `sources/veille/ai-act/2026-10-09_veille_ai-act.docx` — un document
+#    VIVANT — comme témoin conforme des trois duos ai-act de la section 5 ter. Six jours après
+#    sa production, ce motif l'a refusé : la note annonce 4 187 caractères pour
+#    https://iapp.org/news/, la page en mesure 4 298, soit +111 et 2,65 % — au-delà des 2 %.
+#    ⚠️ CONSÉQUENCE : exit 1 du harnais, donc le hook pre-push refusait TOUT push, y compris
+#    celui du job ai-act-veille du vendredi. Un motif qui périme son propre témoin bloque la
+#    chaîne entière.
+#    LA CAUSE N'EST PAS LA TOLÉRANCE, C'EST LA NATURE DE LA PAGE. `iapp.org/news/` est un
+#    INDEX D'ACTUALITÉS : il change à chaque publication, par construction. Mesure sur les
+#    éditions du dépôt : celle du 29/08/2026 annonce 21 746 caractères pour cette même URL,
+#    soit une dérive d'un facteur CINQ — la taille d'un index n'est pas une propriété du
+#    document, c'est un instantané du jour de sa lecture.
+#    C'est exactement la règle posée le 11/10/2026 pour le champ « Last update » d'une page
+#    institutionnelle : une propriété qui change par construction n'est pas citable, et un
+#    témoin qui la cite périme tout seul.
+#    🟢 DONC : une taille annoncée pour une URL de LISTING n'est plus comparée. Le motif reste
+#    entier pour les pages d'ARTICLE, où une taille annoncée a du sens et peut être fausse.
+#    ⚠️ CE QUE L'EXEMPTION COÛTE, et il faut le dire : une taille annoncée à tort sur un index
+#    ne sera plus détectée. Elle n'était de toute façon pas vérifiable au-delà du jour même.
+INDEX_ = re.compile(r"/(?:news|newsroom|press|press-releases|actualites|actualit[ée]s|blog|"
+                    r"articles|publications|communiques|communiqu[ée]s)/?$|/news\?|/news#", re.I)
 for i, t in enumerate(T):
     annonces = [int(re.sub(r"\D", "", m.group(1))) for m in re.finditer(r"([0-9][0-9  ]{2,12})\s*(?:car\.|caractères)", t)]
     annonces = [a_ for a_ in annonces if a_ >= 500]
@@ -206,6 +231,10 @@ for i, t in enumerate(T):
     for u in [v for j in (i, i - 1, i + 1) if 0 <= j < len(L) for v in L[j]][:1]:
         vu = len(page(u))
         if vu < 500: continue              # page qui ne rend rien : non lue, on ne conclut pas
+        if INDEX_.search(u):               # ⑩ 15/10/2026 : un index d'actualités change par construction
+            print("TAILLE NON COMPARÉE (¶%d) : %s est une page d'index — sa taille change à chaque"
+                  " publication, elle n'est pas une propriété du document (⑩, exempté le 15/10/2026)" % (i, u))
+            continue
         if abs(vu - ann) > 0.02 * vu:
             print("TAILLE ANNONCÉE FAUSSE (¶%d) : %d annoncés contre %d mesurés pour %s" % (i, ann, vu, u)); pb.append("taille %d vs %d" % (ann, vu))
 

@@ -73,7 +73,10 @@ ATTENDU_DEC_CONFORMES=3  # temoins_decompte_conformes/ — doivent sortir en 0.
                       # le décompte d'origine EN CHIFFRES. Il avait d'abord été écrit en lettres pour
                       # contourner le bug m3 ; ce contournement le rendait aveugle à sa propre correction.
                       # Un marqueur qui cite fidèlement est donc aussi ce qui rend le test possible.
-ATTENDU_CONFORMES=10  # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (7 copies figées)
+ATTENDU_CONFORMES=11  # 3 documents vivants (stoïcisme 14, appli-ia 07, placement 14) + temoins_attributions_conformes/ (8 copies figées)
+                      # 11 depuis le 15/10/2026 : 2026-06-25_lecon-stoicisme_04_courbes.docx entre pour ㊱,
+                      # les guillemets COURBES “ ” — c'est le SEUL document des 283 dont des citations de
+                      # six mots ou plus tombaient hors de toute capture. Recensement complet, pas échantillon.
                       # 10 depuis le 11/10/2026 : 2026-10-01_lecon-astrologie-karmique_09_locale.docx entre pour
                       # garder ㉟ (un nombre français écrit à l'anglaise sur la page citée). ⚠️ CE TÉMOIN SORT EN 3,
                       # durablement : deux de ses citations sont sur des pages que le contrôle ne peut pas lire. Ce
@@ -328,6 +331,32 @@ if [ "$MODE" = "--complet" ]; then
         STATUT=1
       fi
     fi
+    # ⚠️ ㊱ (15/10/2026) LES GUILLEMETS COURBES. La demande portait sur les guillemets DROITS :
+    #    ils étaient déjà appariés depuis l'origine de la boucle de B/B-FR, et la mesure sur la
+    #    leçon astrologie-karmique n°11 l'a prouvé — ses trois citations anglaises entre " ont été
+    #    vues, deux OK et une en ㉚. Le vrai manque était les COURBES, celles que Word substitue
+    #    au ". Sur les 283 documents, UN SEUL perdait des citations de six mots ou plus : celui-ci,
+    #    le Manuel d'Épictète, pour cinq d'entre elles.
+    #    ⚠️ CE TÉMOIN NE PROUVE RIEN PAR SON CODE DE SORTIE — il sort en 0 AVANT comme APRÈS le
+    #    portage, les cinq citations gagnées étant des traductions, donc non appariables et rendues
+    #    en « A RELIRE » non bloquant. C'est la LIGNE qui est exigée, comme pour ㉜, D, ㉞ et ㉟.
+    #    ⚠️ Et le portage lui-même a d'abord été une RÉGRESSION, mesurée avant commit : ajouter
+    #    “ ” à l'alternance fait de “ un délimiteur et TRONQUE les spans « … » qui en contiennent
+    #    — 21 documents raccourcis, et une capture tronquée est introuvable sur sa page, donc
+    #    « ABSENTE » faux sur une passe BLOQUANTE. D'où un balayage COMPLÉMENTAIRE, qui n'ajoute
+    #    que les citations courbes ne chevauchant aucune capture déjà faite : 1 document gagne,
+    #    0 ne perd rien, 0 code de sortie ne change.
+    if [[ "$(basename "$f")" == "2026-06-25_lecon-stoicisme_04_courbes.docx" ]]; then
+      TL="$CUR/$(basename "$f" .docx).txt"
+      N_CB=$(grep -cE "A RELIRE (Ce ne sont pas les événements qui troublent|Toute chose a deux anses)" "$TL")
+      if [ "$N_CB" -ge 2 ]; then
+        echo "        ↳ ✓ ㊱ tient : $N_CB citation(s) entre guillemets courbes “ ” vue(s) par B-FR"
+      else
+        echo "        ↳ ✗ ㊱ A PERDU SA DENT : les citations d'Épictète entre “ ” sont redevenues"
+        echo "          invisibles à B-FR ($N_CB/2) — le balayage complémentaire ne mord plus."
+        STATUT=1
+      fi
+    fi
     # ⚠️ L'EXEMPTION DE ㉞ SE GARDE AUSSI (11/10/2026) : ce témoin est la même leçon, dont le lien
     #    mort est DÉCLARÉ. S'il se mettait à bloquer, ㉞ refuserait un document honnête.
     if [[ "$(basename "$f")" == "2026-06-10_lecon-enneagramme_02_declaree.docx" ]]; then
@@ -490,7 +519,7 @@ if [ "$MODE" = "--complet" ]; then
   # 6 depuis le 10/10/2026 : deux duos ajoutés sur controle_ai_act.py en portant norm4 — « citation »
   # (le motif (1) doit continuer à refuser une citation fabriquée) et « 0:typo » (il ne doit PAS
   # refuser une citation que la page écrit avec une espace avant sa ponctuation).
-  ATTENDU_5BIS=6
+  ATTENDU_5BIS=7
   CB_N=0
   MUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/nr5bis.XXXXXX")
   # Le chemin du témoin est relatif à la racine du dépôt : le troisième duo est une VEILLE,
@@ -501,7 +530,8 @@ if [ "$MODE" = "--complet" ]; then
     "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|alerte" \
     "controle_astrologie_karmique.py|livrables/lecons/astrologie-karmique/2026-10-08_lecon-astrologie-karmique_10_lilith-points-fictifs-statut-objets.docx|nompropre" \
     "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|citation" \
-    "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|0:typo"; do
+    "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|0:typo" \
+    "controle_ai_act.py|sources/veille/ai-act/2026-10-09_veille_ai-act.docx|taille"; do
     SC="${duo%%|*}"; RESTE="${duo#*|}"; REL="${RESTE%%|*}"; MOTIF="${RESTE##*|}"
     # ⚠️ CONVENTION « 0:motif » (10/10/2026) : le mutant doit être ACCEPTÉ, pas refusé. Un
     #    normaliseur qu'on ÉLARGIT doit se prouver DANS LES DEUX SENS — une mutation qui doit

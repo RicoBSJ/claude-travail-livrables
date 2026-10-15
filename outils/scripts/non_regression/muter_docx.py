@@ -47,6 +47,12 @@ Motifs :
               « citation courte absente des pages » et motif ⑦ « ponctuation inventée ».
               → le contrôle doit l'ACCEPTER. C'est le sens « il ne mord pas à tort » du
                 normaliseur, et sans lui l'élargissement n'est prouvé dans aucun sens.
+  taille    — injecte un paragraphe annonçant une taille FAUSSE pour une page d'ARTICLE
+              → doit déclencher le motif ⑩ de controle_ai_act.py. ⚠️ AJOUTÉ LE 15/10/2026,
+                le jour où ⑩ a été EXEMPTÉ pour les pages d'INDEX : l'exemption rétrécit un
+                motif bloquant, et un motif qu'on rétrécit a besoin d'une mutation qui prouve
+                qu'il mord ENCORE là où il doit. L'URL choisie n'est pas un index, donc
+                l'exemption ne s'y applique pas.
   alerte    — injecte un paragraphe « 🟢 Niveau d'alerte : VERT … » dans une note qui
               annonce des faits marquants (ajouté le 09/10/2026, en sortant
               controle_ai_act.py de son prompt)
@@ -77,6 +83,12 @@ DEDANS = {
     # être exempté par aucune des gardes du motif ⑤. Le marqueur « Selon » est là pour que la phrase
     # attribue, puisque c'est la condition d'examen du motif.
     "nompropre": " Selon Zorblax, ce relevé est confirmé.",
+    # ⚠️ 15/10/2026 — « taille » EST DANS DEDANS, ET LA PREMIÈRE VERSION ÉTAIT DANS TEXTES :
+    # elle injectait un paragraphe portant l'URL en texte brut, et la mutation NE MORDAIT PAS
+    # (exit 0). Le motif ⑩ lit les HYPERLIENS du paragraphe, pas son texte — un paragraphe
+    # joint n'a aucun lien dans word/_rels, donc le motif ne l'examine jamais. C'est la règle
+    # du 09/10/2026 : UNE MUTATION DOIT TOMBER LÀ OÙ LE MOTIF REGARDE.
+    "taille": " — 99 000 caractères lus.",
 }
 
 def main():
@@ -94,14 +106,25 @@ def main():
         rels_ = dict(re.findall(r'Id="([^"]+)"[^>]*Target="(https?://[^"]+)"',
                                 z.read("word/_rels/document.xml.rels").decode("utf-8")))
         SRC_ = r"(?i)\bsource\s*:|\bétabli\b|page citée|\bd['’]après\b|\bselon\b"
+        # ⑩ « taille » ne cherche pas un marqueur de source mais un paragraphe dont le PREMIER
+        #    lien n'est pas une page d'index (sinon l'exemption du 15/10/2026 s'applique et la
+        #    mutation ne prouve rien) et qui n'annonce PAS déjà une taille : le motif saute un
+        #    paragraphe qui en porte deux.
+        INDEX_M = re.compile(r"/(?:news|newsroom|press|press-releases|actualites|actualit[ée]s"
+                             r"|blog|articles|publications|communiques|communiqu[ée]s)/?$", re.I)
         spans = [(m.start(), m.end()) for m in re.finditer(r"<w:p(?:\s[^>]*)?>.*?</w:p>", x, re.S)]
         jj = x.find("Journal des corrections")
         cible = None
         for a_, b_ in spans:
             if 0 <= jj < a_: break
             q_ = x[a_:b_]
-            if not [r for r in re.findall(r'r:id="([^"]+)"', q_) if r in rels_]: continue
+            liens_ = [rels_[r] for r in re.findall(r'r:id="([^"]+)"', q_) if r in rels_]
+            if not liens_: continue
             txt_ = html.unescape("".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", q_)))
+            if motif == "taille":
+                if INDEX_M.search(liens_[0]):  continue      # exemptée : ne prouverait rien
+                if re.search(r"[0-9][0-9  ]{2,12}\s*(?:car\.|caractères)", txt_): continue
+                cible = (a_, b_); break
             if re.search(SRC_, txt_): cible = (a_, b_); break
         if cible is None:
             sys.exit("aucun paragraphe à la fois lié et porteur d'un marqueur de source dans %s" % src)

@@ -747,7 +747,41 @@ ecartes_marqueur = 0
 corps_hm = corps
 for a_, b_ in SPANS:
     corps_hm = corps_hm[:a_] + " " * (b_ - a_) + corps_hm[b_:]
-for m in re.finditer(r"(?:«|(?<![\wÀ-ÿ])\")\s*([^»\"]{9,700}?)\s*(?:»|\"(?![\wÀ-ÿ]))", corps):   # 700 : une citation hagiographique tient sur 500 caracteres (㉗)
+# ㊱ (15/10/2026) LES GUILLEMETS COURBES “ ” ENTRENT DANS B ET B-FR — PAR UN BALAYAGE
+#    COMPLEMENTAIRE, ET SURTOUT PAS EN LES AJOUTANT A L'ALTERNANCE CI-DESSOUS.
+#    ⚠️ LA DEMANDE PORTAIT SUR LES GUILLEMETS DROITS, ET ILS ETAIENT DEJA LA depuis
+#    l'origine de cette boucle : « (?:«|(?<![\wÀ-ÿ])\") » apparie le ". Mesure du 15/10 sur
+#    la lecon astrologie-karmique n°11 : ses TROIS citations anglaises entre " ont ete vues,
+#    deux appariees OK (USNO, CafeAstrology) et la troisieme rendue en ㉚. CINQUIEME item de
+#    chantier fonde sur une premisse fausse cette semaine, apres norm4, les marqueurs en B,
+#    les 8 detections de ㉜ et ma propre liste des six gestes de suppression d'un job.
+#    LE VRAI MANQUE ETAIT AILLEURS : les guillemets COURBES, ceux que Word substitue au ".
+#    Recensement COMPLET sur les 283 documents, pas un echantillon : 20 en portent, et
+#    QUATRE citations de six mots ou plus dans UN SEUL document — stoicisme n°04, le Manuel
+#    d'Epictete — tombent hors de toute capture. Les autres etaient deja prises comme
+#    sous-chaines de spans « … » : la bonne question n'est pas « ce span est-il capture a
+#    l'identique » mais « un span capture le contient-il ».
+#    🔴 ET LA PREMIERE VERSION DE CE PORTAGE ETAIT UNE REGRESSION, mesuree avant d'etre
+#    commitee : ajouter “ ” a l'alternance fait de “ un DELIMITEUR, de sorte qu'un span
+#    « Comprendre “au sens vecu” et expliquer les causes » est TRONQUE a « Comprendre “au
+#    sens vecu ». 21 documents changeaient de jeu de captures, presque tous en RACCOURCISSANT
+#    une capture existante — et une capture tronquee est introuvable sur sa page, donc
+#    « ABSENTE » faux sur une passe BLOQUANTE. La pire direction possible.
+#    D'ou ce dessin : la boucle d'origine est INTACTE, et on lui ajoute les seules citations
+#    courbes qui ne CHEVAUCHENT aucune capture deja faite. Zero regression par construction.
+#    BORNES, plus sures que celles du " : les courbes sont DIRECTIONNELLES — aucune ambiguite
+#    avec les pouces ni les minutes d'angle, aucune garde de frontiere de mot necessaire — et
+#    U+2019, l'apostrophe courbe des elisions (« l'ordre »), est un AUTRE codepoint que
+#    U+201D : les elisions restent intactes. Filtre de code, exigence d'une lettre, exemption
+#    des marqueurs et bornes 9-700 caracteres sont herites tels quels par la suite commune.
+_CIT = re.compile(r"(?:«|(?<![\wÀ-ÿ])\")\s*([^»\"]{9,700}?)\s*(?:»|\"(?![\wÀ-ÿ]))")   # 700 : une citation hagiographique tient sur 500 caracteres (㉗)
+_COURBE = re.compile(r"\u201c\s*([^\u201c\u201d]{9,700}?)\s*\u201d")
+_pris = list(_CIT.finditer(corps))
+_zones = [(mm.start(), mm.end()) for mm in _pris]
+_courbes = [mm for mm in _COURBE.finditer(corps)
+            if not any(a_c <= mm.start() < b_c for a_c, b_c in _zones)]
+cits_courbes = len(_courbes)
+for m in sorted(_pris + _courbes, key=lambda mm: mm.start()):
     c = re.sub(r"\s+", " ", m.group(1)).strip()
     if re.search(r"[<>{}=]|//|\w\(\)", c):   continue      # code, pas prose ; « ; » n'exclut plus (« in his heart; a stream of tears » — Thondup, dzogchen 16, ㉗), ni « … »
     if not re.search(r"[A-Za-zÀ-ÿ]", c):       continue

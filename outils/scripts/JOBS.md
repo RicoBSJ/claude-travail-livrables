@@ -1142,3 +1142,162 @@ de « Régime A », une de « Régime B », et **zéro occurrence** de « prédi
 🔵 **`maj_xlsx_jobs.py` a été validé par un job réel** : son auto-push du matin (`cd9415c`)
 a porté le nouveau classeur de 5 502 à 5 504 octets en y inscrivant la leçon 11 — le
 repointage du 15/10 fonctionne en production.
+
+### 15/10/2026 — ㊱ LES GUILLEMETS COURBES DANS B ET B-FR — ET LA RECTIFICATION DE L'ENTRÉE PRÉCÉDENTE
+
+**Ordre** : « porte les guillemets droits dans les passes B et B-FR ».
+
+🔴 **LES GUILLEMETS DROITS Y ÉTAIENT DÉJÀ, ET MON ENTRÉE D'IL Y A UNE HEURE ÉTAIT FAUSSE.**
+La boucle de B/B-FR ouvre sur `(?:«|(?<![\wÀ-ÿ])")` et ferme sur `(?:»|"(?![\wÀ-ÿ]))` : elle
+apparie le `"` depuis son origine, **avec ses gardes de frontière de mot**. Et la sortie du
+contrôle sur astrologie-karmique n°11 le disait noir sur blanc — *« B. CITATIONS ANGLAISES DE
+6 MOTS OU PLUS : 3 »*, dont **deux appariées OK** (USNO, CafeAstrology/Jupiter) et la troisième
+rendue en ㉚. J'avais écrit que « les cinq citations sont toutes en guillemets droits, donc
+aucune n'a été vérifiée par un contrôle ». **La passe B avait fait le travail ; je n'avais pas
+lu sa sortie.** Fiche et entrée précédente rectifiées le jour même.
+📌 **CINQUIÈME ITEM DE CHANTIER DE LA SEMAINE FONDÉ SUR UNE PRÉMISSE FAUSSE**, après `norm4`
+(10/10), les marqueurs en passe B (11/10), les 8 détections de ㉜ (12/10) et ma propre liste
+des six gestes de suppression d'un job (15/10). **Le facteur commun des cinq : j'ai décrit ce
+qu'un outil fait sans l'avoir mesuré, alors que la mesure coûtait une commande.**
+🔵 **Et ㉚ n'était pas un faux positif non plus.** Il demandait « qui parle ? » de la phrase de
+CafeAstrology ; vérification sur la page aspirée : elle y figure **sans guillemets, dans la
+prose du site**. La leçon l'attribue à CafeAstrology, qui en est l'auteur — **la leçon est
+correcte et la réserve était légitime**. ㉚ voyait quelque chose que mon appariement manuel ne
+voyait pas : `chercher.py` dit « ① LITTÉRAL » sans distinguer une phrase citée d'une phrase
+d'auteur. **Borne à retenir pour `chercher.py` : un appariement littéral ne dit pas qui parle.**
+
+🟢 **LE VRAI MANQUE, ET IL EST PORTÉ : LES GUILLEMETS COURBES “ ”**, ceux que Word substitue
+automatiquement au `"`. **Recensement COMPLET sur les 283 documents, pas un échantillon** :
+20 en portent, et **UN SEUL** perd des citations de six mots ou plus — `2026-06-25_lecon-
+stoicisme_04_epictete-manuel.docx`, pour **cinq** d'entre elles, dont « Ce ne sont pas les
+événements qui troublent les hommes… » et « Toute chose a deux anses… ».
+⚠️ **Une première mesure annonçait 14 citations dans 8 documents : elle était fausse**, parce
+qu'elle comparait des **chaînes exactes**. La bonne question n'est pas « ce span est-il capturé
+à l'identique » mais « un span capturé le contient-il » : les sept autres documents avaient
+leurs citations courbes déjà prises comme **sous-chaînes** de spans « … ».
+
+🔴 **ET LA PREMIÈRE VERSION DU PORTAGE ÉTAIT UNE RÉGRESSION, MESURÉE AVANT TOUT COMMIT.**
+Ajouter `“ ”` à l'alternance fait de `“` un **délimiteur** : le span
+`« Comprendre “au sens vécu” et expliquer les causes »` est alors **tronqué** à
+`Comprendre “au sens vécu`. **21 documents changeaient de jeu de captures, presque tous en
+RACCOURCISSANT une capture existante** — et une capture tronquée est introuvable sur sa page,
+donc **« ABSENTE » faux sur une passe BLOQUANTE** : la pire direction possible, exactement
+celle que la borne du point comme séparateur de milliers avait refusée le 11/10.
+🟢 **D'où le dessin retenu : la boucle d'origine est INTACTE**, et un **balayage
+complémentaire** n'ajoute que les citations courbes qui ne **chevauchent** aucune capture déjà
+faite. **Recensement après portage : 1 document gagne, 0 n'en perd, 0 code de sortie ne
+change.** Zéro régression par construction, et c'est vérifié document par document.
+
+📊 **Bascule du seul document concerné, mesurée dans les deux sens, seul et sur le réseau** :
+B-FR **18 → 23** citations · A RELIRE **10 → 15** · **VERDICT 0 bloquant → 0 bloquant, exit 0
+avant comme après**. Les cinq citations gagnées sont des **traductions** d'Épictète, que B-FR
+ne peut pas apparier (⚠️ la passe B ne vérifie pas une traduction, docstring de 2026) : elles
+sortent donc en **réserve non bloquante**. C'est le résultat le plus sûr possible, et il évite
+le piège du 14/10 — un motif élargi qui refuse un livrable juste.
+
+🧪 **TÉMOIN FIGÉ, ET C'EST LA LIGNE QUI EST EXIGÉE** :
+`temoins_attributions_conformes/2026-06-25_lecon-stoicisme_04_courbes.docx`,
+**`ATTENDU_CONFORMES` 10 → 11**. Il doit porter **au moins 2** lignes
+`A RELIRE (Ce ne sont pas les événements qui troublent|Toute chose a deux anses)`.
+⚠️ **SABOTAGE VÉRIFIÉ, ET IL EST LA DÉMONSTRATION MÊME DE L'EXIGENCE DE LIGNE** : balayage
+complémentaire neutralisé (`_courbes = []`) → **exit 0 et 0 ligne**, contre **exit 0 et 3
+lignes** à l'état sain. **Le code de sortie est IDENTIQUE dans les deux cas.** Un témoin jugé
+sur son `exit` n'aurait rien gardé — même leçon que ㉜ (09/10), la passe D (10/10), ㉞ et ㉟
+(11/10). Restauré, `sha256 a2b6981592e681f3`.
+
+📌 **NON FAIT, ET BORNÉ** : les **apostrophes droites appariées** `'…'`, piste ouverte le
+12/10/2026 sur la citation fabriquée d'hypnose n°02. Elles restent hors du balayage : à la
+différence des courbes — **directionnelles**, donc sans ambiguïté avec les pouces, et dont
+l'apostrophe d'élision est un **autre codepoint** (U+2019 ≠ U+201D) — l'apostrophe droite est
+la même que celle de « l'ordre » et de « qu'ils ». La borner demande sa propre mesure.
+
+### 15/10/2026 — ⑩ DE `controle_ai_act.py` : EXEMPTION DES PAGES D'INDEX
+
+🔴 **TROUVÉ PAR LE HARNAIS EN VALIDANT ㊱ : LE MOTIF ⑩ REFUSAIT SON PROPRE TÉMOIN, ET BLOQUAIT
+TOUS LES PUSHS DU DÉPÔT.** Le `--complet` sort en **exit 1** avec, trois fois,
+*« controle_ai_act.py : le témoin conforme sort en 1 — NOTE REFUSÉE — taille 4187 vs 4298 »*.
+⚠️ **Ce n'est pas mon changement** : `controle_ai_act.py` n'importe rien de
+`controle_attributions.py`, et ni le contrôle ni `sources/veille/ai-act/` n'étaient modifiés
+(`git status` vide sur les deux). **Et la conséquence dépassait ma branche** : le hook
+`pre-push` force `--complet` dès que `controle_attributions.py` est dans un push, donc le
+harnais en exit 1 refusait **tout** push — y compris celui du job `ai-act-veille` du vendredi.
+
+**La cause n'est pas la tolérance, c'est la nature de la page.** Le harnais prend
+`sources/veille/ai-act/2026-10-09_veille_ai-act.docx` — un document **VIVANT** — comme témoin
+conforme des trois duos ai-act. Cette note annonce **4 187** caractères pour
+`https://iapp.org/news/` ; la page en mesure **4 298** six jours plus tard, soit **+111 et
+2,65 %**, au-delà des 2 %. Or `iapp.org/news/` est un **INDEX D'ACTUALITÉS** : il change à
+chaque publication, par construction. 📊 **Mesure qui tranche : l'édition du 29/08/2026
+annonce 21 746 caractères pour cette même URL — une dérive d'un facteur CINQ.** La taille d'un
+index n'est pas une propriété du document, c'est un instantané du jour de sa lecture.
+📌 **C'est mot pour mot la règle du 11/10/2026 sur le champ « Last update » d'une page
+institutionnelle** : une propriété qui change par construction n'est pas citable, et un témoin
+qui la cite périme tout seul. **Deuxième fois que `controle_ai_act.py` est pris par ce piège.**
+
+🟢 **CORRECTIF : une taille annoncée pour une URL de LISTING n'est plus comparée**, et la
+sortie le **dit** — *« TAILLE NON COMPARÉE (¶81) : … est une page d'index »*. Le motif reste
+entier pour les pages d'**article**.
+🧪 **BORNE MESURÉE SUR LES 95 URL DISTINCTES DU CORPUS ai-act : 2 exemptées**, et ce sont les
+deux vrais index — `iapp.org/news/` et `consilium.europa.eu/en/press/press-releases/`.
+⚠️ **L'ancre `$` est ce qui rend la borne précise** : une page d'ARTICLE dont le chemin
+contient `/news/` reste comparée, vérifié sur
+`iapp.org/news/a/eu-ai-act-timeline` et `edpb.europa.eu/news/edpb-sheds-light-on-x`.
+⚠️ **Ce que l'exemption coûte, et il faut le dire** : une taille annoncée à tort sur un index
+ne sera plus détectée. Elle n'était de toute façon pas vérifiable au-delà du jour même.
+
+🧪 **VALIDÉ DANS LES DEUX SENS, ET LE SENS « IL MORD ENCORE » A SA MUTATION** — c'est la
+convention du 10/10 appliquée à un **rétrécissement** : un motif qu'on exempte a besoin d'une
+mutation qui prouve qu'il refuse toujours une vraie faute. Nouveau motif **`taille`** dans
+`muter_docx.py` (**sept motifs** désormais), duo câblé en section 5 ter, **`ATTENDU_5BIS` 6 → 7**.
+• témoin conforme (la note du 09/10) → **exit 0**, index exempté et nommé ;
+• mutation → **exit 1**, *« TAILLE ANNONCÉE FAUSSE (¶14) : 99000 annoncés contre 2757 mesurés
+pour ai-act-service-desk.ec.europa.eu/…/timeline-implementation-eu-ai-act »*.
+🔴 **ET LA PREMIÈRE VERSION DE CETTE MUTATION NE MORDAIT PAS — exit 0.** Elle était dans
+`TEXTES`, donc elle **joignait** un paragraphe portant l'URL en **texte brut**. Or le motif ⑩
+lit les **HYPERLIENS** du paragraphe (`word/_rels`), pas son texte : un paragraphe joint n'a
+aucun lien, donc le motif ne l'examine jamais. **C'est la règle du 09/10/2026 — une mutation
+doit tomber là où le motif regarde —, et c'est la deuxième fois qu'elle se vérifie sur
+`muter_docx.py`**, après le motif ⑤ d'astrologie. `taille` est donc passée dans `DEDANS`, avec
+sa propre sélection : premier paragraphe dont le **premier lien n'est pas un index** (sinon
+l'exemption s'applique et la mutation ne prouve rien) et qui **n'annonce pas déjà** une taille
+(le motif saute un paragraphe qui en porte deux).
+
+### 15/10/2026 — `supprimer_job.sh` : LES SIX GESTES EN UNE COMMANDE, AVEC UN GARDE-FOU
+
+**Ordre** : « supprime le job astrologie-karmique après le bilan du 22/10 ».
+
+⛔ **NON EXÉCUTÉ, ET C'EST LE BON COMPORTEMENT.** Le parcours est à **11/12** : le créneau du
+**jeudi 22/10/2026 à 9h33** produit la **leçon 12, qui est le BILAN**. Supprimer aujourd'hui
+perdrait cette synthèse, alors que les trois parcours clos du 12-14/10 ont tous eu la leur.
+Vérifié : aujourd'hui est un **jeudi**, `cron = 33 9 * * 4`, le 22/10 est un jeudi, et
+`controle_clauses_parcours` rend `annoncé 12 · réels 11 · clause oui · limite oui`.
+
+🟢 **CE QUI A ÉTÉ LIVRÉ À LA PLACE : `outils/scripts/supprimer_job.sh` (9 076 o, chmod +x).**
+`supprimer_job.sh <job_id>` n'affiche que le **PLAN** et ne touche à rien ; `--confirmer`
+exécute. Il fait ①→⑤ — `jobs_config.json`, le `case BUDGET` de `run_job.sh`, la ligne `JOBS`
+de `setup_launchd.sh` puis sa relance, `launchctl unload` **et** `rm` du `.plist`, et le skill
+`lancer-job` **corps ET description du frontmatter** —, sauvegarde les quatre fichiers touchés
+dans un dossier horodaté **avant** de commencer, puis **vérifie que config, `.plist` et
+`launchctl` concordent** et que les ids du skill égalent ceux de la config. ⑥ reste annoncé à
+la main : refaire le classeur et repointer son `CLASSEUR`, consigner, commit, push.
+
+🧪 **LE GARDE-FOU APPELLE `controle_clauses_parcours.py`, IL NE LE RÉIMPLÉMENTE PAS** — les
+contrôles du dépôt sont appelés, jamais copiés. Il refuse tant que les leçons réelles sont
+sous le compte annoncé. **Validé dans les deux sens, et les cinq codes de sortie relevés sans
+pipe** : ① refus sur 11/12 → **exit 1** avec *« il manque 1 leçon(s) … dont le BILAN s'il est
+le dernier »* · ② config de test annonçant 11 → **exit 0**, plan affiché · ③ job inconnu →
+**exit 3** · ④ sans argument → **exit 2** (usage) · ⑤ `--confirmer` avec `--config` → **exit 2**
+(refusé : les gestes agissent sur le dépôt réel, pas sur une config de test).
+**Et le dépôt est resté intact** : `git status` vide sur les quatre fichiers, 9 `.plist`.
+⚠️ **J'AI D'ABORD LU exit=0 SUR LE REFUS** — c'était mon `tail -8` qui avalait le code, soit
+**exactement le piège consigné ce matin** (« un garde qui ne fait pas sortir en 1 est
+décoratif », `cmd | tail -1` teste le code de `tail`). Deuxième fois dans la même journée.
+
+📌 **POURQUOI UN SCRIPT ET PAS UNE NOTE DATÉE**, puisque la question s'est posée : la 11ᵉ leçon
+de `revenus-passifs` avait été **prédite par écrit, avec sa date**, dans ce fichier le
+27/09/2026 — *« un onzième livrable sortira d'un parcours qui s'est déclaré fini »*. **Rien n'a
+été fait de la semaine et le livrable est sorti.** Une note datée a déjà échoué sur exactement
+cette classe de tâche ; la note est donc doublée d'un outil qui ne peut pas se tromper de date.
+📌 **Sans suppression, la clause mord le 29/10** : le job s'exécute, compte 12, affiche son
+message et sort — bénin, mais il brûle une tentative. **Cumul 32 → 27 $/semaine** après
+suppression, et le **jeudi 9h33** se libère : ce sera le quatrième créneau libre.

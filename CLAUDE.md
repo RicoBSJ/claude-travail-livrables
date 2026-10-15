@@ -138,6 +138,14 @@ Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `li
 | Clause de fermeture | tout parcours fermé porte **⛔ PARCOURS FERMÉ — N LEÇONS** + la limite sur la numérotation. `controle_clauses_parcours.py` **refuse** un parcours arrivé à sa limite sans clause |
 | Toute création/suppression de job | se répercute **ici ET dans `jobs_config.json`** |
 
+🗓️ **DÉCISION DU 15/10/2026 — `astrologie-karmique-lecon` EST À SUPPRIMER APRÈS LE 22/10.** Le parcours est à **11/12** ; le créneau du **jeudi 22/10/2026 à 9h33** produit la **leçon 12, qui est le BILAN**. Le supprimer avant perdrait cette synthèse — les trois autres parcours clos de la semaine ont tous eu la leur. Sans suppression, la clause mord le **29/10** : le job s'exécute, compte 12, affiche son message et sort — bénin, mais il brûle une tentative. Cumul **32 → 27 $/semaine** après suppression, et le **jeudi 9h33** se libère.
+> 🟢 **À EXÉCUTER EN UNE COMMANDE, ET ELLE REFUSE DE PARTIR TROP TÔT** :
+> ```bash
+> outils/scripts/supprimer_job.sh astrologie-karmique-lecon --confirmer
+> ```
+> Sans `--confirmer` il n'affiche que le plan. **Son garde-fou appelle `controle_clauses_parcours.py`** — les contrôles sont appelés, jamais copiés — et **refuse (exit 1)** tant que les leçons réelles sont sous le compte annoncé : aujourd'hui `annoncé 12 · réels 11 → REFUSÉ, il manque 1 leçon`. Il ne peut donc partir ni avant le bilan, ni à moitié. Il exécute ①→⑤, relance `setup_launchd.sh`, décharge et retire le `.plist`, puis **vérifie que config, `.plist` et `launchctl` concordent** et que les ids du skill égalent ceux de la config. ⚠️ **⑥ reste à la main** : refaire le classeur de suivi **et repointer `CLASSEUR` dans `maj_xlsx_jobs.py`**, consigner, commit, push.
+> ⚠️ **POURQUOI UN SCRIPT ET PAS UNE NOTE** : la 11ᵉ leçon de `revenus-passifs` avait été **prédite par écrit, avec sa date**, dans `JOBS.md` le 27/09/2026 ; rien n'a été fait de la semaine et le livrable est sorti. **Une note datée a déjà échoué sur exactement cette classe de tâche.**
+
 **Huit jobs supprimés à ce jour** : `rgpd-veille`, `nocode-ia-veille`, `entretien-motivationnel-lecon`, `revenus-passifs-lecon`, `appli-ia-lecon`, puis **`psychopathologie-lecon`, `dzogchen-lecon` et `enneagramme-lecon` le 15/10/2026** (parcours clos 20/20, bilans livrés les 12, 13 et 14/10). `astrologie-karmique-lecon` suivra après sa leçon 12 du 22/10. **Les prompts restent récupérables dans l'historique git** — les trois derniers par `git show 4b697a6:jobs_config.json` (63 560, 48 272 et 41 350 octets).
 
 🔴 **⚠️ SUPPRIMER UN JOB DEMANDE QUATRE GESTES, PAS UN — mesuré le 15/10/2026.** `setup_launchd.sh` porte sa **propre liste de créneaux en dur** et ne lit **pas** `jobs_config.json` : le lancer après avoir retiré un job de la config **le réinstalle**, et il n'a jamais su retirer un `.plist` orphelin. Un job supprimé restait donc **planifié indéfiniment**, à appeler un id que `run_job.sh` ne connaît plus. La séquence complète :
@@ -150,7 +158,7 @@ Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `li
 
 | Script | Rôle |
 |---|---|
-| `controle_attributions.py` | passes A, A2–A6, B, B-FR (㉖), B-NOM (㉙), C, C2, D, ㉜ (ouvrage sans page), ㉞ (HTTP 000), ㉟ (locale des nombres). Exit 1 = bloquant, 3 = pages non lues, 0 = propre |
+| `controle_attributions.py` | passes A, A2–A6, B, B-FR (㉖), B-NOM (㉙), C, C2, D, ㉜ (ouvrage sans page), ㉚ (citation reprise nue), ㉞ (HTTP 000), ㉟ (locale des nombres), **㊱ (guillemets courbes “ ”)**. Exit 1 = bloquant, 3 = pages non lues, 0 = propre. ⚠️ **B et B-FR apparient les guillemets DROITS depuis l'origine de leur boucle** — ne pas le réapprendre |
 | `controle_decompte.py` | décompte des éditions d'une série de veille |
 | `controle_edition_precedente.py` | relit une veille à l'**édition précédente et à sa fiche**. 3 motifs ; ① seul est bloquant |
 | `controle_clauses_parcours.py` | annoncé vs réel vs clause vs limite |
@@ -174,6 +182,10 @@ Le hook `outils/scripts/hooks/pre-push` le lance et **refuse le push** si un ver
 - **Une mutation doit tomber là où le motif regarde** : un paragraphe ajouté en fin de document n'atteint pas un motif qui n'examine que les paragraphes liés.
 - **Un test qui teste une COPIE de la logique ne garde rien** (15/10/2026 : l'auto-test de `chercher.py` réimplémentait sa cascade — un sabotage du vrai chemin passait).
 - **Un garde qui ne fait pas sortir en 1 est décoratif** (15/10/2026 : `cmd | tail -1` teste le code de `tail`).
+- 🔴 **NE JAMAIS DÉCRIRE CE QU'UN OUTIL FAIT SANS L'AVOIR MESURÉ — cinq fois cette semaine, et la mesure coûtait une commande.** `norm4` (10/10), les marqueurs en passe B (11/10), les 8 détections de ㉜ (12/10), la séquence de suppression d'un job (15/10) et « B ne cherche que « … » » (15/10) : **cinq items de chantier fondés sur une prémisse fausse**, dont deux où la sortie du contrôle disait l'inverse et où je ne l'avais pas lue. **Avant d'écrire qu'un outil est aveugle, lancer l'outil.**
+- **Élargir l'entrée d'une passe BLOQUANTE se mesure sur TOUT le corpus avant commit, et par recensement, pas par échantillon** (15/10/2026 : ajouter `“ ”` à l'alternance de B tronquait les spans `« … »` qui en contiennent — **21 documents raccourcis**, et une capture tronquée est introuvable sur sa page, donc « ABSENTE » faux et bloquant). **Quand un élargissement touche un délimiteur, préférer un balayage COMPLÉMENTAIRE qui n'ajoute que le non-chevauchant : zéro régression par construction.**
+- **La bonne question n'est pas « ce span est-il capturé à l'identique » mais « un span capturé le contient-il »** : une mesure par égalité de chaînes annonçait 14 citations manquées dans 8 documents ; la mesure par inclusion en trouve **4 dans 1 seul**.
+- **Un appariement littéral ne dit pas qui parle** : `chercher.py` rend « ① LITTÉRAL » pour une phrase que la page porte dans la voix de son auteur comme pour une phrase qu'elle cite. C'est ㉚ qui tranche, et c'est pourquoi il n'est pas redondant.
 - **En production, un faux refus coûte un livrable non publié ; un vrai manqué ne coûte qu'une relecture humaine.** C'est pourquoi ㉜, D, ㉞ et ㉟ ne sont pas bloquants.
 
 🔍 **Mesure**
@@ -181,7 +193,7 @@ Le hook `outils/scripts/hooks/pre-push` le lance et **refuse le push** si un ver
 - **Une page tronquée rend indiscernables une citation absente et une citation non lue.** Plancher : **3 000 caractères utiles** = façade ou page rendue en JS.
 - **Une détection ㉜ n'est pas une propriété du document** mais de l'état de lecture des pages : une page non lue gonfle ㉜. Un décompte ㉜ sans le décompte des pages lues ne veut rien dire.
 - **Chercher la variante de graphie AVANT de conclure à l'absence** — `chercher.py` le rend mécanique.
-- **Le champ « Last update » d'une page institutionnelle n'est pas citable entre guillemets** : il change et périme le témoin.
+- **Le champ « Last update » d'une page institutionnelle n'est pas citable entre guillemets** : il change et périme le témoin. 🔴 **Et la TAILLE d'une page d'INDEX non plus** (15/10/2026) : le motif ⑩ de `controle_ai_act.py` a refusé son propre témoin — 4 187 annoncés contre 4 298 mesurés pour `iapp.org/news/`, +2,65 % pour 2 % de tolérance — et **le harnais en exit 1 bloquait TOUS les pushs du dépôt**, job `ai-act-veille` compris. L'édition du 29/08 annonce 21 746 pour la même URL : dérive d'un facteur **cinq**. Les URL de listing sont désormais exemptées de ⑩ (borne : **2 exemptées sur les 95 URL du corpus**, l'ancre `$` gardant les pages d'article). ⚠️ **Deuxième fois que ce contrôle est pris par la même classe de piège, et la leçon générale est : un témoin VIVANT qui annote une propriété volatile périme tout seul.**
 - **Quand la page d'une citation est intermittente, le littéral va dans le MARQUEUR et le corps reste en style indirect.**
 
 ✍️ **Normalisation**
