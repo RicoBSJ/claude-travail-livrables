@@ -642,6 +642,108 @@ if [ "$MODE" = "--complet" ]; then
     STATUT=1
   fi
 fi
+# ---- Témoins de supprimer_job.sh (15/10/2026) ----
+# supprimer_job.sh exécute les SIX gestes d'une suppression de job, et son GARDE-FOU est la
+# seule chose qui l'empêche de partir trop tôt : il appelle controle_clauses_parcours.py et
+# refuse tant que les leçons réelles sont sous le compte annoncé. Sans témoin, personne ne
+# saurait que ce garde-fou a cessé de mordre — et le prix d'un garde-fou muet est un BILAN
+# de parcours jamais produit, comme l'inverse a déjà coûté une 11e leçon à revenus-passifs.
+# ⚠️ CES TÉMOINS N'EXERCENT QUE LES DIRECTIONS LISIBLES SEULES, et c'est délibéré : le chemin
+#    --confirmer écrit dans jobs_config.json, relance setup_launchd.sh et retire un .plist du
+#    HOME. Le jouer ici endommagerait launchd pour de vrai. CE QUI RESTE DONC NON COUVERT :
+#    que les six gestes soient tous accomplis. Cela a été validé à la main le 15/10/2026 sur
+#    les trois suppressions du jour, et l'est à chaque usage par les vérifications finales du
+#    script (config, .plist et launchctl doivent concorder ; ids du skill = ids de la config).
+# Sans réseau, sans jeton, moins d'une seconde. Pas en --docs : c'est la porte des documents.
+if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/supprimer_job.sh" ]; then
+  echo "▶ Témoins de supprimer_job.sh (le garde-fou doit refuser avant le bilan)"
+  SJ="$ROOT/outils/scripts/supprimer_job.sh"
+  SJ_KO=0
+  # La config de test déclare pour astrologie-karmique le nombre de leçons RÉELLEMENT sur le
+  # disque : le parcours y est donc complet, et le garde-fou doit laisser passer. Fabriquée
+  # ici puis détruite, comme une mutation — un témoin figé se périmerait à chaque leçon.
+  SJ_CFG="$CUR/cfg_parcours_complet.json"
+  env -i $PY - "$ROOT" "$SJ_CFG" <<'PYSJ'
+import glob, json, re, sys
+racine, dst = sys.argv[1], sys.argv[2]
+d = json.load(open(racine + "/jobs_config.json", encoding="utf-8"))
+n = len(glob.glob(racine + "/livrables/lecons/astrologie-karmique/*.docx"))
+for x in d["jobs"]:
+    if x["id"] == "astrologie-karmique-lecon":
+        x["prompt"] = re.sub(r"\b12 LEÇONS", "%d LEÇONS" % n, x["prompt"])
+        x["prompt"] = re.sub(r"limite de 12", "limite de %d" % n, x["prompt"])
+json.dump(d, open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+PYSJ
+  # scénario | code attendu | motif exigé dans la sortie (vide = aucun)
+  for cas in "refus_avant_bilan|1|il manque|astrologie-karmique-lecon|" \
+             "parcours_complet|0|le parcours a atteint|astrologie-karmique-lecon|--config $SJ_CFG" \
+             "job_inconnu|3|job inconnu|job-qui-nexiste-pas|" \
+             "usage_sans_argument|2|Usage|  |" \
+             "confirmer_avec_config|2|agissent sur le dépôt réel|astrologie-karmique-lecon|--confirmer --config $SJ_CFG"; do
+    IFS='|' read -r SJ_NOM SJ_ATT SJ_MOT SJ_JOB SJ_OPT <<< "$cas"
+    SJ_OUT="$CUR/supprimer_job_$SJ_NOM.txt"
+    # ⚠️ 15/10/2026 — « ${=SJ_OPT} » ET PAS « ${SJ_OPT} » : ce harnais est en ZSH, qui ne
+    #    découpe PAS une expansion non quotée, contrairement à bash. Écrit sans le « = »,
+    #    « --config /chemin » partait comme UN SEUL argument et supprimer_job.sh rendait
+    #    « option inconnue » — exit 2 au lieu de 0, sur deux des cinq scénarios. Le témoin
+    #    a donc commencé par accuser le script d'un défaut qui était dans le témoin.
+    SJ_ARGS=(${=SJ_OPT})
+    if [ "$SJ_JOB" = "  " ]; then
+      "$SJ" > "$SJ_OUT" 2>&1; SJ_RC=$?
+    else
+      "$SJ" "$SJ_JOB" "${SJ_ARGS[@]}" > "$SJ_OUT" 2>&1; SJ_RC=$?
+    fi
+    if [ "$SJ_RC" != "$SJ_ATT" ]; then
+      echo "  ✗ $SJ_NOM : exit $SJ_RC, $SJ_ATT attendu"
+      SJ_KO=1
+    elif [ -n "$SJ_MOT" ] && ! grep -qF "$SJ_MOT" "$SJ_OUT"; then
+      echo "  ✗ $SJ_NOM : exit $SJ_ATT mais la sortie ne porte pas « $SJ_MOT »"
+      echo "    Un code de sortie seul ne dit pas POURQUOI le script a refusé."
+      SJ_KO=1
+    fi
+  done
+  # ⚠️ ET LA VÉRIFICATION QUI COMPTE AUTANT QUE LES CINQ : aucun de ces appels ne doit avoir
+  #    touché quoi que ce soit. Un garde-fou qui refuse APRÈS avoir écrit ne garde rien.
+  SJ_SALE=$(cd "$ROOT" && git status --porcelain jobs_config.json outils/scripts/run_job.sh \
+            outils/scripts/setup_launchd.sh .claude/skills/lancer-job/SKILL.md 2>/dev/null | wc -l | tr -d ' ')
+  SJ_PLIST=$(ls "$HOME/Library/LaunchAgents"/com.claudetravail.*.plist 2>/dev/null | wc -l | tr -d ' ')
+  SJ_JOBS=$(env -i $PY -c "import json;print(len(json.load(open('$ROOT/jobs_config.json'))['jobs']))")
+  if [ "$SJ_SALE" != "0" ]; then
+    echo "  ✗ les appels de plan ont MODIFIÉ $SJ_SALE fichier(s) suivi(s) — ils doivent être inertes"
+    SJ_KO=1
+  elif [ "$SJ_PLIST" != "$SJ_JOBS" ]; then
+    echo "  ✗ $SJ_PLIST .plist pour $SJ_JOBS job(s) — un agent a été touché par un appel de plan"
+    SJ_KO=1
+  fi
+  rm -f "$SJ_CFG"
+  if [ "$SJ_KO" = 0 ]; then
+    echo "  ✓ 5/5 scénarios — le garde-fou refuse avant le bilan, accepte un parcours complet,"
+    echo "        et les appels de plan n'ont rien touché ($SJ_JOBS jobs, $SJ_PLIST .plist)"
+  else
+    STATUT=1
+  fi
+fi
+
+# ---- Le classeur de suivi contre jobs_config.json (15/10/2026) ----
+# Le classeur `livrables/documents/*_Les N Jobs.xlsx` est le SEUL endroit où un humain lit la
+# liste des jobs, et c'était le seul que RIEN ne vérifiait : controle_clauses_parcours.py
+# compare le prompt aux .docx, audit_vault.py les fiches aux documents, et personne ne
+# comparait le classeur à la config. Résultat mesuré le 15/10/2026 : l'ancien classeur
+# portait CINQ jobs supprimés et s'intitulait « Tes 14 jobs » pour 9 réels — parce que
+# maj_xlsx_jobs.py, qui y écrit après chaque job réussi, ne met à jour QU'UNE COLONNE et ne
+# touche jamais au jeu de lignes. Il est structurellement incapable de suivre une suppression.
+# Sans réseau, instantané. Pas en --docs : c'est la porte des documents.
+if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/refaire_classeur.py" ]; then
+  CL_OUT="$CUR/refaire_classeur.txt"
+  if env -i $PY "$ROOT/outils/scripts/refaire_classeur.py" --verifier > "$CL_OUT" 2>&1; then
+    grep -E "^ +✓" "$CL_OUT" | sed 's/^ */  /'
+  else
+    echo "▶ Classeur de suivi — DISCORDANCE avec jobs_config.json"
+    grep -E "^ +✗|^ +→" "$CL_OUT" | sed 's/^ */  /'
+    STATUT=1
+  fi
+fi
+
 # ---- Témoins du runner (27/09/2026) ----
 # run_job.sh décide ce qui est retenté et ce qui est PUBLIÉ pour les 14 jobs, et rien ne le
 # testait : le fail-fast du plafond était mort depuis 19 jours sans qu'aucun contrôle puisse

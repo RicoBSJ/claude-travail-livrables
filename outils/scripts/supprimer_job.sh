@@ -18,7 +18,7 @@
 # atteint le compte qu'il annonce : il ne peut pas partir trop tôt, ni à moitié.
 #
 # Usage :  supprimer_job.sh <job_id>                  → PLAN seulement, ne touche à rien
-#          supprimer_job.sh <job_id> --confirmer      → exécute les six gestes
+#          supprimer_job.sh <job_id> --confirmer      → exécute les gestes ①→⑥
 #          supprimer_job.sh <job_id> --config <chemin> → plan contre une config de test
 #
 set -u
@@ -83,7 +83,8 @@ echo "   ② outils/scripts/run_job.sh              — retirer son « case ... 
 echo "   ③ outils/scripts/setup_launchd.sh        — retirer sa ligne JOBS, puis relancer"
 echo "   ④ launchctl unload + rm                  — ~/Library/LaunchAgents/com.claudetravail.$JOB.plist"
 echo "   ⑤ .claude/skills/lancer-job/SKILL.md     — corps ET description du frontmatter"
-echo "   ⑥ à faire ensuite, à la main              — refaire le classeur de suivi, commit, push"
+echo "   ⑥ refaire_classeur.py --refaire           — classeur reconstruit, ancien archivé, CLASSEUR repointé"
+echo "   ⑦ à faire ensuite, à la main              — consigner, git add, commit, push"
 if [ "$CONFIRMER" != 1 ]; then
   echo ""
   echo "   (plan seulement — rien n'a été touché. Ajoute --confirmer pour exécuter.)"
@@ -167,9 +168,21 @@ reels={x['id'] for x in json.load(open('$RACINE/jobs_config.json'))['jobs']}
 skill=set(re.findall(r'job id \"([\w-]+)\"', open('$RACINE/.claude/skills/lancer-job/SKILL.md',encoding='utf-8').read()))
 print('   ✓ ids du skill = ids de la config (%d)' % len(reels) if skill==reels
       else '   ✗ skill ≠ config — écart : %s' % sorted(skill^reels))"
+# ── ⑥ LE CLASSEUR DE SUIVI, DÉSORMAIS AUTOMATIQUE (15/10/2026).
+#    Il était « à faire à la main », et c'est précisément le geste qui avait été oublié cinq
+#    fois : l'ancien classeur portait cinq jobs supprimés et un titre faux. `maj_xlsx_jobs.py`
+#    ne met à jour qu'UNE colonne et ne touche jamais au jeu de lignes — il ne peut donc pas
+#    suivre une suppression. `refaire_classeur.py --refaire` reconstruit depuis la config,
+#    archive l'ancien et REPOINTE `CLASSEUR`, sans quoi le nouveau classeur se figerait.
 echo ""
-echo "⑥ RESTE À FAIRE À LA MAIN :"
-echo "   • refaire le classeur livrables/documents/*_Les N Jobs.xlsx et repointer CLASSEUR"
-echo "     dans maj_xlsx_jobs.py — il ne met à jour QU'UNE colonne, jamais le jeu de lignes"
+echo "▶ ⑥ Classeur de suivi"
+if env -i python3 "$RACINE/outils/scripts/refaire_classeur.py" --refaire 2>&1 | sed 's/^/   /'; then
+  env -i python3 "$RACINE/outils/scripts/refaire_classeur.py" --verifier 2>&1 \
+    | grep -E "✓|✗" | sed 's/^ */   /'
+else
+  echo "   ⚠ le classeur n'a pas pu être refait — à traiter à la main avant de commiter"
+fi
+echo ""
+echo "⑦ RESTE À FAIRE À LA MAIN :"
 echo "   • consigner dans CLAUDE.md et outils/scripts/JOBS.md"
-echo "   • git add explicite, commit, push"
+echo "   • git add explicite (dont l'ANCIEN et le NOUVEAU chemin du classeur), commit, push"

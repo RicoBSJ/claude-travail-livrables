@@ -1301,3 +1301,59 @@ cette classe de tâche ; la note est donc doublée d'un outil qui ne peut pas se
 📌 **Sans suppression, la clause mord le 29/10** : le job s'exécute, compte 12, affiche son
 message et sort — bénin, mais il brûle une tentative. **Cumul 32 → 27 $/semaine** après
 suppression, et le **jeudi 9h33** se libère : ce sera le quatrième créneau libre.
+
+### 15/10/2026 — TÉMOIN DE `supprimer_job.sh`, ET `refaire_classeur.py` : LE GESTE ⑥ N'EST PLUS MANUEL
+
+**Deux ordres** : « câble un témoin pour supprimer_job.sh » puis « refais le classeur en
+8 jobs après la suppression ».
+
+🧪 **TÉMOINS DE `supprimer_job.sh` — CINQ SCÉNARIOS, CHACUN EXIGEANT UN CODE DE SORTIE *ET*
+UN MOTIF.** Section ajoutée à `non_regression.sh`, hors `--docs`, sans réseau, < 1 s :
+`refus_avant_bilan` → **1** + « il manque » · `parcours_complet` → **0** + « le parcours a
+atteint » · `job_inconnu` → **3** · `usage_sans_argument` → **2** + « Usage » ·
+`confirmer_avec_config` → **2** + « agissent sur le dépôt réel ».
+⚠️ **ET UNE SIXIÈME VÉRIFICATION QUE LES AUTRES TÉMOINS DU DÉPÔT N'ONT PAS** : après les cinq
+appels, le harnais contrôle que `jobs_config.json`, `run_job.sh`, `setup_launchd.sh` et le
+skill sont **inchangés** (`git status --porcelain` vide) et que le nombre de `.plist` égale
+encore le nombre de jobs. **Un garde-fou qui refuse APRÈS avoir écrit ne garde rien.**
+La config du scénario acceptant est **fabriquée puis détruite**, comme une mutation : un
+témoin figé se périmerait à chaque nouvelle leçon du parcours — c'est exactement ce qui
+vient d'arriver au témoin ai-act.
+🔴 **ET MON TÉMOIN A COMMENCÉ PAR ACCUSER LE SCRIPT D'UN DÉFAUT QUI ÉTAIT LE SIEN** :
+`non_regression.sh` est en **zsh**, qui — contrairement à bash — **ne découpe pas une
+expansion non quotée**. Écrit `${SJ_OPT}`, l'argument `--config /chemin` partait comme UNE
+SEULE chaîne et `supprimer_job.sh` répondait correctement « option inconnue » → exit 2 sur
+deux des cinq scénarios. Corrigé en `${=SJ_OPT}`. ⚠️ **Le dépôt mêle `#!/bin/bash`
+(`run_job.sh`, `setup_launchd.sh`, `supprimer_job.sh`) et `#!/bin/zsh` (`non_regression.sh`,
+`pre-push`) : le découpage des mots n'y suit pas les mêmes règles.**
+🔵 **Et c'est la démonstration de l'exigence de motif** : `confirmer_avec_config` sortait bien
+en **exit 2, le code attendu** — seul le motif a révélé qu'il sortait pour la mauvaise raison.
+Un témoin jugé sur le seul code de sortie l'aurait laissé passer.
+📌 **NON COUVERT, et c'est écrit en tête de la section** : le chemin `--confirmer` n'est pas
+joué, parce qu'il écrit dans la config, relance `setup_launchd.sh` et retire un `.plist` du
+`HOME` — le jouer au harnais endommagerait launchd pour de vrai. « Les gestes sont-ils tous
+accomplis » reste donc garanti par la validation à la main du 15/10 et par les vérifications
+finales du script à chaque usage, pas par un témoin.
+
+🟢 **`refaire_classeur.py` (7 496 o, chmod +x) — ET SON MODE `--verifier` EST LE CONTRÔLE QUI
+MANQUAIT.** Le classeur est le **seul** endroit où un humain lit la liste des jobs, et le seul
+que rien ne vérifiait. Deux modes : `--verifier` compare le classeur à `jobs_config.json`
+(exit 0/1, instantané, sans réseau) ; `--refaire` reconstruit `<date>_Les N Jobs.xlsx`
+**depuis la config** — créneaux déduits des `cron`, colonne « Type » **reportée** de l'ancien
+classeur avec **refus** si un job n'y a pas de type plutôt que d'en inventer un, styles et
+largeurs copiés —, archive l'ancien dans `documents/archives/` et **repointe `CLASSEUR`**
+dans `maj_xlsx_jobs.py`, sans quoi celui-ci continuerait d'écrire dans le fichier archivé et
+le nouveau classeur se figerait le jour de sa création.
+🧪 **Validé dans les deux sens** : état actuel → *« 9 lignes de job · 9 jobs dans
+jobs_config.json · ✓ concorde »*, **exit 0** ; `CLASSEUR` pointé sur l'ancien classeur à 14
+jobs (sabotage disque, restauré) → **exit 1** nommant *« 5 job(s) SUPPRIMÉ(S) encore
+listé(s) : revenus-passifs-lecon, psychopathologie-lecon, dzogchen-lecon, enneagramme-lecon,
+appli-ia-lecon »* **et** *« le titre annonce 14 jobs pour 9 réels »*. Câblé dans le harnais
+hors `--docs`.
+🟢 **ET LE GESTE ⑥ N'EST PLUS MANUEL** : `supprimer_job.sh --confirmer` l'exécute désormais,
+puis **relance `--verifier`** pour le prouver. Le plan annonce sept gestes, ⑦ étant le seul
+qui reste à la main (consigner, `git add` de l'**ancien ET du nouveau** chemin, commit, push).
+📌 **Le classeur « Les 8 Jobs » n'a donc PAS été créé aujourd'hui** : il y a **9 jobs**, et
+l'écrire maintenant serait faux. Il sortira tout seul à la suppression d'`astrologie-karmique`
+après le 22/10. `refaire_classeur.py --refuse` de produire un fichier portant le nom du
+classeur courant, donc il ne peut pas s'exécuter deux fois le même jour par erreur.
