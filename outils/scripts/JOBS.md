@@ -979,3 +979,54 @@ en une ligne** : les ids du skill et ceux de `jobs_config.json` sont désormais 
 📌 **`controle_psychopathologie.py` est CONSERVÉ** bien que son job n'existe plus : il porte
 un témoin conforme et la mutation « fraction » de la section 5 ter du harnais. Le supprimer
 ferait tomber `ATTENDU_5BIS`.
+
+### 15/10/2026 (même jour, après coup) — VÉRIFICATION DES HUIT SUPPRESSIONS : AUCUN ORPHELIN DE PLANIFICATION
+
+**Ordre** : « vérifie que les cinq suppressions précédentes n'ont pas laissé d'orphelins ».
+Balayage étendu aux **huit** jobs supprimés et à **onze** emplacements, dont quatre que la
+séquence en six gestes écrite le matin ne mentionnait pas.
+
+| emplacement | verdict |
+|---|---|
+| `.plist` de `~/Library/LaunchAgents` | **9 pour 9 jobs**, aucun des huit supprimés |
+| chargés dans `launchctl` sans fichier | aucun |
+| `case BUDGET` de `run_job.sh` | aucun |
+| liste `JOBS` de `setup_launchd.sh` | aucun |
+| `.claude/skills/lancer-job/SKILL.md` | propre — les mentions restantes sont les messages « ⛔ supprimé » voulus |
+| `jobs_config.json` | propre — seule une note `recurrence` documentaire (« créneau repris de `entretien-motivationnel-lecon` ») |
+| 🆕 `outils/scripts/rattrapage_jobs.sh` | propre — `DEFAULT_JOBS` commente les deux du 04/10 **avec leur date**, et n'a jamais listé les trois d'aujourd'hui |
+| 🆕 skill `restaurer-jobs` | propre **par construction** : il relit `jobs_config.json`, aucune liste en dur |
+| 🆕 `maj_xlsx_jobs.py` | propre **par construction** : le lien job → parcours vient de la config |
+| 🆕 `/Library/LaunchAgents` et `/Library/LaunchDaemons` | rien de `com.claudetravail.*` |
+| coffre Obsidian (`audit_vault.py`) | **9 contrôles verts, 1 317 liens wiki résolus** |
+
+🟢 **ET LA PREUVE EMPIRIQUE, pour les deux suppressions du 04/10** : un `.plist` survivant
+aurait fait tourner le job à son créneau suivant et laissé un log daté. `revenus-passifs`
+(dimanche 7h03) s'arrête à `20261004_070303` — son propre créneau, le jour de la
+suppression — et **rien le dimanche 11/10**. `appli-ia` (vendredi 8h03) s'arrête à
+`20261002_080300` et **rien le vendredi 09/10**. Les `.plist` avaient donc bien été retirés.
+
+⚠️ **CE QUE JE NE PEUX PAS PROUVER, et il faut le dire** : pour `rgpd-veille` (25/07),
+`nocode-ia-veille` (02/08) et `entretien-motivationnel-lecon` (10/08), **aucun log daté ne
+survit** — `logs/` est gitignoré et purgé. Leurs seuls vestiges sont six fichiers
+`*.launchd.out/err` de **0 octet**, de mtime 09/07, 12/06 et 11/06, tous **antérieurs** à
+leurs dates de suppression. C'est compatible avec l'absence de déclenchement postérieur,
+**ce n'est pas une preuve** : la preuve est absente, pas négative.
+
+📌 **DONC LE RISQUE QUE J'AI SIGNALÉ CE MATIN NE S'EST PAS MATÉRIALISÉ.** Le défaut de
+`setup_launchd.sh` est réel — je l'ai reproduit, il a réinstallé trois jobs sous mes yeux —
+mais celui qui a mené les cinq suppressions précédentes a retiré les `.plist` correctement.
+L'avertissement « rien ne garantit que leurs `.plist` ont été retirés » était justifié comme
+question, et **la réponse est rassurante**.
+
+⛔ **UN SEUL VRAI ORPHELIN, ET IL N'EST PAS DANS LA PLANIFICATION** :
+`livrables/documents/2026-08-09_Les 14 Jobs.xlsx` porte encore **cinq jobs supprimés** —
+`revenus-passifs-lecon`, `appli-ia-lecon`, `psychopathologie-lecon`, `dzogchen-lecon`,
+`enneagramme-lecon` — et s'intitule **« Tes 14 jobs »** pour **9** jobs réels.
+⚠️ **Ce n'est pas un instantané daté qu'on pourrait laisser tel quel** : `run_job.sh`
+appelle `maj_xlsx_jobs.py` après **chaque job réussi**, donc le classeur est un document
+**vivant**. Mais ce script ne met à jour que la colonne « Numéro de la dernière leçon », pour
+les seules lignes dont le job est dans la config : **il n'ajoute ni ne retire jamais une
+ligne**. Les cinq lignes mortes ne seront donc **jamais** nettoyées automatiquement, et le
+titre restera faux. **Non corrigé** : retirer cinq lignes d'un livrable et renommer un
+fichier daté sont des gestes à valider.
