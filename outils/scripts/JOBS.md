@@ -1070,3 +1070,75 @@ les deux jeux d'ids et d'AVERTIR quand ils divergent. Non fait : l'ordre portait
 classeur, pas sur le script. C'est le seul endroit où un humain lit la liste des jobs, et
 le seul que rien ne vérifie — `controle_clauses_parcours.py` compare le prompt aux `.docx`,
 `audit_vault.py` les fiches aux documents, **personne ne compare le classeur à la config**.
+
+### 15/10/2026 — FICHE DE LA LEÇON ASTROLOGIE-KARMIQUE N°11 (premier audit « standard »)
+
+**Premier audit mené sous la doctrine de calibrage posée le matin** : six pages aspirées sur
+disque par `aspirer.py`, interrogées par `chercher.py`, **aucune page entrée en contexte**,
+et la fiche **liste ses requêtes** — l'obligation nouvelle, puisque l'appariement exact ne
+trouve que ce qu'on lui demande.
+
+**Mesures** : 2,8591 $ / 5,00 $ (**57 %**), **32 tours**, `success`, `end_turn`.
+⚠️ **Ce chiffre valide à lui seul le relèvement du 08/10** : à 2,86 $ la leçon aurait crevé
+l'ancien plafond de 3,00 $ et serait morte en vérification, comme la n°10 huit jours avant.
+Contrôles : **0 bloquant**, étape 5 bis **0 sur sept motifs**, six pages en HTTP 200, aucune
+sous le plancher de façade. `controle_clauses_parcours` : annoncé 12 · réels 11 · clause oui.
+
+🟢 **ET C'EST LE PREMIER DOCUMENT DE LA SEMAINE DONT TOUS LES RENVOIS AUX LEÇONS ANTÉRIEURES
+SONT EXACTS.** Les six ont été vérifiés un par un sur les `.docx` des leçons 3, 4, 5, 7 et 10 :
+« opposition exacte (180°) », « intersections de l'orbite lunaire et de l'écliptique »,
+« zone de confort » (littéral), « le secteur qui coûte et fait grandir » (la 11 écrit « coûte
+mais fait grandir »), les trois termes de Saturne — limite, contraintes structurelles,
+maturité, cette dernière en trois occurrences —, et « objets de statuts très différents »
+(littéral). **Quatre documents de la semaine s'étaient trompés sur ce qu'ils résumaient ;
+celui-ci sur aucun des six.** C'est le contre-exemple à exiger du bilan du 22/10.
+
+🔴 **LE PARCOURS A CHANGÉ DE CONVENTION DE CITATION EN DEUX LEÇONS, ET CELA A DÉSARMÉ B ET
+B-FR.** Mesuré sur les onze leçons : n°01 à n°09 → **11 à 99 guillemets français, ZÉRO droit**
+(sauf n°07, six) ; **n°10 → 53 français / 36 droits** ; **n°11 → 9 français / 24 droits**. Or
+B et B-FR ne cherchent que « … » : **les cinq citations de six mots ou plus de la n°11 sont
+toutes en guillemets droits, donc AUCUNE n'a été vérifiée par un contrôle.** Elles l'ont été
+à la main — ① littéral pour l'USNO (jusqu'à sa parenthèse « (celestial) ») et pour
+CafeAstrology sur la conjonction Soleil-nœud, dans ses deux emplois tous deux attribués ;
+② graphie seulement pour la citation Jupiter, dont la leçon abaisse la capitale initiale
+(« When » → « when ») en l'enchâssant. C'est l'angle mort du 12/10 sur les apostrophes
+droites, mais **ce n'est plus un cas isolé : c'est une dérive de style qui éteint
+progressivement la vérification des citations d'un parcours entier.**
+📌 **Piste** : apparier les guillemets droits dans B et B-FR, en se gardant des faux positifs
+(code, pouces, élisions).
+
+🔴 **PASSE D : CINQUIÈME PATHOLOGIE EN UNE SEMAINE, ET C'EST L'INVERSE DES QUATRE AUTRES.**
+Les quatre précédentes étaient des **cécités** (sous le plancher `\d{3,6}` · en lettres ·
+hors contexte d'attribution · extraits puis écartés faute de domaine). Celle-ci est du
+**bruit systématique** : les six réserves chiffrées de la n°11 sont la **métrologie du
+document lui-même** — les comptes de caractères de ses propres sources, écrits dans ses
+annotations `HTTP 200, N caractères`. **Une page ne publie jamais son propre nombre de
+caractères : ces valeurs sont absentes par construction.**
+⚠️ **Et la mesure retourne le reproche** : réaspirées une à une, les six pages rendent 10 935,
+19 422, 21 767, 32 089, 28 469 et 10 105 contre 10 933, 19 420, 21 765, 32 087, 28 472 et
+10 103 annoncés — **écart maximal de 3 caractères sur 28 469, moins de 0,01 %**. La métrologie
+que la passe D donne pour « non vérifiée » est donc **juste**, et elle prouve indépendamment
+que le document a réellement ouvert ses pages.
+📊 **Portée sur le parcours : 26 réserves mécaniques sur onze leçons, aucune n'étant un
+défaut, et le rythme s'accélère** — 0 à 1 par leçon jusqu'à la n°08, puis **7, 8 et 6** pour
+les n°09, 10 et 11, depuis le durcissement de l'étape 5 bis.
+📌 **Piste bornée** : exempter les nombres qui ne vivent que dans une annotation de source
+`HTTP 200, N caractères`, exactement comme le 11/10/2026 a exempté ceux des marqueurs de
+correction (`corps_hm`). Même piège, même remède, et la passe D n'étant pas dans la
+référence, il faudra une **exigence de ligne** sur un témoin.
+
+⚠️ **UN SEUL ÉCART DE FOND, ET C'EST UNE DÉRIVE DE VOCABULAIRE INTERNE** : la n°11 écrit
+**« draconique » six fois** là où la **n°03 écrivait « draconitique » treize fois** — même
+parcours, même grandeur, deux graphies, et c'est la leçon antérieure qui emploie la forme
+française usuelle (la page NASA dit « draconic »). Même classe d'incohérence lexicale que le
+motif ① de l'étape 5 bis surveille pour « Nœud » depuis la n°03, **et rien ne surveille
+celle-ci**. Ni l'un ni l'autre n'est une erreur de fait.
+
+🔵 **㉚ est un faux positif ici** : il signale la citation CafeAstrology comme « reprise nue »,
+or ses **deux** emplois nomment la source **et** son adresse.
+🔵 **Les deux régimes et le garde-fou d'usage non professionnel sont tenus** : sept mentions
+de « Régime A », une de « Régime B », et **zéro occurrence** de « prédiction », « conseil »,
+« médical » ou « usage professionnel ».
+🔵 **`maj_xlsx_jobs.py` a été validé par un job réel** : son auto-push du matin (`cd9415c`)
+a porté le nouveau classeur de 5 502 à 5 504 octets en y inscrivant la leçon 11 — le
+repointage du 15/10 fonctionne en production.
