@@ -1273,6 +1273,37 @@ avant_res_hm = corps_hm[:res] if res != -1 else corps_hm
 ATTRIB = re.compile(r"(" + DOM + r")|\b(v[ée]rifi[ée]e?s?|selon|d'apr[eè]s|la doc|"
                     r"documentation|source|annonce|indique|pr[ée]cise)\b", re.I)
 IGNORE = re.compile(r"^(19|20)\d\d$")          # annees
+# ㊲ (16/10/2026) L'INSTRUMENTATION D'UN DOCUMENT N'EST PAS SON CONTENU.
+#    Incidents mesures : la veille ai-act du 16/10/2026 rend DEUX reserves D, et les deux sont
+#    l'instrumentation de la note — « 403 », tire de « ⛔ consilium.europa.eu/... — HTTP 403 »,
+#    soit UN CODE DE STATUT HTTP lu comme une valeur chiffree attribuee ; et « 26 012 », le
+#    compte de caracteres que la note annonce pour une de ses pages. La veille, la lecon
+#    astrologie-karmique n°11 rendait SIX reserves, toutes des comptes de caracteres : 26 sur
+#    les onze lecons du parcours, AUCUNE n'etant un defaut, et le rythme s'accelerait (0 a 1
+#    par lecon jusqu'a la n°08, puis 7, 8 et 6) depuis le durcissement de l'etape 5 bis.
+#    ⚠️ UNE PAGE NE PUBLIE JAMAIS SON PROPRE NOMBRE DE CARACTERES, ni son code de statut : ces
+#    valeurs sont absentes des pages PAR CONSTRUCTION, et la passe les rangeait en
+#    « A VERIFIER ... absente des pages citees ». Pire, la mesure RETOURNE le reproche : les six
+#    comptes annonces par astrologie n°11 etaient justes a TROIS caracteres sur 28 469.
+#    Meme remede que le 11/10 pour les marqueurs : on ecarte, et on DIT ce qu'on a ecarte.
+#    BORNES, etroites et mesurees : le nombre doit etre collé a « HTTP », a « curl », ou suivi
+#    de « caracteres »/« car. » — et il n'est ecarte que s'il ne figure NULLE PART AILLEURS
+#    hors d'une telle annotation, exactement comme l'exemption des marqueurs. Un nombre qui
+#    est a la fois une taille annoncee ET une valeur du propos reste donc verifie.
+INSTRU = re.compile(r"HTTP\s*0*\d{3}\b"
+                    r"|\bcurl\s+\d{1,3}\b"
+                    r"|\b\d{1,3}(?:[ \u00a0\u202f]\d{3})*(?:[,.]\d+)?\s*(?:caract[eè]res?|car\.)",
+                    re.I)
+def instrumentation_seule(n, texte):
+    """Vrai si toutes les occurrences de n sont dans une annotation d'instrumentation."""
+    vu = hors = 0
+    for mm in re.finditer(r"(?<![0-9])" + re.escape(n) + r"(?![0-9])", texte):
+        vu += 1
+        a_, b_ = max(0, mm.start() - 22), mm.end() + 20
+        if not INSTRU.search(texte[a_:b_]):
+            hors += 1
+    return vu > 0 and hors == 0
+ecartes_instru = []
 # le motif est NOMME : la boucle principale et celle qui compte les valeurs ecartees doivent
 # extraire exactement la meme chose, sinon le decompte de l'exemption mentirait (11/10/2026).
 MOTIF_D = r"\b\d{1,3}(?:[   ]\d{3})+(?:[,.]\d+)?\b|\b\d+[,.]\d+\b|\b\d{3,6}\b"
@@ -1298,6 +1329,9 @@ for phrase in re.split(r"(?<=[.!?:])\s+|\n", avant_res_hm):
         n = m.group(0)
         if IGNORE.match(n):                     continue
         if n in ("3000", "5173", "1024", "1000"):  continue   # ports et conversions du projet
+        if instrumentation_seule(n, avant_res_hm):            # ㊲ instrumentation, pas contenu
+            if n not in ecartes_instru: ecartes_instru.append(n)
+            continue
         chiffres.setdefault(n, phrase.strip()[:110])
 # les valeurs qui n'apparaissent QUE dans un marqueur : comptees, pour que l'exemption se voie
 chiffres_marq = {}
@@ -1308,9 +1342,21 @@ for phrase in re.split(r"(?<=[.!?:])\s+|\n", avant_res):
         n = m.group(0)
         if IGNORE.match(n) or n in ("3000", "5173", "1024", "1000"):
             continue
-        if n not in chiffres:
+        # ⚠️ 16/10/2026 — SANS CE GARDE, ㊲ MENTIRAIT SUR ㉝ : cette boucle compte comme
+        #    « exemption de marqueur » tout nombre present dans avant_res et absent de
+        #    chiffres. Depuis ㊲, un nombre peut en etre absent parce qu'il est de
+        #    l'instrumentation — il serait alors attribue au marqueur, et le temoin de la
+        #    passe D porte une EXIGENCE DE LIGNE sur ce decompte. Les deux exemptions se
+        #    comptent donc separement.
+        if n not in chiffres and n not in ecartes_instru:
             chiffres_marq.setdefault(n, phrase.strip()[:90])
 print("\nD. VALEURS CHIFFREES EN CONTEXTE D'ATTRIBUTION : %d" % len(chiffres))
+if ecartes_instru:
+    print("   (%d valeur(s) ecartee(s) : INSTRUMENTATION de la note, pas son contenu — code de\n"
+          "          statut HTTP, code de sortie curl ou compte de caracteres annonce. Une page ne\n"
+          "          publie ni son code ni sa taille : ces valeurs sont absentes PAR CONSTRUCTION\n"
+          "          des pages citees (㊲, 16/10/2026) : %s)"
+          % (len(ecartes_instru), ", ".join(sorted(ecartes_instru))))
 if chiffres_marq:
     print("   (%d valeur(s) ecartee(s) : elles ne figurent que dans un marqueur de correction —\n          un chiffre cite POUR MEMOIRE comme libelle d'origine n'est pas une affirmation : %s)"
           % (len(chiffres_marq), ", ".join(sorted(chiffres_marq))))

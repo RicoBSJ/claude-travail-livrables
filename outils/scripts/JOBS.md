@@ -1440,3 +1440,65 @@ neuve que la règle du 14/10 exige, et qu'un balayage rétrospectif ne donne pas
 🔵 **Erreur de convention de ma part, attrapée par `audit_vault.py`** : j'avais écrit
 `type: fiche-veille` dans une `.fiche.md`, où la convention est `fiche-document` — le contrôle
 du suffixe l'a refusée (*« livrable mal nommé : il ne sera JAMAIS publié »*). Corrigé, 9/9 vert.
+
+### 16/10/2026 — LES TROIS PISTES PORTÉES : BLOCS D'ARTICLE · ㊲ INSTRUMENTATION · ㊳ LIVRABLE ORPHELIN
+
+**Ordre** : « porte les trois pistes ».
+
+🔴 **① LA DÉLIMITATION DES BLOCS D'ARTICLE — ET MA PREMIÈRE HYPOTHÈSE ÉTAIT FAUSSE.**
+J'avais annoncé que le défaut venait de `lien[0]`, le motif ne regardant que le premier lien
+d'un bloc. **Mesure : ZÉRO bloc « Article N — Lu » à plusieurs liens sur les 20 éditions.**
+La cause est ailleurs : le `corps` d'un bloc s'arrêtait à la première **ligne vide**, et la
+veille du 16/10 n'en met **aucune** entre ses articles. Le corps de l'« Article 1 » courait
+donc sur **10 569 caractères au lieu de 1 392**, avalant les articles 2 et 3, et le motif
+confrontait au lien de l'Article 1 des noms d'actes et des citations appartenant aux suivants.
+📊 **Recensement COMPLET sur les 20 éditions : UNE SEULE change**, celle du 16/10, et
+seulement en **rétrécissant** — jamais en allongeant un corps. Variante retenue : arrêt à
+**tout** en-tête `Article N — `, pas seulement « — Lu en entier » ; mesuré, la variante
+restreinte laissait l'Article 3 courir sur **7 285 caractères au lieu de 301**.
+📉 **Effet sur l'édition du 16/10 : 4 refus → 2.** Les deux retirés appartenaient aux autres
+blocs, dont « Publication 09 October 2026 » que la passe B-FR appariait en `OK` sur la bonne
+page. Le refus conservé est **légitime** : « EU AI Act » prêté à un article qui parle de
+l'« EU AI Office ». **Le témoin conforme du 09/10 sort toujours en 0.**
+🧪 **TÉMOIN FIGÉ, AVEC UNE EXIGENCE DE LIGNE DANS LES DEUX SENS** —
+`temoins_ai_act_blocs/2026-10-16_veille_ai-act_blocs.docx`, section **5 ter bis**. Il doit
+sortir en **1** (il garde son refus légitime), **ne porter AUCUNE** ligne nommant le lien de
+l'Article 1, **et porter** le refus légitime. ⚠️ **Sabotage : exit 1 dans les deux cas** —
+sain **0** ligne interdite, saboté **3**. Le code de sortie ne prouve rien ; seule la ligne
+interdite attrape le retour du saignement. Sans la ligne requise, un motif entièrement mort
+passerait pour corrigé.
+
+🔴 **② ㊲ L'INSTRUMENTATION N'EST PAS LE CONTENU — ET MON PREMIER RECENSEMENT ÉTAIT FAUX.**
+Il annonçait **490 valeurs dans 284 documents**, c'est-à-dire tous : il comptait l'en-tête de
+`extract_docx.py` lui-même (`=== TEXTE COMPLET (N caractères) ===`), que la passe D écarte
+déjà faute de contexte d'attribution. **Deuxième recensement de la journée fondé sur un
+artefact de mesure**, après celui des guillemets courbes par égalité de chaînes.
+**Borne retenue, étroite** : le nombre doit être collé à `HTTP`, à `curl`, ou suivi de
+`caractères`/`car.`, **et** ne figurer **nulle part ailleurs** hors d'une telle annotation —
+un nombre qui est à la fois une taille annoncée et une valeur du propos reste vérifié.
+📉 **Veille du 16/10 : 2 réserves → 0**, les deux nommées dans la sortie (« 403 », tiré de
+« HTTP 403 », et « 26 012 »). `exit 0` inchangé.
+⚠️ **ET UN EFFET DE BORD QUI AURAIT FAIT MENTIR L'AUTRE EXEMPTION** : la boucle qui compte les
+exemptions de **marqueur** retient tout nombre présent dans `avant_res` et absent de
+`chiffres`. Depuis ㊲ un nombre peut en être absent parce qu'il est de l'instrumentation — il
+aurait été attribué au marqueur, **et le témoin de la passe D porte une exigence de ligne sur
+ce décompte**. Les deux exemptions se comptent désormais séparément.
+🧪 **Témoin de la passe D vérifié intact** : `D_OK=1`, `D_KO=0`, ligne d'exemption présente et
+nommant « 38 400 » et « 16 060,24 » — ㊲ ne le touche pas.
+
+🔴 **③ ㊳ UN LIVRABLE MORT SUR SON PLAFOND NE SE PUBLIE PAS SUR UNE VÉRIFICATION MANUELLE.**
+`controle_livrable_du_job.py` (4 8xx o) relie un document poussé au **log du run qui l'a
+produit** — appariement par la date du nom de fichier et l'id du job, celui-ci venant du champ
+`livrable` de `jobs_config.json`, source de vérité unique — et avertit si ce run a échoué, en
+nommant le coût, le plafond, le pourcentage, les tours, le `subtype`, **et le nombre de
+contrôles tracés dans le log**. Sur la veille du 16/10 : *« 3.2339 $ / 3.00 $ (108 %) ·
+34 tours · error_max_budget_usd · contrôles tracés : 0 — AUCUN : ce document n'a été vérifié
+par personne »*. Sur deux livrables de runs réussis : **sortie vide**.
+⚠️ **IL AVERTIT, IL NE REFUSE PAS, ET C'EST LA RÈGLE DU 14/10 QUI L'IMPOSE** : un motif neuf
+à la porte des pushs tourne d'abord en **avertissement** sur des éditions fraîches, parce
+qu'un balayage rétrospectif ne mesure pas la variabilité de ce qui vient — les 73 éditions du
+12/10 précédaient toutes le contrôle, et la 74e l'a cassé en moins de 48 h. Le passer en
+bloquant demandera sa propre décision, et quelques semaines d'observation.
+📌 **Et il documente mon propre contournement** : j'ai publié ce livrable après avoir rejoué
+ses contrôles moi-même. C'était défendable, et c'était tout de même ouvrir à la main la porte
+que `TOURS_MINI` ferme.

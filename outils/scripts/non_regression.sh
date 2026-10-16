@@ -149,6 +149,18 @@ fi
 if [ "$MODE" = "--docs" ]; then
   shift; STATUT=0
   [ $# -eq 0 ] && { echo "  (aucun document)"; exit 0; }
+  # ㊳ (16/10/2026) UN LIVRABLE POUSSÉ VIENT-IL D'UNE EXÉCUTION RÉUSSIE ?
+  # Avertissement pur, JAMAIS bloquant — la règle du 14/10/2026 l'exige d'un motif neuf à la
+  # porte des pushs : avant de le rendre bloquant, le faire tourner en avertissement sur
+  # quelques éditions fraîches, parce qu'un balayage rétrospectif ne mesure pas la
+  # variabilité de ce qui vient. Incident fondateur : la veille ai-act du 16/10, écrite par
+  # un job mort sur son plafond (3,2339 $ pour 3,00 $, 34 tours) SANS avoir lancé un seul
+  # contrôle, puis publiée après une vérification manuelle.
+  if [ -x "$ROOT/outils/scripts/controle_livrable_du_job.py" ]; then
+    LJ="$CUR/livrable_du_job.txt"
+    env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" "$@" > "$LJ" 2>&1 || true
+    [ -s "$LJ" ] && cat "$LJ"
+  fi
   env -i $PY - "$ROOT/outils/scripts/controle_attributions.py" "$@" > "$CUR/docs_A.tsv" <<'PYH'
 import sys, io, contextlib
 src = open(sys.argv[1], encoding="utf-8").read()
@@ -578,6 +590,45 @@ if [ "$MODE" = "--complet" ]; then
   if [ "$CB_N" != "$ATTENDU_5BIS" ]; then
     echo "  ✗ $CB_N étape(s) 5 bis contrôlée(s), $ATTENDU_5BIS attendue(s) — un lot incomplet ne"
     echo "    prouve rien : rétablis le script ou le témoin manquant, ou mets ATTENDU_5BIS à jour."
+    STATUT=1
+  fi
+
+  # ── 5 ter bis. DÉLIMITATION DES BLOCS D'ARTICLE DE controle_ai_act.py (16/10/2026) ──
+  # Le motif (2) confrontait au lien de SON bloc des noms d'actes et des citations
+  # appartenant aux blocs SUIVANTS : le corps d'un bloc s'arrêtait à la première ligne vide,
+  # or la veille du 16/10 n'en met aucune entre ses articles. Le corps de l'« Article 1 »
+  # courait sur 10 569 caractères au lieu de 1 392, et la note recevait DEUX refus bloquants
+  # pour des chaînes qui ne sont pas les siennes — dont « Publication 09 October 2026 », que
+  # la passe B-FR appariait en OK au même moment sur la bonne page. Les deux contrôles se
+  # contredisaient, et c'était celui-ci qui avait tort.
+  # ⚠️ CE TÉMOIN NE PEUT PAS ÊTRE JUGÉ SUR SON SEUL CODE DE SORTIE : il sort en 1 AVANT comme
+  #    APRÈS le correctif, puisqu'il garde un refus légitime — « EU AI Act » prêté à un
+  #    article qui parle de l'« EU AI Office ». C'est la LIGNE qui est exigée, et dans LES
+  #    DEUX SENS : une ligne INTERDITE (le lien de l'Article 1, qui ne doit plus apparaître
+  #    dans aucun refus) et une ligne REQUISE (le refus légitime, qui doit subsister).
+  #    Sans la ligne interdite, on ne saurait pas que le saignement de bloc est revenu ;
+  #    sans la ligne requise, un motif entièrement mort passerait pour corrigé.
+  echo "▶ Délimitation des blocs d'article de controle_ai_act.py (16/10/2026)"
+  BL_D="$ROOT/outils/scripts/non_regression/temoins_ai_act_blocs"
+  BL_F="$BL_D/2026-10-16_veille_ai-act_blocs.docx"
+  if [ -f "$BL_F" ]; then
+    BL_OUT="$CUR/ai_act_blocs.txt"
+    env -i $PY "$ROOT/outils/scripts/controle_ai_act.py" "$BL_F" > "$BL_OUT" 2>&1
+    BL_RC=$?
+    BL_SAIGNE=$(grep -c "special-meeting-ai-scientific-panel" "$BL_OUT")
+    BL_VRAI=$(grep -cE "ACTE NOMMÉ ABSENT.*EU AI Act.*frontier-ai-safety-and-risks" "$BL_OUT")
+    if [ "$BL_RC" = 1 ] && [ "$BL_SAIGNE" = 0 ] && [ "$BL_VRAI" -ge 1 ]; then
+      echo "  ✓ les blocs tiennent : aucun refus prêté à l'Article 1, et le refus légitime subsiste"
+    else
+      [ "$BL_SAIGNE" != 0 ] && echo "  ✗ LE SAIGNEMENT DE BLOC EST REVENU : $BL_SAIGNE refus prêté(s) au lien de"
+      [ "$BL_SAIGNE" != 0 ] && echo "    l'Article 1 pour des chaînes qui appartiennent aux blocs suivants."
+      [ "$BL_VRAI" = 0 ] && echo "  ✗ le refus légitime a disparu : « EU AI Act » n'est plus reproché à l'article"
+      [ "$BL_VRAI" = 0 ] && echo "    qui parle de l'« EU AI Office » — le motif (2) ne mord plus du tout."
+      [ "$BL_RC" != 1 ] && echo "  ✗ code de sortie $BL_RC, 1 attendu"
+      STATUT=1
+    fi
+  else
+    echo "  ✗ témoin absent : $BL_F"
     STATUT=1
   fi
 

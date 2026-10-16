@@ -106,9 +106,28 @@ for i, t in enumerate(T):
     if not re.match(r"Article \d+ — Lu", t): continue
     lien = [u for j in (i, i + 1, i + 2) if j < len(L) for u in L[j]]
     if not lien: continue
+    # 🔴 16/10/2026 — LE CORPS D'UN BLOC S'ARRÊTE AU PROCHAIN EN-TÊTE D'ARTICLE, PAS
+    #    SEULEMENT À UNE LIGNE VIDE. Sans cette borne, un bloc avale TOUS les articles qui le
+    #    suivent, et le motif confronte au lien de CE bloc des noms d'actes et des citations
+    #    qui appartiennent aux suivants. Incident mesuré sur la veille du 16/10/2026 : le corps
+    #    de l'« Article 1 » courait sur 10 569 caractères jusqu'à la première ligne vide, alors
+    #    que l'en-tête de l'« Article 2 » est neuf paragraphes plus loin — le document ne met
+    #    aucune ligne vide entre ses blocs. Résultat : DEUX refus bloquants sur l'Article 1
+    #    pour « EU AI Act » et « Publication 09 October 2026 », deux chaînes appartenant aux
+    #    blocs suivants, dont la seconde est LITTÉRALEMENT sur la page de l'Article 2 — ce que
+    #    la passe B-FR de controle_attributions.py appariait en OK au même moment. LES DEUX
+    #    CONTRÔLES SE CONTREDISAIENT, ET C'ÉTAIT CELUI-CI QUI AVAIT TORT.
+    #    ⚠️ C'est la TROISIÈME fois que ce contrôle est pris par une erreur de délimitation de
+    #    bloc, après le motif (2) INERTE du 20/09 au 09/10 (il cherchait l'adresse dans les
+    #    deux paragraphes SUIVANT l'en-tête, quand elle est DANS l'en-tête) et l'exemption ⑩
+    #    du 15/10. La borne est « tout en-tête d'article », pas seulement « — Lu en entier » :
+    #    mesuré sur la série, la variante restreinte laissait l'« Article 3 » du 16/10 courir
+    #    sur 7 285 caractères au lieu de 301, parce que le bloc suivant n'est pas « Lu ».
+    #    📊 Recensement COMPLET sur les 20 éditions : UNE SEULE change, celle du 16/10, et
+    #    seulement en RÉTRÉCISSANT — jamais en allongeant un corps.
     corps = ""
     for j in range(i + 2, len(T)):
-        if not T[j].strip(): break
+        if not T[j].strip() or re.match(r"Article \d+ — ", T[j]): break
         corps += " " + T[j]
     for n in set(re.findall(r"\b(?:[A-Z][A-Za-z-]+ ){1,4}(?:Act|Strategy)\b|\bDigital Omnibus\b(?: on AI| IA| AI)?", corps)):
         if norm(n) not in page(lien[0]): print("ACTE NOMMÉ ABSENT DE L'ARTICLE :", n, "->", lien[0]); pb.append("« %s » prêté à %s" % (n, lien[0]))
