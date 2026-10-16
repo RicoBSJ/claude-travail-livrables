@@ -125,9 +125,26 @@ for i, t in enumerate(T):
     #    sur 7 285 caractères au lieu de 301, parce que le bloc suivant n'est pas « Lu ».
     #    📊 Recensement COMPLET sur les 20 éditions : UNE SEULE change, celle du 16/10, et
     #    seulement en RÉTRÉCISSANT — jamais en allongeant un corps.
+    #    🔴 BORNE COMPLÉTÉE LE MÊME JOUR, APRÈS UNE SECONDE MESURE : l'arrêt au prochain
+    #    en-tête d'article ne suffit pas pour le DERNIER bloc, dont le corps court alors sur
+    #    tout ce qui suit. Mesuré sur la veille du 16/10 : l'« Article 2 » est le dernier, et
+    #    son corps gardait 1 586 caracteres au lieu de 831 — il avalait les rubriques
+    #    « Conseil de l'UE » et « Calendrier d'application », donc le titre d'une AUTRE
+    #    source, « Timeline for the Implementation of the EU AI Act ». J'avais d'abord déclaré
+    #    ce refus LÉGITIME dans la fiche du jour : il était le quatrieme artefact.
+    #    LA BORNE EST STRUCTURELLE, PAS VISUELLE : dans ce format, chaque source est un
+    #    intertitre puis un paragraphe PORTANT SON LIEN puis son commentaire. Un lien
+    #    ÉTRANGER au bloc marque donc une nouvelle source, et ferme le corps.
+    #    ⚠️ « ÉTRANGER AU BLOC » N'EST PAS « PORTE UN LIEN » : mesuré, la variante naive
+    #    vidait TROIS blocs de l'édition du 25/09, dont le paragraphe de résumé porte
+    #    lui-meme le lien du bloc (il est en i+2, pas en i+1 comme le 16/10) — le motif y
+    #    devenait INERTE. On compare donc au lien du bloc, pris en i, i+1, i+2.
+    #    📊 Recensement sur les 20 éditions : UNE SEULE change, celle du 16/10, et AUCUN
+    #    corps n'est vidé.
     corps = ""
     for j in range(i + 2, len(T)):
         if not T[j].strip() or re.match(r"Article \d+ — ", T[j]): break
+        if L[j] and not any(u in lien for u in L[j]): break
         corps += " " + T[j]
     for n in set(re.findall(r"\b(?:[A-Z][A-Za-z-]+ ){1,4}(?:Act|Strategy)\b|\bDigital Omnibus\b(?: on AI| IA| AI)?", corps)):
         if norm(n) not in page(lien[0]): print("ACTE NOMMÉ ABSENT DE L'ARTICLE :", n, "->", lien[0]); pb.append("« %s » prêté à %s" % (n, lien[0]))

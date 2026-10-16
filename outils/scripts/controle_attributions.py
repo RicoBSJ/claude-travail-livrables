@@ -93,6 +93,26 @@ def urls_de(z, fin=r"\s"):
     for u in re.findall(r"https?://[^" + fin + r"]+", z):
         while u and u[-1] in ")>]»" and (u[-1] != ")" or u.count("(") < u.count(")")):
             u = u[:-1]
+        # ㊴ (16/10/2026) UNE PONCTUATION FINALE N'EST PAS DANS L'ADRESSE.
+        #    Incident mesure sur la veille ai-act du 16/10 : la note ecrit, en francais
+        #    correct, « ... ne sont pas verifiees a une source primaire
+        #    (https://www.legifrance.gouv.fr, https://www.senat.fr ou
+        #    https://www.assemblee-nationale.fr) ». La VIRGULE EST UN SEPARATEUR DE LISTE,
+        #    et l'extraction l'avalait : A6 recevait « https://www.legifrance.gouv.fr, » et
+        #    rendait « curl 3 : cause non identifiee », gonflant d'une unite le compte des
+        #    pages injoignables et faisant accuser le document d'une URL malformee.
+        #    ⚠️ J'AVAIS INSCRIT CE DEFAUT DANS LA FICHE COMME UN DEFAUT DU DOCUMENT. Il
+        #    etait dans ce contrôle. La fiche est rectifiee le jour meme.
+        #    BORNE MESUREE SUR LES 284 DOCUMENTS : dix adresses extraites se terminent par
+        #    une ponctuation, et AUCUNE n'est legitime — neuf sont des extraits de code
+        #    (« http://localhost:3000', », « http://localhost'); ») et une un point de fin
+        #    de phrase. Le rognage est donc un gain net, jamais une perte.
+        while u and u[-1] in ",;.!?:'":
+            u = u[:-1]
+        # et la parenthese fermante peut se retrouver en queue APRES le rognage :
+        # « (https://has-sante.fr/...). » rendait « ...). » puis « ...) »
+        while u and u[-1] in ")>]»" and (u[-1] != ")" or u.count("(") < u.count(")")):
+            u = u[:-1]
         out.append(u)
     return out
 urls = sorted(set(urls_de(entete)))

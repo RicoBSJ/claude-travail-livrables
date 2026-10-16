@@ -615,15 +615,25 @@ if [ "$MODE" = "--complet" ]; then
     BL_OUT="$CUR/ai_act_blocs.txt"
     env -i $PY "$ROOT/outils/scripts/controle_ai_act.py" "$BL_F" > "$BL_OUT" 2>&1
     BL_RC=$?
+    # ⚠️ DEUX LIGNES INTERDITES — une par saignement, car il y en avait DEUX :
+    #    ① le lien de l'« Article 1 », quand le corps courait jusqu'à la première ligne vide ;
+    #    ② tout « ACTE NOMMÉ ABSENT », car l'acte « EU AI Act » venait du titre d'une AUTRE
+    #       source avalée par le dernier bloc. Cette copie figée n'a aucun refus d'acte juste.
+    # ET UNE LIGNE REQUISE : le refus d'héritage, qui est le VRAI défaut que cette copie
+    #    conserve — le paragraphe DDADUE sans lien ni « non vérifié ». Sans elle, un motif
+    #    entièrement mort passerait pour corrigé.
     BL_SAIGNE=$(grep -c "special-meeting-ai-scientific-panel" "$BL_OUT")
-    BL_VRAI=$(grep -cE "ACTE NOMMÉ ABSENT.*EU AI Act.*frontier-ai-safety-and-risks" "$BL_OUT")
-    if [ "$BL_RC" = 1 ] && [ "$BL_SAIGNE" = 0 ] && [ "$BL_VRAI" -ge 1 ]; then
-      echo "  ✓ les blocs tiennent : aucun refus prêté à l'Article 1, et le refus légitime subsiste"
+    BL_ACTE=$(grep -c "ACTE NOMMÉ ABSENT" "$BL_OUT")
+    BL_VRAI=$(grep -c "HÉRITAGE SANS SOURCE NI RÉSERVE" "$BL_OUT")
+    if [ "$BL_RC" = 1 ] && [ "$BL_SAIGNE" = 0 ] && [ "$BL_ACTE" = 0 ] && [ "$BL_VRAI" -ge 1 ]; then
+      echo "  ✓ les blocs tiennent : aucun refus prêté à un autre bloc, et le vrai défaut subsiste"
     else
       [ "$BL_SAIGNE" != 0 ] && echo "  ✗ LE SAIGNEMENT DE BLOC EST REVENU : $BL_SAIGNE refus prêté(s) au lien de"
       [ "$BL_SAIGNE" != 0 ] && echo "    l'Article 1 pour des chaînes qui appartiennent aux blocs suivants."
-      [ "$BL_VRAI" = 0 ] && echo "  ✗ le refus légitime a disparu : « EU AI Act » n'est plus reproché à l'article"
-      [ "$BL_VRAI" = 0 ] && echo "    qui parle de l'« EU AI Office » — le motif (2) ne mord plus du tout."
+      [ "$BL_ACTE" != 0 ] && echo "  ✗ $BL_ACTE refus d'ACTE : le dernier bloc avale de nouveau le titre d'une"
+      [ "$BL_ACTE" != 0 ] && echo "    autre source (« Timeline for the Implementation of the EU AI Act »)."
+      [ "$BL_VRAI" = 0 ] && echo "  ✗ le vrai défaut a disparu : le paragraphe DDADUE sans lien ni « non vérifié »"
+      [ "$BL_VRAI" = 0 ] && echo "    n'est plus refusé — le motif (5) ne mord plus du tout."
       [ "$BL_RC" != 1 ] && echo "  ✗ code de sortie $BL_RC, 1 attendu"
       STATUT=1
     fi

@@ -1502,3 +1502,73 @@ bloquant demandera sa propre décision, et quelques semaines d'observation.
 📌 **Et il documente mon propre contournement** : j'ai publié ce livrable après avoir rejoué
 ses contrôles moi-même. C'était défendable, et c'était tout de même ouvrir à la main la porte
 que `TOURS_MINI` ferme.
+
+### 16/10/2026 — CORRECTION DE LA VEILLE DU 16/10 : UNE RÉSERVE SUR DEUX ÉTAIT MIENNE, ET LE « REFUS LÉGITIME » AUSSI
+
+**Ordre** : « corrige les deux réserves de la veille du 16/10 ».
+
+🔴 **LA RÉSERVE N°2 N'EXISTAIT PAS.** J'avais reproché au document une « URL malformée »,
+`https://www.legifrance.gouv.fr,`. La phrase écrit, en **français correct** : *« Ces
+informations … ne sont pas vérifiées à une source primaire (https://www.legifrance.gouv.fr,
+https://www.senat.fr ou https://www.assemblee-nationale.fr) »* — **la virgule sépare trois
+adresses dans une liste**, et il n'existe **aucun hyperlien legifrance** dans le document.
+🟢 **LE DÉFAUT ÉTAIT DANS `urls_de()` (㊴)** : le rognage de queue ne retirait que `)>]»`,
+jamais une ponctuation finale. A6 recevait l'adresse avec sa virgule et rendait *« curl 3 :
+cause non identifiee »*, gonflant d'une unité le compte des pages injoignables.
+📊 **Borne mesurée sur les 284 documents : DIX adresses extraites se terminent par une
+ponctuation, et AUCUNE n'est légitime** — neuf sont des extraits de code
+(`http://localhost:3000',`, `http://localhost');`) et une un point de fin de phrase. Le
+rognage est un gain net : **8 documents changent, tous en mieux**, dont `https://www.orias.fr.`
+→ `https://www.orias.fr`. **Les pages non lues de la veille du 16/10 passent de 4 à 3.**
+
+🔴 **ET LE « QUATRIÈME REFUS DÉFENDABLE » QUE J'AVAIS NOMMÉ ÉTAIT UN QUATRIÈME ARTEFACT.**
+J'avais écrit dans la fiche que trois refus sur quatre étaient des erreurs d'appariement et
+que le quatrième — « EU AI Act » prêté à l'article — était légitime. **Faux.** L'« Article 2 »
+est le **dernier** bloc : ma borne du matin (arrêt au prochain en-tête d'article) ne le
+fermait donc pas, son corps débordait sur les rubriques « Conseil de l'UE » et « Calendrier
+d'application », et la chaîne venait du titre d'une **autre source** — *« Timeline for the
+Implementation of the EU AI Act »*, celle du Service desk.
+🟢 **SECONDE BORNE, ET ELLE EST STRUCTURELLE, PAS VISUELLE** : dans ce format, chaque source
+est un intertitre, puis un paragraphe **portant son lien**, puis son commentaire. Un lien
+**ÉTRANGER AU BLOC** marque donc une nouvelle source et ferme le corps.
+⚠️ **« ÉTRANGER AU BLOC » N'EST PAS « PORTE UN LIEN »** : la variante naïve **vidait TROIS
+blocs** de l'édition du 25/09, dont le paragraphe de résumé porte lui-même le lien du bloc
+(il est en i+2, pas en i+1 comme le 16/10) — le motif y devenait **INERTE**. On compare donc
+au lien du bloc, pris en i, i+1, i+2. **Recensement : 1 édition sur 20 change, aucun corps
+vidé.**
+
+🟢 **LE SEUL VRAI DÉFAUT ÉTAIT LA RÉSERVE DU DDADUE, ET IL EST CORRIGÉ DANS LE DOCUMENT.**
+Le motif (5) exige qu'un paragraphe mentionnant `navette` ou `DDADUE` porte **un lien** ou
+les mots **« non vérifié »**. Le ¶112 disait bien « ne sont pas vérifiées à une source
+primaire » — la réserve y était, **mais pas dans la langue du motif** (règle ③ du 12/10 : un
+correcteur écrit dans la même langue que les motifs), et il ne disait pas que les sources
+secondaires sont **non identifiables dans la trace**. Les deux sont désormais écrits :
+*« issues de sources secondaires non identifiées dans la trace de cette exécution, et sont
+non vérifiées à une source primaire (…) »*. Marqueur gris italique daté, libellé d'origine au
+**📝 Journal des corrections**, sauvegarde au scratchpad avant patch. **Aucune affirmation de
+fond n'a changé.** Document 17 159 → 17 830 octets, `testzip` OK.
+
+📉 **RÉSULTAT : l'étape 5 bis rend `exit 0` sur cette édition** (4 refus → 0), attributions
+`exit 0` et **0 réserve D**, décompte `COHÉRENT`, édition précédente `exit 0`, coffre 9/9.
+**Le témoin conforme du 09/10 reste à `exit 0`.**
+
+🧪 **TÉMOIN RENFORCÉ : DEUX LIGNES INTERDITES ET UNE REQUISE.** La copie figée conserve le
+défaut DDADUE, donc elle sort toujours en 1 ; ce qu'on exige d'elle : **0** ligne nommant le
+lien de l'« Article 1 » (saignement ①), **0** ligne `ACTE NOMMÉ ABSENT` (saignement ② — cette
+copie n'a aucun refus d'acte juste), et **≥1** ligne `HÉRITAGE SANS SOURCE NI RÉSERVE` (le
+vrai défaut, pour qu'un motif entièrement mort ne passe pas pour corrigé).
+⚠️ **Sabotage : la borne du lien étranger est prise en défaut (`ACTE` 0 → 1). LA BORNE DE
+L'EN-TÊTE NE L'EST PAS, ET JE NE LE MAQUILLE PAS** : mesuré, elle ne change que **25 et 38
+caractères** sur deux blocs — la ligne d'en-tête du bloc suivant —, pour **zéro acte et zéro
+citation**. Son effet est donc inobservable par un témoin. Elle est gardée comme **défense
+contre un futur document qui mettrait un nom d'acte dans un en-tête**, et consignée ici comme
+**non gardée**. Les codes de sortie, eux, sont identiques dans les trois états (1) : seules
+les lignes tranchent.
+
+📌 **BILAN DE MÉTHODE DE LA JOURNÉE, ET IL EST SÉVÈRE** : sur cette seule veille, j'ai annoncé
+**quatre diagnostics faux** — `lien[0]` au lieu du terminateur de corps · 490 valeurs
+d'instrumentation au lieu de 2 (je comptais l'en-tête de mon propre extracteur) · une URL
+malformée qui était une virgule de liste · un refus « légitime » qui était un artefact. **Les
+quatre ont été corrigés par une mesure, aucun par un raisonnement.** La règle inscrite le
+matin — ne jamais décrire ce qu'un outil fait sans l'avoir lancé — est celle que j'ai le plus
+enfreinte, et la seule qui les a tous rattrapés.

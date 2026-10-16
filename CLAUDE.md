@@ -160,7 +160,7 @@ Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `li
 
 | Script | Rôle |
 |---|---|
-| `controle_attributions.py` | passes A, A2–A6, B, B-FR (㉖), B-NOM (㉙), C, C2, D, ㉜ (ouvrage sans page), ㉚ (citation reprise nue), ㉞ (HTTP 000), ㉟ (locale des nombres), **㊱ (guillemets courbes “ ”)**, **㊲ (instrumentation exemptée de D)**. Exit 1 = bloquant, 3 = pages non lues, 0 = propre. ⚠️ **B et B-FR apparient les guillemets DROITS depuis l'origine de leur boucle** — ne pas le réapprendre |
+| `controle_attributions.py` | passes A, A2–A6, B, B-FR (㉖), B-NOM (㉙), C, C2, D, ㉜ (ouvrage sans page), ㉚ (citation reprise nue), ㉞ (HTTP 000), ㉟ (locale des nombres), **㊱ (guillemets courbes “ ”)**, **㊲ (instrumentation exemptée de D)**, **㊴ (ponctuation finale rognée des adresses)**. Exit 1 = bloquant, 3 = pages non lues, 0 = propre. ⚠️ **B et B-FR apparient les guillemets DROITS depuis l'origine de leur boucle** — ne pas le réapprendre |
 | `controle_decompte.py` | décompte des éditions d'une série de veille |
 | `controle_edition_precedente.py` | relit une veille à l'**édition précédente et à sa fiche**. 3 motifs ; ① seul est bloquant |
 | `controle_clauses_parcours.py` | annoncé vs réel vs clause vs limite |
