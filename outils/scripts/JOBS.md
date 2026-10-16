@@ -1357,3 +1357,86 @@ qui reste à la main (consigner, `git add` de l'**ancien ET du nouveau** chemin,
 l'écrire maintenant serait faux. Il sortira tout seul à la suppression d'`astrologie-karmique`
 après le 22/10. `refaire_classeur.py --refuse` de produire un fichier portant le nom du
 classeur courant, donc il ne peut pas s'exécuter deux fois le même jour par erreur.
+
+### 16/10/2026 — VEILLE ai-act : LE JOB MEURT SUR SON PLAFOND, PLAFOND RELEVÉ DE 3 À 5 $
+
+**Ordre** : « écris la fiche cette veille 2026-10-16_veille_ai-act ».
+
+🔴 **LE JOB A ÉCHOUÉ, ET LA NOTE N'A JAMAIS ÉTÉ CONTRÔLÉE PAR LUI.** Créneau de 9h03 :
+`is_error=True`, `subtype=error_max_budget_usd`, **3,2339 $ pour un plafond de 3,00 $ —
+108 %**, **34 tours**, `stop_reason=tool_use`. Le `.docx` de 17 159 octets était sur le
+disque, **untracked**, et le log ne porte **aucune** trace d'un contrôle lancé : ni
+`controle_attributions.py`, ni l'étape 5 bis, ni `non_regression.sh`. **Tous les verdicts de
+la fiche sont les miens, rejoués à la main après coup.**
+
+📊 **TROISIÈME DÉPASSEMENT DE CETTE FAMILLE, DEUXIÈME APRÈS UN DURCISSEMENT DE PROMPT.**
+`astrologie-karmique` : durci le 20/08, dépassement le **08/10** à 3,0218 $ pour 3,00 $
+(101 %), `stop_reason=tool_use`, livrable complet non contrôlé — plafond porté à 5 $ le jour
+même, et sa leçon 11 du 15/10 a coûté **2,8591 $**, ce qui aurait crevé l'ancien plafond.
+`ai-act` : durci le **09/10** (39 464 → 56 742 o, cinq motifs ajoutés) puis allégé à 45 803
+en sortant `controle_ai_act.py` — **le durcissement a été payé, le plafond n'a pas suivi.**
+🟢 **Relevé de 3 à 5 $ le 16/10 sur décision explicite.** Cumul **32 → 34 $/semaine**, et
+**29 $** après la suppression d'`astrologie-karmique` prévue après le 22/10. Ce qui coûte, mesuré :
+34 tours pour **72 205 tokens de sortie** et **1,99 M de cache-read**.
+📌 **RÈGLE PORTÉE DANS `CLAUDE.md`** : un durcissement de prompt se paie, et le plafond doit
+suivre **dans le même geste**. Et l'avertissement précède toujours l'incident d'un cran — le
+86 % d'astrologie au 01/10 avait été consigné sans conséquence. **Surveiller le taux d'usage,
+pas seulement les échecs.**
+
+🟢 **LE DOCUMENT, LUI, EST BON** — publié le jour même par décision explicite, avec alerte.
+`controle_attributions.py` **exit 0, 0 bloquant** ; les **6 citations** (4 anglaises,
+2 françaises) sortent toutes en `OK`. `controle_decompte.py` **COHÉRENT** (5 ✅ · 1 ⚠ · 2 ⛔ ·
+5 consultées · 13 tentées). `controle_edition_precedente.py` **exit 0**, son motif ① ayant
+réellement travaillé : 64 citations d'origine dans le journal de N-1, 3 retenues, 2 jetons
+distinctifs examinés, aucun rejeu.
+🔵 **ET UNE CORRECTION DU 12/10 A TENU, CE QUI EST LE CONTRAIRE D'UN REJEU** : la note cite
+la CNIL avec « *a été **adopté*** » — la faute d'accord de la CNIL, conservée. C'est l'objet
+même de la correction du 12/10 sur l'édition du 11/09, où « adoptée » avait été remis en
+« adopté ». Quatre semaines plus tard la série écrit la forme juste, et **B-FR l'apparie en
+`OK`**. À ne pas perdre si le document est corrigé.
+
+🔴 **L'ÉTAPE 5 BIS REFUSE LA NOTE (exit 1), ET TROIS DE SES QUATRE REFUS SONT DES ERREURS
+D'APPARIEMENT DE LIEN — MESURÉES UNE PAR UNE.** Elle reproche l'absence de « EU AI Act » et de
+« Publication 09 October 2026 » sur `digital-strategy…/special-meeting-ai-scientific-panel`.
+Or ce nom d'acte appartient dans la note à **une autre adresse**,
+`ai-act-service-desk…/timeline-implementation-eu-ai-act`, où il figure jusque dans l'URL ; et
+la chaîne « Publication 09 October 2026 » est **littéralement présente** sur
+`commission-holds-special-meeting-scientific-panel-frontier-ai-safety-and-risks`, l'autre page
+de l'événement. ⚠️ **LES DEUX CONTRÔLES SE CONTREDISENT SUR CETTE CHAÎNE, ET C'EST LA PASSE
+B-FR QUI A RAISON** : elle l'apparie en `OK` à la bonne page, que l'étape 5 bis n'a pas
+regardée. Les deux URL existent, répondent en 200, portent deux titres distincts — pas de soft
+404 : **deux pages voisines et un motif qui prend la mauvaise**, même faiblesse que le motif (2)
+réparé le 09/10, qui cherchait l'adresse ailleurs qu'où elle est.
+📌 **Piste** : faire pointer les motifs (1) et (2) sur l'adresse que la note **associe à la
+citation**, non sur un lien du paragraphe ou de ses voisins.
+🔵 **Le quatrième refus est défendable, et c'est la seule réserve de fond** : le ¶112 tient la
+claim DDADUE de « sources secondaires consultées via WebSearch » — **aucune n'est nommée**,
+« via WebSearch » étant une méthode, pas une source. Le ¶48 porte la même affirmation avec une
+réserve mieux formée. **À prendre comme non vérifiée.**
+
+⚠️ **SIX SOURCES SUR CETTE NOTE NE PROUVENT RIEN, ET LE « 0 BLOQUANT » SE LIT À CETTE LUMIÈRE.**
+Quatre pages rendent **0 octet après trois essais** : EUR-Lex `CELEX:32026R1744` (HTTP 202,
+comportement connu), `consilium.europa.eu/en/press/press-releases/` (403),
+`legifrance.gouv.fr` (403), et une **URL malformée** — `https://www.legifrance.gouv.fr,`, sa
+virgule collée faisant rendre **curl 3** et gonflant d'une unité le compte des injoignables.
+Deux autres sont des façades : `ai-act-service-desk…/timeline` à **2 760** caractères utiles et
+`commission-holds-special-meeting…` à **2 984 — SEIZE sous le plancher de 3 000**. ⚠️ Et c'est
+précisément sur cette seconde façade que l'étape 5 bis a cru lire une absence : **une page
+tronquée rend indiscernables une citation absente et une citation non lue** (règle du 12/10).
+
+🔴 **PASSE D : UN CODE DE STATUT HTTP LU COMME UNE VALEUR CHIFFRÉE ATTRIBUÉE.** Deux réserves,
+toutes deux d'instrumentation : « **403** », tiré de *« ⛔ consilium… — HTTP 403 »*, et
+« **26 012** », le compte de caractères que la note annonce pour une de ses pages. La seconde
+est la pathologie mesurée le 15/10 sur astrologie-karmique n°11 (26 réserves sur onze leçons,
+aucune n'étant un défaut) ; **la première est nouvelle**. Même remède que le 11/10 pour les
+marqueurs : exempter les nombres qui ne vivent que dans une annotation d'instrumentation —
+comptes de caractères **et codes HTTP**.
+
+🟢 **ET L'EXEMPTION DE ⑩ POSÉE LA VEILLE A PASSÉ SA PREMIÈRE ÉPREUVE SUR UNE ÉDITION FRAÎCHE** :
+deux déclenchements, ¶44 et ¶84, nommant `iapp.org/news/` comme page d'index. Sans elle, le
+compte des refus de l'étape 5 bis aurait pu être de cinq. **C'est la validation sur une édition
+neuve que la règle du 14/10 exige, et qu'un balayage rétrospectif ne donne pas.**
+
+🔵 **Erreur de convention de ma part, attrapée par `audit_vault.py`** : j'avais écrit
+`type: fiche-veille` dans une `.fiche.md`, où la convention est `fiche-document` — le contrôle
+du suffixe l'a refusée (*« livrable mal nommé : il ne sera JAMAIS publié »*). Corrigé, 9/9 vert.
