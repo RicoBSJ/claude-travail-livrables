@@ -1572,3 +1572,54 @@ malformée qui était une virgule de liste · un refus « légitime » qui étai
 quatre ont été corrigés par une mesure, aucun par un raisonnement.** La règle inscrite le
 matin — ne jamais décrire ce qu'un outil fait sans l'avoir lancé — est celle que j'ai le plus
 enfreinte, et la seule qui les a tous rattrapés.
+
+### 16/10/2026 — ㊳ DEVIENT BLOQUANT, SUR DÉCISION EXPLICITE, AVEC EXEMPTION PAR DÉCLARATION
+
+**Ordre** : « rends ㊳ bloquant ».
+
+🔴 **ET TEL QU'IL ÉTAIT, IL NE DEVAIT PAS LE DEVENIR : IL AURAIT ÉTÉ UN PIÈGE, PAS UN GARDE.**
+Objection posée avant d'exécuter, et ce n'était pas celle que j'avais écrite le matin. ㊳
+s'appuie sur **le run qui a produit le fichier**, un fait qui **ne change jamais** : rendu
+bloquant sans issue, il aurait refusé le livrable du 16/10 **et chacune de ses corrections
+futures, indéfiniment**. Le push de correction mené le jour même aurait été **bloqué**.
+
+🟢 **LA FORME SÛRE EXISTAIT DÉJÀ DANS LE DÉPÔT : L'EXEMPTION PAR DÉCLARATION**, celle de ㉜ et
+de ㉞ — *« ce qui est attendu, c'est une déclaration »*. Le document doit **dire lui-même**
+① que son exécution a échoué ou crevé son plafond, **ET** ② qu'il a été relu hors du job.
+⚠️ **BORNE EN « ET », PAS EN « OU »** : c'est la leçon du 14/10, où un « ≤4 mots **OU**
+dénoncée » a refusé un livrable juste et où le **ET** a tenu. « plafond » seul est un mot que
+n'importe quelle note sur les budgets peut porter.
+🔵 **NFC d'abord**, et les variantes sans accent listées — les marqueurs du dépôt s'écrivent
+tantôt « é » précomposé, tantôt « e » + U+0301.
+🔵 **Et la veille du 16/10 déclarait déjà tout ce qu'il faut**, sans que je l'aie écrit pour
+ça : son journal dit *« le job du 16/10 est mort sur son plafond de coût (3,2339 $ pour
+3,00 $, 34 tours) sans lancer aucun contrôle, et cette note a été relue puis publiée
+séparément »*. **La déclaration précédait l'exemption** — c'est la meilleure preuve que la
+borne décrit une pratique réelle et non une échappatoire taillée sur mesure.
+
+🧪 **VALIDÉ DANS LES DEUX SENS, ET ICI LE CODE DE SORTIE SUFFIT** — contrairement à la plupart
+des motifs du dépôt, celui-ci n'a qu'un verdict binaire :
+• **sens acceptant** : la veille du 16/10, qui déclare → **exit 0** + ligne *« DÉCLARÉ par le
+document »* ;
+• **sens refus** : la copie figée de `temoins_ai_act_blocs`, qui date d'**avant** la correction
+et n'a donc **aucun journal** → **exit 1** + ligne *« ⛔ REFUSÉ : le document ne DÉCLARE pas
+l'échec de son exécution ni sa relecture hors du job »*.
+⚠️ **Le sens refus se joue sur une copie placée dans un chemin qui s'apparie au job**, le
+contrôle liant un document à son run par la **date de son nom** et le **dossier de sa série**.
+**Aucun nouveau témoin n'est figé** : la copie d'avant correction existait déjà.
+🔵 Le témoin exige aussi la **ligne** du refus, pas seulement l'exit : *un refus muet se
+contourne au lieu de se lire.*
+
+⚠️ **CE QUE CE PASSAGE EN BLOQUANT ENFREINT, ET JE NE LE MAQUILLE PAS.** La règle du
+14/10/2026 — payée par un faux refus en production — veut qu'un motif tourne en
+**AVERTISSEMENT sur quelques éditions neuves** avant de bloquer, parce qu'un balayage
+rétrospectif ne mesure pas la variabilité de ce qui vient : les 73 éditions du 12/10
+précédaient toutes leur contrôle, et la **74ᵉ l'a cassé en moins de 48 heures**. Ici, ㊳ a
+tourné en avertissement **une journée, sur un cas**. 📌 **Ce qui borne le risque n'est donc
+pas l'observation mais l'exemption** : un faux refus se lève en écrivant **une phrase dans le
+livrable** — pas en modifiant un contrôle, pas en forçant un push. C'est un garde dont la
+sortie de secours est à la portée de celui qui le rencontre, et dont la trace reste **dans le
+document**, lisible par qui le relira — ce qu'un avertissement de harnais n'est pas.
+📌 **À surveiller vendredi 23/10** : c'est le premier créneau `ai-act` sous ce régime. Si le
+job réussit, ㊳ reste muet. S'il échoue, le livrable sera **refusé au push** jusqu'à ce qu'il
+déclare — ce qui est l'effet voulu, et qu'il faudra constater au moins une fois pour de vrai.

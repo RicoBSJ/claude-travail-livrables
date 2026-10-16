@@ -150,16 +150,24 @@ if [ "$MODE" = "--docs" ]; then
   shift; STATUT=0
   [ $# -eq 0 ] && { echo "  (aucun document)"; exit 0; }
   # ㊳ (16/10/2026) UN LIVRABLE POUSSÉ VIENT-IL D'UNE EXÉCUTION RÉUSSIE ?
-  # Avertissement pur, JAMAIS bloquant — la règle du 14/10/2026 l'exige d'un motif neuf à la
-  # porte des pushs : avant de le rendre bloquant, le faire tourner en avertissement sur
-  # quelques éditions fraîches, parce qu'un balayage rétrospectif ne mesure pas la
-  # variabilité de ce qui vient. Incident fondateur : la veille ai-act du 16/10, écrite par
-  # un job mort sur son plafond (3,2339 $ pour 3,00 $, 34 tours) SANS avoir lancé un seul
-  # contrôle, puis publiée après une vérification manuelle.
+  # 🔴 BLOQUANT depuis le 16/10/2026, sur décision explicite — avec une EXEMPTION PAR
+  # DÉCLARATION sans laquelle il serait un piège : il s'appuie sur le run qui a produit le
+  # fichier, un fait qui ne change jamais, donc le livrable du 16/10 et chacune de ses
+  # corrections futures seraient refusés indéfiniment. Le document doit DIRE lui-même qu'il
+  # vient d'une exécution échouée ET qu'il a été relu hors du job.
+  # ⚠️ CE QUE CELA ENFREINT, ET C'EST ÉCRIT DANS LE DOCSTRING DU CONTRÔLE : la règle du
+  # 14/10/2026 veut un passage en avertissement sur quelques éditions neuves avant de
+  # bloquer. Ici le motif a tourné en avertissement UNE journée, sur UN cas. Ce qui borne le
+  # risque n'est donc pas l'observation mais l'exemption — un faux refus se lève en écrivant
+  # une phrase dans le livrable, pas en modifiant un contrôle.
   if [ -x "$ROOT/outils/scripts/controle_livrable_du_job.py" ]; then
     LJ="$CUR/livrable_du_job.txt"
-    env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" "$@" > "$LJ" 2>&1 || true
-    [ -s "$LJ" ] && cat "$LJ"
+    if ! env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" "$@" > "$LJ" 2>&1; then
+      cat "$LJ"
+      STATUT=1
+    else
+      [ -s "$LJ" ] && cat "$LJ"
+    fi
   fi
   env -i $PY - "$ROOT/outils/scripts/controle_attributions.py" "$@" > "$CUR/docs_A.tsv" <<'PYH'
 import sys, io, contextlib
@@ -703,6 +711,55 @@ if [ "$MODE" = "--complet" ]; then
     STATUT=1
   fi
 fi
+# ---- Témoins de ㊳ : livrable issu d'un run échoué (16/10/2026) ----
+# ㊳ est BLOQUANT depuis le 16/10, et sa seule porte de sortie est une DÉCLARATION du
+# document lui-même. Les deux sens se prouvent donc, et le code de sortie suffit ici —
+# contrairement à la plupart des motifs du dépôt, celui-ci n'a qu'un verdict binaire.
+# ⚠️ Le sens REFUS se joue sur une copie placée dans un chemin qui s'apparie au job : le
+#    contrôle lie un document à son run par la DATE de son nom et le dossier de sa série.
+#    La copie figée réutilisée est celle de temoins_ai_act_blocs, qui date d'AVANT la
+#    correction du 16/10 — elle n'a donc aucun journal, donc aucune déclaration. Aucun
+#    nouveau témoin n'est figé pour cela.
+if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/controle_livrable_du_job.py" ]; then
+  echo "▶ Témoins de ㊳ (livrable d'un run échoué : refusé, sauf s'il le déclare)"
+  LJ_KO=0
+  LJ_VIVANT="$ROOT/sources/veille/ai-act/2026-10-16_veille_ai-act.docx"
+  LJ_FIGE="$ROOT/outils/scripts/non_regression/temoins_ai_act_blocs/2026-10-16_veille_ai-act_blocs.docx"
+  if [ -f "$LJ_VIVANT" ] && [ -f "$LJ_FIGE" ]; then
+    # sens ACCEPTANT : le document corrigé DÉCLARE son échec et sa relecture
+    LJ_A="$CUR/lj_accepte.txt"
+    if env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" "$LJ_VIVANT" > "$LJ_A" 2>&1 \
+       && grep -q "DÉCLARÉ par le document" "$LJ_A"; then
+      echo "  ✓ sens acceptant : le livrable qui DÉCLARE son échec et sa relecture passe"
+    else
+      echo "  ✗ sens acceptant : un livrable qui déclare tout ce qu'il faut est REFUSÉ —"
+      echo "    ㊳ bloquant sans exemption praticable est un piège, pas un garde."
+      LJ_KO=1
+    fi
+    # sens REFUS : la copie d'avant correction ne déclare rien
+    LJ_T="$CUR/sources/veille/ai-act"
+    mkdir -p "$LJ_T"
+    cp "$LJ_FIGE" "$LJ_T/2026-10-16_veille_ai-act.docx"
+    LJ_R="$CUR/lj_refuse.txt"
+    if env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" \
+         "$LJ_T/2026-10-16_veille_ai-act.docx" > "$LJ_R" 2>&1; then
+      echo "  ✗ sens refus : un livrable d'un run ÉCHOUÉ sans aucune déclaration PASSE —"
+      echo "    ㊳ ne mord plus, et rien n'empêche de publier ce que personne n'a vérifié."
+      LJ_KO=1
+    elif ! grep -q "REFUSÉ" "$LJ_R"; then
+      echo "  ✗ sens refus : exit 1 obtenu mais sans la ligne « REFUSÉ » — on ne saurait pas"
+      echo "    POURQUOI le push est bloqué, et un refus muet se contourne au lieu de se lire."
+      LJ_KO=1
+    else
+      echo "  ✓ sens refus : le livrable d'un run échoué qui ne déclare rien est refusé"
+    fi
+    [ "$LJ_KO" = 1 ] && STATUT=1
+  else
+    echo "  ✗ témoin(s) absent(s) — le vivant ou la copie figée manque"
+    STATUT=1
+  fi
+fi
+
 # ---- Témoins de supprimer_job.sh (15/10/2026) ----
 # supprimer_job.sh exécute les SIX gestes d'une suppression de job, et son GARDE-FOU est la
 # seule chose qui l'empêche de partir trop tôt : il appelle controle_clauses_parcours.py et
