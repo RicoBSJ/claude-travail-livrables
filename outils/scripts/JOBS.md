@@ -1862,3 +1862,37 @@ le test »**. L'édition des prompts rendait `jobs_config.json` modifié, et le 
 correctif lui-même**. Corrigé : on photographie l'état **avant** les appels, on le
 rephotographie **après**, et on compare. Ce qu'il faut vérifier n'est pas la propreté de
 l'arbre mais l'**inertie des appels**.
+
+### 17/10/2026 — LE CONTRÔLE D'INTÉGRITÉ PORTÉ AUX SEPT PROMPTS QUI N'EN AVAIENT AUCUN
+
+**Ordre** : « ajoute le contrôle d'intégrité aux sept autres prompts ».
+**Résultat : 9 prompts sur 9 l'ont désormais**, avec l'assertion de volume.
+
+📊 **MESURE D'ABORD : LES SEPT PRODUISENT BIEN UN `.docx`** — y compris `controle-livrables`,
+dont le livrable est `livrables/controles/YYYY-MM-DD_controle-livrables.docx` (il en **lit**
+douze, il en **écrit** un : la distinction valait d'être faite avant d'ajouter un contrôle à
+un job qui n'aurait rien produit).
+
+🔴 **ET L'EXIGENCE DE LIEN AURAIT ÉTÉ UN FAUX REFUS SUR TROIS JOBS.** Le bloc d'origine porte
+`if liens == 0: sys.exit("AUCUN LIEN …")`. Mesuré sur les livrables existants :
+**`controle-livrables` a 8 sorties sur 9 SANS AUCUN LIEN** — une note de contrôle qualité n'a
+pas de sources cliquables —, la série **`rbpp` 5 sur 14**, **`serafin-ph` 2 sur 27**. Copier le
+bloc tel quel aurait condamné la note de contrôle hebdomadaire à être refusée huit fois sur
+neuf. **L'exigence de lien n'est donc ajoutée qu'aux quatre jobs dont 100 % des livrables en
+portent** : `imac-veille` (18/18), `hypnose-lecon` (18/18), `stoicisme-lecon` (19/19),
+`astrologie-karmique-lecon` (11/11). Les trois autres reçoivent XML + balises + **volume**.
+📌 **C'est la leçon du 14/10 appliquée d'avance** : un motif bloquant se mesure sur ce qui
+existe avant d'être posé — ici la mesure a changé le dessin, pas seulement la borne.
+
+🧪 **VALIDÉ DANS LES DEUX SENS, SUR LE CORPUS RÉEL** : **172 livrables** des dix séries passés
+au contrôle dans la variante de leur job — **0 refusé**. Sens refus : l'échantillon de
+24 paragraphes de corps et 10 liens généré en forme `run:` rend
+**`CORPS MANQUANT : 10 paragraphe(s) pour 10 lien(s) — marge 0`**, exit 1.
+🔵 **Et le garde du harnais couvre désormais les neuf prompts** : les deux qui ne parlaient pas
+de `TextRun` (`serafin-ph-veille`, `controle-livrables`) en parlent maintenant, dans le message
+d'erreur du contrôle, et contiennent donc la forme exigée.
+
+📌 **CE QUE CE CONTRÔLE NE FAIT TOUJOURS PAS** : il ne regarde ni les `.pptx` de
+`rbpp-pipeline` — quiz et infographies, dont les deux règles critiques vivent dans
+`outils/templates/REGLES_PPTX.md` —, ni les `.md`. Un quiz PowerPoint vide passerait
+exactement comme la veille du 17/10 est passée.
