@@ -1623,3 +1623,69 @@ document**, lisible par qui le relira — ce qu'un avertissement de harnais n'es
 📌 **À surveiller vendredi 23/10** : c'est le premier créneau `ai-act` sous ce régime. Si le
 job réussit, ㊳ reste muet. S'il échoue, le livrable sera **refusé au push** jusqu'à ce qu'il
 déclare — ce qui est l'effet voulu, et qu'il faudra constater au moins une fois pour de vrai.
+
+### 17/10/2026 — FICHE DE LA LEÇON PLACEMENT-FINANCIER N°19 : LE DOCUMENT LE PLUS SAIN DE LA SEMAINE
+
+**Ordre** : « écris la fiche 2026-10-17_lecon-placement-financier_19_allocation-coherente-tenir-duree ».
+
+**Mesures** : `success`, **1,3586 $ / 3,00 $ (45 %)**, **37 tours**, `end_turn`, auto-push
+`22b944f`. 🟢 **㊳, rendu bloquant la veille, est resté muet** — comportement attendu sur un run
+réussi, et sa première rencontre avec un livrable sain.
+**Contrôles** : attributions **exit 0, 0 bloquant** · **A6 : aucun lien mort**, les cinq
+adresses en **HTTP 200** de 5 944 à 25 715 caractères utiles, **aucune façade** · B, B-NOM, C,
+C2, D à **zéro** · `controle_clauses_parcours` : annoncé 20 · réels 19 · clause oui · limite oui.
+
+🟢 **LES SIX CALCULS DE L'EXEMPLE CHIFFRÉ SONT EXACTS, ET AUCUN CONTRÔLE DU DÉPÔT NE VÉRIFIE
+L'ARITHMÉTIQUE.** Recalculés : `20 000 × 1,03^7 = 24 597,48` (24 597 annoncés) ·
+`30 000 × 1,05^7 = 42 213,01` (42 213) · `55 000 × 1,20 = 66 000` · rééquilibrage (total
+111 000, cible 55 % = 61 050, vente **4 950 €**) · `32 000 + 8 000 = 40 000` · « 100 − 61 =
+39 % » d'actions à 61 ans.
+🔵 **ET LA PASSE D REND ZÉRO À BON DROIT, CONTRAIREMENT À CE QUE J'AVAIS SOUPÇONNÉ** : elle
+extrait **40 candidats et 77 pourcentages** du corps, mais aucun ne vit dans une phrase
+portant un marqueur d'attribution — ce sont des **hypothèses et des calculs propres à la
+leçon**, non des faits prêtés à une page. **Son silence est fondé, ce n'est pas une cécité de
+plus.** Le garde-fou de non-conseil est tenu **trois fois** (clause formelle, avertissement
+accolé à l'exemple chiffré, réserve sur l'analogie) ; AMF ×9, CIF ×3.
+
+🔴 **LE SEUL VRAI DÉFAUT EST UNE FAMILLE D'ATTRIBUTIONS À PERSONNE, ET AUCUNE DES QUATRE
+PASSES D'ATTRIBUTION NE LA REGARDE.** Quatre formulations prêtent une règle à une autorité
+jamais nommée : *« **Règle pratique couramment citée** : réduire l'allocation actions de 5 %
+par an »* (deux fois) · *« (40–60 % actions) est **généralement considéré comme cohérent dans
+la littérature** »* · *« **La plupart des praticiens** suggèrent d'utiliser la règle des 110
+ou 120 moins l'âge »*.
+📊 **Mesuré sur les cinq pages aspirées : « 110 moins l'âge », « 120 moins l'âge » et « 100
+moins l'âge » sont ABSENTS des cinq ; « réduire l'allocation actions » n'y figure littéralement
+nulle part.** Ces règles existent dans la pratique — ce n'est pas de l'invention — mais la
+leçon les source à un **consensus qu'aucune de ses pages ne porte**.
+⚠️ **ANGLE MORT STRUCTUREL** : B et B-FR vérifient ce qui est **entre guillemets**, B-NOM les
+affirmations prêtées à une source **nommée**, D les chiffres voisins d'un marqueur
+d'attribution. **Une affirmation attribuée à personne échappe aux quatre.** C'est le pendant
+du trou des bilans mesuré trois fois cette semaine : là, aucun contrôle ne compare un bilan
+aux leçons qu'il résume ; ici, **aucun ne compare à quoi que ce soit une règle attribuée à
+tout le monde et à personne**.
+📌 **Piste bornée** : signaler les formulations d'autorité diffuse — « couramment cité »,
+« généralement considéré », « la plupart des praticiens », « il est admis » — comme ㉜ signale
+une citation d'ouvrage : **non bloquant**, levé par une **déclaration** ou une source nommée.
+⚠️ **Et le mesurer d'abord en AVERTISSEMENT sur des leçons neuves** : la règle du 14/10, que
+j'ai déjà enfreinte une fois hier pour ㊳.
+
+🔵 **Note de registre** : parmi quatre sources institutionnelles ou éducatives (AMF, ABE Info
+Service, La Finance pour Tous ×2), `assurance-vies.net` est un **site commercial**, et c'est de
+loin la page la plus longue (**25 715** caractères contre 5 944 à 11 915). Rien n'en est mal
+cité ; le poids relatif des registres mérite d'être vu sur un parcours d'éducation financière.
+🟢 **Le renvoi à la leçon 15 est exact** — « aversion aux pertes » et « panique » sont ① LITTÉRAL
+dans son `.docx`. **Après quatre documents de la semaine qui se sont trompés sur ce qu'ils
+résumaient, celui-ci ne se trompe pas** — mais il ne renvoie **qu'une fois**.
+
+📌 **TROIS FOIS DANS CET AUDIT, C'EST MA PROPRE MESURE QUI ÉTAIT FAUTIVE, ET LA TROISIÈME EST
+LA PIRE DE LA SEMAINE.** ① J'ai affiché les cinq adresses **tronquées à 100 caractères**, puis
+**retapé ces troncatures** dans `aspirer.py` — trois ont rendu 404 et j'ai cru tenir trois
+liens morts. Les URL du document sont justes (`comment-organiser-**mon**-epargne`,
+`horizon-objectifs-**temperament**`, `...-atterrissage-**securise**`) et **A6 avait raison avec
+son « (aucun) »**. **RÈGLE : ne jamais retaper une adresse depuis un affichage tronqué —
+l'aspirer depuis la liste du contrôle, par `xargs`.** ② J'ai soupçonné la passe D d'une
+cécité ; son silence est fondé. ③ J'ai failli accuser B-FR de compter deux citations sans rien
+en dire, alors que son en-tête annonce la règle (« sans source nommée, **4 mots ou plus** ») et
+que le code la commente. 🔵 **Et une quatrième, attrapée par le coffre** : j'avais inventé le
+nom de la fiche de la leçon 15 dans un lien wiki (`..._erreurs-frequentes` au lieu de
+`..._epargnant`) — `audit_vault.py` l'a refusée, corrigé, 9/9.
