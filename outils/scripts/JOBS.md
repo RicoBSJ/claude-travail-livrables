@@ -1763,3 +1763,102 @@ précédente » du créneau du 23/10 pour `controle_edition_precedente.py`, et l
 (`gen_lecon_astro_20261008.js`, `gen_veille_ai_act_20261002.js`, `gen_veille_ai_act_20261016.js`,
 71 505 octets) supprimés sur accord explicite. `node_modules`, `package-lock.json` et
 `package.json` conservés, les jobs en dépendent.
+
+### 17/10/2026 — LA PRESCRIPTION « run: new TextRun » RETIRÉE DES TROIS PROMPTS QUI LA PORTAIENT
+
+**Ordre** : « corrige la ligne run: dans les prompts et vérifie les autres ».
+
+📊 **MESURE D'ABORD : TROIS PROMPTS SUR NEUF LA PORTAIENT** — `imac-veille`, `rbpp-pipeline`
+et `ai-act-veille` — et **aucun des trois ne mentionnait `children:`**. Les six autres
+(leçons et contrôle) ne prescrivent pas de forme de paragraphe.
+
+🧪 **PREUVE ISOLÉE ET REPRODUCTIBLE**, trois documents d'une ligne générés avec la version de
+`docx` installée dans `en_cours/` : `run: new TextRun({...})` rend un texte extrait **vide
+(`''`)** · `children: [new TextRun({...})]` **rend le texte** · `text: "..."` **aussi**. La
+propriété `run` n'est pas une erreur de syntaxe : elle est **silencieusement ignorée**, et le
+`.docx` reste un XML valide portant tous ses hyperliens.
+
+🟢 **ET AUCUN LIVRABLE DU DÉPÔT N'EN A ÉTÉ ABÎMÉ — vérifié, pas supposé.** Balayage des
+**298 documents** (veilles, leçons, documents) en cherchant la signature du défaut : moins de
+3 000 caractères, ou peu de texte pour beaucoup de liens. **Sept suspects**, tous examinés un
+par un : ce sont de vraies notes brèves de juin-juillet 2026 — la veille ai-act du 10/06 est
+un CR allégé « aucune nouveauté » complet, celle de la HAS du 06/07 porte quatre items
+substantiels. **Les scripts générés par les jobs n'avaient jamais suivi la consigne à la
+lettre ; le piège était LATENT, et c'est mon exécution littérale du 17/10 qui l'a révélé.**
+
+🧪 **GARDE CÂBLÉ, PARCE QU'UN CORRECTIF DE PROMPT SANS TÉMOIN POURRIT** — et parce que
+**`jobs_config.json` n'était dans AUCUN déclencheur du hook `pre-push`** : rien ne surveillait
+les prompts. Le fichier est ajouté à `SURVEILLES`.
+🔴 **ET LA PREMIÈRE VERSION DU GARDE S'EST MORDUE ELLE-MÊME.** Elle était NÉGATIVE : elle
+cherchait « run: new TextRun » hors d'un « PAS « ». Or le commentaire que j'ai écrit pour le
+contrôle de volume dit *« Cause : la propriete « run: new TextRun » »* — le garde a donc
+**refusé une configuration saine**, et c'était le **troisième garde que je cassais moi-même
+dans la journée**. Une liste de formulations à exclure est fragile par construction : il
+faudrait la rallonger chaque fois qu'on écrit sur le sujet.
+🟢 **L'ASSERTION EST DONC POSITIVE, ET SANS SURFACE DE FAUX POSITIF** : tout prompt qui parle
+de « new TextRun » doit **contenir** « children: [new TextRun ». Un retour à `run:` supprime
+cette chaîne et est attrapé ; un prompt neuf qui prescrirait `run:` ne la contiendrait pas
+davantage. **Validé dans les deux sens** : sain → `exit 0` + *« ✓ tout prompt parlant de
+TextRun prescrit children: »* ; sabotage (la forme retirée d'`imac-veille`) → **`exit 1`** en
+**nommant le job**. Config restaurée.
+🔴 **DEUX BUGS DE MON GARDE, ATTRAPÉS À L'ÉCRITURE, ET TOUS DEUX DÉJÀ CONNUS DU DÉPÔT** :
+① mon Python imprimait `""` quand la liste était vide, le fichier pesait 1 octet, `[ -s ]`
+était vrai et **le garde criait sur une config saine** ; ② placé avant la branche `--docs`,
+il posait `STATUT=1` que cette branche **réinitialise à 0** — il fallait `exit 1`. **C'est la
+même famille que le pipe qui avale un code de sortie : un garde qui ne fait pas sortir en 1
+est décoratif**, troisième occurrence en trois jours.
+
+📌 **CE QUI RESTE, ET C'EST LA PISTE JUMELLE NON TRAITÉE** : le contrôle d'intégrité que les
+prompts imposent **ne regarde pas le volume de texte**. Il a répondu `OK — XML conforme,
+10 lien(s)` sur une note de 2 088 caractères. Une assertion d'une ligne — texte extrait
+> 3 000 caractères — l'aurait arrêtée. Hors de l'ordre reçu, mais c'est le garde qui aurait
+dû attraper ce défaut avant moi.
+🔵 **Rappel d'invariant** : `run_job.sh` relit `jobs_config.json` à chaque exécution —
+**aucun reload launchd n'est nécessaire** pour ce changement de prompt.
+
+### 17/10/2026 — CONTRÔLE DE VOLUME DE TEXTE PORTÉ — ET MA BORNE ANNONCÉE ÉTAIT FAUSSE
+
+**Ordre** : « porte aussi le contrôle de volume de texte ».
+
+🔴 **LE « > 3 000 CARACTÈRES » QUE J'AVAIS PROPOSÉ AURAIT REFUSÉ DE VRAIES NOTES.** Mesuré sur
+les 298 documents : la plus courte note **légitime** du dépôt fait **2 101 caractères**
+(`2026-06-06_veille_rbpp_autisme`), et sept documents sont sous 3 000. Le plancher naïf que
+j'annonçais hier soir était un faux refus en puissance.
+
+🔴 **ET LE SECOND CANDIDAT NE DISCRIMINAIT PAS NON PLUS.** Le rapport « texte dans les liens /
+texte total » semblait la bonne signature : mesuré, **29,7 % sur l'échantillon cassé contre
+57,9 % au maximum légitime** (`2026-07-06_veille_has-actualite`, une note brève dominée par
+ses titres de sources). La borne aurait laissé passer le défaut et accusé une note saine.
+🔵 **Et la métrique « paragraphes vides » est inerte** : les paragraphes construits avec
+`run:` ne sont pas émis VIDES, ils ne sont **pas émis du tout** — 0 % de paragraphes vides
+dans les deux formes.
+
+🟢 **CE QUI SÉPARE, MESURÉ : LE NOMBRE DE PARAGRAPHES PORTEURS DE TEXTE MOINS LE NOMBRE DE
+LIENS.** Sur les 298 documents : **marge minimale légitime 14** (30 paragraphes pour 16
+liens), **médiane 109**. Quand le corps a disparu, seules les lignes de liens subsistent et la
+**marge tombe à 0** — c'est exactement ce que montrait la note du 17/10 avant correction :
+10 paragraphes de texte pour 10 liens. **Plancher retenu : 10**, quatre paragraphes de coussin
+sous le minimum réel.
+🧪 **VALIDÉ DANS LES DEUX SENS, SUR DU RÉEL ET SUR DU FABRIQUÉ** : les **six** documents
+légitimes de plus faible marge passent, dont celui à **marge 14** et la note du 17/10 (marge
+25) ; un échantillon réaliste de 24 paragraphes de corps et 10 liens, généré dans les deux
+formes, donne **`CORPS MANQUANT : 10 paragraphe(s) pour 10 lien(s) — marge 0`, exit 1** en
+forme `run:` et **marge 24, exit 0** en forme `children:`.
+
+📊 **PORTÉ DANS LES DEUX PROMPTS QUI ONT UN CONTRÔLE D'INTÉGRITÉ — ET ILS NE SONT QUE DEUX SUR
+NEUF.** `ai-act-veille` et `placement-financier-lecon`. ⚠️ **SEPT PROMPTS N'EN ONT AUCUN**, et
+parmi eux **`imac-veille` et `rbpp-pipeline`, c'est-à-dire deux des trois qui portaient la
+prescription `run:`** : ils auraient produit un document valide, lié et vide **sans rien pour
+l'arrêter**. C'est la piste suivante, et elle est plus large que celle-ci.
+🔵 Le bloc de `placement-financier-lecon` vérifiait déjà les **puces vides** — un autre
+défaut : un document dont les paragraphes ne sont pas émis n'a **aucune** puce, donc ce test
+le laissait passer. Les deux contrôles sont complémentaires, pas redondants.
+
+🔴 **ET LE HARNAIS A REFUSÉ MON PROPRE TÉMOIN DU 15/10, À JUSTE TITRE.** Le témoin de
+`supprimer_job.sh` exigeait que `jobs_config.json`, `run_job.sh`, `setup_launchd.sh` et le
+skill soient **non modifiés** dans l'arbre de travail : il **confondait « sale » et « sali par
+le test »**. L'édition des prompts rendait `jobs_config.json` modifié, et le témoin criait
+« les appels de plan ont MODIFIÉ 1 fichier(s) » — **un faux refus qui bloquait le push du
+correctif lui-même**. Corrigé : on photographie l'état **avant** les appels, on le
+rephotographie **après**, et on compare. Ce qu'il faut vérifier n'est pas la propreté de
+l'arbre mais l'**inertie des appels**.

@@ -145,6 +145,51 @@ if [ -x "$ROOT/outils/scripts/chercher.py" ]; then
   fi
 fi
 
+# ---- Les prompts prescrivent « children: », pas « run: » (17/10/2026) ----
+# Le 17/10/2026, un lancement manuel d'ai-act a suivi À LA LETTRE la consigne de son prompt,
+# « Construire chaque Paragraph avec la propriété run: new TextRun({...}) ». Cette propriété
+# est SILENCIEUSEMENT IGNORÉE par la version de docx installée : le .docx produit était un
+# XML VALIDE de 11,4 Ko, portait ses 10 hyperliens, PASSAIT le contrôle d'intégrité que le
+# prompt lui-même impose — et ne contenait que 2 088 caractères, les seules lignes de liens.
+# Mesure isolée : « run: » rend une chaîne vide, « children: » et « text: » rendent le texte.
+# ⚠️ AUCUN LIVRABLE DU DÉPÔT N'EN A ÉTÉ ABÎMÉ (298 documents balayés, les sept plus courts
+#    vérifiés un par un : de vraies notes brèves). Le piège était LATENT.
+# ⚠️ ET RIEN NE SURVEILLAIT LES PROMPTS : jobs_config.json n'était dans aucun déclencheur du
+#    hook. Il est désormais dans SURVEILLES.
+#
+# 🔴 L'ASSERTION EST POSITIVE, ET LA PREMIÈRE VERSION ÉTAIT NÉGATIVE — ELLE S'EST MORDUE.
+#    Elle cherchait « run: new TextRun » hors d'un « PAS « », et mon propre commentaire du
+#    contrôle de volume écrit « Cause : la propriete « run: new TextRun » » : le garde a donc
+#    refusé une config saine, et c'était le troisième garde que je cassais moi-même dans la
+#    journée. Une liste de formulations à exclure est intrinsèquement fragile — il faudrait
+#    la rallonger à chaque fois qu'on écrit sur le sujet.
+#    DONC : on exige la PRÉSENCE de la bonne forme, qui n'a aucune surface de faux positif.
+#    Tout prompt qui parle de « new TextRun » doit contenir « children: [new TextRun ». Un
+#    retour à « run: » supprime cette chaîne et est attrapé ; un prompt neuf qui prescrirait
+#    « run: » ne la contiendrait pas davantage. Sans réseau, instantané.
+if [ -f "$ROOT/jobs_config.json" ]; then
+  PR_OUT="$CUR/prompts_textrun.txt"
+  env -i $PY - "$ROOT/jobs_config.json" > "$PR_OUT" 2>&1 <<'PYPR'
+import json, sys
+d = json.load(open(sys.argv[1], encoding="utf-8"))
+manque = [j["id"] for j in d["jobs"]
+          if "new TextRun" in j["prompt"] and "children: [new TextRun" not in j["prompt"]]
+if manque:
+    print("\n".join(sorted(manque)))
+PYPR
+  if [ -s "$PR_OUT" ]; then
+    echo "▶ Prompts des jobs — LA FORME « children: [new TextRun » MANQUE"
+    sed 's/^/     /' "$PR_OUT"
+    echo "  ✗ ce(s) prompt(s) parle(nt) de TextRun sans prescrire « children: ». Si la"
+    echo "    consigne est « run: new TextRun », docx l'ignore en silence et le .docx produit"
+    echo "    est un XML valide, lié, et VIDE — le contrôle d'intégrité ne l'attrape qu'avec"
+    echo "    l'assertion de volume ajoutée le 17/10/2026."
+    exit 1
+  else
+    echo "  ✓ tout prompt parlant de TextRun prescrit « children: [new TextRun »"
+  fi
+fi
+
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then
   shift; STATUT=0
@@ -780,6 +825,15 @@ if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/supprimer_job.sh" ]; th
   # La config de test déclare pour astrologie-karmique le nombre de leçons RÉELLEMENT sur le
   # disque : le parcours y est donc complet, et le garde-fou doit laisser passer. Fabriquée
   # ici puis détruite, comme une mutation — un témoin figé se périmerait à chaque leçon.
+  # ⚠️ 17/10/2026 — ON COMPARE AVANT/APRÈS, PAS À UN ARBRE PROPRE. La première version
+  #    exigeait que les quatre fichiers soient NON MODIFIÉS dans l'arbre de travail : elle
+  #    confondait « sale » et « sali par le test ». Mesuré ce jour : l'édition des prompts de
+  #    trois jobs rendait jobs_config.json modifié, et le témoin criait « les appels de plan
+  #    ont MODIFIÉ 1 fichier(s) » — un faux refus qui bloquait le push de ce correctif même.
+  #    Ce qu'il faut vérifier, c'est que les appels de plan ne changent RIEN : on photographie
+  #    l'état avant, on le rephotographie après, et on compare les deux.
+  SJ_AV=$(cd "$ROOT" && git status --porcelain jobs_config.json outils/scripts/run_job.sh \
+          outils/scripts/setup_launchd.sh .claude/skills/lancer-job/SKILL.md 2>/dev/null)
   SJ_CFG="$CUR/cfg_parcours_complet.json"
   env -i $PY - "$ROOT" "$SJ_CFG" <<'PYSJ'
 import glob, json, re, sys
@@ -822,12 +876,16 @@ PYSJ
   done
   # ⚠️ ET LA VÉRIFICATION QUI COMPTE AUTANT QUE LES CINQ : aucun de ces appels ne doit avoir
   #    touché quoi que ce soit. Un garde-fou qui refuse APRÈS avoir écrit ne garde rien.
-  SJ_SALE=$(cd "$ROOT" && git status --porcelain jobs_config.json outils/scripts/run_job.sh \
-            outils/scripts/setup_launchd.sh .claude/skills/lancer-job/SKILL.md 2>/dev/null | wc -l | tr -d ' ')
+  SJ_AP=$(cd "$ROOT" && git status --porcelain jobs_config.json outils/scripts/run_job.sh \
+          outils/scripts/setup_launchd.sh .claude/skills/lancer-job/SKILL.md 2>/dev/null)
+  SJ_SALE=0
+  [ "$SJ_AV" != "$SJ_AP" ] && SJ_SALE=1
   SJ_PLIST=$(ls "$HOME/Library/LaunchAgents"/com.claudetravail.*.plist 2>/dev/null | wc -l | tr -d ' ')
   SJ_JOBS=$(env -i $PY -c "import json;print(len(json.load(open('$ROOT/jobs_config.json'))['jobs']))")
   if [ "$SJ_SALE" != "0" ]; then
-    echo "  ✗ les appels de plan ont MODIFIÉ $SJ_SALE fichier(s) suivi(s) — ils doivent être inertes"
+    echo "  ✗ les appels de plan ont CHANGÉ l'état d'un fichier suivi — ils doivent être inertes"
+    echo "    avant : ${SJ_AV:-(propre)}"
+    echo "    après : ${SJ_AP:-(propre)}"
     SJ_KO=1
   elif [ "$SJ_PLIST" != "$SJ_JOBS" ]; then
     echo "  ✗ $SJ_PLIST .plist pour $SJ_JOBS job(s) — un agent a été touché par un appel de plan"
