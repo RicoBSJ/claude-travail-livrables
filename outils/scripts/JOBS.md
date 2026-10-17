@@ -1689,3 +1689,77 @@ en dire, alors que son en-tête annonce la règle (« sans source nommée, **4 m
 que le code la commente. 🔵 **Et une quatrième, attrapée par le coffre** : j'avais inventé le
 nom de la fiche de la leçon 15 dans un lien wiki (`..._erreurs-frequentes` au lieu de
 `..._epargnant`) — `audit_vault.py` l'a refusée, corrigé, 9/9.
+
+### 17/10/2026 — LANCEMENT MANUEL D'ai-act : LE CONTRÔLE D'INTÉGRITÉ VALIDE UNE NOTE VIDE
+
+**Ordre** : « lance /lancer-job ai-act à la main », pour éprouver avant le créneau de vendredi
+les quatre correctifs posés les 15 et 16/10. Puis « publie-la avec sa fiche et nettoie en_cours ».
+
+**Résultat de fond** : **🟢 compte-rendu ALLÉGÉ, 0 fait marquant**, fenêtre du 10 au 17/10.
+C'était l'issue attendue — une fenêtre de sept jours qui recouvre six jours déjà couverts par
+l'édition du 16/10 ne peut presque rien apporter. Contrôles : intégrité OK · décompte
+**COHÉRENT** (`4 ✅ ; 3 ⚠ ; 1 ⛔ ; 8 tentées`) · attributions **exit 0** · étape 5 bis
+**exit 0** · édition précédente **exit 0** · coffre **9/9**.
+
+🔴 **LE DÉFAUT MAJEUR : LE CONTRÔLE D'INTÉGRITÉ QUE LE PROMPT IMPOSE A RÉPONDU « OK » SUR UNE
+NOTE DONT 85 % DU TEXTE MANQUAIT.** Le prompt du job prescrit `run: new TextRun({...})` pour
+chaque paragraphe. **Avec la version de `docx` installée dans `en_cours/`, cette propriété est
+SILENCIEUSEMENT IGNORÉE.** Première génération : `.docx` de 11,4 Ko, **XML valide**, **10
+hyperliens**, et **2 088 caractères de texte** — les seules lignes de liens. Titre, niveau
+d'alerte, fenêtre, rectifications, échéances, corps entier : **disparus**.
+⚠️ **Et le contrôle du prompt a dit `OK — XML conforme, 10 lien(s)`** : il vérifie la
+conformité XML, les balises mal formées et le **nombre de liens**, et **jamais le volume de
+texte**. C'est mot pour mot le « cas réel du mois d'août » que ce même prompt cite — une leçon
+dont trois tableaux avaient disparu — et **son propre garde-fou ne l'attrape pas**.
+Corrigé en `children: [...]` : 2 088 → **7 438 caractères**.
+📌 **DEUX PISTES, LA PREMIÈRE URGENTE AVANT LE CRÉNEAU DU 23/10** : ① corriger la ligne
+`run: new TextRun` du prompt d'`ai-act-veille` — et vérifier les autres prompts qui la portent ;
+② élargir le contrôle d'intégrité au **volume de texte** (une assertion `> 3000` caractères
+suffit), puisqu'il a validé une note à 2 088.
+
+🔵 **L'ÉTAPE 5 BIS M'A REFUSÉ DEUX FOIS, ET ELLE AVAIT RAISON LES DEUX FOIS.** ① J'avais écrit
+en prose l'ancienne adresse EUR-Lex en forme `legal-content / CELEX` pour dire que l'édition du
+16/10 l'avait déclarée non lue : le contrôle commun l'a comptée comme **une page citée dans le
+corps et absente des Ressources** — bloquant. **Règle ③ du 12/10 : un correcteur écrit dans la
+même langue que les motifs.** ② Trois dates du règlement étaient **entre guillemets** alors que
+les pages EUR-Lex qui les portent n'avaient pas été lues par le contrôle : trois refus
+« citation courte absente des pages de la note », les pages non lues nommées. Reformulées en
+style indirect — règle du dépôt sur les pages intermittentes. ③ Le motif (8) a attrapé une
+formulation négligente : « reste non vérifiée » voisinait l'identifiant 2026/1744, que la page
+de la Commission porte ; la réserve a été rattachée à la **date de publication**.
+
+🟢 **TROUVAILLE UTILE À TOUTE LA SÉRIE : LA FORME ELI D'EUR-LEX EST LISIBLE.** L'édition du
+16/10 listait le règlement en forme `legal-content / CELEX` et l'a déclarée non lue — **0 octet,
+HTTP 202**, exact pour cette adresse. La forme **ELI** (`eur-lex.europa.eu/eli/reg/2026/1744/oj`)
+rend **609 895 octets bruts et 154 851 caractères utiles**, sur **quatre lectures consécutives**.
+Le garde-fou 11 peut donc être tenu sur une source primaire **réellement lue**.
+⚠️ **AVEC SA RÉSERVE** : le contrôle d'attributions, qui récupère **en rafale** toutes les
+adresses de la note, a reçu **202 et 0 octet** sur ces deux mêmes adresses quelques minutes
+plus tard. **EUR-Lex freine les rafales** — ses pages ne sont pas mortes, mais un outil qui
+enchaîne les requêtes ne peut pas les relire. Les dates sont vérifiées par **lecture directe**,
+pas par le contrôle, et la note l'écrit. 📌 Piste : faire lire la forme ELI à la série.
+
+📊 **TROIS DATES SUR QUATRE CONFIRMÉES À LA SOURCE PRIMAIRE** : « 8 July 2026 » (acte),
+« 27 July 2026 » (entrée en vigueur) et « 2 December 2026 » (échéance) sont **① littéral** dans
+le règlement 2026/1744. ⚠️ **« 24 July 2026 » — la publication au JOUE que la série porte depuis
+le 29/08/2026 — N'Y FIGURE PAS**, et la Q/R de la CNIL la présente comme la date d'**adoption**,
+confondant publication et acte. C'est l'écart que le garde-fou 11 demande de signaler et que
+l'édition du 11/09 avait laissé passer ; la note tranche et le dit.
+
+🔵 **LES QUATRE CORRECTIFS DES 15-16/10 SE SONT EXERCÉS, TROIS ONT MORDU** : l'**exemption ⑩** a
+nommé `iapp.org/news/` comme page d'index — deuxième validation en production ; **㊲** a écarté
+une valeur d'instrumentation de la passe D ; **㊴** n'a laissé passer aucune URL fantôme sur neuf
+adresses citées en prose ; le **plafond à 5 $** n'a pas été sollicité, un lancement manuel ne
+passant pas par `run_job.sh`.
+⚠️ **ET ㊳ EST RESTÉ MUET POUR UNE RAISON QUI EST UNE LIMITE, PAS UN SUCCÈS** : il relie un
+document au **log de son run** par la date et l'id du job. **Un lancement manuel ne produit aucun
+log** — donc un livrable produit à la main lui est **invisible**. Le garde ne couvre que les
+livrables issus d'un job.
+
+📌 **ET UNE DÉCISION DE SÉRIE À CONNAÎTRE** : cette édition hors créneau devient l'« édition
+précédente » du créneau du 23/10 pour `controle_edition_precedente.py`, et la série compte deux
+éditions pour la semaine du 13 au 19 octobre.
+🧹 **`en_cours/` nettoyé** : trois scripts générateurs oubliés par des jobs antérieurs
+(`gen_lecon_astro_20261008.js`, `gen_veille_ai_act_20261002.js`, `gen_veille_ai_act_20261016.js`,
+71 505 octets) supprimés sur accord explicite. `node_modules`, `package-lock.json` et
+`package.json` conservés, les jobs en dépendent.
