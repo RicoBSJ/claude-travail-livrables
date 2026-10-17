@@ -1896,3 +1896,50 @@ d'erreur du contrôle, et contiennent donc la forme exigée.
 `rbpp-pipeline` — quiz et infographies, dont les deux règles critiques vivent dans
 `outils/templates/REGLES_PPTX.md` —, ni les `.md`. Un quiz PowerPoint vide passerait
 exactement comme la veille du 17/10 est passée.
+
+### 17/10/2026 — LE CONTRÔLE DE VOLUME PORTÉ AUX .pptx — ET LA RÈGLE D'ORIGINE NE VOYAIT QU'UNE DIAPOSITIVE
+
+**Ordre** : « porte le contrôle de volume aux pptx ».
+
+📊 **MESURE D'ABORD, SUR LES 56 `.pptx` DU DÉPÔT ET LEURS 3 917 DIAPOSITIVES** :
+**zéro diapositive sans texte**, **zéro dimension négative**, minimum **92,8 caractères par
+diapositive**, médiane **753,8**. Les deux assertions retenues ont donc **zéro faux positif
+sur l'existant** — ce n'est pas une estimation, c'est un recensement complet.
+
+🔴 **ET LA VÉRIFICATION D'ORIGINE NE REGARDAIT QU'UNE SEULE DIAPOSITIVE.** `REGLES_PPTX.md`
+prescrivait `unzip -p [fichier].pptx ppt/slides/slide1.xml | grep -o '<a:ext cx="-' | wc -l`
+— **`slide1.xml` seulement, alors qu'un quiz en porte deux cents**. La règle critique 1,
+écrite parce qu'une dimension négative rend le fichier **inouvrable par PowerPoint**, ne
+couvrait donc que la première diapositive de chaque fichier depuis sa création. Élargie à
+toutes : **aucun fichier existant n'est refusé** (0 dimension négative sur 3 917
+diapositives), c'est un gain sans coût.
+🔴 **Et elle ne voyait pas un fichier VIDE.** C'est le pendant exact du défaut du `.docx` :
+`run: new TextRun`, silencieusement ignorée, produisait un XML valide portant ses dix
+hyperliens, passant son contrôle d'intégrité, avec **2 088 caractères** — les seules lignes
+de liens. Rien n'interdit l'équivalent en `pptx`, et **ces fichiers sont auto-committés et
+poussés comme des succès**.
+
+🟢 **CONTRÔLE PYTHON POSÉ DANS `outils/templates/REGLES_PPTX.md`**, qui est sa place
+canonique — le prompt de `rbpp-pipeline` porte déjà l'instruction de lire ce fichier avant
+toute génération. Il refuse trois choses : **aucune diapositive**, **une diapositive sans
+texte**, **une dimension négative sur n'importe quelle diapositive**. Le prompt reçoit une
+section « ⚠️ INTÉGRITÉ DES .pptx PRODUITS » qui l'impose après chaque quiz et chaque
+infographie. 🔵 **La note historique du `grep` est conservée** : `grep -o … | wc -l` et jamais
+`grep -c`, parce que `slide1.xml` tient sur une seule ligne — mesuré le 07/09/2026, `grep -c`
+rendait **1** quand le compte réel était **44**. Le contrôle Python ne dépend plus de cette
+subtilité, mais la leçon reste vraie.
+
+🧪 **TÉMOIN CÂBLÉ AU HARNAIS, ET VALIDÉ DANS LES DEUX SENS.** Il balaie les 56 `.pptx` du
+dépôt — **1,5 s, sans réseau**, donc il tourne jusque dans `--docs`, la porte des pushs de
+job. Sain → **`exit 0`, « 56 .pptx intègres »**. Sabotage : un mutant fabriqué depuis une
+infographie réelle, dont le texte de `slide1.xml` a été vidé, copié dans
+`livrables/infographies/` → **`exit 1`** en **nommant le fichier et la diapositive**. Mutant
+détruit, `git status` vide. Un second mutant, à dimension négative, est refusé de la même
+façon (*« 1 DIMENSION(S) NEGATIVE(S) »*).
+⚠️ **Le garde sort en `exit 1` et non par `STATUT=1`** : il tourne avant la branche `--docs`,
+qui réinitialise `STATUT`. Troisième fois que ce piège se présente aujourd'hui.
+
+📌 **CE QUI RESTE HORS DE PORTÉE** : les `.md` produits par `rbpp-pipeline` et par les jobs de
+leçons, et la **géométrie elliptique** (règle critique 2), qui demande de comparer des
+positions et non de compter des caractères. Un chevauchement de pétales reste invisible à ce
+contrôle.

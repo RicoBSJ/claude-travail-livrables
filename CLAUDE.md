@@ -97,6 +97,7 @@ Claude_Travail/
 Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `livrables/infographies/`.
 
 > 📄 **Format, style, script type et les deux règles critiques (dimensions négatives, géométrie elliptique) sont dans `outils/templates/REGLES_PPTX.md`** — à lire avant toute génération PPTX. Ces deux règles viennent de bugs qui rendaient le fichier inouvrable par PowerPoint. Le prompt de `rbpp-pipeline` porte l'instruction explicite de lire ce fichier, puisqu'il n'est plus chargé à chaque session.
+> 🆕 **17/10/2026 — la vérification post-génération y est désormais un contrôle Python, et elle regardait AVANT une seule diapositive** : `grep` sur `slide1.xml` quand un quiz en porte deux cents. Elle refuse maintenant **aucune diapositive**, **une diapositive SANS TEXTE** et **une dimension négative sur n'importe laquelle**. Bornes mesurées sur les **56 `.pptx` et leurs 3 917 diapositives** : zéro sans texte, zéro dimension négative — donc **zéro faux positif**. Témoin au harnais, 1,5 s, validé dans les deux sens. ⚠️ **Hors de portée** : les `.md`, et la **géométrie elliptique**, qui demande de comparer des positions et non de compter des caractères.
 
 ---
 ## Documents Word

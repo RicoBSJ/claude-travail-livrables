@@ -145,6 +145,58 @@ if [ -x "$ROOT/outils/scripts/chercher.py" ]; then
   fi
 fi
 
+# ---- Intégrité des .pptx du dépôt (17/10/2026) ----
+# Le contrôle de volume posé le 17/10 dans les neuf prompts ne regarde que les .docx. Or
+# `rbpp-pipeline` produit aussi des quiz et des infographies PowerPoint, et ses deux règles
+# critiques — dimensions négatives, géométrie elliptique — existent parce qu'elles venaient
+# de bugs rendant le fichier INOUVRABLE par PowerPoint. Un .pptx vide passerait exactement
+# comme la veille du 17/10 est passée : les fichiers sont auto-committés et poussés.
+# ⚠️ ET LA VÉRIFICATION D'ORIGINE NE REGARDAIT QU'UNE DIAPOSITIVE : la forme
+#    « unzip -p … ppt/slides/slide1.xml | grep -o '<a:ext cx="-' » ne voyait que slide1.xml,
+#    alors qu'un quiz en porte deux cents.
+# BORNES MESURÉES SUR LES 56 .pptx DU DÉPÔT ET LEURS 3 917 DIAPOSITIVES : zéro diapositive
+# sans texte, zéro dimension négative, minimum 92,8 caractères par diapositive (médiane
+# 753,8). Les deux assertions ont donc ZÉRO faux positif sur l'existant. 1,5 s, sans réseau.
+if [ -d "$ROOT/livrables/quiz" ]; then
+  PX_OUT="$CUR/pptx_integrite.txt"
+  env -i $PY - "$ROOT" > "$PX_OUT" 2>&1 <<'PYPX'
+import glob, re, sys, zipfile
+racine = sys.argv[1]
+ko = []
+fs = sorted(glob.glob(racine + "/livrables/quiz/*.pptx")
+            + glob.glob(racine + "/livrables/infographies/*.pptx"))
+for f in fs:
+    nom = f.split("/")[-1]
+    try:
+        z = zipfile.ZipFile(f)
+        sl = sorted((n for n in z.namelist() if re.match(r"ppt/slides/slide\d+\.xml$", n)),
+                    key=lambda t: int(re.search(r"\d+", t.split("/")[-1]).group()))
+        if not sl:
+            ko.append("%s : AUCUNE DIAPOSITIVE" % nom); continue
+        for n in sl:
+            x = z.read(n).decode("utf-8", "replace")
+            if not "".join(re.findall(r"<a:t>([^<]*)</a:t>", x)).strip():
+                ko.append("%s : DIAPOSITIVE SANS TEXTE (%s)" % (nom, n.split("/")[-1])); break
+            if re.search(r'<a:ext cx="-|<a:ext[^>]*cy="-', x):
+                ko.append("%s : DIMENSION NEGATIVE (%s)" % (nom, n.split("/")[-1])); break
+    except Exception as e:
+        ko.append("%s : ILLISIBLE (%s)" % (nom, e))
+if ko:
+    print("\n".join(ko))
+else:
+    print("__OK__ %d" % len(fs))
+PYPX
+  if grep -q "^__OK__" "$PX_OUT"; then
+    echo "  ✓ $(sed 's/__OK__ //' "$PX_OUT") .pptx intègres : aucune diapositive sans texte, aucune dimension négative"
+  else
+    echo "▶ Intégrité des .pptx — DÉFAUT(S)"
+    sed 's/^/     /' "$PX_OUT"
+    echo "  ✗ un .pptx sans texte ou à dimension négative est inouvrable ou vide, et il"
+    echo "    serait auto-committé comme un succès. Voir outils/templates/REGLES_PPTX.md."
+    exit 1
+  fi
+fi
+
 # ---- Les prompts prescrivent « children: », pas « run: » (17/10/2026) ----
 # Le 17/10/2026, un lancement manuel d'ai-act a suivi À LA LETTRE la consigne de son prompt,
 # « Construire chaque Paragraph avec la propriété run: new TextRun({...}) ». Cette propriété

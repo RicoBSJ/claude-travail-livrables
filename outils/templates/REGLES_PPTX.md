@@ -111,12 +111,59 @@ const PETALE_W = 2.40, PETALE_H = 1.30;  // pétales compacts
 // Pied de page        : y ∈ [7.15, 7.40]  (fontSize 10)
 ```
 
-**Vérification post-génération** :
+**Vérification post-génération — OBLIGATOIRE sur CHAQUE `.pptx` produit** :
+
 ```bash
-unzip -p [fichier].pptx ppt/slides/slide1.xml | grep -o '<a:ext cx="-' | wc -l
-# doit retourner 0 — seul compte 0 ou non-0
-# ⚠️ grep -o … | wc -l, PAS grep -c : slide1.xml tient sur UNE SEULE LIGNE. Mesuré le 07/09/2026 :
-#    grep -c '<a:ext cx=' → 1, alors que le compte réel est 44. La forme -c ne répond juste que par
-#    chance ici (présence/absence) ; sur un décompte elle mentirait.
+python3 - <<'PY'
+import zipfile, re, sys
+p = "<chemin complet du .pptx produit>"
+z = zipfile.ZipFile(p)
+sl = sorted((n for n in z.namelist() if re.match(r"ppt/slides/slide\d+\.xml$", n)),
+            key=lambda s: int(re.search(r"\d+", s.split("/")[-1]).group()))
+if not sl: sys.exit("AUCUNE DIAPOSITIVE : le fichier ne porte aucun ppt/slides/slideN.xml")
+vides, car, neg = [], 0, 0
+for n in sl:
+    x = z.read(n).decode("utf-8", "replace")
+    t = "".join(re.findall(r"<a:t>([^<]*)</a:t>", x)).strip()
+    car += len(t)
+    if not t: vides.append(n.split("/")[-1])
+    neg += len(re.findall(r'<a:ext cx="-|<a:ext[^>]*cy="-', x))
+if vides:
+    sys.exit("%d DIAPOSITIVE(S) SANS TEXTE : %s%s — le contenu n'a pas ete emis"
+             % (len(vides), ", ".join(vides[:6]), " ..." if len(vides) > 6 else ""))
+if neg:
+    sys.exit("%d DIMENSION(S) NEGATIVE(S) : PowerPoint refusera d'ouvrir le fichier" % neg)
+print("OK — %d diapositive(s), %d caracteres, 0 vide, 0 dimension negative" % (len(sl), car))
+PY
 ```
+
+### ⚠️ Pourquoi ce contrôle remplace le `grep` d'origine
+
+**Il regardait UNE SEULE diapositive.** La forme d'origine était
+`unzip -p [fichier].pptx ppt/slides/slide1.xml | grep -o '<a:ext cx="-' | wc -l` : elle ne
+vérifiait que `slide1.xml`, alors qu'un quiz en porte **deux cents**. Mesuré le 17/10/2026
+sur les **56 `.pptx` du dépôt et leurs 3 917 diapositives** : **zéro dimension négative**,
+donc élargir le contrôle à toutes les diapositives ne refuse **aucun** fichier existant —
+c'est un gain sans coût.
+
+**Et il ne voyait pas un fichier VIDE.** Un `.pptx` dont les diapositives existent mais ne
+portent aucun texte passe tous les tests de forme. C'est le pendant exact du défaut mesuré
+le 17/10/2026 sur un `.docx` : la propriété `run: new TextRun`, silencieusement ignorée par
+la version de `docx` installée, produisait un document **XML valide, portant ses dix
+hyperliens, passant son contrôle d'intégrité** — et contenant **2 088 caractères**, les
+seules lignes de liens. Rien n'interdit l'équivalent en `pptx`.
+**Borne mesurée, pas devinée** : sur les 3 917 diapositives du dépôt, **AUCUNE n'est sans
+texte**, et le minimum est de **92,8 caractères par diapositive** (médiane **753,8**).
+L'assertion « aucune diapositive sans texte » a donc **zéro faux positif** sur l'existant,
+tout en attrapant le cas où le contenu n'a pas été émis.
+🧪 **Validé dans les deux sens le 17/10/2026** : les **56 fichiers** du dépôt passent ;
+deux mutants fabriqués depuis une infographie réelle sont refusés — l'un dont le texte de
+`slide1.xml` a été vidé (*« 1 DIAPOSITIVE(S) SANS TEXTE »*), l'autre dont une dimension a
+été rendue négative (*« 1 DIMENSION(S) NEGATIVE(S) »*).
+
+> 📌 **La note historique du `grep` reste vraie et vaut d'être gardée** : `grep -o … | wc -l`
+> et **jamais** `grep -c`, parce que `slide1.xml` tient sur **une seule ligne**. Mesuré le
+> 07/09/2026 : `grep -c '<a:ext cx='` rend **1** quand le compte réel est **44**. La forme
+> `-c` ne répondait juste que par chance, sur une question de présence ; sur un décompte elle
+> mentait. Le contrôle Python ci-dessus ne dépend plus de cette subtilité.
 
