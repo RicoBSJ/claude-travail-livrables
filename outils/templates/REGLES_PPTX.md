@@ -133,9 +133,65 @@ if vides:
              % (len(vides), ", ".join(vides[:6]), " ..." if len(vides) > 6 else ""))
 if neg:
     sys.exit("%d DIMENSION(S) NEGATIVE(S) : PowerPoint refusera d'ouvrir le fichier" % neg)
-print("OK — %d diapositive(s), %d caracteres, 0 vide, 0 dimension negative" % (len(sl), car))
+
+# --- Règle critique 2 : géométrie des pétales (17/10/2026) ---
+# Un petale est un roundRect ou une ellipse de taille ~2,40 x 1,30 pouce (+/-15 %).
+# ATTENTION, TROIS PIEGES MESURES CE JOUR-LA, chacun ayant failli faire accuser un
+# livrable publie : (1) chaque petale est DEUX formes superposees — le roundRect visuel
+# et un rect portant son libelle —, d'ou le dedoublonnage par position ; (2) les
+# CONNECTEURS RADIAUX de la regle 1 ont la meme taille qu'un petale et le chevauchent par
+# construction, d'ou le filtre sur prstGeom ; (3) les bandes de titre et les colonnes de
+# fond occupent legitimement les bandes haute et basse, donc on ne teste QUE les petales.
+PET_W, PET_H, TOL = 2.40, 1.30, 0.10
+EMU = 914400.0
+def petales(xml):
+    out = set()
+    for m in re.finditer(r"<p:sp>.*?</p:sp>", xml, re.S):
+        q = m.group(0)
+        g = re.search(r'<a:prstGeom prst="([^"]+)"', q)
+        if not g or g.group(1) not in ("roundRect", "ellipse"): continue
+        o = re.search(r'<a:off x="(-?\d+)" y="(-?\d+)"\s*/>\s*<a:ext cx="(\d+)" cy="(\d+)"', q)
+        if not o: continue
+        ox, oy, cx, cy = (int(v)/EMU for v in o.groups())
+        if abs(cx-PET_W) <= 0.15*PET_W and abs(cy-PET_H) <= 0.15*PET_H:
+            out.add((round(ox,3), round(oy,3), round(cx,3), round(cy,3)))
+    return sorted(out)
+for n in sl:
+    b = petales(z.read(n).decode("utf-8", "replace"))
+    for (ox, oy, cx, cy) in b:
+        if oy < 1.20 - 0.01 or oy + cy > 7.00 + 0.01:
+            sys.exit("PETALE HORS ZONE (%s) : y %.2f -> %.2f, attendu dans [1,20 ; 7,00] "
+                     "— il telescope le titre ou le pied de page" % (n.split("/")[-1], oy, oy+cy))
+    for i in range(len(b)):
+        for j in range(i+1, len(b)):
+            ax, ay, aw, ah = b[i]; bx, by, bw, bh = b[j]
+            dx = min(ax+aw, bx+bw) - max(ax, bx); dy = min(ay+ah, by+bh) - max(ay, by)
+            if dx > TOL and dy > TOL:
+                sys.exit("PETALES QUI SE CHEVAUCHENT (%s) : recouvrement %.2f x %.2f pouce "
+                         "— passe a une ELLIPSE Rx > Ry ou reduis le nombre de petales"
+                         % (n.split("/")[-1], dx, dy))
+print("OK — %d diapositive(s), %d caracteres, 0 vide, 0 dimension negative, geometrie des petales conforme" % (len(sl), car))
 PY
 ```
+
+### ⚠️ La règle 2 est désormais vérifiée — et trois pièges de mesure l'ont retardée
+
+**Bornes mesurées sur les 37 infographies du dépôt**, dont **8 portent la signature pétale** :
+**zéro pétale hors de la zone** y ∈ [1,20 ; 7,00], et **une seule paire chevauchante, à 0,05
+pouce** — 1,3 mm, dans un fichier fait à la main. **Les livrables du job n'ont aucun
+chevauchement** : la géométrie générée est correcte. Tolérance retenue : **0,10 pouce**, qui
+laisse passer ce liseré et attrape un vrai télescopage.
+
+🔴 **TROIS MESURES FAUSSES AVANT D'ARRIVER LÀ, ET CHACUNE A FAILLI FAIRE ACCUSER UN LIVRABLE
+PUBLIÉ.** ① « aucune forme dans la bande titre » → **660 formes sur 5 180** l'enfreignent, car
+le titre *est* dans la bande titre. ② « aucune forme ne déborde de la diapositive » → **107
+formes** débordent, et ce sont des éléments décoratifs **volontairement** à cheval sur le bord.
+③ « aucun chevauchement entre formes de taille pétale » → **45 paires**, puis **37** après
+dédoublonnage, puis **1** après filtrage : chaque pétale est **deux formes superposées** (le
+`roundRect` visuel et un `rect` portant son libellé), et les **connecteurs radiaux de la règle
+1 ont exactement la taille d'un pétale** et le chevauchent par construction. Sans ces deux
+filtres, le contrôle aurait refusé six paires à 1,30 pouce de recouvrement dans
+`infographie_rbpp_ppa-dui_2026-06-27.pptx` — un fichier parfaitement correct.
 
 ### ⚠️ Pourquoi ce contrôle remplace le `grep` d'origine
 

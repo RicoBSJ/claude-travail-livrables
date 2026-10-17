@@ -1943,3 +1943,50 @@ qui réinitialise `STATUT`. Troisième fois que ce piège se présente aujourd'h
 leçons, et la **géométrie elliptique** (règle critique 2), qui demande de comparer des
 positions et non de compter des caractères. Un chevauchement de pétales reste invisible à ce
 contrôle.
+
+### 17/10/2026 — RÈGLE CRITIQUE 2 PORTÉE : GÉOMÉTRIE DES PÉTALES — APRÈS TROIS MESURES FAUSSES
+
+**Ordre** : « porte la géométrie elliptique ».
+
+🔴 **TROIS MESURES FAUSSES AVANT D'ARRIVER À LA BONNE, ET CHACUNE A FAILLI FAIRE ACCUSER UN
+LIVRABLE PUBLIÉ.**
+① *« aucune forme ne doit occuper la bande titre ou le pied de page »* → **660 formes sur
+5 180** l'enfreignent, parce que **le titre EST dans la bande titre**. Assertion absurde.
+② *« aucune forme ne doit déborder de la diapositive »* → **107 formes** débordent, et ce sont
+des éléments **décoratifs volontairement à cheval sur le bord** (x −1,80 ; y −1,20).
+③ *« aucun chevauchement entre formes de taille pétale »* → **45 paires**, puis **37** après
+dédoublonnage, puis **1** après filtrage sur la géométrie. Deux pièges superposés :
+  • **chaque pétale est DEUX formes à la même position** — un `roundRect` sans texte, le
+    visuel, et un `rect` portant le libellé. Je comptais chaque pétale contre sa propre
+    étiquette, ce qui donnait **6 paires à 1,30 pouce de recouvrement**, soit la hauteur
+    entière d'un pétale, dans `infographie_rbpp_ppa-dui_2026-06-27.pptx` — **un fichier
+    parfaitement correct**, que j'ai inspecté forme par forme avant de conclure ;
+  • **les CONNECTEURS RADIAUX de la règle critique 1 ont exactement la taille d'un pétale**
+    (2,40 × 1,41) et le chevauchent **par construction** : ce sont des `line`, pas des
+    `roundRect`.
+
+🟢 **BORNES RETENUES, MESURÉES SUR LES 37 INFOGRAPHIES — DONT 8 PORTENT LA SIGNATURE PÉTALE** :
+**zéro pétale hors de la zone** y ∈ [1,20 ; 7,00], et **une seule paire chevauchante, à 0,05
+pouce** — 1,3 mm, dans un fichier fait à la main. **Les livrables du job n'ont AUCUN
+chevauchement : la géométrie générée est correcte.** Tolérance **0,10 pouce**, qui laisse
+passer ce liseré et attrape un vrai télescopage.
+**Définition d'un pétale** : `roundRect` ou `ellipse` de 2,40 × 1,30 pouce à ±15 %,
+**dédoublonné par position**.
+
+🧪 **VALIDÉ DANS LES TROIS ÉTATS.** Sain → les **56 `.pptx`** passent, liseré de 0,05 pouce
+compris. Deux mutants fabriqués depuis `infographie_rbpp_ppa-dui` par substitution de l'offset
+EMK exact : l'un dont un pétale remonte à y 0,80 → *« PETALE HORS ZONE : y 0.80 -> 2.10 »* ;
+l'autre dont un pétale glisse à y 3,60 → *« PETALES QUI SE CHEVAUCHENT : 2.40 x 0.45 »*. Le
+fichier d'origine reste accepté. Mutant copié dans `livrables/infographies/` → harnais
+**exit 1** en nommant fichier, diapositive et recouvrement ; détruit, `git status` vide.
+⚠️ **Première tentative de mutation NON APPLIQUÉE** : je calculais l'offset en EMU au lieu de
+lire la chaîne exacte du XML, et l'assertion l'a dit — un mutant qui ne mord pas ne prouve
+rien. Les offsets sont désormais repris littéralement (`<a:off x="4997196" y="1325880"/>`).
+
+📌 **Le contrôle vit dans `outils/templates/REGLES_PPTX.md`**, dans le même bloc Python que le
+volume et les dimensions négatives, et le témoin du harnais le rejoue sur les 56 fichiers du
+dépôt — 1,5 s, sans réseau, actif jusque dans `--docs`.
+📌 **CE QUI RESTE HORS DE PORTÉE** : les `.md`, et le respect des **paramètres** de l'ellipse
+(CX, CY, Rx, Ry) — le contrôle vérifie la **conséquence** (zone et chevauchement), pas le fait
+que les pétales soient posés sur une ellipse Rx > Ry. Une disposition circulaire qui tiendrait
+dans la zone sans chevauchement passerait.

@@ -179,6 +179,37 @@ for f in fs:
                 ko.append("%s : DIAPOSITIVE SANS TEXTE (%s)" % (nom, n.split("/")[-1])); break
             if re.search(r'<a:ext cx="-|<a:ext[^>]*cy="-', x):
                 ko.append("%s : DIMENSION NEGATIVE (%s)" % (nom, n.split("/")[-1])); break
+            # règle critique 2 : géométrie des pétales. ⚠️ TROIS FILTRES INDISPENSABLES,
+            # chacun mesuré le 17/10/2026 : on ne garde que roundRect/ellipse (les
+            # connecteurs radiaux ont la MÊME taille qu'un pétale et le chevauchent par
+            # construction), on dédoublonne par position (chaque pétale est DEUX formes,
+            # le visuel et son libellé), et on ne regarde que les pétales (titre et
+            # colonnes de fond occupent légitimement les bandes haute et basse).
+            pet = set()
+            for mm in re.finditer(r"<p:sp>.*?</p:sp>", x, re.S):
+                q = mm.group(0)
+                gg = re.search(r'<a:prstGeom prst="([^"]+)"', q)
+                if not gg or gg.group(1) not in ("roundRect", "ellipse"): continue
+                oo = re.search(r'<a:off x="(-?\d+)" y="(-?\d+)"\s*/>\s*<a:ext cx="(\d+)" cy="(\d+)"', q)
+                if not oo: continue
+                ox, oy, cx, cy = (int(v)/914400.0 for v in oo.groups())
+                if abs(cx-2.40) <= 0.36 and abs(cy-1.30) <= 0.195:
+                    pet.add((round(ox,3), round(oy,3), round(cx,3), round(cy,3)))
+            pet = sorted(pet); stop = False
+            for (ox, oy, cx, cy) in pet:
+                if oy < 1.19 or oy + cy > 7.01:
+                    ko.append("%s : PETALE HORS ZONE (%s) y %.2f->%.2f"
+                              % (nom, n.split("/")[-1], oy, oy+cy)); stop = True; break
+            if stop: break
+            for i2 in range(len(pet)):
+                for j2 in range(i2+1, len(pet)):
+                    ax, ay, aw, ah = pet[i2]; bx, by, bw, bh = pet[j2]
+                    dx = min(ax+aw, bx+bw) - max(ax, bx); dy = min(ay+ah, by+bh) - max(ay, by)
+                    if dx > 0.10 and dy > 0.10:
+                        ko.append("%s : PETALES QUI SE CHEVAUCHENT (%s) %.2f x %.2f"
+                                  % (nom, n.split("/")[-1], dx, dy)); stop = True; break
+                if stop: break
+            if stop: break
     except Exception as e:
         ko.append("%s : ILLISIBLE (%s)" % (nom, e))
 if ko:
@@ -187,7 +218,7 @@ else:
     print("__OK__ %d" % len(fs))
 PYPX
   if grep -q "^__OK__" "$PX_OUT"; then
-    echo "  ✓ $(sed 's/__OK__ //' "$PX_OUT") .pptx intègres : aucune diapositive sans texte, aucune dimension négative"
+    echo "  ✓ $(sed 's/__OK__ //' "$PX_OUT") .pptx intègres : texte présent, dimensions positives, géométrie des pétales conforme"
   else
     echo "▶ Intégrité des .pptx — DÉFAUT(S)"
     sed 's/^/     /' "$PX_OUT"
