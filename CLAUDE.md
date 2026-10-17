@@ -194,7 +194,7 @@ Le hook `outils/scripts/hooks/pre-push` le lance et **refuse le push** si un ver
 - **En production, un faux refus coûte un livrable non publié ; un vrai manqué ne coûte qu'une relecture humaine.** C'est pourquoi ㉜, D, ㉞ et ㉟ ne sont pas bloquants.
 
 🔍 **Mesure**
-- **NE JAMAIS lancer plusieurs contrôles en parallèle.** `classics.mit.edu`, `wikipedia.org`, `has-sante.fr` limitent le débit : 11 contrôles en parallèle ont fait basculer **4 documents sains en « bloquant »**. Un verdict « ABSENTE » **ne vaut que rejoué seul**, avec 15 s d'intervalle.
+- **NE JAMAIS lancer plusieurs contrôles en parallèle.** `classics.mit.edu`, `wikipedia.org`, `has-sante.fr` limitent le débit : 11 contrôles en parallèle ont fait basculer **4 documents sains en « bloquant »**. Un verdict « ABSENTE » **ne vaut que rejoué seul**, avec 15 s d'intervalle. 🔴 **Vaut aussi pour MES propres mesures** : le 18/10, un balayage à 8 en parallèle a produit **une fausse régression et un faux gain** (deux `curl 28`) — l'incident du 12/10 reproduit par moi après l'avoir écrit ici.
 - **Une page tronquée rend indiscernables une citation absente et une citation non lue.** Plancher : **3 000 caractères utiles** = façade ou page rendue en JS.
 - **Une détection ㉜ n'est pas une propriété du document** mais de l'état de lecture des pages : une page non lue gonfle ㉜. Un décompte ㉜ sans le décompte des pages lues ne veut rien dire.
 - **Chercher la variante de graphie AVANT de conclure à l'absence** — `chercher.py` le rend mécanique.
@@ -239,6 +239,8 @@ chercher.py --fichier requetes.txt <page.txt>…    # un lot de requêtes
 ```
 
 **C'est plus fiable, pas seulement moins cher** : les quatre quasi-fausses accusations des 13-14/10/2026 — « left prefrontal » / « left **side of the** prefrontal cortex », « neuf facteurs » / « moins de **9** facteurs », « Acceptation » / « outil d'**acceptation** », « identify their type » / « able to accurately **predict** » — venaient toutes d'une lecture à l'œil d'un dump. Le degré ④ est **tenu de montrer ce que la page écrit à la place**. 21 auto-tests, 9 mutations, câblés dans **tous** les modes du harnais (0,1 s, aucun appel réseau).
+
+🔐 **Faisceau de certificats — 18/10/2026.** `ca_bundle.py` reconstruit `logs/.ca_bundle.pem` (gitignoré, **201 certificats** = racines de brew + l'intermédiaire versionné dans `outils/scripts/ca/`), que `aspirer.py` et `controle_attributions.py` passent en `--cacert`. Sans lui, **toute page `has-sante.fr` était « NON LUE »** : le serveur omet son intermédiaire (certificat réémis le 8/10/2026) et le magasin d'Apple (août 2025, 128 certificats) n'a pas la racine Sectigo R46. ⛔ **Le magasin de confiance de la machine n'est PAS modifié — et ne doit pas l'être** : rien n'est désactivé, la validation complète jusqu'à une racine publique est préservée. L'`import` est sous `try` → sur une machine sans faisceau, les scripts retombent sur le magasin système. Balayage des 415 hôtes : **0 régression, 3 gains**, 62 documents concernés, `--complet` **exit 0 / 0 bloquant**. ⚠️ **`WebFetch` ne peut pas recevoir `--cacert`** : `rbpp-pipeline` échouera encore sur les pages HAS lues ainsi, seuls ses flux RSS (lus par `curl`) sont réparés. Détail et procédure de vérification : `outils/scripts/ca/README.md`.
 
 ⚠️ Le degré ② (accents, casse et ponctuation pliés) **suffit pour « la source le dit », PAS pour une citation entre guillemets** — une citation se prouve au degré ①. Et ② est **interdit aux chiffres** : la clé écrase la ponctuation, donc « 1 338 » s'y apparierait à « 1,338 ».
 

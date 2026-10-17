@@ -24,6 +24,11 @@ même UA, trois essais (0 s, 5 s, 15 s), hors 2xx = page NON LUE (⑰, ㉑), pla
 façade à 3 000 caractères utiles, PDF non analysé.
 """
 import hashlib, html, os, re, subprocess, sys, time, unicodedata
+try:
+    import ca_bundle
+    CA = ca_bundle.args_curl()      # ⚠️ 18/10/2026, voir ca/README.md : chaîne complète, rien n'est désactivé
+except Exception:
+    CA = []
 
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
       " (KHTML, like Gecko) Chrome/126 Safari/537.36")
@@ -52,7 +57,7 @@ def aspire(u, dest, frais=False):
         essais += 1
         tmp = os.path.join(dest, nom + ".tmp")
         rep = subprocess.run(["curl", "-s", "-L", "--max-time", "30", "-o", tmp,
-                              "-w", "%{http_code}", "-A", UA, u],
+                              "-w", "%{http_code}"] + CA + ["-A", UA, u],
                              capture_output=True, text=True)
         code, rc = rep.stdout.strip()[-3:], rep.returncode
         try:

@@ -73,6 +73,17 @@ prêtées à un nom sans guillemets (㉙) · C/C2 numéros de version (C2 bloqua
 Lis toujours la ligne « PASSES INERTES » : une passe inerte n'a rien cherché.
 """
 import sys, re, html, subprocess, time, os, unicodedata
+# ⚠️ 18/10/2026 — BUNDLE DE CERTIFICATS COMPLET. Le curl d'Apple lit /etc/ssl/cert.pem, daté
+#    du 16/08/2025 et sans la racine Sectigo R46 ; et has-sante.fr n'envoie pas sa chaîne
+#    intermédiaire depuis la réémission de son certificat le 08/10/2026. Les 57 documents du
+#    dépôt qui citent la HAS voyaient donc leurs pages en « NON LUE, curl 60 ».
+#    ca_bundle rend None si le bundle de brew est absent : on retrouve alors le comportement
+#    d'avant, à l'identique. Le magasin du système n'est PAS touché — voir ca/README.md.
+try:
+    import ca_bundle
+    CA = ca_bundle.args_curl()
+except Exception:
+    CA = []
 
 DOCX = sys.argv[1]
 EXTRACT = "/Users/utilisateur/kDrive/Claude_Travail/outils/scripts/extract_docx.py"
@@ -425,7 +436,7 @@ for u in urls:
         #    corps n'est pas la page — la citation y est forcement « absente », et le verdict est faux.
         #    Sur hypnose n°13, deux citations exactes ont ete declarees absentes de PMC pendant une
         #    salve de 429 ; la meme commande dix minutes plus tard les trouvait. Hors 2xx : page non lue.
-        rep = subprocess.run(["curl", "-s", "-L", "--max-time", "30", "-o", "/tmp/.controle_page", "-w", "%{http_code}", "-A",
+        rep = subprocess.run(["curl", "-s", "-L", "--max-time", "30", "-o", "/tmp/.controle_page", "-w", "%{http_code}"] + CA + ["-A",
                               "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
                               " (KHTML, like Gecko) Chrome/126 Safari/537.36", u],
                              capture_output=True, text=True)

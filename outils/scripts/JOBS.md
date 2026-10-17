@@ -1990,3 +1990,73 @@ dépôt — 1,5 s, sans réseau, actif jusque dans `--docs`.
 (CX, CY, Rx, Ry) — le contrôle vérifie la **conséquence** (zone et chevauchement), pas le fait
 que les pétales soient posés sur une ellipse Rx > Ry. Une disposition circulaire qui tiendrait
 dans la zone sans chevauchement passerait.
+
+---
+
+## 18/10/2026 — TLS : LA HAS ÉTAIT ILLISIBLE PAR *DEUX* CAUSES INDÉPENDANTES
+
+🔴 **Le symptôme** : `curl` d'Apple rendait `60` (*unable to get local issuer certificate*) sur
+`https://www.has-sante.fr/` — donc **toute page HAS était « NON LUE »** pour
+`controle_attributions.py` et `aspirer.py`, et le job `rbpp-pipeline` échouait sur sa source
+principale. Le navigateur, lui, ouvrait le site sans broncher : c'est ce décalage qui a fait
+croire d'abord à une panne de script.
+
+🟢 **DEUX CAUSES, ET IL FALLAIT LES DEUX POUR QUE ÇA CASSE — mesuré, pas supposé** :
+① **le serveur n'envoie pas son intermédiaire.** Son certificat (réémis le **8 octobre 2026**)
+   est signé par *Sectigo Public Server Authentication CA OV R36*, que la chaîne servie omet.
+   Un navigateur le récupère tout seul par l'extension **AIA** du certificat ; `curl` **ne le
+   fait pas**. C'est de là que vient l'asymétrie navigateur / script.
+② **le magasin d'Apple n'a pas la racine.** `/etc/ssl/cert.pem` date d'**août 2025** et porte
+   **128 certificats** — sans la racine *Sectigo Public Server Authentication Root R46*. Même
+   avec l'intermédiaire en main, la chaîne ne remontait à rien.
+
+🔧 **CE QUI A ÉTÉ FAIT, ET CE QUI NE L'A PAS ÉTÉ.**
+⛔ **Je n'ai PAS touché au magasin de confiance de la machine, et je refuse de le faire** :
+ajouter une racine est un réglage de sécurité qui appartient au propriétaire de la machine, pas
+à un script du dépôt. `brew upgrade ca-certificates` a été lancé **par l'utilisateur**.
+✅ À la place, `outils/scripts/ca_bundle.py` **reconstruit un faisceau en cache** —
+`outils/scripts/logs/.ca_bundle.pem`, gitignoré, **201 certificats** = les racines de brew
+(`/usr/local/etc/ca-certificates/cert.pem`) **plus** l'intermédiaire versionné dans
+`outils/scripts/ca/`. Les deux aspirateurs l'injectent par `--cacert` :
+
+```python
+try:
+    import ca_bundle
+    CA = ca_bundle.args_curl()
+except Exception:
+    CA = []
+```
+
+→ **rien n'est désactivé** : pas de `-k`, pas de `--insecure`, la validation complète de la
+chaîne jusqu'à une racine publique est **préservée**. L'`import` est sous `try` pour que les
+deux scripts continuent de tourner là où le faisceau n'existe pas (autre machine, clone neuf) —
+ils retombent alors sur le magasin du système, c'est-à-dire sur le comportement d'avant.
+📌 **L'intermédiaire est versionné** (`ca/sectigo-public-server-auth-ca-ov-r36.pem`, 2 244 o),
+pris sur **l'extension AIA du certificat de la HAS lui-même**, avec le raisonnement mesuré dans
+`ca/README.md`. Il est public par nature : un intermédiaire n'est pas un secret.
+
+🧪 **BALAYAGE AVANT/APRÈS SUR LES 415 HÔTES CITÉS PAR LE CORPUS** : **0 régression TLS**,
+**3 gains** — `has-sante.fr` (deux formes d'URL) et `ssd.jpl.nasa.gov`. **62 documents** voient
+une page redevenir lisible (57 citant la HAS, 5 citant JPL). ⚠️ **Je l'ai dit avant de lancer
+le `--complet`, et c'était le vrai risque du run** : une page qui redevient lisible peut faire
+**apparaître** des bloquants que son illisibilité masquait. Verdict du `--complet` :
+**exit 0 · 286 documents · 0 bloquant · aucun verdict changé**. Les 62 documents citaient donc
+juste.
+
+🔴 **DEUX ERREURS DE MESURE À MOI, DANS CE SEUL CHANTIER.**
+① **J'ai lancé le balayage à 8 en parallèle** — et j'ai obtenu **une fausse régression et un
+   faux gain** (`science.nasa.gov`, `studybuddhism.com`, deux `curl 28`, des *timeouts*).
+   C'est **l'incident du 12/10 reproduit dans ma propre mesure**, par moi, après l'avoir écrit
+   dans `CLAUDE.md`. Rejoué en série : **200 dans les deux configurations**. La règle « ne
+   jamais lancer plusieurs contrôles réseau en parallèle » vaut aussi pour **mes** mesures, pas
+   seulement pour les contrôles du dépôt.
+② **`grep 'Sectigo'` sur un faisceau PEM ne veut rien dire** : un *bundle* n'est pas étiqueté,
+   les sujets sont **dans** le DER encodé en base64. J'en avais conclu que brew n'avait pas la
+   racine. Il faut **extraire chaque certificat et lire son sujet** (`openssl x509 -subject`)
+   — ce que fait désormais `ca/README.md` dans sa procédure de vérification.
+
+⚠️ **CE QUE ÇA NE RÉPARE PAS — et ça tombe lundi 8h30.** `rbpp-pipeline` lit la HAS par
+**`WebFetch`**, qui ne passe pas par `curl` et **ne peut donc pas recevoir `--cacert`**. Le job
+restera en échec sur les pages HAS récupérées ainsi ; seuls ses **flux RSS, lus par `curl`**,
+bénéficient du correctif. Le faisceau répare **les contrôles et l'aspiration**, pas la collecte
+du job.
