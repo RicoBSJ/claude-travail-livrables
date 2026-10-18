@@ -273,29 +273,45 @@ PYPR
   fi
 fi
 
-# ---- L'ASSERTION DE TABLEAU DU PROMPT imac-veille, ET LA PREUVE QU'ELLE MORD (18/10/2026) ----
+# ---- LES ASSERTIONS DE TABLEAU DES PROMPTS, ET LA PREUVE QU'ELLES MORDENT (18/10/2026) ----
 # Le 18/10/2026 la veille iMac a livré ZÉRO tableau Word pour 38 lignes à barres verticales : ses
 # trois tableaux de prix étaient des paragraphes séparés par « | ». Le contrôle d'intégrité que le
 # prompt impose a répondu « OK — XML conforme, 12 lien(s), 99 paragraphe(s) de texte (marge 87) » :
 # il vérifie l'XML, les balises, les liens et le VOLUME de texte, jamais un tableau. C'est la même
 # forme que l'incident du 17/10 — un contrôle qui dit OK sur un document dégradé —, un cran moins
 # grave : là le corps avait disparu, ici c'est la mise en forme.
-# 🔴 LA BORNE EST MESURÉE, ET ELLE INTERDIT DE PORTER L'ASSERTION AILLEURS. Sur les 19 éditions
-#    imac : les 15 consécutives du 19/07 au 11/10 portent 3 à 6 tableaux (médiane 4, minimum 3) ;
-#    les trois seules autres à zéro datent des 14/06, 21/06 et 13/07, avant la stabilisation du
-#    format. Plancher à 2, pas à 3, parce que le CR ALLÉGÉ du prompt ne prescrit que les deux
-#    tableaux de prix de référence. ⚠️ ET AILLEURS LA MESURE DIT NON : les 21 veilles ai-act, les
-#    16 has-actualite et les 8 rgpd n'ont AUCUN tableau, 10 des 11 leçons entretien-motivationnel
-#    non plus — porter l'assertion aux neuf prompts refuserait 45 éditions légitimes. Seul autre
-#    candidat mesuré : serafin-ph, 27 éditions sur 27, minimum 4.
-# 🧪 DEUX GARDES, ET LE SECOND EST UNE EXIGENCE DE LIGNE. (1) le prompt doit PORTER l'assertion —
-#    exigence POSITIVE, comme celle de « children: » ci-dessus, parce qu'une liste de formulations
-#    à exclure se mord elle-même (leçon du 17/10). (2) l'assertion EXTRAITE DU PROMPT — on appelle
-#    le contrôle, on ne le recopie pas — est jouée sur deux témoins figés : le 11/10 (5 tableaux)
-#    doit sortir en 0 AVEC sa ligne « 5 tableau(x) », et le 18/10 AVANT correction (0 tableau) en 1
-#    AVEC sa ligne « TABLEAUX MANQUANTS ». Sans les lignes, un plancher mis à 0 laisserait les deux
-#    témoins verts. Aucun réseau, 0,2 s, donc le garde tourne dans TOUS les modes — y compris
-#    --docs, la porte des pushs de job.
+# 🔴 DEUX PROMPTS, DEUX PLANCHERS, CHACUN MESURÉ SUR SA PROPRE SÉRIE.
+#    · imac-veille, plancher 2 : sur ses 19 éditions, les 15 consécutives du 19/07 au 11/10 portent
+#      3 à 6 tableaux (médiane 4, minimum 3) ; les trois seules autres à zéro datent des 14/06,
+#      21/06 et 13/07, avant la stabilisation du format. Plancher à 2 et non à 3 parce que le CR
+#      ALLÉGÉ du prompt ne prescrit que les deux tableaux de prix de référence.
+#    · serafin-ph-veille, plancher 3 : PORTAGE PRÉVENTIF, cette série n'a PAS eu l'incident — 27
+#      éditions sur 27 portent des tableaux, minimum 4 atteint 14 fois, médiane 4, maximum 8.
+#      Plancher à 3 et non à 4 pour deux raisons indépendantes : sa structure nomme explicitement
+#      TROIS tableaux (sources, tableau de bord, points de vigilance), et la note allégée de semaine
+#      creuse doit rester possible — l'édition du 14/10, semaine creuse assumée, porte ses 4.
+# ⛔ ET LA MESURE INTERDIT DE LES PORTER AUX NEUF PROMPTS : les 21 veilles ai-act, les 16
+#    has-actualite et les 8 rgpd n'ont AUCUN tableau — ai-act n'en prescrit aucun, c'est voulu — et
+#    10 des 11 leçons entretien-motivationnel non plus. Ce serait 45 refus légitimes.
+# 🧪 TROIS GARDES, ET AUCUN N'EST REDONDANT — LE SABOTAGE L'A MONTRÉ.
+#    (1) le prompt doit PORTER l'assertion : « TABLEAUX MANQUANTS », x.count("<w:tbl>") et
+#        « TableRow ». Exigence POSITIVE, comme celle de « children: », parce qu'une liste de
+#        formulations à exclure se mord elle-même (leçon du 17/10).
+#    (2) il doit porter SON PLANCHER AU LITTÉRAL (« if tbl < 2: », « if tbl < 3: »). Sans cette
+#        exigence, ramener un plancher de 2 à 1 laissait les deux premiers témoins verts : un
+#        témoin à 0 tableau reste refusé par un plancher à 1. C'est le trou que les mutants
+#        borderline de serafin ferment par le comportement, et celui-ci par le texte.
+#    (3) l'assertion EXTRAITE DU PROMPT — on appelle le contrôle, on ne le recopie pas (leçon du
+#        15/10 sur l'auto-test de chercher.py) — jouée sur cinq témoins FIGÉS de
+#        non_regression/temoins_tableaux/, chacun avec son CODE DE SORTIE **et** SA LIGNE :
+#        imac 11/10 (5 tbl) → 0 « 5 tableau(x) » · imac 18/10 avant correction (0 tbl) → 1
+#        « TABLEAUX MANQUANTS » · serafin 14/10 (4 tbl) → 0 « 4 tableau(x) » · mutant serafin à
+#        3 tbl → 0 « 3 tableau(x) », qui doit être ACCEPTÉ (convention du 10/10 : un motif qu'on
+#        resserre a besoin d'un témoin accepté) · mutant serafin à 2 tbl → 1.
+#        Les deux mutants sont DÉRIVÉS d'une édition réelle par retrait des derniers <w:tbl>, et
+#        c'est dit : ce ne sont pas des livrables, ce sont des bornes.
+#        Les copies sont FIGÉES : une correction future d'un fichier publié ne peut pas périmer un
+#        témoin — leçon du 15/10 sur le témoin vivant qui annote une propriété volatile.
 # ⚠️ IL SORT EN 1 LUI-MÊME : la branche --docs remet STATUT=0 à l'entrée, donc un garde placé
 #    avant elle qui se contenterait de STATUT=1 serait décoratif (leçon déjà payée).
 if [ -f "$ROOT/jobs_config.json" ]; then
@@ -304,52 +320,65 @@ if [ -f "$ROOT/jobs_config.json" ]; then
       > "$TBL_OUT" 2>&1 <<'PYTBL'
 import json, os, re, subprocess, sys
 CFG, TD = sys.argv[1], sys.argv[2]
+ATTENDU = 5                      # nombre de témoins qui DOIVENT être joués
+CAS = {
+    "imac-veille": ("if tbl < 2:", [
+        ("conforme_2026-10-11_veille_imac_5_tableaux.docx", 0, "5 tableau(x)"),
+        ("sans_tableau_2026-10-18_veille_imac.docx", 1, "TABLEAUX MANQUANTS")]),
+    "serafin-ph-veille": ("if tbl < 3:", [
+        ("conforme_2026-10-14_veille_SERAFIN-PH_4_tableaux.docx", 0, "4 tableau(x)"),
+        ("mutant_SERAFIN-PH_3_tableaux_doit_passer.docx", 0, "3 tableau(x)"),
+        ("mutant_SERAFIN-PH_2_tableaux_doit_etre_refuse.docx", 1, "TABLEAUX MANQUANTS")]),
+}
 d = json.load(open(CFG, encoding="utf-8"))
-js = [x for x in d["jobs"] if x["id"] == "imac-veille"]
-if not js:
-    print("  o imac-veille absent de la config — garde de tableau INERTE, et ce n'est PAS une reussite")
-    sys.exit(0)
-p, ko = js[0]["prompt"], 0
-# (1) exigence POSITIVE — le prompt porte l'assertion ET les classes qui permettent de l'honorer
-for forme in ("TABLEAUX MANQUANTS", 'x.count("<w:tbl>")', "TableRow"):
-    if forme not in p:
-        print("  x le prompt imac-veille ne porte plus « %s » : l'assertion de tableau a sauté," % forme)
-        print("    et un .docx sans tableau repasserait le contrôle d'intégrité en OK.")
-        ko = 1
-# (2) l'assertion EXTRAITE DU PROMPT — on appelle le contrôle, on ne le recopie pas
-blocs = [b for b in re.findall(r"python3 - <<'PY'\n(.*?)\nPY\n", p, re.S)
-         if "<chemin complet du .docx produit>" in b]
-if len(blocs) != 1:
-    print("  x %d bloc(s) d'intégrité extractible(s) du prompt imac-veille, 1 attendu" % len(blocs))
-    sys.exit(1)
-cas = [("conforme_2026-10-11_veille_imac_5_tableaux.docx", 0, "5 tableau(x)"),
-       ("sans_tableau_2026-10-18_veille_imac.docx", 1, "TABLEAUX MANQUANTS")]
-vus = 0
-for nom, att, ligne in cas:
-    doc = os.path.join(TD, nom)
-    if not os.path.exists(doc):
-        print("  x témoin de tableau manquant : %s" % nom)
+prompts = {j["id"]: j["prompt"] for j in d["jobs"]}
+ko, vus = 0, 0
+for jid, (plancher, temoins) in sorted(CAS.items()):
+    p = prompts.get(jid)
+    if p is None:
+        print("  o %s absent de la config — son assertion de tableau n'est plus gardée," % jid)
+        print("    et ce n'est PAS une réussite : retire-la de CAS si le job est supprimé.")
         ko = 1
         continue
-    vus += 1
-    code = blocs[0].replace("<chemin complet du .docx produit>", doc)
-    r = subprocess.run(["/usr/bin/python3", "-"], input=code, capture_output=True, text=True)
-    sortie = (r.stdout + r.stderr).strip()
-    if r.returncode != att:
-        print("  x témoin « %s » sort en %d au lieu de %d — %s" % (nom[:30], r.returncode, att, sortie[:90]))
-        print("    " + ("L'ASSERTION NE MORD PLUS : un .docx sans tableau serait publié."
-                        if att else "L'ASSERTION MORD À TORT : une édition normale serait refusée."))
+    for forme in ("TABLEAUX MANQUANTS", 'x.count("<w:tbl>")', "TableRow", plancher):
+        if forme not in p:
+            print("  x le prompt %s ne porte plus « %s » :" % (jid, forme))
+            print("    l'assertion de tableau a sauté, ou son plancher a été déplacé.")
+            ko = 1
+    blocs = [b for b in re.findall(r"python3 - <<'PY'\n(.*?)\nPY\n", p, re.S)
+             if "<chemin complet du .docx produit>" in b]
+    if len(blocs) != 1:
+        print("  x %d bloc(s) d'intégrité extractible(s) du prompt %s, 1 attendu" % (len(blocs), jid))
         ko = 1
-    elif ligne not in sortie:
-        print("  x témoin « %s » sort bien en %d, mais SANS sa ligne « %s » :" % (nom[:30], att, ligne))
-        print("    le code de sortie ne dit pas COMBIEN de tableaux ont été vus — un plancher ramené")
-        print("    à zéro laisserait les deux témoins verts.")
-        ko = 1
-if vus != 2:
-    print("  x %d témoin(s) de tableau joué(s), 2 attendu(s) — rétablis le dossier temoins_tableaux." % vus)
+        continue
+    for nom, att, ligne in temoins:
+        doc = os.path.join(TD, nom)
+        if not os.path.exists(doc):
+            print("  x témoin de tableau manquant : %s" % nom)
+            ko = 1
+            continue
+        vus += 1
+        code = blocs[0].replace("<chemin complet du .docx produit>", doc)
+        r = subprocess.run(["/usr/bin/python3", "-"], input=code, capture_output=True, text=True)
+        sortie = (r.stdout + r.stderr).strip()
+        if r.returncode != att:
+            print("  x %s / témoin « %s » sort en %d au lieu de %d — %s"
+                  % (jid, nom[:38], r.returncode, att, sortie[:80]))
+            print("    " + ("L'ASSERTION NE MORD PLUS : un .docx sans ses tableaux serait publié."
+                            if att else "L'ASSERTION MORD À TORT : une édition normale serait refusée."))
+            ko = 1
+        elif ligne not in sortie:
+            print("  x %s / témoin « %s » sort bien en %d, mais SANS sa ligne « %s » :"
+                  % (jid, nom[:38], att, ligne))
+            print("    le code de sortie ne dit pas COMBIEN de tableaux ont été vus.")
+            ko = 1
+if vus != ATTENDU:
+    print("  x %d témoin(s) de tableau joué(s), %d attendu(s) — rétablis temoins_tableaux/," % (vus, ATTENDU))
+    print("    ou mets ATTENDU à jour si une assertion est retirée d'un prompt.")
     ko = 1
 if not ko:
-    print("  ✓ assertion de tableau du prompt imac-veille : portée, et elle mord (2/2 témoins figés, avec leur ligne)")
+    print("  ✓ assertions de tableau (imac-veille ≥ 2, serafin-ph-veille ≥ 3) : portées avec leur")
+    print("    plancher, et elles mordent — %d/%d témoins figés, chacun avec sa ligne" % (vus, ATTENDU))
 sys.exit(ko)
 PYTBL
   rc=$?

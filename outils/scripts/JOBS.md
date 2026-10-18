@@ -2290,3 +2290,93 @@ invariants affirmait encore *« Seuls 2 prompts sur 9 ont un contrôle d'intégr
 et `placement-financier-lecon` »*. Mesuré sur la config du jour : **9 sur 9** portent le contrôle
 **et** l'assertion de volume, depuis `d3396d9` et `1396bbd` du 17/10. La ligne était fausse depuis
 ce jour-là, dans le fichier que chaque session relit comme autorité.
+
+---
+
+## 18/10/2026 — L'ASSERTION DE TABLEAU PORTÉE À `serafin-ph`, ET CE QUE LE PORTAGE A TROUVÉ
+
+⛔ **D'ABORD CE QUI N'EST PAS VRAI : CETTE SÉRIE N'A PAS EU L'INCIDENT. Le portage est
+PRÉVENTIF.** Sur les **27 éditions** du 06/04 au 14/10/2026, **toutes** portent des tableaux :
+minimum **4**, atteint **14 fois**, médiane 4, maximum 8, **aucune à zéro**. L'incident est celui
+de la veille iMac du 18/10 — zéro tableau Word pour 38 lignes à barres verticales. Le dire est
+nécessaire : la règle du 14/10 veut qu'un motif bloquant tourne en **avertissement sur des
+éditions neuves** avant de bloquer, et ici rien n'a averti, puisqu'il n'y avait rien à avertir.
+**Ce qui borne le risque est donc la mesure, pas l'observation** — et elle est complète : les
+27 éditions ont été rejouées.
+
+📊 **PLANCHER À 3, ET POUR DEUX RAISONS INDÉPENDANTES.** ① la **structure prescrite par le
+prompt nomme explicitement trois tableaux** — celui des sources avec ses statuts ✅/⛔, le
+« 🔵 En bref — Tableau de bord » (Thème / Statut / Échéance) et les « Points de vigilance pour les
+directions d'ESSMS » (Point / Détail pratique) ; ② la **note allégée** de la règle 7 — « semaine
+creuse assumée » — doit rester possible, et la mesure dit qu'elle ne coûte aucun tableau :
+l'édition du **14/10/2026**, qui est précisément une semaine creuse (c'est son « Semaine creuse »
+qui avait fait refuser à tort son push ce jour-là), porte quand même ses **4**. Le plancher est
+donc borné par la **structure**, et pas seulement par la statistique — c'est plus solide que pour
+`imac-veille`, où il repose sur le CR allégé.
+
+✅ **SENS CONFORME : 27 ÉDITIONS SUR 27 EN EXIT 0.** L'assertion extraite du prompt, jouée sous
+`env -i` sur toute la série : **zéro faux refus**. Sens refus : les deux mutants ci-dessous, plus
+le témoin iMac à zéro tableau.
+
+🔴 **ET LE PORTAGE A TROUVÉ LA CAUSE MÉCANIQUE DE L'INCIDENT DU 18/10 — ELLE EST DANS LE PROMPT,
+PAS DANS LE GÉNÉRATEUR.** `serafin-ph` **n'a aucune ligne `require`** : il dit seulement
+« utilisant la bibliothèque docx ». Rien ne contraint les classes importées, et la série est à
+**27/27**. `imac-veille`, lui, portait une ligne `require` **explicite et incomplète** — sept
+classes, **sans `Table`** — et c'est elle qui a canalisé le générateur vers des paragraphes à
+barres verticales. **Sur-spécifier une liste de classes est un piège ; ne rien spécifier ne l'est
+pas.** Recensement des neuf prompts :
+
+| Prompt | Ligne `require` | `Table` ? | Prescrit un tableau ? | Éditions sans tableau |
+|---|---|---|---|---|
+| `imac-veille` | explicite, 11 classes | **oui** (depuis le 18/10) | oui | 4 / 19, dont le 18/10 |
+| `rbpp-pipeline` | explicite, 7 classes | **NON** ⚠️ | **oui** — « points clés (tableau) » | **3 / 14** |
+| `ai-act-veille` | explicite, 7 classes | **NON** | **non** — aucun dans sa structure | 21 / 21, **voulu** |
+| les six autres | **aucune** | — | variable | `serafin-ph` : **0 / 27** |
+
+📌 **CHANTIER OUVERT, MESURÉ, NON FAIT : `rbpp-pipeline`.** Il **prescrit** un tableau de points
+clés et sa ligne `require` **ne peut pas le fournir** ; trois de ses quatorze éditions sont sans
+tableau. C'est le même défaut latent que celui qui a mordu sur iMac, dans un job qui tourne
+**lundi 8h30**. Il n'est pas corrigé ici : la série `rbpp` porte un sujet différent par édition
+(`_veille_rbpp_<sujet>`), donc son plancher demande une mesure propre — et `ai-act`, qui partage
+la même ligne incomplète, **n'a besoin de rien** puisqu'il ne prescrit aucun tableau. La leçon
+générale, elle, est bonne pour tous : **ne jamais figer une liste de classes `docx` sans y mettre
+`Table, TableRow, TableCell`.**
+
+🧪 **LE CÂBLAGE PASSE DE DEUX GARDES À TROIS, ET LE TROISIÈME EST NÉ D'UN TROU MESURÉ.**
+> ① **garde positif** : chaque prompt concerné doit porter `TABLEAUX MANQUANTS`,
+> `x.count("<w:tbl>")` et `TableRow`.
+> ② 🆕 **garde sur le PLANCHER AU LITTÉRAL** — `if tbl < 2:` pour imac, `if tbl < 3:` pour
+> serafin. **Sans lui, ramener un plancher de 2 à 1 laissait tous les témoins verts** : un témoin
+> à zéro tableau reste refusé par un plancher à 1. Le trou avait été consigné la veille comme
+> limite connue ; il est fermé.
+> ③ **témoin d'efficacité, assertion EXTRAITE DU PROMPT**, sur **cinq** copies figées de
+> `non_regression/temoins_tableaux/`, chacune avec son code de sortie **et sa ligne** :
+> imac 11/10 (5 tbl) → 0 « 5 tableau(x) » · imac 18/10 avant correction (0 tbl) → 1
+> « TABLEAUX MANQUANTS » · serafin 14/10 (4 tbl) → 0 « 4 tableau(x) » · **mutant serafin à 3 tbl
+> → 0 « 3 tableau(x) », qui doit être ACCEPTÉ** (convention du 10/10 : un motif qu'on resserre a
+> besoin d'un témoin accepté, sinon rien n'empêche de le réélargir demain) · **mutant serafin à
+> 2 tbl → 1**. Les deux mutants sont **dérivés d'une édition réelle** par retrait de ses derniers
+> `<w:tbl>`, et c'est dit : ce ne sont pas des livrables, ce sont des **bornes**. Ensemble ils
+> épinglent le plancher à **exactement 3** par le comportement, là où le garde ② l'épingle par le
+> texte.
+
+🧨 **NEUF SABOTAGES AU TOTAL, NEUF REFUS, `jobs_config.json` RESTAURÉ AU SHA256 IDENTIQUE À
+CHAQUE FOIS, RIEN DE SABOTÉ COMMIS.** Les quatre d'hier sur imac, et cinq aujourd'hui :
+
+| Sabotage | Attrapé par |
+|---|---|
+| serafin : `if tbl < 3:` → `if False:` | garde ② **et** le mutant à 2 |
+| serafin : plancher 3 → 1 | garde ② **et** le mutant à 2 |
+| serafin : `, {tbl} tableau(x)` retiré du `print` | l'**exigence de ligne** (deux témoins) |
+| **imac : plancher 2 → 1** | garde ② **seul** — c'est le trou d'hier, fermé |
+| serafin : motif renommé `TABLEAUX ABSENTS` | gardes ① et ③ |
+
+Harnais complet après portage : **exit 0, 0 ✗, aucun verdict n'a changé**, 5/5 témoins de tableau.
+
+💰 **PLAFOND : INCHANGÉ, ET LA QUESTION EST POSÉE EXPRÈS.** Le prompt passe de **27 513 à
+29 743 octets** (+2 230). Le durcissement n'ajoute **aucune page à lire ni étape de
+vérification** — une assertion sur un fichier local, après génération. Dernière exécution
+mesurée du job, le 14/10/2026 : **1,1586 $ pour un plafond de 3,00 $, soit 39 %** — 29 tours,
+4 min 56 s. C'est le job le moins tendu des neuf, et il garde **1,84 $ de marge**. La règle du
+16/10 veut qu'un durcissement de prompt soit payé dans le même geste ; ici il ne coûte rien de
+mesurable, aucun plafond ne bouge, et le cumul reste à **34 $/semaine**.
