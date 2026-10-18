@@ -285,6 +285,13 @@ fi
 #      3 à 6 tableaux (médiane 4, minimum 3) ; les trois seules autres à zéro datent des 14/06,
 #      21/06 et 13/07, avant la stabilisation du format. Plancher à 2 et non à 3 parce que le CR
 #      ALLÉGÉ du prompt ne prescrit que les deux tableaux de prix de référence.
+#    · rbpp-pipeline, plancher 1 ET BORNÉ AU CHEMIN « /rbpp/ » : sa structure ne nomme QU'UN
+#      tableau (points clés), et le job a DEUX sorties — la note RBPP, et la note d'Étape 7 des
+#      semaines sans nouvelle RBPP, qui part dans has-actualite/ où les 16 éditions du dépôt
+#      n'ont aucun tableau. Non bornée, l'assertion refuserait une note d'Étape 7 conforme, et
+#      c'est le chemin qu'a pris l'exécution du 12/10/2026. Coût historique assumé : 3 des 14
+#      notes RBPP auraient été refusées, et les trois rendaient leurs points clés en liste.
+#      Cause mécanique : ses DEUX lignes require n'importaient pas Table — corrigé le 18/10.
 #    · serafin-ph-veille, plancher 3 : PORTAGE PRÉVENTIF, cette série n'a PAS eu l'incident — 27
 #      éditions sur 27 portent des tableaux, minimum 4 atteint 14 fois, médiane 4, maximum 8.
 #      Plancher à 3 et non à 4 pour deux raisons indépendantes : sa structure nomme explicitement
@@ -320,7 +327,7 @@ if [ -f "$ROOT/jobs_config.json" ]; then
       > "$TBL_OUT" 2>&1 <<'PYTBL'
 import json, os, re, subprocess, sys
 CFG, TD = sys.argv[1], sys.argv[2]
-ATTENDU = 5                      # nombre de témoins qui DOIVENT être joués
+ATTENDU = 8                      # nombre de témoins qui DOIVENT être joués
 CAS = {
     "imac-veille": ("if tbl < 2:", [
         ("conforme_2026-10-11_veille_imac_5_tableaux.docx", 0, "5 tableau(x)"),
@@ -329,6 +336,17 @@ CAS = {
         ("conforme_2026-10-14_veille_SERAFIN-PH_4_tableaux.docx", 0, "4 tableau(x)"),
         ("mutant_SERAFIN-PH_3_tableaux_doit_passer.docx", 0, "3 tableau(x)"),
         ("mutant_SERAFIN-PH_2_tableaux_doit_etre_refuse.docx", 1, "TABLEAUX MANQUANTS")]),
+    # rbpp-pipeline a DEUX chemins de sortie : la note RBPP, dont la structure prescrit un tableau
+    # de points clés, et la note d'Étape 7 (semaine sans nouvelle RBPP) qui part dans
+    # sources/veille/has-actualite/ et n'en prescrit AUCUN — les 16 éditions de cette série n'en
+    # ont pas une. L'assertion est donc bornée au chemin « /rbpp/ », et le TROISIÈME témoin est un
+    # témoin ACCEPTÉ qui épingle l'exemption : sans lui, rien n'empêcherait de retirer la borne
+    # demain et de refuser une note d'Étape 7 conforme (convention du 10/10).
+    "rbpp-pipeline": ("if rbpp and tbl < 1:", [
+        ("rbpp/conforme_2026-04-26_veille_rbpp_troubles-schizophreniques_8_tableaux.docx", 0, "8 tableau(x)"),
+        ("rbpp/sans_tableau_2026-06-06_veille_rbpp_autisme-recommandations.docx", 1, "TABLEAUX MANQUANTS"),
+        ("has-actualite/exempt_2026-10-12_veille_has-actualite.docx", 0,
+         "hors note RBPP, assertion de tableau non applicable")]),
 }
 d = json.load(open(CFG, encoding="utf-8"))
 prompts = {j["id"]: j["prompt"] for j in d["jobs"]}
@@ -344,6 +362,19 @@ for jid, (plancher, temoins) in sorted(CAS.items()):
         if forme not in p:
             print("  x le prompt %s ne porte plus « %s » :" % (jid, forme))
             print("    l'assertion de tableau a sauté, ou son plancher a été déplacé.")
+            ko = 1
+    # 🔴 CHAQUE ligne require('docx') de CE prompt doit importer Table — et il peut y en avoir
+    #    plusieurs : rbpp-pipeline en portait DEUX, toutes deux sans Table, et c'est la cause
+    #    mécanique de ses trois notes sans tableau. Un « TableRow in p » ne suffit pas : il reste
+    #    vrai si UNE SEULE des deux lignes est rétablie. On vérifie donc chaque occurrence.
+    #    ⚠️ Borné aux prompts de CAS : ai-act-veille porte lui aussi une ligne incomplète, mais sa
+    #    structure ne prescrit AUCUN tableau et ses 21 éditions n'en ont aucun — l'exiger de lui
+    #    serait un faux refus.
+    for m in re.finditer(r"const \{([^}]*)\} = require\('docx'\)", p):
+        if "Table" not in m.group(1):
+            print("  x le prompt %s porte une ligne require('docx') SANS Table :" % jid)
+            print("    %s" % m.group(1).strip()[:100])
+            print("    le générateur ne pourra pas construire les tableaux que la structure prescrit.")
             ko = 1
     blocs = [b for b in re.findall(r"python3 - <<'PY'\n(.*?)\nPY\n", p, re.S)
              if "<chemin complet du .docx produit>" in b]
@@ -377,8 +408,8 @@ if vus != ATTENDU:
     print("    ou mets ATTENDU à jour si une assertion est retirée d'un prompt.")
     ko = 1
 if not ko:
-    print("  ✓ assertions de tableau (imac-veille ≥ 2, serafin-ph-veille ≥ 3) : portées avec leur")
-    print("    plancher, et elles mordent — %d/%d témoins figés, chacun avec sa ligne" % (vus, ATTENDU))
+    print("  ✓ assertions de tableau (imac ≥ 2, serafin-ph ≥ 3, rbpp ≥ 1 hors Étape 7) : portées avec")
+    print("    leur plancher, et elles mordent — %d/%d témoins figés, chacun avec sa ligne" % (vus, ATTENDU))
 sys.exit(ko)
 PYTBL
   rc=$?

@@ -2380,3 +2380,105 @@ mesurée du job, le 14/10/2026 : **1,1586 $ pour un plafond de 3,00 $, soit 39 %
 4 min 56 s. C'est le job le moins tendu des neuf, et il garde **1,84 $ de marge**. La règle du
 16/10 veut qu'un durcissement de prompt soit payé dans le même geste ; ici il ne coûte rien de
 mesurable, aucun plafond ne bouge, et le cumul reste à **34 $/semaine**.
+
+---
+
+## 18/10/2026 — `rbpp-pipeline` CORRIGÉ AVANT LUNDI : DEUX DÉFAUTS, ET LE PREMIER L'AURAIT FAIT ÉCHOUER
+
+Le job tourne **lundi 8h30**. Deux défauts mesurés le mordaient, de gravités très inégales.
+
+### ① LE BLOQUANT : `has-sante.fr` EST ILLISIBLE PAR `WebFetch`, ET C'EST MAINTENANT MESURÉ
+
+Le 18/10 au matin, le chantier TLS avait conclu que `WebFetch` « ne peut pas recevoir
+`--cacert` » et que le job échouerait sur les pages HAS. **C'était une déduction, pas une
+mesure** — exactement ce que la règle du dépôt interdit. Elle est faite :
+
+| Voie | Résultat sur la page des RBPP du secteur |
+|---|---|
+| `WebFetch` | **« unable to verify the first certificate »** |
+| `/usr/bin/curl` sans faisceau | **000, exit 60** |
+| `/usr/bin/curl --cacert <faisceau>` | **200** |
+| `aspirer.py` | **200 · 76 620 octets · 6 595 caractères utiles** |
+| `curl --cacert` sur le flux RSS du job | **200** |
+
+La déduction était donc juste sur le fond : **le job aurait échoué lundi** sur chaque page HAS
+lue par `WebFetch`. ⚠️ **Et le piège était pire qu'un échec** : l'Étape 2 conclut à « aucune
+nouvelle RBPP » quand elle ne trouve rien, et passe à l'Étape 7. Un certificat refusé aurait
+produit une **semaine creuse déclarée à tort**, c'est-à-dire un livrable publié, cohérent,
+`exit 0` — et faux. C'est la pire forme : pas une panne, un silence.
+
+🔧 **CE QUI EST ÉCRIT DANS LE PROMPT**, en tête de l'Étape 2 : la signature de l'erreur, la
+cause (serveur qui n'envoie pas sa chaîne depuis le 08/10, magasin d'Apple d'août 2025 sans la
+racine), et la voie qui marche — `aspirer.py` pour une **page** (il passe le faisceau tout seul
+et imprime le chemin du `.txt` à lire), `curl --cacert` pour un **PDF**, le chemin du faisceau
+obtenu en **appelant** `ca_bundle.chemin()` et non en le recopiant, `WebSearch` inchangé
+puisqu'il ne passe pas par notre pile TLS. ⛔ **Deux interdits explicites** : jamais `-k` ni
+`--insecure` ; et **jamais un ⛔ « page inaccessible » sans avoir essayé `aspirer.py`**.
+✅ **Les deux commandes ont été rejouées VERBATIM depuis le prompt** : `aspirer.py` rend
+200/6 595 caractères, et la chaîne `CA=$(…ca_bundle.chemin()…)` puis `curl --cacert "$CA"` rend
+**200** (validée sur le flux RSS, la page de listing ne portant aucun PDF ce jour).
+
+### ② LE LATENT : DEUX LIGNES `require` SANS `Table`, POUR UNE STRUCTURE QUI EN PRESCRIT UN
+
+Sa structure dit « points clés **(tableau)** », et ses **deux** lignes `require` — il y en a deux,
+une par générateur — n'importaient pas `Table`. Résultat mesuré sur les 14 notes RBPP : **trois
+sans aucun tableau** (`ia-generative-sante` 19/04, `autisme-recommandations` 06/06, `ppa-dui`
+27/06), et l'inspection des trois montre que **chacune rend ses points clés en liste numérotée**.
+Même cause que la veille iMac du 18/10 : **sur-spécifier une liste de classes `docx` canalise le
+générateur**, alors que `serafin-ph`, qui n'a aucune ligne `require`, est à 27/27.
+
+🔴 **L'ASSERTION EST BORNÉE AU CHEMIN `/rbpp/`, ET SANS CETTE BORNE ELLE SERAIT UN PIÈGE.** Ce job
+a **deux sorties** : la note RBPP dans `sources/veille/rbpp/`, et — les semaines sans nouvelle
+RBPP — la note de l'**Étape 7**, qui part dans `sources/veille/has-actualite/` et dont la
+structure ne prescrit **aucun** tableau. Mesuré : les **16 éditions `has-actualite` du dépôt n'en
+ont aucun**, et c'est normal. Une assertion non bornée aurait refusé une note d'Étape 7
+parfaitement conforme — **et c'est le chemin qu'a pris l'exécution du 12/10/2026**. Plancher à
+**1**, parce que la structure nomme **un** tableau : sur les 14 notes, quatre n'en ont qu'un ou
+zéro, la médiane est 3. **Coût historique dit franchement : 3 des 14 auraient été refusées, et
+les trois sont de vrais défauts — zéro faux refus.**
+
+✅ **Validé dans les deux sens, par recensement** : l'assertion extraite du prompt, jouée sous
+`env -i` sur **les 14 notes RBPP → 11 exit 0, 3 exit 1** (les trois attendues), et sur **les 16
+notes has-actualite → 16 exit 0**, chacune portant la ligne d'exemption
+« — hors note RBPP, assertion de tableau non applicable ».
+
+### LE CÂBLAGE : 8 TÉMOINS, ET DEUX GARDES DE PLUS
+
+Trois témoins figés s'ajoutent, dans des sous-dossiers dont le **chemin porte le discriminant** :
+`temoins_tableaux/rbpp/` (conforme à 8 tableaux → 0 avec sa ligne ; `autisme-recommandations` à
+0 tableau → 1 avec « TABLEAUX MANQUANTS ») et `temoins_tableaux/has-actualite/` (la veille du
+12/10 → **0, et elle DOIT être ACCEPTÉE**, avec sa ligne d'exemption). 🔴 **Ce troisième est le
+témoin qui épingle la borne** : c'est lui, et lui seul, qui refuse qu'on retire `rbpp and` demain.
+🆕 **Et un garde de plus** : chaque occurrence de `const { … } = require('docx')` du prompt doit
+contenir `Table`, **vérifiée une par une**. Un `"TableRow" in prompt` reste vrai si **une seule**
+des deux lignes est rétablie — le sabotage ④ le prouve. ⚠️ Borné aux prompts porteurs d'une
+assertion : `ai-act-veille` a lui aussi une ligne incomplète, mais sa structure ne prescrit aucun
+tableau et ses 21 éditions n'en ont aucun — l'exiger de lui serait un faux refus.
+
+🧨 **TREIZE SABOTAGES AU TOTAL SUR LA JOURNÉE, TREIZE REFUS**, `jobs_config.json` restauré au
+sha256 identique à chaque passage, rien de saboté commis. Les quatre de rbpp :
+
+| Sabotage | Attrapé par |
+|---|---|
+| assertion neutralisée (`if False`) | garde du plancher **et** témoin à 0 tableau |
+| **borne de chemin retirée** (`rbpp and` supprimé) | le **témoin ACCEPTÉ** d'exemption, qui sort en 1 |
+| ligne d'exemption retirée du `print` | l'**exigence de ligne** du témoin exempté |
+| **UNE** des deux lignes `require` reperd `Table` | le garde **par occurrence** (le garde global restait vert) |
+
+Harnais complet : **exit 0, 0 ✗, aucun verdict n'a changé**, 8/8 témoins de tableau.
+
+💰 **PLAFOND : INCHANGÉ, ET LA QUESTION SE POSE VRAIMENT ICI.** Le prompt passe de **48 288 à
+52 550 octets** (+4 262, le plus gros des trois portages du jour). Mais le durcissement
+**n'ajoute aucune page à lire** : il remplace `WebFetch` par `aspirer.py` sur les mêmes pages, et
+ajoute une assertion locale. ⚠️ **Un point de vigilance tout de même** : `aspirer.py` rend le
+**texte intégral** de la page sur disque, là où `WebFetch` rendait une réponse déjà résumée.
+Lire ce `.txt` en entier coûterait plus de contexte que `WebFetch` — d'où la consigne explicite
+de le lire par `sed -n` / `grep -n`. Dernière exécution du job, le 12/10 : **2,3661 $ pour un
+plafond de 4,00 $ (59 %)**, 47 tours, une tentative. **Marge 1,63 $.** Si le run de lundi dépasse
+les 75 %, c'est cette lecture-là qu'il faudra resserrer — à surveiller dans le log, pas à
+deviner. Cumul inchangé : **34 $/semaine**.
+
+📌 **CE QUI RESTE OUVERT.** `ai-act-veille` garde une ligne `require` incomplète, délibérément :
+sa structure ne prescrit aucun tableau. Si un jour on lui en prescrit un, **il faudra les deux
+gestes dans le même commit** — la classe dans le `require` ET l'assertion. C'est la leçon de
+cette journée, et elle a coûté quatre notes.
