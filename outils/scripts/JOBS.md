@@ -2060,3 +2060,136 @@ juste.
 restera en échec sur les pages HAS récupérées ainsi ; seuls ses **flux RSS, lus par `curl`**,
 bénéficient du correctif. Le faisceau répare **les contrôles et l'aspiration**, pas la collecte
 du job.
+
+---
+
+## 18/10/2026 — VEILLE iMAC : LE PREMIER VRAI REFUS DE `controle_edition_precedente`, ET IL CACHAIT UN CHIFFRE FAUX
+
+**Le job `imac-veille` a réussi et n'a pas publié.** `exit 0`, une seule tentative, **2,3130 $
+pour un plafond de 4,00 $ (58 %)**, **51 tours** contre 24 la semaine précédente, 15 min 35 s.
+Le `pre-push` a lancé `non_regression.sh --docs` et **refusé trois fois** :
+`✗ imac/2026-10-18_veille_imac.docx : REJEU d'une correction de l'édition précédente — ÉDITION
+REFUSÉE — 2 rejeu(x) : jeton « 2031 » revenu ; jeton « Microsoft » revenu`. Le commit `8151f4d`
+est resté local. **C'est le deuxième refus de ce contrôle en production depuis sa création le
+12/10, et le premier qui soit JUSTE** — celui du 14/10 (serafin-ph, jetons « Inaccessible » et
+« Semaine ») était faux et avait entraîné son resserrement. Le resserrement n'a donc pas rendu
+le motif inerte.
+
+🔴 **ET LE CHIFFRE N'ÉTAIT PAS « NON VÉRIFIÉ », IL ÉTAIT FAUX.** La note écrivait *« Microsoft
+supporte Windows 11 jusqu'en octobre 2031 (non vérifié sur source directe cette exécution) »* —
+formulation que la correction du 11/10 avait déjà retirée. Quatre pages de cycle de vie aspirées
+le 18/10 : **« 2031 » compte zéro occurrence sur les quatre**, texte **et** source. Les dates
+publiées sont **10/10/2028** (Home and Pro, version 26H2 — le produit suit une politique de
+cycle de vie continu et ne porte **aucune date de retrait**), **9/10/2029** (Enterprise and
+Education) et **10/10/2029 / 11/10/2034** (IoT Enterprise LTSC 2024). Octobre 2031 n'apparie
+aucune de ces dates : il tombe entre deux vraies, ce qui est la forme la plus crédible d'un
+chiffre inventé. 📌 **LA LEÇON QUI SE GÉNÉRALISE : déclarer « non vérifié » SANS NOMMER DE
+SOURCE n'est pas une déclaration de provenance.** La même note fait l'inverse, et bien, pour le
+Mac mini M6 : *« 1 049 € … selon le communiqué Apple du 22/09/2026, relayé par MacGeneration
+(source 11, non relu cette exécution) »* — une provenance nommée, vérifiable plus tard. Une
+parenthèse qui ne nomme rien est une clause de non-responsabilité adossée à un chiffre précis ;
+l'exemption par déclaration de ㉜, ㉞ et ㊳ exige une **source**, pas un aveu.
+
+🔴 **LE « 2 nm » DU M6 EST ATTRIBUÉ À UNE PAGE QUI N'EN DIT PAS UN MOT — QUATRIÈME ÉDITION.**
+La note le range sous un intertitre *« source : page Apple Mac mini fr, lue ce jour »*. Mesuré
+sur cette page : **« 2 nm », « nanomètre », « procédé », « gravure » : zéro occurrence**, texte
+et brut — et zéro sur les **neuf autres pages lisibles**. La seule page qui le portait, le
+roundup M6 de MacRumors cité au littéral le 11/10, répond **404** aujourd'hui, ce que la note
+constate justement. ⚠️ **Et `controle_edition_precedente` ne pouvait pas le voir** : la
+correction du 11/10 n'avait pas **retiré** « 2 nm », elle l'avait **re-sourcé**. Aucun jeton
+soustrait, donc rien à suivre — c'est sa cécité déclarée, mesurée pour la première fois sur une
+**spécification** et non sur un prix. 📌 **Origine du défaut, et elle est dans le dépôt** :
+`iMac_dossier.fiche` écrit *« ce sera le M6, première puce Apple en 2 nm »* en l'adossant à
+Gurman le 23/08/2026. La spécification est **sue** avant d'être lue, et c'est pour cela qu'elle
+revient chaque semaine sans page. **Un fait entré par le dossier doit garder sa source
+d'origine, sinon chaque édition le réattribue à la page qu'elle vient d'ouvrir.**
+
+🔴 **UNE CORRECTION QUI *AJOUTE* UN FAIT EST INVISIBLE AU MOTIF ① — ET C'EST LA MOITIÉ LA PLUS
+LARGE DE SA CÉCITÉ.** Le motif ne suit que les jetons qu'une correction a **RETIRÉS**. Deux
+rejeux mesurés ce jour échappent donc à lui : ① la **remise Leclerc sur le 16 Go / 512 Go**
+(**1 971,00 €, −11 %** contre 2 219 € ailleurs, deuxième meilleure remise de la page), que la
+correction ② du 11/10 avait ajoutée et qui a de nouveau aucune ligne ; ② l'**inventaire du
+reconditionné**, 13 annoncées et **12 détaillées**, la manquante étant le 10c/10c Gigabit
+Ethernet **Jaune à 1 879,00 € SANS écran nano-texturé** — même palier et même cause que la
+correction ⑨ du 11/10, huit jours après. 📌 Piste bornée, et elle n'est pas gratuite : suivre
+aussi les jetons **présents dans le corps corrigé de N-1 et absents de N** serait un motif
+« fait perdu », à passer en avertissement d'abord — un item légitimement périmé le
+déclencherait.
+
+⚠️ **LA PASSE B N'A RIEN CHERCHÉ, ET CE N'EST PAS UNE RÉUSSITE.** Les **six** citations
+anglaises du document font de **deux à cinq mots**, et son plancher est de **six**. Mesuré avec
+le `DEBUG` du contrôle : **B = 0** ; **B-FR en extrait 8 et n'en imprime 7** (une citation de
+trois mots est comptée puis écartée en silence par son garde « moins de 4 mots »), dont deux
+citations **anglaises** qu'elle apparie **sur une autre page que celle nommée** — B-FR cherche
+dans tout le corpus. Examinées par **aucune** passe : *« M6 iMac »* (sous le plancher de
+9 lettres de B-FR), *« all-day product launch experience »* et *« simply a chip update »*. **Et
+c'est la dernière qui était fautive** : 9to5Mac écrit *« an unchanged design and simply BE a
+chip update »*. 🟢 **La correction a résolu le cas sans toucher au contrôle** : réécrite au
+littéral de sa page, la citation fait **huit mots**, elle entre dans le plancher de six, et elle
+sort **OK, appariée** — un défaut invisible devenu un appariement vérifiable par la machine.
+C'est la bonne direction quand une borne est mesurée juste : **adapter le livrable avant
+d'élargir une passe bloquante.**
+
+⚠️ **TROIS CÉCITÉS D'OUTIL MESURÉES, DONT UNE QUI A FAILLI ME FAIRE ACCUSER UN DOCUMENT JUSTE.**
+① **MacRumors insère des U+200C dans ses noms de produit** : la page du 13/10 porte
+« M6 14-inch ‌MacBook Pro‌ », donc le degré ① échoue ; et comme la requête porte des chiffres,
+le degré ② lui est **interdit** (règle du 15/10) — il reste **④ ABSENT sur un intitulé que la
+page affiche à l'identique**. C'est l'obligation faite au degré ④ de **montrer ce que la page
+écrit** qui a fait voir les espaces sans jointure. **Sans elle, j'écrivais que la note attribue
+cet intitulé à la mauvaise page.** ② **`chercher.py` ne nomme que la PREMIÈRE page qui
+répond** — une requête ① sur trois pages n'en fait nommer qu'une : un appel multi-pages **n'est
+pas un inventaire des porteurs**, et je l'avais lu comme tel. ③ **LDLC écrit ses prix
+« 1 699€ 95 »**, centimes coupés par le balisage : aucun des quatre degrés n'apparie
+« 1 699,95 € », et la passe D le classe *« absente des pages citées »* alors que le chiffre est
+sur la page qu'elle nomme. ⚠️ **Et les « OK » de D peuvent être fortuits** : *« 1 049 »*
+s'apparie sur la fiche LDLC, où c'est un **GMKtec NucBox K11 à 1 049€ 95**, et *« 120 »* sur la
+page Apple Mac mini, où c'est un débit Thunderbolt de 120 Gb/s quand la note parle d'un
+rafraîchissement de 120 Hz. **Deux « OK » sur neuf sont des coïncidences** ; D n'est pas
+bloquante, et c'est exactement pour cela.
+
+🔴 **LE DOCUMENT A PERDU SES TABLEAUX WORD, ET AUCUN CONTRÔLE NE REGARDE CELA.** Mesuré sur les
+**dix-neuf éditions** de la série : `<w:tbl>` = **0** ici, **3 à 6 dans seize des dix-huit
+autres**, et **38 lignes « | »** dans le texte — les trois tableaux de prix sont des paragraphes
+à barres verticales. La dernière édition sans tableau est celle du **13/07/2026**. Le contrôle
+d'intégrité répond `OK — XML conforme, 12 lien(s), 99 paragraphe(s) de texte (marge 87)` :
+il compte la validité, les balises, les liens et le **volume de texte**, **jamais un tableau**.
+⚠️ **Ce n'est pas une régression de prompt, vérifié sur cinq commits** : la ligne
+`const { Document, Packer, Paragraph, TextRun, AlignmentType, ExternalHyperlink, UnderlineType } = require('docx')`
+est identique depuis le 09/10 au moins et **n'a jamais porté `Table`, `TableRow`, `TableCell`** —
+les seize éditions à tableaux les importaient d'elles-mêmes. Le durcissement du 17/10 porte
+précisément sur cette ligne et a **pu** la faire suivre plus littéralement, mais **une exécution
+n'établit pas une cause**. 📌 **Piste bornée** : une assertion `<w:tbl> ≥ 1` dans le contrôle
+d'intégrité de **ce prompt** — 16 éditions sur 19 passent, les 3 qui échouent précèdent toutes
+le 19/07/2026 — et dans ce prompt seulement, puisqu'une leçon n'a légitimement aucun tableau.
+**Non fait ce jour, et dit comme tel dans le journal du document.**
+
+🟢 **CE QUI ÉTAIT JUSTE, ET IL FAUT LE DIRE.** Tous les prix, à l'euro et au coloris, marchands
+compris — reconstruits depuis le HTML brut, `data-store="35"` → `/images/comparateur/35-leclerc.png`.
+Les quatre paliers et les listes de **4** puis **5 coloris** du reconditionné, exacts à
+l'énumération près ; la commande de la page-liste rejouée verbatim rend **« 13 lignes iMac M4 ;
+minimum : 1 519,00 € »**. *« Ancien prix : 949,00 € »* et *« 15 € offerts tous les 100 € »* en
+**① LITTÉRAL**. *« Jusqu'à 170 Go/s de bande passante mémoire »* **littéral, le « jusqu'à »
+conservé** — l'entrée 7 du journal du 04/10, qui reprochait ce chiffre sans page, est
+**correctement soldée**. La ligne Lenovo vérifiée spécification par spécification sur LDLC
+(Core Ultra 7 355, 32 GB, 1 TB, 2560, 120 Hz, 99% sRGB, F0JJ000WFR, *In stock*). Et surtout :
+**le Lenovo à 1 349 € est tenu hors des conclusions**, avec le constat du 04/10 cité en prose —
+le rejeu qui avait coûté le plus cher deux semaines de suite ne se produit pas.
+
+🔧 **LA CORRECTION — seize paragraphes, et la porte rouverte.** Sauvegarde dans le scratchpad
+**avant** patch (sha256 vérifié), édits **par position, de la fin vers le début**, chaque échange
+local à un run `<w:t>`. Le `.docx` passe de **17 226 à 21 860 octets**, de 117 à **139
+paragraphes** : **seize marqueurs** `[Corrigé le 18/10/2026 : …]`, un **📝 Journal des
+corrections** de dix-sept entrées conservant chaque libellé d'origine, **trois items de veille
+rétablis** (Dell EC27260, Boulanger à 1 899,00 €, et la consigne Darty/LDLC explicitée) et une
+**treizième source listée** — la page de cycle de vie, ouverte **hors du job**, avec son
+relationship ajouté au `.rels`. Les deux décomptes de sources passent à **10 / 13**.
+**Vérification** : `controle_edition_precedente` **exit 0, aucun rejeu** ; `controle_decompte`
+**COHÉRENT** (10 ✅ + 1 ⚠ + 2 ⛔ = 13) ; intégrité **OK — 13 liens, 121 paragraphes, marge
+108** ; test « +N % » **OK** sous `env -i` ; `controle_attributions` **exit 0, 0 bloquant**,
+**B non inerte et appariée**, **B-NOM de 2 à 0**, 16 marqueurs reconnus et 21 citations
+écartées ; `non_regression.sh --docs` sur le document → **exit 0**. ⚠️ **Réserve sur ma propre
+correction, et elle est de méthode** : les pages de cycle de vie rendent **1 773 caractères**,
+**sous le plancher de 3 000** que ce dépôt s'est fixé pour déclarer une page lue. J'y ai lu le
+tableau de support complet et le brut ne porte pas davantage le chiffre retiré — mais à la
+lettre de notre règle, c'est une **page de façade**, et la source 13 est listée avec cette
+limite connue.
