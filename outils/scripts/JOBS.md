@@ -2193,3 +2193,100 @@ correction, et elle est de méthode** : les pages de cycle de vie rendent **1 77
 tableau de support complet et le brut ne porte pas davantage le chiffre retiré — mais à la
 lettre de notre règle, c'est une **page de façade**, et la source 13 est listée avec cette
 limite connue.
+
+---
+
+## 18/10/2026 — L'ASSERTION DE TABLEAU PORTÉE AU PROMPT `imac-veille`, ET CE QUE LA MESURE INTERDIT
+
+**L'incident réel, d'abord.** La veille iMac du 18/10 a livré **zéro tableau Word** pour
+**38 lignes à barres verticales** : ses trois tableaux de prix étaient des paragraphes séparés
+par « | ». Le contrôle d'intégrité que son prompt impose a répondu
+`OK — XML conforme, 12 lien(s), 99 paragraphe(s) de texte (marge 87)`. Il vérifie la conformité
+XML, les balises mal formées, le nombre de liens et, depuis le 17/10, le **volume de texte** —
+**jamais un tableau**. C'est la même forme que l'incident du 17/10 (un contrôle qui dit `OK` sur
+un document dégradé), un cran moins grave : là le corps avait disparu, ici c'est la mise en forme.
+
+📊 **LA BORNE EST MESURÉE PAR RECENSEMENT, PAS PAR ÉCHANTILLON.** Sur les **19 éditions** de la
+série : les **15 consécutives du 19/07/2026 au 11/10/2026** portent **3 à 6** tableaux
+(médiane 4, minimum 3) ; les trois seules autres à zéro sont celles des **14/06, 21/06 et
+13/07/2026**, toutes antérieures à la stabilisation du format. **Plancher à 2, et non à 3** : le
+**CR allégé** prescrit par le prompt ne porte que les deux tableaux de prix de référence (iMac +
+Windows). C'est la même méthode que l'assertion de volume du 17/10 — un plancher placé entre la
+valeur d'échec (0) et le minimum légitime (3), comme 10 l'était entre 0 et 14.
+
+⛔ **ET LA MESURE INTERDIT DE LA PORTER AUX NEUF PROMPTS — C'EST LE RÉSULTAT LE PLUS UTILE DU
+BALAYAGE.** Comptes de `<w:tbl>` par famille, sur tout le dépôt :
+
+| Famille | Documents | min | médiane | max | sans tableau |
+|---|---|---|---|---|---|
+| `veille:serafin-ph` | 27 | 4 | 4 | 8 | **0** |
+| `veille:imac` | 19 | 0 | 3 | 6 | 4 |
+| `veille:rbpp` | 14 | 0 | 3 | 8 | 3 |
+| `veille:ai-act` | 21 | 0 | 0 | 0 | **21** |
+| `veille:has-actualite` | 16 | 0 | 0 | 0 | **16** |
+| `veille:rgpd` (archive) | 8 | 0 | 0 | 0 | **8** |
+| `leçon:entretien-motivationnel` | 11 | 0 | 0 | 1 | **10** |
+| `livrables/controles` | 9 | 1 | 2 | 8 | 0 |
+
+Porter l'assertion aux neuf prompts refuserait **45 éditions légitimes** sur les trois seules
+séries ai-act, has-actualite et rgpd. **Elle est donc propre à `imac-veille`**, et le seul autre
+candidat que la mesure soutient est **`serafin-ph` : 27 éditions sur 27, minimum 4** — à décider,
+pas à supposer.
+
+🔧 **CE QUI A ÉTÉ PORTÉ, EN TROIS GESTES DANS LE PROMPT.** ① la ligne `require` gagne
+`Table, TableRow, TableCell, WidthType` — **elle ne les avait jamais portés**, vérifié sur cinq
+commits depuis le 09/10, et c'est la cause mécanique : le générateur ne pouvait pas construire un
+tableau avec ce qu'on lui donnait, et les seize éditions à tableaux les importaient d'elles-mêmes.
+② la consigne en clair à côté des hyperliens : les tableaux de prix se construisent avec
+`Table / TableRow / TableCell`, **pas** avec des paragraphes séparés par « | ». ③ l'assertion dans
+le bloc d'intégrité, avant son `print`, et le `print` annonce désormais le compte :
+`OK — XML conforme, 10 lien(s), 206 paragraphe(s) de texte (marge 196), 5 tableau(x)`.
+
+🧪 **LE CÂBLAGE — DEUX GARDES, ET LE SABOTAGE PROUVE QU'AUCUN N'EST REDONDANT.** L'assertion vit
+dans un **prompt**, donc elle est invisible à `reference/passe_A.tsv` comme tous les motifs
+non stockés : il lui faut son témoin et une **exigence de ligne**.
+> ① **Garde POSITIF sur le prompt** — il doit contenir `TABLEAUX MANQUANTS`, `x.count("<w:tbl>")`
+> et `TableRow`. Forme positive, comme celle de « children: » du 17/10, parce qu'une liste de
+> formulations à exclure **se mord elle-même** (leçon payée ce jour-là).
+> ② **Témoin d'efficacité, et il EXTRAIT L'ASSERTION DU PROMPT** — on appelle le contrôle, on ne
+> le recopie pas (leçon du 15/10 sur l'auto-test de `chercher.py`). Deux témoins figés dans
+> `outils/scripts/non_regression/temoins_tableaux/` : le **11/10 (5 tableaux)** doit sortir en 0
+> **avec sa ligne « 5 tableau(x) »**, et le **18/10 AVANT correction (0 tableau)** en 1 **avec sa
+> ligne « TABLEAUX MANQUANTS »**. Les deux copies sont **figées**, pas vivantes : une correction
+> future du fichier publié ne peut pas périmer le témoin — c'est la leçon du 15/10 sur le témoin
+> vivant qui annote une propriété volatile.
+
+Le garde ne coûte **rien** (0,2 s, aucun réseau), donc il tourne dans **tous** les modes, y
+compris **`--docs`**, la porte par laquelle les neuf jobs publient. ⚠️ **Et il sort en 1
+lui-même** : la branche `--docs` remet `STATUT=0` à l'entrée, donc un garde placé avant elle qui
+se contenterait de `STATUT=1` serait décoratif — leçon déjà payée.
+
+✅ **VALIDÉ DANS LES DEUX SENS, PUIS SABOTÉ QUATRE FOIS.** Sens conforme : l'assertion extraite du
+prompt, jouée sous `env -i` sur les **19 éditions** de la série — **16 exit 0, 3 exit 1**, et les
+trois sont les éditions de juin et de juillet antérieures au format stable. Sens refus : les
+quatre sabotages ci-dessous, chacun sur `jobs_config.json`, **restauré au sha256 identique après
+chaque passage** et **jamais commis**.
+
+| Sabotage | Attrapé par | Verdict |
+|---|---|---|
+| ① `if tbl < 2:` → `if False:` | le **témoin** seul | exit 1 — *« L'ASSERTION NE MORD PLUS »* |
+| ② plancher ramené à `tbl < 0` | le **témoin** seul | exit 1 — même ligne |
+| ③ `, {tbl} tableau(x)` retiré du `print` | l'**exigence de ligne** du témoin conforme | exit 1 |
+| ④ motif renommé en `TABLEAUX ABSENTS` | les **deux gardes** | exit 1 |
+
+🔴 **CE QUE ① ET ② DÉMONTRENT, ET C'EST LA RAISON D'ÊTRE DU SECOND GARDE** : on peut neutraliser
+l'assertion **en gardant intact son texte** — le garde positif reste vert, et seul le témoin
+tombe. L'inverse est vrai pour ④. **Un garde de présence ne prouve pas qu'un contrôle mord, et un
+code de sortie ne prouve pas ce qu'il a vu.**
+
+📌 **CE QUI N'EST PAS FAIT, ET POURQUOI.** Le document du 18/10 **reste sans tableau** : il est
+déjà publié et corrigé sur le fond, et fabriquer trois `<w:tbl>` par chirurgie XML dans un
+livrable existant coûte plus de risque que la forme ne vaut. L'assertion protège **les éditions
+suivantes**, à commencer par celle du 25/10 — et c'est le document du 18/10, figé, qui sert de
+témoin fautif. La question du portage à `serafin-ph` est posée, mesurée, et laissée ouverte.
+
+🧹 **ET UNE LIGNE PÉRIMÉE DE `CLAUDE.md` EST CORRIGÉE DANS LE MÊME GESTE** : la cellule des
+invariants affirmait encore *« Seuls 2 prompts sur 9 ont un contrôle d'intégrité — `ai-act-veille`
+et `placement-financier-lecon` »*. Mesuré sur la config du jour : **9 sur 9** portent le contrôle
+**et** l'assertion de volume, depuis `d3396d9` et `1396bbd` du 17/10. La ligne était fausse depuis
+ce jour-là, dans le fichier que chaque session relit comme autorité.

@@ -273,6 +273,90 @@ PYPR
   fi
 fi
 
+# ---- L'ASSERTION DE TABLEAU DU PROMPT imac-veille, ET LA PREUVE QU'ELLE MORD (18/10/2026) ----
+# Le 18/10/2026 la veille iMac a livré ZÉRO tableau Word pour 38 lignes à barres verticales : ses
+# trois tableaux de prix étaient des paragraphes séparés par « | ». Le contrôle d'intégrité que le
+# prompt impose a répondu « OK — XML conforme, 12 lien(s), 99 paragraphe(s) de texte (marge 87) » :
+# il vérifie l'XML, les balises, les liens et le VOLUME de texte, jamais un tableau. C'est la même
+# forme que l'incident du 17/10 — un contrôle qui dit OK sur un document dégradé —, un cran moins
+# grave : là le corps avait disparu, ici c'est la mise en forme.
+# 🔴 LA BORNE EST MESURÉE, ET ELLE INTERDIT DE PORTER L'ASSERTION AILLEURS. Sur les 19 éditions
+#    imac : les 15 consécutives du 19/07 au 11/10 portent 3 à 6 tableaux (médiane 4, minimum 3) ;
+#    les trois seules autres à zéro datent des 14/06, 21/06 et 13/07, avant la stabilisation du
+#    format. Plancher à 2, pas à 3, parce que le CR ALLÉGÉ du prompt ne prescrit que les deux
+#    tableaux de prix de référence. ⚠️ ET AILLEURS LA MESURE DIT NON : les 21 veilles ai-act, les
+#    16 has-actualite et les 8 rgpd n'ont AUCUN tableau, 10 des 11 leçons entretien-motivationnel
+#    non plus — porter l'assertion aux neuf prompts refuserait 45 éditions légitimes. Seul autre
+#    candidat mesuré : serafin-ph, 27 éditions sur 27, minimum 4.
+# 🧪 DEUX GARDES, ET LE SECOND EST UNE EXIGENCE DE LIGNE. (1) le prompt doit PORTER l'assertion —
+#    exigence POSITIVE, comme celle de « children: » ci-dessus, parce qu'une liste de formulations
+#    à exclure se mord elle-même (leçon du 17/10). (2) l'assertion EXTRAITE DU PROMPT — on appelle
+#    le contrôle, on ne le recopie pas — est jouée sur deux témoins figés : le 11/10 (5 tableaux)
+#    doit sortir en 0 AVEC sa ligne « 5 tableau(x) », et le 18/10 AVANT correction (0 tableau) en 1
+#    AVEC sa ligne « TABLEAUX MANQUANTS ». Sans les lignes, un plancher mis à 0 laisserait les deux
+#    témoins verts. Aucun réseau, 0,2 s, donc le garde tourne dans TOUS les modes — y compris
+#    --docs, la porte des pushs de job.
+# ⚠️ IL SORT EN 1 LUI-MÊME : la branche --docs remet STATUT=0 à l'entrée, donc un garde placé
+#    avant elle qui se contenterait de STATUT=1 serait décoratif (leçon déjà payée).
+if [ -f "$ROOT/jobs_config.json" ]; then
+  TBL_OUT="$CUR/prompt_tableaux.txt"
+  env -i $PY - "$ROOT/jobs_config.json" "$ROOT/outils/scripts/non_regression/temoins_tableaux" \
+      > "$TBL_OUT" 2>&1 <<'PYTBL'
+import json, os, re, subprocess, sys
+CFG, TD = sys.argv[1], sys.argv[2]
+d = json.load(open(CFG, encoding="utf-8"))
+js = [x for x in d["jobs"] if x["id"] == "imac-veille"]
+if not js:
+    print("  o imac-veille absent de la config — garde de tableau INERTE, et ce n'est PAS une reussite")
+    sys.exit(0)
+p, ko = js[0]["prompt"], 0
+# (1) exigence POSITIVE — le prompt porte l'assertion ET les classes qui permettent de l'honorer
+for forme in ("TABLEAUX MANQUANTS", 'x.count("<w:tbl>")', "TableRow"):
+    if forme not in p:
+        print("  x le prompt imac-veille ne porte plus « %s » : l'assertion de tableau a sauté," % forme)
+        print("    et un .docx sans tableau repasserait le contrôle d'intégrité en OK.")
+        ko = 1
+# (2) l'assertion EXTRAITE DU PROMPT — on appelle le contrôle, on ne le recopie pas
+blocs = [b for b in re.findall(r"python3 - <<'PY'\n(.*?)\nPY\n", p, re.S)
+         if "<chemin complet du .docx produit>" in b]
+if len(blocs) != 1:
+    print("  x %d bloc(s) d'intégrité extractible(s) du prompt imac-veille, 1 attendu" % len(blocs))
+    sys.exit(1)
+cas = [("conforme_2026-10-11_veille_imac_5_tableaux.docx", 0, "5 tableau(x)"),
+       ("sans_tableau_2026-10-18_veille_imac.docx", 1, "TABLEAUX MANQUANTS")]
+vus = 0
+for nom, att, ligne in cas:
+    doc = os.path.join(TD, nom)
+    if not os.path.exists(doc):
+        print("  x témoin de tableau manquant : %s" % nom)
+        ko = 1
+        continue
+    vus += 1
+    code = blocs[0].replace("<chemin complet du .docx produit>", doc)
+    r = subprocess.run(["/usr/bin/python3", "-"], input=code, capture_output=True, text=True)
+    sortie = (r.stdout + r.stderr).strip()
+    if r.returncode != att:
+        print("  x témoin « %s » sort en %d au lieu de %d — %s" % (nom[:30], r.returncode, att, sortie[:90]))
+        print("    " + ("L'ASSERTION NE MORD PLUS : un .docx sans tableau serait publié."
+                        if att else "L'ASSERTION MORD À TORT : une édition normale serait refusée."))
+        ko = 1
+    elif ligne not in sortie:
+        print("  x témoin « %s » sort bien en %d, mais SANS sa ligne « %s » :" % (nom[:30], att, ligne))
+        print("    le code de sortie ne dit pas COMBIEN de tableaux ont été vus — un plancher ramené")
+        print("    à zéro laisserait les deux témoins verts.")
+        ko = 1
+if vus != 2:
+    print("  x %d témoin(s) de tableau joué(s), 2 attendu(s) — rétablis le dossier temoins_tableaux." % vus)
+    ko = 1
+if not ko:
+    print("  ✓ assertion de tableau du prompt imac-veille : portée, et elle mord (2/2 témoins figés, avec leur ligne)")
+sys.exit(ko)
+PYTBL
+  rc=$?
+  cat "$TBL_OUT"
+  if [ "$rc" != "0" ]; then exit 1; fi
+fi
+
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then
   shift; STATUT=0
