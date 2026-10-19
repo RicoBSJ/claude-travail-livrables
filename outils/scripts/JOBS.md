@@ -2482,3 +2482,85 @@ deviner. Cumul inchangé : **34 $/semaine**.
 sa structure ne prescrit aucun tableau. Si un jour on lui en prescrit un, **il faudra les deux
 gestes dans le même commit** — la classe dans le `require` ET l'assertion. C'est la leçon de
 cette journée, et elle a coûté quatre notes.
+
+---
+
+## 19/10/2026 — MOTIF ① : DEUXIÈME FAUX REFUS, TROISIÈME BORNE, ET TROIS BORNES ESSAYÉES AVANT LA BONNE
+
+**L'incident.** Le job `rbpp-pipeline` du 19/10 a réussi (`exit 0`, 3,7351 $, 72 tours) et n'a pas
+publié : `controle_edition_precedente` a refusé **trois** pushs sur un seul jeton —
+*« INTERDIT « Commission » — retiré du corps de 2026-10-12 par une correction, présent dans
+celui-ci »*, formulation d'origine *« toutes validées le 29/09/2026 par la Commission en charge du
+social et du médico-social (CSMS) »*. **La correction du 12/10 était juste** : aucune des trois
+pages n'écrivait « Commission » ni « CSMS », et la note donnait une inférence pour lue.
+⚠️ **Mais le « Commission » du 19/10 désigne un autre organisme et le fait est exact** : la note
+écrit *« CNEDIMTS (20/10), CTV (20/10), Commission de la transparence (21/10) — hors secteur social
+& médico-social »*, et le calendrier HAS, aspiré le même jour, porte littéralement
+`21/10/2026 Commission Commission de la transparence - Réunion du 21 octobre 2026`. La page est
+listée, elle répond 200, et la revendication corrigée — l'attribution des validations à la CSMS —
+**ne revient nulle part**.
+
+🔴 **LES DEUX AXES DU 14/10 NE SÉPARAIENT PAS CE CAS.** Le resserrement d'alors exigeait que la
+citation d'origine soit suivie d'une **dénonciation** et que le jeton ne soit pas en **tête de
+citation**. Ici la citation EST dénoncée (« zéro occurrence ») et le jeton n'est PAS en tête.
+**Bilan du motif ① en production : trois refus, deux faux** — serafin-ph le 14/10
+(« Inaccessible », « Semaine »), la veille iMac le 18/10 (**vrai** : « 2031 » est faux, quatre
+pages Microsoft le démentent), celle-ci le 19/10.
+
+### TROIS BORNES MESURÉES PUIS ABANDONNÉES — LE DÉTAIL, PARCE QU'IL A COÛTÉ LE TEMPS
+
+| Borne essayée | Mesure | Verdict |
+|---|---|---|
+| Recouvrement de **2 mots consécutifs** avec la citation | « oct. 2031 » contre « octobre 2031 » ne se recouvrent pas | ❌ **perdait le vrai rejeu du 18/10** |
+| **Fréquence du jeton dans la série** | Commission 26 % · Microsoft 23 % · 2031 35 % · TSMC 17 % | ❌ distributions entrelacées, aucun seuil |
+| **Nombre de jetons revenus** de la même citation | 2 le 18/10, 1 le 19/10 — mais **1 aussi pour TSMC** | ❌ cassait le témoin **fondateur** |
+| Accompagnateur parmi les seuls **jetons** de la citation | « Procédé 2 nm TSMC » n'a qu'un jeton, « Procédé » ouvrant la citation | ❌ témoin `rejeu` de 1 → **0** |
+| **Ubiquité sur les AUTRES éditions** de la série | social 100 % · medico 100 % · apple 100 % · windows 93 % contre nm 31 % · microsoft 25 % · tsmc 18 % | ⚠️ séparait en production, **mais un témoin gelé n'a pas de série autour de lui** — le dossier ne contient que N et N-1, le vocabulaire sortait vide et le faux refus revenait |
+
+📌 **Et c'est la quatrième tentative qui tient, parce qu'elle est AUTONOME** : le vocabulaire est lu
+dans le corps corrigé de **N-1 lui-même**. Aucune autre édition n'est ouverte, donc le verdict ne
+dérive pas quand la série s'allonge, **et un témoin gelé se comporte exactement comme la
+production** — c'est la leçon du 15/10 sur le témoin vivant qui annote une propriété volatile,
+appliquée à un seuil au lieu d'un chiffre.
+
+### LA BORNE RETENUE, ET SES DEUX MESURES
+
+**Un jeton revenu ne bloque que s'il revient ACCOMPAGNÉ** : un autre mot de sa citation d'origine,
+à moins de **80 caractères** de l'une de ses occurrences, le **vocabulaire de la série** étant
+écarté — un mot présent **5 fois ou plus** dans le corps de N-1. Un millésime nu n'accompagne pas
+(il horodate), **sauf s'il a lui-même été retiré** par la correction : « 2031 » est alors une
+revendication, et sans cette exception « Microsoft » sortait en avertissement dans le rejeu du
+18/10 alors que son accompagnateur était précisément le chiffre faux.
+
+| Mesure | Valeurs | Choix |
+|---|---|---|
+| Distance jeton ↔ accompagnateur | **47** car. (vrai rejeu du 18/10) · **128** car. (faux refus du 19/10) | **FENETRE = 80**, et toute valeur de **48 à 127** rend les mêmes verdicts |
+| Fréquence dans le corps de N-1 | écartés : social **12**, csms **8**, medico **7**, windows **17**, annonce **7**, apple **27** · conservés : nm **3**, toutes **3**, commission **3**, support **2**, oct **2**, procede **1**, validees **1**, jusqu **0**, microsoft **0**, tsmc **0** | **VOC_MIN = 5**, et tout seuil de **4 à 7** rend les mêmes verdicts |
+
+✅ **BALAYAGE DU CORPUS : 108 VEILLES, UN SEUL VERDICT CHANGE.** Avant : 86 exit 0 · **1 exit 1** ·
+21 exit 2 (inertes, sans édition précédente). Après : **87 exit 0** · 0 exit 1 · 21 exit 2. Le
+`diff` des 108 lignes ne porte que sur `2026-10-19_veille_has-actualite.docx`, qui passe de 1 à 0.
+**Zéro autre document touché.**
+
+🧪 **CINQ TÉMOINS AU HARNAIS, DONT DEUX NOUVEAUX ET UN QUI DOIT ÊTRE ACCEPTÉ.**
+> · `rejeu/` — TSMC, le rejeu **fondateur** → **1 avec sa ligne « INTERDIT « TSMC » »**. Il tient :
+>   « procede » (1 occurrence dans N-1) et « nm » (3) accompagnent dans la fenêtre.
+> · `conforme/` → 0. · `faux_refus/` — serafin 14/10 → 0.
+> · 🆕 `rejeu_2031/` — la veille imac du 18/10 **avant correction** → **1 avec sa ligne
+>   « INTERDIT « 2031 » »**, « Microsoft » accompagnant à 47 caractères. Le document est la copie
+>   gelée prise avant la correction d'hier, avec son N-1 et la fiche de son N-1.
+> · 🆕 `faux_refus_commission/` — la veille has-actualite du 19/10 → **0, ET il DOIT porter la
+>   ligne « À RELIRE « Commission » »**. Sans l'exigence de ligne, un retour au blocage
+>   inconditionnel resterait vert sur un exit 0 indiscernable. C'est la convention du 10/10 : un
+>   motif qu'on **desserre** a besoin d'un témoin qui doit être **ACCEPTÉ**.
+
+📌 **CE QUE LA BORNE COÛTE, ET IL FAUT LE DIRE** : un vrai rejeu dont la citation d'origine n'a
+qu'**un seul** mot distinctif non calendaire ne bloque plus — il sort en **avertissement**, avec sa
+ligne, son contexte et la formulation d'origine. C'est le compromis écrit du dépôt : **en
+production un faux refus coûte un livrable non publié, un vrai manqué ne coûte qu'une relecture
+humaine** — et après deux faux refus sur trois, le compromis penchait du mauvais côté.
+
+🔧 **UN REFACTOR MINIMAL, ET IL A UNE RAISON** : `present()` est scindé en `motif()` /
+`present()` / `occurrences()`. Il fallait **localiser** le jeton, pas seulement le tester, et un
+seul endroit construit désormais le motif — sinon la fenêtre se serait mesurée sur une expression
+différente de celle qui décide.

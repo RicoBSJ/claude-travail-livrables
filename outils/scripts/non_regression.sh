@@ -948,11 +948,31 @@ if [ "$MODE" = "--complet" ]; then
   # toujours en 0, tandis que la paire SERAFIN rebascule en 1. C'est la même leçon que la convention
   # « 0: » du 10/10 : un motif qu'on RESSERRE a besoin d'un témoin qui doit être ACCEPTÉ, sinon rien
   # n'empêche de le réélargir demain et de refuser à nouveau un livrable juste.
-  ATTENDU_EDPREC=3
+  # 🔴 QUATRIÈME ET CINQUIÈME TÉMOINS, LE 19/10/2026 — DEUXIÈME FAUX REFUS EN PRODUCTION.
+  # Le motif ① a refusé trois fois le push de la veille has-actualite du 19/10 sur le jeton
+  # « Commission », retiré du corps du 12/10 par une correction JUSTE (la note y attribuait trois
+  # validations « à la Commission en charge du social et du médico-social (CSMS) », qu'aucune page
+  # n'écrivait). Le 19/10 écrit « Commission de la transparence (21/10) — hors secteur social &
+  # médico-social », fait EXACT et vérifié sur le calendrier HAS. Les deux axes du 14/10 ne
+  # séparaient pas ce cas : la citation EST dénoncée, le jeton n'est PAS en tête.
+  # LA BORNE RETENUE — un jeton revenu ne bloque que s'il revient ACCOMPAGNÉ d'un autre mot de sa
+  # citation à moins de 80 caractères, le vocabulaire de la série étant écarté (un mot présent 5
+  # fois ou plus dans le corps de N-1). Trois autres bornes ont été mesurées puis abandonnées,
+  # dont une qui cassait le témoin FONDATEUR : le détail est dans l'en-tête du contrôle.
+  # LES DEUX NOUVEAUX TÉMOINS SONT LES DEUX CÔTÉS DE CETTE BORNE, et le second DOIT ÊTRE ACCEPTÉ :
+  #   • rejeu_2031/            : la veille imac du 18/10 AVANT correction → 1, avec sa ligne
+  #     « INTERDIT « 2031 » » — le vrai rejeu, où « Microsoft » accompagne à 47 caractères ;
+  #   • faux_refus_commission/ : la veille has-actualite du 19/10 → 0, avec sa ligne
+  #     « À RELIRE « Commission » » — le mot revient SEUL, le seul accompagnateur non calendaire
+  #     étant « CSMS » à 128 caractères. Sans l'exigence de ligne, un retour au blocage
+  #     inconditionnel laisserait ce témoin vert sur un simple exit 0 impossible à distinguer.
+  ATTENDU_EDPREC=5
   EP_N=0; EPD="$NR/temoins_edition_precedente"
   for cas in "rejeu|1|INTERDIT « TSMC »|2026-10-11_veille_imac.docx|2026-10-04_veille_imac" \
              "conforme|0||2026-10-11_veille_imac.docx|2026-10-04_veille_imac" \
-             "faux_refus|0||2026-10-14_veille_SERAFIN-PH.docx|2026-10-07_veille_SERAFIN-PH"; do
+             "faux_refus|0||2026-10-14_veille_SERAFIN-PH.docx|2026-10-07_veille_SERAFIN-PH" \
+             "rejeu_2031|1|INTERDIT « 2031 »|2026-10-18_veille_imac.docx|2026-10-11_veille_imac" \
+             "faux_refus_commission|0|À RELIRE « Commission »|2026-10-19_veille_has-actualite.docx|2026-10-12_veille_has-actualite"; do
     NOM="${cas%%|*}"; RST="${cas#*|}"; ATT="${RST%%|*}"; RST2="${RST#*|}"
     LIGNE="${RST2%%|*}"; RST3="${RST2#*|}"; FICH="${RST3%%|*}"; PREC="${RST3##*|}"
     DOC="$EPD/$NOM/$FICH"
