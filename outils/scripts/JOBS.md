@@ -2564,3 +2564,65 @@ humaine** — et après deux faux refus sur trois, le compromis penchait du mauv
 `present()` / `occurrences()`. Il fallait **localiser** le jeton, pas seulement le tester, et un
 seul endroit construit désormais le motif — sinon la fenêtre se serait mesurée sur une expression
 différente de celle qui décide.
+
+---
+
+## 19/10/2026 — `rbpp-pipeline` RELEVÉ DE 4 À 5 $, ET CETTE FOIS AVANT LE DÉPASSEMENT
+
+**La règle du 16/10 demandait de surveiller le TAUX D'USAGE du plafond, pas seulement les
+échecs.** C'est la première fois qu'elle est appliquée dans ce sens : le créneau du 19/10 a coûté
+**3,7351 $ pour un plafond de 4,00 $, soit 93 %** — 72 tours, 15 min 22 s, 59 056 tokens de
+sortie, 7 459 888 de cache lu, une tentative, `exit 0`. Rien n'a échoué. Le plafond passe à
+**5,00 $** avant que quelque chose échoue.
+
+📊 **TRAJECTOIRE SUR CINQ CRÉNEAUX : 71 % · 61 % · 60 % · 59 % · 93 %.**
+
+| Créneau | Coût | Tours | Chemin |
+|---|---|---|---|
+| 21/09 | 2,8426 $ (71 %) | 60 | Étape 7 |
+| 28/09 | 2,4310 $ (61 %) | 49 | Étape 7 |
+| 05/10 | 2,3926 $ (60 %) | 2 | Étape 7 |
+| 12/10 | 2,3661 $ (59 %) | 47 | Étape 7 |
+| **19/10** | **3,7351 $ (93 %)** | **72** | Étape 7 |
+
+**CE QUI A COÛTÉ, ET C'EST MON CORRECTIF.** Le prompt est passé de **42 556 à 52 550 octets**
+entre le 12 et le 19/10, dont **4 262 octets du correctif TLS du 18/10** ; les tours de 47 à 72,
+le cache lu multiplié par **2,4**. Le correctif remplace `WebFetch` par `aspirer.py` sur les pages
+`has-sante.fr`, illisibles par `WebFetch` depuis la réémission du certificat le 08/10 (« unable to
+verify the first certificate », mesuré le 18/10). ⚠️ **Et la différence est structurelle, pas
+accidentelle** : `aspirer.py` écrit le **texte intégral** de la page sur disque, là où `WebFetch`
+rendait une réponse déjà résumée par un petit modèle. La consigne de lire le `.txt` par `sed -n` /
+`grep -n` est dans le prompt, mais rien ne la force. **C'est le risque que la fiche du 18/10 avait
+nommé en ces termes — « si lundi dépasse 75 %, c'est cette lecture qu'il faudra resserrer » — et
+il s'est réalisé d'un coup, à 93 %.**
+
+🔴 **L'ARGUMENT DÉCISIF POUR 5 $ ET NON 4,50 $ : LES CINQ MESURES SONT CELLES DU CHEMIN LE MOINS
+CHER.** Les cinq créneaux ont tous pris l'**Étape 7** — la semaine sans nouvelle RBPP —, qui
+**saute les étapes 3 à 6**. La dernière note RBPP complète du dépôt date du **09/07/2026**. Un
+créneau avec une vraie RBPP ajoute le téléchargement et la lecture du PDF par `pdf-parse`, la note
+Word, **le quiz de 100 questions et l'infographie** : **trois livrables au lieu d'un**, et
+**aucune mesure récente n'en existe**. Le plafond doit couvrir le chemin qui n'a pas tourné depuis
+juillet, alors que le chemin creux est déjà à 93 %.
+
+⚠️ **LES DEUX PRÉCÉDENTS DISENT CE QUI ARRIVE QUAND LE PLAFOND NE SUIT PAS.**
+`astrologie-karmique` : 86 % le 01/10 **consigné sans conséquence**, puis **101 %** le 08/10.
+`ai-act` : prompt durci le 09/10 sans relèvement, puis **108 %** le 16/10. Dans les deux cas le
+job est mort en `stop_reason=tool_use`, **EN PLEINE VÉRIFICATION, après avoir écrit un livrable
+complet qu'aucun contrôle n'a vu** — ni `controle_attributions`, ni l'étape 5 bis, ni
+`non_regression.sh` ; aucun commit, aucune fiche, le livrable laissé *untracked* sur le disque.
+C'est **la troisième fois de la même semaine** qu'un durcissement de prompt se paie, et la
+première où le plafond suit **avant** l'incident.
+
+💰 **Le plafond s'applique PAR TENTATIVE**, et le fail-fast du 27/09 coupe les tentatives dès le
+dépassement : **relever ne multiplie pas la dépense, cela évite de perdre le créneau.** Cumul
+**34 → 35 $/semaine** sur 9 jobs, vérifié en sommant le bloc `case` (9 plafonds nommés, aucun job
+de la config sans plafond, `BUDGET_DEFAULT` à 2,00 $ inutilisé). Il retombera à **30 $** après la
+suppression d'`astrologie-karmique` prévue après le 22/10.
+
+📌 **CE QUI N'EST PAS FAIT, ET QU'IL FAUDRA REGARDER LUNDI 26/10.** Le relèvement achète du temps,
+il ne réduit pas la consommation. Deux pistes bornées, dans l'ordre de préférence : ① faire lire
+les pages aspirées par `grep -n` sur les motifs attendus au lieu d'un `sed -n` large — c'est la
+lecture, pas l'aspiration, qui coûte ; ② n'aspirer que les pages dont le contenu est réellement
+nécessaire, les trois appels à candidatures de l'édition du 19/10 ayant été déclarés « contenu non
+lu » alors qu'ils ont bien été récupérés. **À décider sur la mesure du créneau du 26/10, pas
+maintenant** : une seule exécution ne dit pas si 93 % est un palier ou un pic.
