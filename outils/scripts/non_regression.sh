@@ -145,6 +145,32 @@ if [ -x "$ROOT/outils/scripts/chercher.py" ]; then
   fi
 fi
 
+# ── 0 ter. AUTO-TESTS DE lire_page.py — DANS TOUS LES MODES (19/10/2026)
+# Même nature que chercher.py : ce n'est pas un contrôle de publication, c'est l'outil par lequel
+# une page aspirée est lue SANS entrer entière en contexte. Il est né d'une erreur mesurée : le
+# prompt de rbpp-pipeline avait reçu le 18/10 la consigne « lis ce .txt (sed -n, grep -n) », qui
+# est INAPPLICABLE — aspirer.py écrase tous les blancs, donc une page aspirée est UNE SEULE LIGNE
+# (mesuré : 0 saut de ligne, 46 869 caractères pour le flux HAS-Actualité). sed -n rendait le
+# fichier entier et grep -n la ligne entière. Le créneau suivant est passé de 59 % à 93 % du
+# plafond, de 47 à 72 tours, avec 2,4 fois plus de cache lu.
+# SA BORNE EST STRUCTURELLE, et l'auto-test ① la vérifie : la sortie est strictement plus petite
+# que la page. Les sept bornes couvrent aussi le pliage casse/accents, le plafond d'occurrences
+# qui ANNONCE son reste, le renvoi à chercher.py sur une absence, et la lecture du .brut d'un
+# flux RSS (CDATA, pubDate, --depuis).
+# ⚠ PAS de pipe : la leçon du 15/10 vaut ici aussi — « ... --autotest | tail -1 » testerait le
+#   code de sortie de tail, et le sabotage s'afficherait sans faire sortir en 1.
+if [ -x "$ROOT/outils/scripts/lire_page.py" ]; then
+  echo "▶ Auto-tests de lire_page.py (lecture bornée, aucun réseau)"
+  LP_OUT="$CUR/lire_page_autotest.txt"
+  if env -i $PY "$ROOT/outils/scripts/lire_page.py" --autotest > "$LP_OUT" 2>&1; then
+    tail -1 "$LP_OUT"
+  else
+    grep '✗' "$LP_OUT" | head -5
+    echo "  ✗ lire_page.py A PERDU UNE BORNE — une page aspirée pourrait entrer entière en contexte"
+    exit 1
+  fi
+fi
+
 # ---- Intégrité des .pptx du dépôt (17/10/2026) ----
 # Le contrôle de volume posé le 17/10 dans les neuf prompts ne regarde que les .docx. Or
 # `rbpp-pipeline` produit aussi des quiz et des infographies PowerPoint, et ses deux règles
@@ -271,6 +297,37 @@ PYPR
   else
     echo "  ✓ tout prompt parlant de TextRun prescrit « children: [new TextRun »"
   fi
+fi
+
+# ---- Qui aspire doit lire BORNÉ (19/10/2026) ----
+# Un prompt qui appelle aspirer.py met une page sur disque ; s'il ne dit pas COMMENT la lire, la
+# page entre entière en contexte. Mesuré : la consigne « sed -n, grep -n » du 18/10 était
+# inapplicable (une page aspirée est une seule ligne), et le créneau suivant est passé de 59 % à
+# 93 % du plafond. L'exigence est POSITIVE, comme celle de « children: » — on demande la présence
+# de la bonne forme, pas l'absence des mauvaises, parce qu'une liste de formulations à exclure se
+# mord elle-même (leçon du 17/10).
+# ⚠ Borne : seuls les prompts qui aspirent sont concernés — aujourd'hui rbpp-pipeline, et lui
+#   seul ; les huit autres sont muets sur aspirer.py, le garde y est inerte et le dit.
+if [ -f "$ROOT/jobs_config.json" ]; then
+  ASP_OUT="$CUR/prompts_lecture.txt"
+  env -i $PY - "$ROOT/jobs_config.json" > "$ASP_OUT" 2>&1 <<'PYASP'
+import json, sys
+d = json.load(open(sys.argv[1], encoding="utf-8"))
+aspirent = [j["id"] for j in d["jobs"] if "aspirer.py" in j["prompt"]]
+manque = [j["id"] for j in d["jobs"]
+          if "aspirer.py" in j["prompt"] and "lire_page.py --autour" not in j["prompt"]]
+if manque:
+    print("  x ce(s) prompt(s) aspirent une page sans prescrire de lecture bornée :")
+    print("    " + ", ".join(sorted(manque)))
+    print("    sans « lire_page.py --autour », la page entre ENTIÈRE en contexte — c'est le")
+    print("    passage de 59 % à 93 % du plafond mesuré sur rbpp-pipeline le 19/10/2026.")
+    sys.exit(1)
+print("  ✓ tout prompt qui aspire une page prescrit « lire_page.py --autour » (%s)"
+      % (", ".join(sorted(aspirent)) if aspirent else "aucun prompt n'aspire — garde INERTE"))
+PYASP
+  rc=$?
+  cat "$ASP_OUT"
+  if [ "$rc" != "0" ]; then exit 1; fi
 fi
 
 # ---- LES ASSERTIONS DE TABLEAU DES PROMPTS, ET LA PREUVE QU'ELLES MORDENT (18/10/2026) ----

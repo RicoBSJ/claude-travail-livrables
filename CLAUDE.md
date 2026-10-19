@@ -171,6 +171,7 @@ Produits par le seul job `rbpp-pipeline`. Livrables → `livrables/quiz/` et `li
 | `audit_vault.py` | 9 contrôles du coffre Obsidian après chaque job |
 | `controle_livrable_du_job.py` | 🆕 16/10/2026 — **㊳ un livrable poussé vient-il d'une exécution RÉUSSIE ?** Avertissement **jamais bloquant**, en `--docs` |
 | `aspirer.py` + `chercher.py` | 🆕 15/10/2026 — **vérifier une citation sans faire entrer la page dans le contexte**. Voir « Calibrage » ci-dessous |
+| `lire_page.py` | 🆕 19/10/2026 — **lire une FENÊTRE d'une page aspirée, jamais la page entière**. `--autour "<motif>"` rend au plus 6 fenêtres de 300 caractères et **dit le total** ; `--items <flux.brut> --depuis JJ/MM/AAAA` rend `date · titre · lien` d'un flux RSS, lu dans le **`.brut`** puisque l'aspiration retire les balises. 🔴 **Né d'une erreur à moi** : la consigne « lis ce `.txt` par `sed -n`/`grep -n` » du 18/10 est **inapplicable** — `aspirer.py` écrase les blancs, donc une page aspirée est **une seule ligne** (mesuré : 0 saut de ligne, 46 869 caractères pour le flux HAS-Actualité), et le créneau suivant est passé de **59 % à 93 %** du plafond. Gain mesuré sur la note du 19/10 : **7 172 caractères au lieu de 165 410, soit 4 %, 23× moins**. 7 auto-tests câblés dans **tous** les modes, dont un qui exige que la sortie soit strictement plus petite que la page. ⚠️ Il **DÉCOUVRE**, il ne prouve pas : un « 0 occurrence » n'est pas une absence — c'est `chercher.py` qui tranche |
 
 ### Le harnais — `outils/scripts/non_regression.sh`
 
@@ -237,7 +238,10 @@ Le constat qui fonde cette section : **une seule page aspirée dans le contexte 
 aspirer.py <url>…                    # → disque. Rend : HTTP, octets, caractères utiles, chemin
 chercher.py "<texte>" <page.txt>…    # → ① LITTÉRAL ② GRAPHIE ③ LOCALE ④ ABSENT
 chercher.py --fichier requetes.txt <page.txt>…    # un lot de requêtes
+lire_page.py --autour "<motif>" <page.txt>        # DÉCOUVRIR : 6 fenêtres de 300 car. au plus
+lire_page.py --items <flux.brut> --depuis JJ/MM/AAAA   # un flux RSS : date · titre · lien
 ```
+⛔ **Ne JAMAIS lire une page aspirée en entier, et `sed -n`/`grep -n` n'y servent à rien** : `aspirer.py` écrase les blancs, la page est **une seule ligne**. C'est `lire_page.py` ou rien.
 
 **C'est plus fiable, pas seulement moins cher** : les quatre quasi-fausses accusations des 13-14/10/2026 — « left prefrontal » / « left **side of the** prefrontal cortex », « neuf facteurs » / « moins de **9** facteurs », « Acceptation » / « outil d'**acceptation** », « identify their type » / « able to accurately **predict** » — venaient toutes d'une lecture à l'œil d'un dump. Le degré ④ est **tenu de montrer ce que la page écrit à la place**. 21 auto-tests, 9 mutations, câblés dans **tous** les modes du harnais (0,1 s, aucun appel réseau).
 

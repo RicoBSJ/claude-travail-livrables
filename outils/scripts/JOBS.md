@@ -2626,3 +2626,80 @@ lecture, pas l'aspiration, qui coûte ; ② n'aspirer que les pages dont le cont
 nécessaire, les trois appels à candidatures de l'édition du 19/10 ayant été déclarés « contenu non
 lu » alors qu'ils ont bien été récupérés. **À décider sur la mesure du créneau du 26/10, pas
 maintenant** : une seule exécution ne dit pas si 93 % est un palier ou un pic.
+
+---
+
+## 19/10/2026 — `lire_page.py` : LA CONSIGNE DE LECTURE QUE J'AVAIS ÉCRITE LA VEILLE ÉTAIT INAPPLICABLE
+
+🔴 **L'ERREUR EST À MOI, ET ELLE A COÛTÉ 34 POINTS DE PLAFOND.** Le 18/10, le correctif TLS de
+`rbpp-pipeline` disait : *« il écrit la page sur disque et imprime le chemin du `.txt` à lire. Lis
+ce `.txt` (`sed -n`, `grep -n`) au lieu de WebFetch. »* **Cette consigne ne peut pas marcher** :
+`aspirer.py` écrase tous les blancs (`re.sub(r"\s+", " ", …)`), donc une page aspirée est **UNE
+SEULE LIGNE**. Mesuré le 19/10 sur les pages du jour : **0 saut de ligne**, et la ligne unique fait
+**46 869** caractères pour le flux HAS-Actualité, **48 839** pour le flux Recommandations, 9 775
+pour le calendrier, 11 859 pour l'appel CVS. `sed -n '1,50p'` rend donc le **fichier entier** et
+`grep -n` imprime la **ligne entière** : la consigne garantissait exactement ce qu'elle prétendait
+éviter. Conséquence au créneau suivant : **59 % → 93 % du plafond**, 47 → 72 tours, 2,4× plus de
+cache lu — et un relèvement de plafond de 4 à 5 $.
+
+**CE QUE JE N'AVAIS PAS FAIT** : vérifier la structure du fichier que je prescrivais de lire. Une
+commande `wc -l` sur une page aspirée suffisait. C'est la règle du 10-15/10 — *ne jamais décrire ce
+qu'un outil fait sans l'avoir mesuré* — appliquée cette fois non pas à un contrôle du dépôt mais à
+**ma propre consigne**.
+
+🔧 **`lire_page.py` — DEUX MODES, ET LA BORNE EST STRUCTURELLE.**
+> `lire_page.py --autour "<motif>" <page.txt>` — au plus **6 fenêtres de 300 caractères**, et le
+> **nombre total d'occurrences est toujours dit**. Casse et accents pliés pour localiser, texte
+> d'origine affiché. `--fenetre N` et `--max N` règlent la borne.
+> `lire_page.py --items <flux.brut> --depuis JJ/MM/AAAA` — pour un flux RSS, et il lit le
+> **`.brut`** : la structure d'un flux est dans ses balises, que l'aspiration retire. Rend
+> `date · titre · lien` par entrée, filtrées par date. CDATA et `pubDate` compris.
+
+📊 **LE GAIN, MESURÉ SUR LA NOTE DU 19/10.** Les huit pages de cette édition font **165 410
+caractères** de texte utile. Les mêmes informations obtenues par `lire_page.py` tiennent en
+**7 172 caractères** : **4 % du volume, 23 fois moins**. Détail : le flux Recommandations rend
+**1 entrée** dans la fenêtre du 12-19/10 sur 50 ; le flux Actualité rend les **8 entrées** depuis
+le 06/10 avec leurs titres **et leurs liens** — donc les URL à ouvrir ensuite.
+
+⚠️ **ET UN PIÈGE DE MOTIF, MESURÉ, QUI SERA DANS LE PROMPT.** Les dates de clôture sont écrites de
+**deux façons** sur le même flux : les appels du secteur disent *« Clôture de l'appel le
+26/10/2026 »*, celui du CVS *« Date de clôture de l'appel à candidatures : 8 novembre 2026 »*. Le
+motif « Date de clôture » n'attrape **qu'une occurrence sur six** ; le motif « cloture » attrape
+**les six**. C'est pour cela que le prompt porte les motifs mesurés, et pas une consigne générale.
+
+🧪 **SEPT AUTO-TESTS, CÂBLÉS DANS TOUS LES MODES, AUCUN RÉSEAU.** Même nature que ceux de
+`chercher.py` : l'outil n'est pas un contrôle de publication, c'est celui par lequel une page est
+lue sans entrer entière. L'auto-test ① est la borne qui justifie l'outil — **la sortie doit être
+strictement plus petite que la page**. Les autres couvrent le pliage casse/accents, le plafond
+d'occurrences qui annonce son reste, le renvoi à `chercher.py` sur une absence, et la lecture d'un
+flux (CDATA, `pubDate`, `--depuis`). ⚠️ **Pas de pipe dans le câblage** : la leçon du 15/10 vaut
+ici aussi. Et `lire_page.py` est ajouté à `SURVEILLES` du hook — le modifier rejoue le harnais.
+
+🔴 **UN GARDE DE PLUS : QUI ASPIRE DOIT LIRE BORNÉ.** Tout prompt qui appelle `aspirer.py` doit
+prescrire `lire_page.py --autour`. Exigence **positive**, comme celle de « children: », parce
+qu'une liste de formulations à exclure se mord elle-même (leçon du 17/10). Borne : seul
+`rbpp-pipeline` aspire aujourd'hui ; le garde est inerte sur les huit autres **et le dit**.
+
+🧨 **TROIS SABOTAGES, ET LE DEUXIÈME A TROUVÉ UN TROU DANS MON PROPRE AUTO-TEST.**
+
+| Sabotage | Résultat |
+|---|---|
+| consigne `lire_page.py --autour` retirée du prompt | ✓ refusé par le garde positif |
+| **plafond d'occurrences supprimé** (`pos[:maxi]` → `pos`) | ✗ **PASSÉ** — l'auto-test restait vert |
+| fenêtre élargie à la page entière | ✓ refusé par la borne de taille |
+
+**Pourquoi le deuxième passait** : l'auto-test ⑤ ne vérifiait que la présence de la mention
+« de plus » dans la sortie, or elle dépend de `len(pos) > maxi` et **pas du nombre réellement
+imprimé** ; et la borne de taille ① se jouait sur un motif à 2 occurrences, où le plafond
+n'engageait jamais. Corrigé : l'auto-test **compte les fenêtres imprimées** et en exige
+exactement 2 sur 400 occurrences. Rejoué : le sabotage sort désormais en 1, avec
+*« 400 trouvée(s), 400 fenêtre(s) imprimée(s) pour 2 attendues »*. **Un mutant qui ne mord pas ne
+prouve rien** — et c'est la deuxième fois cette semaine que le sabotage trouve le défaut dans le
+témoin plutôt que dans le code. `jobs_config.json` et `lire_page.py` restaurés au sha256 identique
+après chaque passage, rien de saboté commis.
+
+📌 **CE QUE CELA NE RÈGLE PAS.** Le prompt **prescrit** la lecture bornée, rien ne la **force** :
+un run peut encore ouvrir le `.txt` autrement. Le garde vérifie la consigne, pas l'obéissance. La
+vraie mesure sera le créneau du **26/10** — avec le plafond à 5 $ et la lecture resserrée, le coût
+attendu est sous les 3 $, soit moins de 60 % ; **s'il reste au-dessus de 75 %, la cause est
+ailleurs que dans la lecture**, et il faudra la chercher dans les tours, pas dans les pages.
