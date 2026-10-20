@@ -2703,3 +2703,73 @@ un run peut encore ouvrir le `.txt` autrement. Le garde vérifie la consigne, pa
 vraie mesure sera le créneau du **26/10** — avec le plafond à 5 $ et la lecture resserrée, le coût
 attendu est sous les 3 $, soit moins de 60 % ; **s'il reste au-dessus de 75 %, la cause est
 ailleurs que dans la lecture**, et il faudra la chercher dans les tours, pas dans les pages.
+
+---
+
+## 20/10/2026 — LE FAISCEAU PORTÉ AUX NEUF PROMPTS, ET LA MESURE DIT QUE CE N'ÉTAIT PAS COSMÉTIQUE
+
+**Hier j'écrivais que la consigne manquait aux huit autres prompts « le jour où ils aspireront ».
+C'était faux, et la mesure l'a montré en deux commandes.** Les neuf prompts ne prescrivent pas
+seulement de l'aspiration : ils prescrivent tous, mot pour mot, la même **vérification obligatoire
+des liens avant publication** —
+
+`curl -s -o /dev/null -w "%{http_code}" -L --max-time 20 -A "Mozilla/5.0" "URL"`
+
+— **présente exactement une fois dans chacun des neuf**, et **sans faisceau**. Six prescrivent en
+plus la mesure du texte utile avec un `curl` d'agent Chrome, elle aussi sans faisceau (une fois
+dans quatre prompts, deux fois dans `ai-act-veille`).
+
+🔴 **CE QUE CELA PRODUISAIT, MESURÉ SUR UNE PAGE HAS SAINE.**
+
+| Commande | Résultat |
+|---|---|
+| test d'URL **avant** le port | **000** (`curl` exit 60) |
+| test d'URL **après** le port | **HTTP 200** |
+| mesure du texte utile **après** le port | **26 683 caractères** — largement au-dessus du plancher de 3 000 |
+
+**Un 000 ne veut pas dire que la page est morte.** Chaque prompt lit ce code dans une table de
+traitement qui écarte le lien — « 200 = tu peux citer », les autres non. Une source parfaitement
+valide était donc **jetée à tort**, sans qu'aucun contrôle ne puisse le voir : le document ne porte
+pas les liens qu'il a renoncé à citer. ⚠️ **Et l'exposition n'était pas théorique** :
+`hypnose-lecon` porte `https://www.has-sante.fr/` en **source n°4 de sa liste**, et il tourne le
+**mardi 9h03** — le port a été fait le 20/10 à 8h15, cinquante minutes avant son créneau. Quatre
+autres prompts (`serafin-ph`, `imac`, `ai-act`, `controle-livrables`) nomment `has-sante.fr` dans
+leur règle de source primaire, donc leur exposition est conditionnelle mais réelle ; trois
+(`placement-financier`, `stoicisme`, `astrologie-karmique`) ne le nomment pas, mais la même panne
+frappe **n'importe quel site dont la chaîne est incomplète** — le faisceau n'est pas une rustine
+pour la HAS, c'est une chaîne complète pour tout le monde.
+
+🔧 **CE QUI EST PORTÉ, ET CE QUI N'EST PAS DUPLIQUÉ.** Chaque prompt reçoit, en tête de la ligne qui
+porte sa commande de test : la signature de l'erreur, l'avertissement que **000 ≠ page morte**, la
+définition du faisceau en une ligne (`CA=$(… ca_bundle.chemin() …)` — on **appelle** le module, on
+ne recopie pas le chemin), l'interdiction explicite de `-k` et `--insecure`, le recours à
+`aspirer.py` si une page résiste, et **l'interdiction de lire une page aspirée en entier** avec les
+deux formes de `lire_page.py`. Puis les deux commandes prescrites reçoivent `--cacert "$CA"`.
+`rbpp-pipeline` ne reçoit **que** les deux substitutions (+15 octets) : il porte déjà son propre
+bloc depuis le 18/10, et le dupliquer aurait coûté 2 Ko pour rien.
+
+💰 **COÛT, ET POURQUOI AUCUN PLAFOND NE BOUGE.** +15 809 octets au total, **~1 970 par prompt**
+(+15 pour rbpp). La règle du 16/10 veut qu'un durcissement soit payé dans le même geste ; ici la
+mesure dit que rien n'est à payer. Usage du plafond au dernier créneau de chacun : rbpp **75 %**
+(3,7351 $ sur son nouveau plafond de 5 $), stoicisme **68 %**, controle-livrables **65 %**, ai-act
+**65 %** (3,2339 $ sur 5 $), imac **58 %**, astrologie **57 %**, placement **45 %**, hypnose
+**41 %**, serafin **39 %**. Le plus tendu est `stoicisme-lecon` : 2,0372 $ sur 3,00 $, soit
+**0,96 $ de marge** pour ~2 Ko de prompt en plus. 🟢 **Et surtout, le port est une consigne de lire
+MOINS** : il interdit la lecture intégrale d'une page aspirée, qui est précisément ce qui a fait
+passer `rbpp-pipeline` de 59 % à 93 %. L'effet attendu sur le coût est neutre à négatif. ⚠️ **La
+base de l'estimation est faible et il faut le dire** : le seul point de comparaison du dépôt est
+imac entre le 11 et le 18/10 (+3 827 octets de prompt, +0,0613 $), et ce point est confondu — le
+contenu a changé aussi. **Ce qui coûte n'est pas la taille du prompt, c'est ce qu'il fait lire.**
+
+🧪 **GARDE ET SABOTAGES.** Le garde du 19/10 — tout prompt qui appelle `aspirer.py` doit prescrire
+`lire_page.py --autour` — passe de **1 prompt à 9**, et il les nomme tous dans sa ligne verte.
+Deux sabotages, deux refus : la consigne retirée de `hypnose-lecon`, puis de `stoicisme-lecon`,
+font sortir le harnais en 1 avec le nom du prompt fautif. `jobs_config.json` restauré au sha256
+identique après chaque passage, rien de saboté commis. Harnais complet : exit 0, 0 ✗.
+
+📌 **CE QUE CELA NE RÈGLE TOUJOURS PAS.** Le garde vérifie que la consigne est **écrite**, pas
+qu'elle est **suivie** : un run peut encore appeler `curl` sans `--cacert`, et rien dans le dépôt
+ne le verrait — le livrable ne garde aucune trace d'un lien qu'il a renoncé à citer. 📌 Piste
+bornée, non faite : faire écrire au prompt, dans son récapitulatif, **le nombre d'URL testées et le
+nombre écartées avec leur code**, ce qui rendrait les 000 visibles dans le log du job au lieu
+d'être invisibles. À décider après le créneau du 26/10.
