@@ -2841,3 +2841,61 @@ en avertissement, jamais en refus, et c'est voulu tant qu'aucune exécution neuv
 **Première mesure réelle : `hypnose-lecon` ce matin à 9h03**, puis `serafin-ph` demain 8h03. Si
 leurs récapitulatifs portent la ligne, le motif pourra être durci ; s'ils ne la portent pas, c'est
 la consigne qu'il faudra rendre plus impérative, pas le contrôle.
+
+---
+
+## 20/10/2026 — UN CRÉNEAU MANQUÉ NE LAISSE AUCUNE TRACE, ET MAINTENANT `--manques` LE VOIT
+
+**L'incident.** Le créneau de `hypnose-lecon` du **mardi 20/10 à 9h03** n'a pas tourné. Mesuré le
+soir même :
+
+| Mesure | Valeur |
+|---|---|
+| Démarrage de la machine | **mardi 20/10 à 19:43:22** (31 min d'uptime au moment du constat) |
+| Donc à 9h03 | la machine était **éteinte** |
+| Plist | **chargé**, créneau **correct** : `Hour 9 · Minute 3 · Weekday 2` |
+| `launchctl print` | **`runs = 0`** · `last exit code = (never exited)` |
+| Log `hypnose-lecon_20261020_*` | **aucun** |
+| `launchd.out` / `.err` du job | **vides, et datés du 21 juin** |
+
+🔴 **launchd NE RATTRAPE PAS un `StartCalendarInterval` passé machine ÉTEINTE** — contrairement à
+une mise en veille, où il se déclenche au réveil. Le créneau est perdu, et avec lui la première
+mesure réelle de la consigne de décompte des liens posée le matin même.
+
+🔴 **ET RIEN DANS LE DÉPÔT NE VOYAIT CE TROU.** Un créneau manqué ne produit **aucun log**, donc
+aucune trace, donc **aucun contrôle ne peut le constater** : tous les contrôles partent d'un
+document ou d'un log. C'est exactement l'angle mort des liens écartés — *un livrable ne garde pas
+trace de ce qu'il n'a pas cité* — transposé un étage au-dessus : **l'absence de sortie n'est pas
+une sortie.** Sur les sept derniers jours, les huit autres créneaux étaient tracés ; seul celui-là
+manquait, et il a fallu le chercher à la main.
+
+⚠️ **ET LA LISTE `DEFAULT_JOBS` DE `rattrapage_jobs.sh` ÉTAIT LA PREUVE DU PROBLÈME** : figée
+depuis **juillet 2026**, elle portait encore deux jobs supprimés en commentaire et trois ids à
+rejouer pour des créneaux de juillet. **Une liste écrite à la main périme ; la comparaison
+cron ↔ logs, non.** Elle est désormais marquée comme telle, et `--manques` est la voie.
+
+🔧 **CE QUI EST CÂBLÉ : `rattrapage_jobs.sh --manques`.** Pour chacun des **7 derniers jours**, il
+lit les créneaux que `jobs_config.json` prescrit — champ `cron`, forme `M H * * D`, la seule que
+les neuf jobs emploient — et les confronte à la présence d'un log `logs/<job>_<AAAAMMJJ>_*.log`.
+Il **ne devine pas** : toute autre forme de `cron` est imprimée comme « non reconnue, créneau NON
+vérifié » plutôt que silencieusement ignorée. Un créneau encore **à venir** aujourd'hui n'est pas
+un manque. Sortie **0 si tout est tracé, 1 sinon**, comme `refaire_classeur.py --verifier`, pour
+pouvoir servir de garde un jour. Il **ne rejoue rien** : il nomme, et donne la commande.
+
+✅ **VALIDÉ DANS LES DEUX SENS.**
+
+| Épreuve | Résultat |
+|---|---|
+| état réel | **9 créneaux tracés, 1 manqué** (hypnose 20/10), exit 1 |
+| un log réel retiré (rbpp du 19/10) | **2 manques** nommés, exit 1 — puis log remis |
+| créneau d'hypnose repoussé à 23h03 | **« · à venir »**, exit **0** — un futur n'est pas un manque |
+
+`jobs_config.json` restauré au **sha256 identique** après l'épreuve, log du 19/10 remis en place,
+rien de saboté commis.
+
+⛔ **VOLONTAIREMENT PAS CÂBLÉ AU HARNAIS, et c'est un choix.** Un créneau manqué **n'est pas une
+régression du dépôt** : bloquer un push pour cela punirait le document qui passe, pour une panne
+de machine qui n'a rien à voir avec lui. Le harnais garde ce qui concerne les livrables ; cet
+inventaire concerne l'infrastructure. 📌 **Piste bornée, non faite** : faire imprimer l'inventaire
+par `run_job.sh` en fin de run — chaque job qui tourne signalerait alors les créneaux manqués des
+jours précédents, et le trou remonterait tout seul au lieu d'attendre qu'on le cherche.
