@@ -52,13 +52,18 @@ def jobs_par_dossier():
         return m
     for j in cfg:
         liv = j.get("livrable", "")
-        p = re.search(r"livrables/lecons/([a-z0-9-]+)/", liv) or \
-            re.search(r"sources/veille/([a-z0-9-]+)/", liv)
-        if p:
-            m[p.group(1)] = j["id"]
-        p2 = re.search(r"lecon-([a-z0-9-]+)_NN", liv)
-        if p2:
-            m[p2.group(1)] = j["id"]
+        # 🔴 TOUS LES DOSSIERS, PAS LE PREMIER — CORRIGÉ LE 20/10/2026. La version d'origine
+        #    prenait `re.search`, donc le PREMIER dossier d'un champ `livrable` qui en liste
+        #    plusieurs. Celui de rbpp-pipeline est
+        #    « sources/veille/rbpp/ + sources/veille/has-actualite/ + livrables/quiz/ + … » :
+        #    seul `rbpp` entrait dans la table, et `has-actualite` rendait None. Conséquence
+        #    mesurée : ㊳, BLOQUANT depuis le 16/10, n'a JAMAIS vu les notes d'Étape 7 de ce job
+        #    — les 16 éditions has-actualite du dépôt. Une note produite par un run mort y
+        #    serait partie sans que ㊳ dise un mot. `findall` ferme le trou en une ligne.
+        for mot in (r"livrables/lecons/([a-z0-9-]+)/", r"sources/veille/([a-z0-9-]+)/",
+                    r"lecon-([a-z0-9-]+)_NN"):
+            for nom in re.findall(mot, liv):
+                m[nom] = j["id"]
     return m
 
 
@@ -97,6 +102,52 @@ RELU_DIT = re.compile(r"relue? (?:puis|et) publi|v[ée]rifi[ée]e?s? [àa] la ma
                       r"|relue? [àa] la main|publi[ée]e? s[ée]par[ée]ment", re.I)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔗 LE DÉCOMPTE DES URL ÉCARTÉES — AJOUTÉ LE 20/10/2026, ET IL N'EST PAS BLOQUANT.
+#    POURQUOI. Les neuf prompts prescrivent la même vérification obligatoire des liens avant
+#    publication, et jusqu'au 20/10 ils la passaient SANS le faisceau de certificats : sur un
+#    site dont la chaîne est incomplète — has-sante.fr depuis le 08/10 — le test rendait 000, et
+#    la table de traitement de chaque prompt écarte ce code. Une source parfaitement valide était
+#    donc jetée, et RIEN ne pouvait le voir : un livrable ne garde aucune trace des liens qu'il a
+#    renoncé à citer. Le trou était dans l'observabilité, pas seulement dans la commande.
+#    CE QUE CELA LIT. Depuis le 20/10 chaque prompt doit écrire dans son récapitulatif une ligne
+#    « 🔗 Liens : N testés · X retenus · Y écartés (codes : …) ». Ce contrôle la relève dans le log
+#    du run et la REND VISIBLE, en signalant tout 000 — le seul code qui ne dit rien de la page.
+#    ⚠️ NON BLOQUANT, ET DÉLIBÉRÉMENT. La règle du 14/10 veut qu'un motif avertisse sur des
+#    exécutions NEUVES avant de bloquer : ici il n'y en a aucune, la consigne datant du jour même.
+#    Et un décompte absent peut venir d'un prompt qui n'a rien eu à tester. Les logs ANTÉRIEURS au
+#    20/10/2026 sont muets par construction : on ne leur reproche rien.
+CONSIGNE = "2026-10-20"          # date de la consigne : avant elle, un log muet est normal
+LIENS = re.compile(r"Liens\s*:\s*(\d+)\s*test[ée]s?\s*[·|-]\s*(\d+)\s*retenus?\s*"
+                   r"[·|-]\s*(\d+)\s*[ée]cart[ée]s?\s*(?:\(codes?\s*:\s*([^)]*)\))?", re.I)
+
+
+def liens_du_log(txt):
+    """(testés, retenus, écartés, codes) si le récapitulatif porte sa ligne, sinon None."""
+    m = LIENS.search(unicodedata.normalize("NFC", txt))
+    if not m:
+        return None
+    return (int(m.group(1)), int(m.group(2)), int(m.group(3)), (m.group(4) or "").strip())
+
+
+def liens(f):
+    """Le décompte des liens du run qui a produit ce document, qu'il ait réussi ou non."""
+    base = os.path.basename(f)
+    m = re.match(r"(\d{4}-\d{2}-\d{2})_", base)
+    job = job_du_document(f)
+    if not m or not job:
+        return None
+    logs = run_du_jour(job, m.group(1))
+    if not logs:
+        return None
+    txt = open(logs[-1], encoding="utf-8", errors="replace").read()
+    d = {"doc": base, "job": job, "jour": m.group(1), "muet_admis": m.group(1) < CONSIGNE}
+    lu = liens_du_log(txt)
+    if lu:
+        d.update(testes=lu[0], retenus=lu[1], ecartes=lu[2], codes=lu[3])
+    return d
+
+
 def declaration(f):
     """Le document dit-il LUI-MÊME que son job a échoué ET qu'il a été relu hors du job ?"""
     try:
@@ -133,9 +184,40 @@ def verdict(f):
     return d
 
 
+def autotest():
+    """Les bornes du motif de décompte, rejouées. Aucun réseau, aucun fichier."""
+    CAS = [
+        ("🔗 Liens : 12 testés · 11 retenus · 1 écarté (codes : 000)", (12, 11, 1, "000"),
+         "la forme prescrite, avec un 000"),
+        ("🔗 Liens : 9 testés · 9 retenus · 0 écarté", (9, 9, 0, ""),
+         "sans parenthèse de codes, quand rien n'est écarté"),
+        ("Liens : 20 testes · 17 retenus · 3 ecartes (codes : 403x2, 404)", (20, 17, 3, "403x2, 404"),
+         "accents absents et séparateurs simples — un récapitulatif n'est pas calibré au caractère"),
+        ("🔗 Liens : 5 testés - 4 retenus - 1 écarté (code : 000)", (5, 4, 1, "000"),
+         "tirets au lieu des points médians"),
+        ("Liens testés : beaucoup. Écartés : quelques-uns.", None,
+         "une phrase en prose n'est PAS un décompte : on n'invente pas des nombres"),
+        ("nombre de livrables contrôlés, liens testés et morts, chiffres vérifiés", None,
+         "la phrase de controle-livrables qui parle de liens sans les compter"),
+    ]
+    ko = 0
+    for txt, attendu, pourquoi in CAS:
+        obtenu = liens_du_log(txt)
+        if obtenu == attendu:
+            print("  ✓ %s" % pourquoi)
+        else:
+            ko += 1
+            print("  ✗ %s — attendu %r, obtenu %r" % (pourquoi, attendu, obtenu))
+    print("  %s %d/%d bornes du décompte des liens (㊳ bis) — un 000 ne reste pas invisible"
+          % ("✓" if not ko else "✗", len(CAS) - ko, len(CAS)))
+    return 1 if ko else 0
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit(__doc__)
+    if sys.argv[1] == "--autotest":
+        sys.exit(autotest())
     alertes = [v for v in (verdict(f) for f in sys.argv[1:]) if v]
     refuses = 0
     for a in alertes:
@@ -161,4 +243,21 @@ if __name__ == "__main__":
             print("      Relancer le job est la voie sûre. Si le travail doit être repris à la")
             print("      main, le livrable doit le DIRE — une phrase dans son journal des")
             print("      corrections suffit, et elle restera lisible par qui le relira.")
+    # 🔗 le décompte des liens — informatif, il ne compte JAMAIS dans le code de sortie
+    for l in (liens(f) for f in sys.argv[1:]):
+        if not l:
+            continue
+        if "testes" in l:
+            print("  🔗 %s : %d testé(s) · %d retenu(s) · %d écarté(s)%s"
+                  % (l["doc"], l["testes"], l["retenus"], l["ecartes"],
+                     (" (codes : %s)" % l["codes"]) if l["codes"] else ""))
+            if re.search(r"\b000\b", l["codes"]):
+                print("      ⚠️ UN 000 N'EST PAS UNE PAGE MORTE : c'est une chaîne de certificats")
+                print("      incomplète. A-t-il été rejoué avec --cacert \"$CA\" ? Si non, une source")
+                print("      valide a pu être écartée, et le livrable n'en garde aucune trace.")
+        elif not l["muet_admis"]:
+            print("  ○ %s : le récapitulatif de son run ne dit pas combien d'URL ont été testées"
+                  % l["doc"])
+            print("      ni écartées — consigne du 20/10/2026, non bloquante. Sans ce décompte, un")
+            print("      lien jeté sur un 000 reste invisible.")
     sys.exit(1 if refuses else 0)

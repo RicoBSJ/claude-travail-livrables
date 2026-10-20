@@ -171,6 +171,25 @@ if [ -x "$ROOT/outils/scripts/lire_page.py" ]; then
   fi
 fi
 
+# ── 0 quater. AUTO-TESTS DU DÉCOMPTE DES LIENS (㊳ bis, 20/10/2026)
+# Les neuf prompts doivent écrire « 🔗 Liens : N testés · X retenus · Y écartés (codes : …) » dans
+# leur récapitulatif, et controle_livrable_du_job.py relève cette ligne dans le log du run pour
+# signaler tout 000. Le motif doit tolérer ce qu'un récapitulatif écrit vraiment — accents absents,
+# tirets au lieu des points médians — ET refuser la prose : « liens testés et morts », la phrase
+# que controle-livrables porte depuis toujours, ne doit PAS être lue comme un décompte, sinon le
+# contrôle inventerait des nombres. Six bornes, aucun réseau, aucun fichier.
+if [ -x "$ROOT/outils/scripts/controle_livrable_du_job.py" ]; then
+  echo "▶ Auto-tests du décompte des liens (㊳ bis, aucun réseau)"
+  LD_OUT="$CUR/liens_autotest.txt"
+  if env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" --autotest > "$LD_OUT" 2>&1; then
+    tail -1 "$LD_OUT"
+  else
+    grep '✗' "$LD_OUT" | head -5
+    echo "  ✗ LE DÉCOMPTE DES LIENS A PERDU UNE BORNE — un 000 redeviendrait invisible"
+    exit 1
+  fi
+fi
+
 # ---- Intégrité des .pptx du dépôt (17/10/2026) ----
 # Le contrôle de volume posé le 17/10 dans les neuf prompts ne regarde que les .docx. Or
 # `rbpp-pipeline` produit aussi des quiz et des infographies PowerPoint, et ses deux règles
@@ -324,6 +343,19 @@ if manque:
     sys.exit(1)
 print("  ✓ tout prompt qui aspire une page prescrit « lire_page.py --autour » (%s)"
       % (", ".join(sorted(aspirent)) if aspirent else "aucun prompt n'aspire — garde INERTE"))
+# 🔗 20/10/2026 — et tout prompt qui TESTE des URL doit en rendre le décompte. Exigence POSITIVE
+#    sur la forme exacte que le contrôle relève : sans elle, un lien jeté sur un 000 reste
+#    invisible, puisqu'un livrable ne garde pas trace de ce qu'il n'a pas cité.
+teste = [j["id"] for j in d["jobs"] if '-w "%{http_code}"' in j["prompt"]]
+sans = [j["id"] for j in d["jobs"]
+        if '-w "%{http_code}"' in j["prompt"] and "🔗 Liens : N testés" not in j["prompt"]]
+if sans:
+    print("  x ce(s) prompt(s) testent des URL sans prescrire le décompte des écartées :")
+    print("    " + ", ".join(sorted(sans)))
+    print("    la ligne « 🔗 Liens : N testés · X retenus · Y écartés (codes : …) » est la SEULE")
+    print("    trace d'un lien jeté sur un 000 — le livrable n'en garde aucune.")
+    sys.exit(1)
+print("  ✓ les %d prompt(s) qui testent des URL prescrivent le décompte des écartées" % len(teste))
 PYASP
   rc=$?
   cat "$ASP_OUT"

@@ -2773,3 +2773,71 @@ ne le verrait — le livrable ne garde aucune trace d'un lien qu'il a renoncé �
 bornée, non faite : faire écrire au prompt, dans son récapitulatif, **le nombre d'URL testées et le
 nombre écartées avec leur code**, ce qui rendrait les 000 visibles dans le log du job au lieu
 d'être invisibles. À décider après le créneau du 26/10.
+
+---
+
+## 20/10/2026 — ㊳ BIS : LE DÉCOMPTE DES LIENS ÉCARTÉS, ET DEUX MESURES FAUSSES DE MA PART
+
+**Le trou que cela ferme.** Jusqu'au 20/10, les neuf prompts passaient leur vérification
+obligatoire des liens **sans faisceau de certificats** : un site à chaîne incomplète rendait
+**000**, et la table de traitement de chaque prompt écarte ce code. Une source valide était donc
+jetée — et **rien ne pouvait le voir**, parce qu'un livrable ne garde **aucune trace** des liens
+qu'il a renoncé à citer. Le faisceau a été porté le matin même ; il restait l'observabilité.
+
+🔗 **CE QUI EST CÂBLÉ, EN TROIS PIÈCES.**
+> ① **Les neuf prompts** doivent écrire dans leur récapitulatif une ligne de forme exacte :
+> `🔗 Liens : N testés · X retenus · Y écartés (codes : …)`. Et si un **000** apparaît, le dire en
+> clair, rejouer l'URL avec `--cacert "$CA"` **avant** de l'écarter, et écrire si le rejeu l'a
+> sauvée. **+10 240 octets au total, ~1 138 par prompt.**
+> ② **`controle_livrable_du_job.py` relève cette ligne dans le log du run** et la rend visible, en
+> signalant tout 000 : *« un 000 n'est pas une page morte, c'est une chaîne de certificats
+> incomplète »*. ⚠️ **NON BLOQUANT, délibérément** : la règle du 14/10 veut un avertissement sur
+> des exécutions neuves avant de bloquer, et il n'y en a aucune — la consigne date du jour. Les
+> logs antérieurs au **20/10/2026** sont muets par construction, on ne leur reproche rien.
+> ③ **Deux gardes au harnais** : six auto-tests du motif, et une exigence positive sur les neuf
+> prompts (« les 9 prompt(s) qui testent des URL prescrivent le décompte des écartées »).
+
+🧪 **DEUX DES SIX AUTO-TESTS SONT NÉGATIFS, ET CE SONT LES PLUS UTILES.** « Liens testés :
+beaucoup. Écartés : quelques-uns. » ne doit **pas** rendre de nombres, et surtout la phrase que
+`controle-livrables` porte depuis toujours — *« nombre de livrables contrôlés, liens testés et
+morts, chiffres vérifiés »* — ne doit pas être lue comme un décompte : sinon le contrôle
+**inventerait** des chiffres sur un prompt qui n'en donne aucun. Les quatre autres bornes tolèrent
+ce qu'un récapitulatif écrit vraiment : accents absents, tirets au lieu des points médians,
+parenthèse de codes absente quand rien n'est écarté.
+
+🔴 **ET LA TABLE DOSSIER → JOB DE ㊳ ÉTAIT INCOMPLÈTE DEPUIS SA CRÉATION.**
+`jobs_par_dossier()` prenait `re.search`, donc le **premier** dossier d'un champ `livrable` qui en
+liste quatre. Celui de `rbpp-pipeline` est
+`sources/veille/rbpp/ + sources/veille/has-actualite/ + livrables/quiz/ + livrables/infographies/` :
+seul `rbpp` entrait dans la table, et `has-actualite` rendait **`None`**. Conséquence : **㊳,
+BLOQUANT depuis le 16/10, n'avait jamais vu les notes d'Étape 7 de ce job** — les 16 éditions
+`has-actualite` du dépôt. Corrigé par `findall` : la table passe de **8 à 9 dossiers**.
+✅ **Balayage des 288 documents, avant et après : les mêmes 3 signalements, aucun verdict ne
+change.** Le trou n'avait pas encore été touché — aucune note `has-actualite` ne vient d'un run
+mort. Les trois signalements sont connus et antérieurs : `ai-act` du 02/10 (104 %, non déclaré),
+`ai-act` du 16/10 (108 %, **déclaré**, accepté), et la leçon `astrologie-karmique` n°10 du 08/10
+(101 %, non déclaré). ㊳ ne s'exerçant que sur les documents **d'un push**, ils ne bloquent rien
+aujourd'hui — mais toute retouche future de l'un des deux non déclarés sera refusée jusqu'à ce que
+le document dise son histoire.
+
+🔴 **MES DEUX MESURES FAUSSES, ET ELLES SONT DE LA MÊME FAMILLE.** Avant d'arriver au balayage
+ci-dessus, j'ai deux fois mesuré « 0 signalement avant, 3 après » et j'ai failli écrire que la
+correction révélait trois livrables cachés. **Les deux fois, le 0 était un artefact :**
+① la première, j'avais exécuté la version d'origine depuis une **copie dans le scratchpad** — le
+script déduit sa racine de `__file__`, donc il ne trouvait ni `jobs_config.json` ni `logs/`, et
+rendait zéro ;
+② la seconde, j'avais remis l'ancien bloc **en place** mais avec un découpage de chaîne fautif : le
+fichier était cassé, le script sortait en erreur, et **0 signalement avec un `exit 1`** — que je
+n'ai pas lu.
+**La bonne méthode était `git show HEAD:<fichier> > <fichier>`**, qui donne un fichier valide à sa
+vraie place, puis restauration par copie et vérification du sha256. ⚠️ **La leçon généralise une
+règle déjà écrite** — *un garde qui ne fait pas sortir en 1 est décoratif* — en sa réciproque :
+**un résultat VIDE accompagné d'un code de sortie non nul n'est pas un résultat, c'est une panne**.
+Et comparer deux versions d'un contrôle exige de les faire tourner **au même endroit**.
+
+📌 **CE QUE CELA NE RÈGLE TOUJOURS PAS.** Le garde vérifie que la consigne de décompte est
+**écrite** ; il ne peut pas vérifier qu'un run l'a **suivie** — un récapitulatif sans la ligne sort
+en avertissement, jamais en refus, et c'est voulu tant qu'aucune exécution neuve n'a été observée.
+**Première mesure réelle : `hypnose-lecon` ce matin à 9h03**, puis `serafin-ph` demain 8h03. Si
+leurs récapitulatifs portent la ligne, le motif pourra être durci ; s'ils ne la portent pas, c'est
+la consigne qu'il faudra rendre plus impérative, pas le contrôle.
