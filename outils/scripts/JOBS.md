@@ -3002,3 +3002,29 @@ au **sha256 identique**.
 launchd — mais il a désormais tourné une fois en vrai, vérifications finales vertes. Et les
 mentions d'`astrologie-karmique-lecon` qui subsistent dans `run_job.sh` (lignes 80, 320, 335) sont
 des **commentaires d'incidents historiques**, à conserver.
+
+### 🔴 ET LA SUPPRESSION A OUVERT UN TROU DANS ㊳, MESURÉ LE SOIR MÊME
+
+La table dossier → job de `controle_livrable_du_job.py` est construite **depuis
+`jobs_config.json`**. Retirer un job y retire son dossier : `astrologie-karmique → None`, la
+table passe de 9 à **8 dossiers**, et `controle_livrable_du_job.py` sur le bilan du 22/10 rend
+une sortie **vide avec exit 0** — la ligne `🔗 … testé(s) · retenu(s) · écarté(s)` a disparu de
+la sortie du hook, alors que le job l'avait écrite le matin (13 · 9 · 4).
+
+**Le contrôle ne refuse pas : il ne dit plus rien.** Même signature que le défaut du 20/10, où
+`re.search` rendait `None` pour `has-actualite` — un `None` silencieux, pas une erreur.
+
+**Mesure de la portée : 135 `.docx` sur 292, soit 46 % du corpus**, sont dans un dossier sans
+job dans la config — dzogchen 20, ennéagramme 20, psychopathologie 20, nocode-ia 16, appli-ia 12,
+astrologie-karmique 12, entretien-motivationnel 11, revenus-passifs 11, rgpd 8, archives 2.
+
+⚠️ **Ce que ça coûte vraiment.** Un job supprimé ne produit plus de livrable neuf, donc le trou ne
+mord que sur un document **corrigé** — et c'est précisément ce que fait un ordre « corrige X ».
+**Corriger une leçon d'un parcours clos contourne ㊳ en entier**, alors que ㊳ est bloquant depuis
+le 16/10. C'est le jumeau aveugle de l'exemption par déclaration : celle-ci a été posée pour
+qu'un document corrigé ne soit pas refusé *à jamais* ; ici il n'est **jamais vérifié**.
+
+📌 **Deux pistes bornées, aucune faite** : garder dans la table les dossiers des neuf jobs
+supprimés — la liste est déjà écrite dans `CLAUDE.md` et ici — ou construire la table **depuis le
+disque** (les dossiers de `livrables/lecons/` et `sources/veille/`) et non depuis la config, en
+retombant sur le log par le nom du dossier. La seconde supprime la classe entière de défauts.
