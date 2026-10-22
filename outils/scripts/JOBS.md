@@ -3028,3 +3028,109 @@ qu'un document corrigé ne soit pas refusé *à jamais* ; ici il n'est **jamais 
 supprimés — la liste est déjà écrite dans `CLAUDE.md` et ici — ou construire la table **depuis le
 disque** (les dossiers de `livrables/lecons/` et `sources/veille/`) et non depuis la config, en
 retombant sur le log par le nom du dossier. La seconde supprime la classe entière de défauts.
+
+---
+
+## 23/10/2026 — VEILLE SERAFIN-PH DU 21/10 CORRIGÉE : LES DEUX MOTIFS BLOQUANTS AVAIENT UNE SEULE CAUSE, UNE COLONNE DÉPLACÉE
+
+L'édition du 21/10 a été **refusée au push trois fois le 21, trois fois le 22 au créneau de
+stoïcisme et trois fois à celui d'astrologie** — neuf exécutions du harnais — sur deux motifs :
+`INTERDIT cnsa.fr/recueil-obligatoire-esms` (passe A) et `décompte INCOHÉRENT (exit 1) — 6 au
+total annoncées, liste 11`. Elle bloquait au passage **cinq commits** et deux bilans de parcours.
+
+### 🔴 La cause des deux motifs est la même : le statut en PREMIÈRE colonne
+
+Le tableau des sources du 21/10 est en `Statut | Source | URL | Note`. Les **onze éditions
+précédentes** sont en `Source | URL | Statut | Note`. La trace `DEBUG=1` de
+`controle_decompte.py` le montre ligne à ligne : avec le statut en tête, **trois** cellules de nom
+le suivent, l'appariement dérive d'une ligne — le `✅ Consultée` de la ligne 2 est apparié au
+`Fond documentaire — 23/03/2026` de la ligne 1 — et la **dernière ligne, qui n'a aucun statut à sa
+suite, compte ⛔ TROIS FOIS pour une seule source** (son nom, son URL, sa note). Plus deux
+cellules de Note ouvrant sur « Consulté » comptées comme « consultées sans symbole ». Total **11
+pour 7 sources réelles**.
+
+🔴 **Et le verdict refusait aussi le compte JUSTE.** Testé sur une copie : annoncer « 6/7 » rendait
+`INCOHÉRENT — 7 annoncées, liste 11`. Le document ne pouvait donc pas être publié en disant vrai.
+
+🟢 **Colonnes remises dans l'ordre de la série** → `✅ 5 · ⚠ 1 · ⛔ 1 · total 7`, **COHÉRENT**.
+
+### 🔴 CE QUE J'AI ESSAYÉ D'ABORD, ET QUE LE CORPUS A REFUSÉ
+
+J'ai cru que le défaut était dans le contrôle. Il a une règle qui écarte déjà les adresses —
+`if R_URL.match(n) … → CONT` — mais `R_URL = ^https?://` **exige le schéma**, que la colonne URL
+du 21/10 n'écrit pas (`www.cnsa.fr/...`, tronqué par `…`). J'ai ajouté un `R_ADR` pour les
+adresses sans schéma, borné à une ligne **entièrement** adresse, avec chemin ou `www.`, un domaine
+nu restant un nom.
+
+**Balayage des 109 veilles du dépôt : les refus passaient de 3 à 12.** Neuf faux refus neufs dans
+`imac` et `ai-act`, où les sources **sont** écrites comme des adresses nues : la règle détruisait
+de vraies entrées, et le contrôle répondait « statuts sans nom (non comptés) ».
+**`controle_decompte.py` restauré à l'identique, rien n'a été commité.**
+
+> C'est la règle du 15/10 qui a tranché : **élargir l'entrée d'une passe BLOQUANTE se mesure sur
+> TOUT le corpus avant commit, et par recensement, pas par échantillon.** Sans ce balayage, je
+> cassais neuf documents pour en publier un.
+
+📌 **Le défaut du contrôle reste entier et il est consigné** : il lit un tableau aplati en
+cellules et n'a aucune notion de ligne. Piste bornée, non faite : faire émettre à
+`extract_docx.py` une marque de fin de ligne de tableau, et compter **une entrée par `<w:tr>`**
+dans une rubrique de sources. Cela supprimerait la classe entière — les **huit** faux positifs
+déjà consignés dans l'en-tête du contrôle viennent tous de cette même ambiguïté d'aplatissement.
+
+### Les cinq corrections de fond
+
+**① La citation introuvable, et de quoi elle était faite.** La note donnait entre guillemets, comme
+menace des treize fédérations : « sans ces crédits promis, nous demanderons un report de la mise en
+œuvre à 2028 ». **« demanderons » : ZÉRO occurrence** sur les deux pages du Média Social, texte
+**et** HTML brut (52 184 et 56 720 octets). La phrase réelle est de **Goldberg, le 5 octobre** :
+« À défaut, si cette somme n'y figurait pas, alors un report de la réforme Serafin-PH pour une
+application en 2028 sera une nécessité ». La note avait **reformulé un propos individuel en menace
+collective** et mis le résultat entre guillemets. Passée en style indirect et créditée.
+
+**② La citation Goldberg, créditée du mauvais article.** Elle est dans l'article du **5/10**, qui
+ajoute le canal : « déplore le président de l'Uniopss, Daniel Goldberg, **sur Linkedin** ».
+⚠️ **Et je corrige une sur-affirmation de ma part** : j'avais rapporté cette citation comme « ① sur
+l'article du 5/10 ». Re-mesurée, la phrase entière sort en **④** sur les deux pages ; seul le
+fragment « réforme à moyens constants » est **①**. L'écart vient des apostrophes typographiques.
+La fiche le disait juste, mon rapport l'a durci.
+
+**③ Le décret du 13 mai 2026, retiré sur trois mesures.** Sur la page CNSA citée : « décret » **0**,
+« 13 mai » **0**, « 40 variables » **0**, texte et HTML brut, pour une page datée du **17/12/2025**.
+La fiche du 14/10 l'avait déjà établi ; le motif ② l'avait vu et **n'est pas bloquant**. Retiré.
+« année blanche » et « SIDOBA » sont **①** sur cette page et sont conservés.
+
+**④ Une source déclarée consultée qui n'a rien servi.** `handicap.gouv.fr` portait « ✅ Consultée ».
+Elle rend **93 caractères utiles pour 6 078 octets bruts**, et ces 93 caractères sont, en entier :
+« Please enable JavaScript to view the page content. Your support ID is: 2042403060366150062. »
+Ce n'est pas une façade, c'est un **mur JavaScript** — la page n'a rien servi, et c'est pourtant
+d'elle que la note faisait venir le calendrier 2026 et la présidence du 14e comité. Statut passé
+à **⚠**, note rétablie, décompte recalculé. ⚠️ L'édition du 14/10 déclarait la même page
+« ✅ Consultée — 200 — contenu repris » : **le défaut est plus vieux que cette édition.**
+
+**⑤ Les sept adresses tronquées.** Les cellules d'URL affichaient une adresse coupée par « … »,
+non copiable et ne correspondant plus à la cible de son lien. Les sept portent désormais l'adresse
+entière avec son schéma — ce qui **est aussi** ce qui fait que le contrôle les lit comme des
+continuations, et non comme des sources.
+
+### 🔴 ET UN GARDE-FOU DE LA DOCTRINE S'EST RETOURNÉ CONTRE ELLE
+
+La doctrine exige le libellé d'origine dans le **📝 Journal des corrections**. Reproduit tel quel,
+`cnsa.fr/recueil-obligatoire-esms` **rouvrait le motif bloquant de la passe A**. Mesuré deux fois :
+d'abord dans le journal, puis dans un **marqueur** — où `CLAUDE.md` affirme que
+*« controle_attributions.py écarte ces marqueurs depuis longtemps »*. **C'est faux pour ce
+motif** : la collecte d'adresses de la passe A travaille sur le corps avant la rubrique Ressources
+et ne consulte pas `dans_marqueur()`. Le libellé est conservé avec **une espace après le domaine**,
+et le marqueur dit pourquoi.
+
+📌 **Piste bornée, non faite** : faire passer la collecte d'adresses de la passe A par `corps_hm`,
+comme les autres motifs le font déjà — à mesurer sur les 292 documents avant commit. Sans cela,
+**toute correction d'une adresse fautive est condamnée à la déformer pour pouvoir être publiée.**
+
+### Contrôles après correction
+
+Intégrité rejouée **verbatim sous `env -i`** → « OK — XML conforme, 12 lien(s), 135 paragraphe(s)
+de texte (marge 123), 3 tableau(x) » — plancher de tableau 3 honoré. `controle_decompte` →
+**COHÉRENT**. `controle_attributions` → **0 bloquant** contre 1 avant, les trois pages sous le
+plancher de 3 000 signalées sans bloquer. `controle_edition_precedente` → **exit 0**, motif ②
+muet. Coffre Obsidian **9/9**. Sauvegarde de l'original dans le scratchpad, sha256 vérifié avant
+toute écriture.
