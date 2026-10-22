@@ -91,7 +91,7 @@ if [ "$CONFIRMER" != 1 ]; then
   exit 0
 fi
 
-SAUVE="${TMPDIR:-/tmp}/supprimer_job_$JOB_$(date +%Y%m%d_%H%M%S)"
+SAUVE="${TMPDIR:-/tmp}/supprimer_job_${JOB}_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$SAUVE"
 cp "$RACINE/jobs_config.json" "$RACINE/outils/scripts/run_job.sh" \
    "$RACINE/outils/scripts/setup_launchd.sh" \
@@ -176,10 +176,16 @@ print('   ✓ ids du skill = ids de la config (%d)' % len(reels) if skill==reels
 #    archive l'ancien et REPOINTE `CLASSEUR`, sans quoi le nouveau classeur se figerait.
 echo ""
 echo "▶ ⑥ Classeur de suivi"
-if env -i python3 "$RACINE/outils/scripts/refaire_classeur.py" --refaire 2>&1 | sed 's/^/   /'; then
+# ⚠️ 22/10/2026 — « if cmd | sed » testait le code de SED, jamais celui de python3 :
+#    la branche THEN était prise même sur un exit 3. C'est la règle du 15/10 (« un garde qui
+#    ne fait pas sortir en 1 est décoratif ») dans le script écrit ce jour-là. Le code est
+#    désormais celui de refaire_classeur.py, et la sortie reste affichée dans les deux cas.
+if SORTIE_CLASSEUR=$(env -i python3 "$RACINE/outils/scripts/refaire_classeur.py" --refaire 2>&1); then
+  printf '%s\n' "$SORTIE_CLASSEUR" | sed 's/^/   /'
   env -i python3 "$RACINE/outils/scripts/refaire_classeur.py" --verifier 2>&1 \
     | grep -E "✓|✗" | sed 's/^ */   /'
 else
+  printf '%s\n' "$SORTIE_CLASSEUR" | sed 's/^/   /'
   echo "   ⚠ le classeur n'a pas pu être refait — à traiter à la main avant de commiter"
 fi
 echo ""

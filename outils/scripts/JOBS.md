@@ -2899,3 +2899,106 @@ de machine qui n'a rien à voir avec lui. Le harnais garde ce qui concerne les l
 inventaire concerne l'infrastructure. 📌 **Piste bornée, non faite** : faire imprimer l'inventaire
 par `run_job.sh` en fin de run — chaque job qui tourne signalerait alors les créneaux manqués des
 jours précédents, et le trou remonterait tout seul au lieu d'attendre qu'on le cherche.
+
+---
+
+## 22/10/2026 — SUPPRESSION D'`astrologie-karmique-lecon` : LE SEUL CHEMIN SANS TÉMOIN ÉTAIT CASSÉ, ET UN TÉMOIN AVAIT VIEILLI DANS LA MATINÉE
+
+**Fait.** Le parcours est arrivé à **12/12** au créneau du jeudi 22/10 à 9h33 (leçon 12, bilan),
+le garde-fou de `supprimer_job.sh` a laissé passer — *« annoncé 12 · réels 12 »* — et les six
+gestes sont passés en une commande : config **9 → 8 jobs**, `case BUDGET` retiré (1 838 octets),
+ligne `JOBS` retirée de `setup_launchd.sh`, `.plist` déchargé puis supprimé, `SKILL.md`
+3 259 → 3 153 octets, classeur refait. **Vérifications finales : jobs 8 · .plist 8 · chargés 8 ·
+plafonds 30,00 $**, concordance confirmée, ids du skill = ids de la config, et **aucun orphelin**
+au second passage de `setup_launchd.sh`. Le **jeudi 9h33 est libre**. Prompt de **54 158 octets**
+récupérable dans l'historique git. Classeur sorti tout seul : `2026-10-22_Les 8 Jobs.xlsx`,
+l'ancien `2026-10-15_Les 9 Jobs.xlsx` archivé, `CLASSEUR` repointé, `--verifier` repassé derrière.
+
+⚠️ **Cumul : 30,00 $, pas 27 $.** Les 27 $ supposent aussi la suppression de `stoicisme-lecon`,
+qui est à 20/20 depuis ce matin et supprimable, mais **n'a pas été ordonnée**. J'avais écrit 27 $
+dans la fiche du bilan de stoïcisme : corrigé sur place, avec la mesure.
+
+### 🔴 Le chemin `--confirmer` n'avait JAMAIS fonctionné
+
+`CLAUDE.md` portait depuis le 15/10, noir sur blanc : *« 📌 Non couvert : le chemin `--confirmer`,
+qui écrit dans launchd — garanti par les vérifications finales du script, pas par un témoin. »*
+**C'est précisément ce chemin qui était cassé, et il a échoué au premier usage réel :**
+
+```
+outils/scripts/supprimer_job.sh: line 94: JOB_: unbound variable
+```
+
+```bash
+SAUVE="${TMPDIR:-/tmp}/supprimer_job_$JOB_$(date +%Y%m%d_%H%M%S)"   # avant
+SAUVE="${TMPDIR:-/tmp}/supprimer_job_${JOB}_$(date +%Y%m%d_%H%M%S)" # après
+```
+
+Sous `set -u`, **`$JOB_` est la variable `JOB_`** — l'underscore est un caractère d'identifiant —
+et non `$JOB` suivi de `_`. Le script mourait **à la première ligne du chemin d'écriture, avant
+même la copie de sauvegarde**. 🟢 **Conséquence heureuse de l'emplacement du bug** : rien n'avait
+été touché — sha256 de `jobs_config.json` et de `run_job.sh` identiques, `git status` inchangé,
+12 `.plist` en place. Un bug trois lignes plus bas aurait laissé le dépôt à moitié modifié.
+
+**Et un second défaut sur le même chemin, de la famille déjà consignée.** L'étape ⑥ s'écrivait :
+
+```bash
+if env -i python3 "$RACINE/outils/scripts/refaire_classeur.py" --refaire 2>&1 | sed 's/^/   /'; then
+```
+
+Le `if` teste le code de **`sed`**, jamais celui de python3. Reproduit à vide avec un
+`sys.exit(3)` : **la branche THEN est prise**. C'est la règle du 15/10 — *« un garde qui ne fait
+pas sortir en 1 est décoratif : `cmd | tail -1` teste le code de `tail` »* — **dans le script
+écrit ce jour-là**. Le code testé est désormais celui de `refaire_classeur.py`, par capture dans
+une variable, la sortie restant affichée dans les deux branches.
+
+⚠️ **Et j'ai reproduit la même faute dans ma propre mesure** : j'ai lancé la suppression en
+`supprimer_job.sh … --confirmer | tail -60`, qui a affiché **`EXIT=0`** alors que le script venait
+de mourir. C'est le code de `tail` que je lisais. La seconde exécution a été faite sans pipe.
+
+### 🔴 Et le témoin `refus_avant_bilan` avait vieilli le matin même
+
+Il lançait `supprimer_job.sh astrologie-karmique-lecon` contre la **config réelle** et exigeait
+*« exit 1 · il manque »*. Écrit le 15/10 quand le parcours était à 11/12, il est devenu faux à
+**9h33 ce jour-là**, quand le bilan a porté le parcours à 12/12 : le garde-fou a correctement
+laissé passer et le témoin a crié *« exit 0, 1 attendu »*. **`non_regression.sh` est alors sorti
+en 1 et bloquait TOUS les pushs du dépôt**, exactement comme le motif ⑩ de `controle_ai_act.py`
+le 15/10. **Troisième occurrence de la règle *« un témoin VIVANT qui annote une propriété
+volatile périme tout seul »*** — ici la propriété volatile était l'avancement d'un parcours.
+
+⚠️ **Mon correctif a d'abord été soupçonné, et la mesure l'a disculpé.** Version HEAD restaurée
+**en place** par `git show HEAD:… > …` et version corrigée, lancées au même endroit : **plan
+identique octet pour octet, exit 0 pour les deux**. 🔴 Premier essai raté de cette mesure : j'avais
+lancé la sauvegarde du script **depuis le scratchpad**, où `dirname "$0"/../..` donne une mauvaise
+racine → *« job inconnu »*, exit 3. **C'est le piège du 19/10 reproduit** (deux versions doivent
+être jouées **au même endroit**), et c'est la règle écrite ce jour-là qui m'a donné la méthode.
+
+⚠️ **Les cinq scénarios étaient ancrés sur le job qu'on allait supprimer** : la suppression seule
+les aurait tous fait répondre « job inconnu ». 🟢 **Recâblés sur `hypnose-lecon`**, qui reste, avec
+**DEUX configs fabriquées à chaque run** — annoncé = réel (doit passer) et annoncé = réel + 1
+(doit refuser) — donc plus rien de vivant dans le verdict, et le scénario de refus ne dépend plus
+qu'un parcours soit réellement incomplet.
+
+### 🔴 Le recâblage a été faux une fois, et la leçon vaut plus que le correctif
+
+Premier essai : `re.subn(r"\b\d+ LEÇONS", …)`. Il rendait **1 substitution — donc « réussie »** —
+et `controle_clauses_parcours.py` lisait toujours *« annoncé 20 »*. Cause : son `annonce()`
+cherche trois formes — `en N LEÇONS`, `(N leçons)`, `— N leçons :` — et les jobs ne portent pas
+la même : **astrologie-karmique dit « en 12 LEÇONS » (forme 1), hypnose, placement et stoïcisme
+disent « (20 leçons) » (forme 2).** Je substituais une forme que le lecteur ne lit pas.
+
+> **Une substitution qui compte ses coups ne prouve pas qu'elle a touché ce que le lecteur lit.**
+
+Le constructeur réécrit désormais **les trois formes** et, surtout, **rappelle
+`controle_clauses_parcours.py` sur la config fabriquée et exige le compte voulu** — vérification
+de bout en bout, qui aurait fait échouer le premier essai immédiatement.
+
+**Validation** : `non_regression.sh` **exit 0**, *« ✓ 5/5 scénarios — le garde-fou refuse avant le
+bilan, accepte un parcours complet, et les appels de plan n'ont rien touché (9 jobs, 9 .plist) »*,
+puis **exit 0 à nouveau après la suppression** (8 jobs, 8 .plist). Sabotage (`incomplet = réel`)
+→ *« ✗ refus_avant_bilan : exit 0, 1 attendu »*, le bon scénario, et `non_regression.sh` restauré
+au **sha256 identique**.
+
+📌 **Ce qui reste ouvert** : le chemin `--confirmer` n'a toujours **pas de témoin** — il écrit dans
+launchd — mais il a désormais tourné une fois en vrai, vérifications finales vertes. Et les
+mentions d'`astrologie-karmique-lecon` qui subsistent dans `run_job.sh` (lignes 80, 320, 335) sont
+des **commentaires d'incidents historiques**, à conserver.

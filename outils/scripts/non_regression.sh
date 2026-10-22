@@ -1158,9 +1158,22 @@ if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/supprimer_job.sh" ]; th
   echo "▶ Témoins de supprimer_job.sh (le garde-fou doit refuser avant le bilan)"
   SJ="$ROOT/outils/scripts/supprimer_job.sh"
   SJ_KO=0
-  # La config de test déclare pour astrologie-karmique le nombre de leçons RÉELLEMENT sur le
-  # disque : le parcours y est donc complet, et le garde-fou doit laisser passer. Fabriquée
-  # ici puis détruite, comme une mutation — un témoin figé se périmerait à chaque leçon.
+  # LES DEUX CONFIGS SONT FABRIQUÉES ICI puis détruites, comme une mutation : l'une déclare
+  # pour le parcours témoin le nombre de leçons RÉELLEMENT sur le disque (parcours complet,
+  # le garde-fou doit laisser passer), l'autre ce nombre PLUS UN (parcours incomplet, il doit
+  # refuser). Un témoin figé se périmerait à chaque leçon.
+  # 🔴 22/10/2026 — ET C'EST EXACTEMENT CE QUI EST ARRIVÉ AU SCÉNARIO DE REFUS. Il tournait
+  #    contre la config RÉELLE et sur `astrologie-karmique-lecon`, dont le parcours était à
+  #    11/12 le jour où ces témoins ont été écrits : il exigeait « exit 1 · il manque ». Le
+  #    bilan livré le 22/10 à 9h33 a porté le parcours à 12/12, le garde-fou a — correctement
+  #    — laissé passer, et le témoin a crié « exit 0, 1 attendu ». LE HARNAIS EST ALORS SORTI
+  #    EN 1 ET BLOQUAIT TOUS LES PUSHS DU DÉPÔT, comme le motif ⑩ de controle_ai_act le 15/10.
+  #    Mesuré au même endroit, version HEAD et version corrigée : plan identique, exit 0 pour
+  #    les deux — le témoin s'était périmé seul, aucun code n'avait changé. Troisième fois que
+  #    « un témoin VIVANT qui annote une propriété volatile périme tout seul » se vérifie.
+  #    ⚠️ Et les cinq scénarios étaient ancrés sur le job qu'on allait SUPPRIMER : la
+  #    suppression seule les aurait tous fait répondre « job inconnu ». D'où le job témoin
+  #    ci-dessous, qui doit être un parcours de leçons ENCORE dans la config.
   # ⚠️ 17/10/2026 — ON COMPARE AVANT/APRÈS, PAS À UN ARBRE PROPRE. La première version
   #    exigeait que les quatre fichiers soient NON MODIFIÉS dans l'arbre de travail : elle
   #    confondait « sale » et « sali par le test ». Mesuré ce jour : l'édition des prompts de
@@ -1170,24 +1183,52 @@ if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/supprimer_job.sh" ]; th
   #    l'état avant, on le rephotographie après, et on compare les deux.
   SJ_AV=$(cd "$ROOT" && git status --porcelain jobs_config.json outils/scripts/run_job.sh \
           outils/scripts/setup_launchd.sh .claude/skills/lancer-job/SKILL.md 2>/dev/null)
+  SJ_JOBT="hypnose-lecon"
   SJ_CFG="$CUR/cfg_parcours_complet.json"
-  env -i $PY - "$ROOT" "$SJ_CFG" <<'PYSJ'
-import glob, json, re, sys
-racine, dst = sys.argv[1], sys.argv[2]
-d = json.load(open(racine + "/jobs_config.json", encoding="utf-8"))
-n = len(glob.glob(racine + "/livrables/lecons/astrologie-karmique/*.docx"))
-for x in d["jobs"]:
-    if x["id"] == "astrologie-karmique-lecon":
-        x["prompt"] = re.sub(r"\b12 LEÇONS", "%d LEÇONS" % n, x["prompt"])
-        x["prompt"] = re.sub(r"limite de 12", "limite de %d" % n, x["prompt"])
-json.dump(d, open(dst, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+  SJ_CFGI="$CUR/cfg_parcours_incomplet.json"
+  env -i $PY - "$ROOT" "$SJ_CFG" "$SJ_CFGI" "$SJ_JOBT" <<'PYSJ' || { echo "  ✗ configs de test non fabriquées"; SJ_KO=1; }
+import glob, json, re, subprocess, sys
+racine, complet, incomplet, jid = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+parcours = re.sub(r"-lecon$", "", jid)
+n = len(glob.glob(racine + "/livrables/lecons/" + parcours + "/*.docx"))
+assert n > 0, "aucune leçon sur le disque pour " + parcours
+# 🔴 22/10/2026 — ON RÉÉCRIT LES TROIS FORMES QUE LE CONTRÔLE SAIT LIRE, PAS UNE DEVINÉE.
+#    Première version : re.subn(r"\b\d+ LEÇONS"). Elle rendait 1 substitution — donc
+#    « réussie » — et controle_clauses_parcours.py lisait toujours « annoncé 20 », parce que
+#    son annonce() cherche « en N LEÇONS », « (N leçons) » ou « — N leçons : », et que ce job
+#    porte la DEUXIÈME. Une substitution qui compte ses coups ne prouve pas qu'elle a touché
+#    ce que le lecteur lit : d'où la VÉRIFICATION DE BOUT EN BOUT ci-dessous, qui rappelle le
+#    contrôle sur la config fabriquée et exige le compte voulu.
+FORMES = ((r"en\s+\d+\s+LEÇONS", "en %d LEÇONS"), (r"\(\d+\s+leçons\)", "(%d leçons)"),
+          (r"—\s*\d+\s+leçons\s*:", "— %d leçons :"), (r"limite de \d+", "limite de %d"))
+for cible, annonce in ((complet, n), (incomplet, n + 1)):
+    d = json.load(open(racine + "/jobs_config.json", encoding="utf-8"))
+    vus = 0
+    for x in d["jobs"]:
+        if x["id"] == jid:
+            total = 0
+            for motif, remp in FORMES:
+                x["prompt"], k = re.subn(motif, remp % annonce, x["prompt"], flags=re.I)
+                total += k
+            assert total, "aucune forme de compte annoncé trouvée dans %s" % jid
+            vus += 1
+    assert vus == 1, "%s absent de la config" % jid
+    json.dump(d, open(cible, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    vu = subprocess.run([sys.executable, racine + "/outils/scripts/controle_clauses_parcours.py",
+                         cible], capture_output=True, text=True).stdout
+    ligne = [l for l in vu.splitlines() if l.strip().startswith(jid)]
+    assert ligne, "%s absent de la sortie du contrôle des clauses" % jid
+    lu = int(re.search(r"annoncé\s+(\d+)", ligne[0]).group(1))
+    assert lu == annonce, ("config %s : le contrôle lit « annoncé %d », %d voulu — la "
+                           "substitution n'a pas touché la forme qu'il lit"
+                           % (cible.split("/")[-1], lu, annonce))
 PYSJ
   # scénario | code attendu | motif exigé dans la sortie (vide = aucun)
-  for cas in "refus_avant_bilan|1|il manque|astrologie-karmique-lecon|" \
-             "parcours_complet|0|le parcours a atteint|astrologie-karmique-lecon|--config $SJ_CFG" \
+  for cas in "refus_avant_bilan|1|il manque|$SJ_JOBT|--config $SJ_CFGI" \
+             "parcours_complet|0|le parcours a atteint|$SJ_JOBT|--config $SJ_CFG" \
              "job_inconnu|3|job inconnu|job-qui-nexiste-pas|" \
              "usage_sans_argument|2|Usage|  |" \
-             "confirmer_avec_config|2|agissent sur le dépôt réel|astrologie-karmique-lecon|--confirmer --config $SJ_CFG"; do
+             "confirmer_avec_config|2|agissent sur le dépôt réel|$SJ_JOBT|--confirmer --config $SJ_CFG"; do
     IFS='|' read -r SJ_NOM SJ_ATT SJ_MOT SJ_JOB SJ_OPT <<< "$cas"
     SJ_OUT="$CUR/supprimer_job_$SJ_NOM.txt"
     # ⚠️ 15/10/2026 — « ${=SJ_OPT} » ET PAS « ${SJ_OPT} » : ce harnais est en ZSH, qui ne

@@ -21,7 +21,6 @@ Identifie le job correspondant à l'argument selon cette correspondance :
 - "rbpp" ou "pipeline"                                               → job id "rbpp-pipeline"
 - "finance" ou "placement" ou "placement-financier" ou "epargne"     → job id "placement-financier-lecon"
 - "hypnose" ou "auto-hypnose" ou "autohypnose"                       → job id "hypnose-lecon"
-- "astro" ou "astrologie" ou "karmique" ou "astrologie-karmique"     → job id "astrologie-karmique-lecon"
   Le parcours Développement d'applications avec l'IA était fermé à 12 leçons, toutes livrées
   (bilan le 02/10/2026). N'exécute rien : affiche « ⛔ Le job appli-ia-lecon a été supprimé le
   04/10/2026 — parcours fermé, les 12 leçons et le projet fil rouge sont conservés. » et arrête-toi.

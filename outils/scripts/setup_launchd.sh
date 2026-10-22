@@ -17,7 +17,9 @@
 #   (appli-ia-lecon : SUPPRIMÉ le 04/10/2026 — parcours fermé de 12 leçons, bilan livré
 #    le 02/10. Son prompt de 121 604 octets, le plus gros du dépôt, reste récupérable
 #    dans l'historique git, commit 14541bb. CRÉNEAU DU VENDREDI 8h03 DÉSORMAIS LIBRE.)
-#   astrologie-karmique-lecon      jeudi 9h33
+#   (astrologie-karmique-lecon : SUPPRIMÉ le 22/10/2026 — parcours fermé de 12 leçons,
+#    bilan livré le 22/10 au créneau de 9h33. Prompt de 54 158 octets récupérable dans
+#    l'historique git. CRÉNEAU DU JEUDI 9h33 DÉSORMAIS LIBRE ; cumul 35 → 30 $/semaine.)
 # Weekday launchd : 0/7=dimanche, 1=lundi … 5=vendredi, 6=samedi (vide = quotidien)
 # ============================================================
 
@@ -74,7 +76,6 @@ serafin-ph-veille|3|8|3
 stoicisme-lecon|3|8|4
 placement-financier-lecon|3|8|6
 hypnose-lecon|3|9|2
-astrologie-karmique-lecon|33|9|4
 controle-livrables|3|11|0
 ai-act-veille|3|9|5"
 
