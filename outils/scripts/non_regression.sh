@@ -183,6 +183,18 @@ if [ -x "$ROOT/outils/scripts/controle_livrable_du_job.py" ]; then
   LD_OUT="$CUR/liens_autotest.txt"
   if env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" --autotest > "$LD_OUT" 2>&1; then
     tail -1 "$LD_OUT"
+    # 🔴 24/10/2026 — UN LOT AMPUTÉ PASSAIT AU VERT. Le bloc ne lisait que le code de sortie :
+    #    retirer un témoin faisait imprimer « ✓ 2/2 » et le harnais était content. Le motif vient
+    #    d'être ÉLARGI (champ verbeux, gras Markdown) et la règle du 15/10 veut qu'un motif
+    #    desserré garde un témoin qui doit être ACCEPTÉ — sans compte attendu, rien n'empêcherait
+    #    de le resserrer demain en supprimant ce témoin. Même garde que ATTENDU_5BIS.
+    ATTENDU_LIENS=12
+    LU_LIENS=$(sed -n 's/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes du décompte des liens.*/\1/p' "$LD_OUT")
+    if [ "$LU_LIENS" != "$ATTENDU_LIENS" ]; then
+      echo "  ✗ ${LU_LIENS:-0} borne(s) de décompte jouée(s), $ATTENDU_LIENS attendue(s) — un lot"
+      echo "    amputé passerait au vert, et le motif élargi le 24/10 pourrait être resserré sans bruit"
+      exit 1
+    fi
   else
     grep '✗' "$LD_OUT" | head -5
     echo "  ✗ LE DÉCOMPTE DES LIENS A PERDU UNE BORNE — un 000 redeviendrait invisible"

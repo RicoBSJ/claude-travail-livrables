@@ -3375,3 +3375,121 @@ flague `⚠️ HTTP 202 (anti-bot, non lu directement)` et vérifie les identifi
 pages effectivement lues. **Rien ne le garantit la quatrième.** Un 202 est un code de SUCCÈS : le
 traiter comme une page morte jetterait une source valide, exactement le travers du 000 que le
 faisceau de certificats a corrigé le 20/10.
+
+---
+
+## 24/10/2026 — ㊳ bis lit enfin un décompte verbeux, et le sabotage a trouvé un second trou
+
+### L'incident, et le second défaut que personne n'avait vu
+
+Le motif `LIENS` de `controle_livrable_du_job.py` exigeait le séparateur **collé** au nom du
+champ : `(\d+)\s*retenus?\s*[·|-]`, c'est-à-dire des blancs et rien d'autre entre le mot et le
+`·`. Le rattrapage d'`ai-act-veille` du 24/10 a écrit dans son récapitulatif :
+
+```
+🔗 Liens : 16 testés · 8 retenus dans la note · 8 écartés (codes : 403×3, 202×2, pertinence×3)
+```
+
+**Treize caractères de trop**, et ㊳ bis a répondu « le récapitulatif de son run ne dit pas
+combien d'URL ont été testées ni écartées ». 🔴 **Il a donc été inerte sur l'édition qui écartait
+CINQ liens sur un code HTTP** — exactement le cas pour lequel il avait été écrit le 20/10. Rien
+n'a été perdu, aucun 000 n'étant parmi les codes, mais le garde n'a pas gardé.
+
+🔴 **ET LE RECENSEMENT A TROUVÉ UN SECOND DÉFAUT, SILENCIEUX CELUI-LÀ.** Le log de
+`placement-financier-lecon` du même jour écrit :
+
+```
+🔗 **Liens : 6 testés · 6 retenus · 0 écarté** (codes : aucun rejet)
+```
+
+Le gras Markdown `**` n'est pas un blanc : le groupe `(?:\(codes?…)` échouait et, **étant
+optionnel, rendait la chaîne vide**. Le décompte était lu, les codes muets, et le contrôle
+affichait une ligne d'apparence normale. **Personne ne l'avait vu, et c'est le genre de perte
+qu'un code de sortie ne révèle jamais** — d'où la règle du dépôt : un motif non bloquant se garde
+par une exigence de LIGNE.
+
+### La borne, mesurée et non devinée
+
+Population : **59 logs** du dossier. **5** étaient lus par le motif d'origine, **3** parlaient de
+liens testés sans être lus — un seul vrai décompte verbeux (ai-act) et **deux tableaux Markdown de
+`controle-livrables`** (`| Liens déclarés / testés | 95 / 95 |`) qui ne doivent **surtout pas**
+être lus comme des décomptes, n'ayant ni « retenus » ni « écartés ». 51 ne parlent pas de liens.
+
+Balayage de la tolérance de caractères intercalaires :
+
+| Tolérance | Effet mesuré |
+|---|---|
+| 0 à 13 | trop serrée — le cas réel (`" dans la note"`, 13 car.) n'est pas lu |
+| 14 à 17 | lit ai-act, mais pas le premier champ verbeux |
+| **18 à 60** | **plateau : les trois cas réels lus, les cinq négatifs refusés** |
+
+Plancher retenu : **40**, soit 2,2× le besoin mesuré, au milieu du plateau.
+
+⚠️ **CE QUI REND L'ÉLARGISSEMENT SÛR EST STRUCTUREL, PAS LE CHIFFRE.** La classe
+`[^·|\-\n]` **exclut les séparateurs**. La tolérance ne peut donc **jamais franchir un `·`** pour
+aller chercher les nombres d'un autre décompte : le séparateur de chaque champ reste le **premier**
+qui suit. Mesuré sur un cas adverse construit exprès —
+`Liens : 16 testés · sources : 12 tentées · 9 retenus · 3 écartés` — qui reste `None` **jusqu'à une
+tolérance de 60**. Et `\n` est exclu pour qu'un décompte ne puisse pas se recoller d'une ligne à
+l'autre.
+
+⚠️ **Et j'ai dû me corriger en route.** J'avais d'abord construit comme « négatif » la ligne
+`Liens : 16 testés et tous vérifiés un par un avec le faisceau … · 8 retenus · 8 écartés`, en
+exigeant `None`, et le balayage la faisait « tomber » à partir de 80 — ce que j'allais présenter
+comme la borne supérieure. **C'était un faux témoin** : cette ligne EST un décompte verbeux
+légitime, et la lire 16/8/8 est juste. Le témoin a été retourné en positif. **Un témoin qui exige
+le mauvais verdict justifie n'importe quelle borne.**
+
+⚠️ **Coût assumé, et il est dit** : un champ verbeux contenant un **tiret** (« 8 retenus
+hors-sujet · ») n'est pas lu, le tiret étant lui-même un séparateur accepté.
+
+### Recensement sur tout le corpus, par le VRAI chemin du contrôle
+
+Ancienne version déposée en `outils/scripts/.ancien_cljd.py` — **dans le même dossier**, pour que
+`RACINE = dirname³(__file__)` reste juste ; c'est le piège du 19/10 qui avait rendu « job inconnu »
+depuis le scratchpad. Les deux versions jouées sur les **294 `.docx`** de `livrables/lecons` et
+`sources/veille` :
+
+- **2 verdicts changent, les deux prévus, tous deux des GAINS** : ai-act passe de `○ muet` à sa
+  ligne complète, et placement-financier récupère ses codes.
+- **0 régression.** Le `⛔` préexistant du 02/10 (ai-act, exécution échouée non déclarée) est
+  inchangé, exit 1 des deux côtés.
+
+🔴 **ET MON PREMIER BALAYAGE N'AVAIT RIEN MESURÉ.** J'avais écrit
+`env -i python3 … $DOCS` : **sous zsh, une expansion de paramètre non quotée n'est PAS découpée en
+mots** — les 294 chemins sont partis comme **un seul argument**, le contrôle n'a rien reconnu, et
+il a imprimé **zéro ligne des deux côtés**. J'ai lu « aucun diff » et failli le publier. Refait en
+`find -print0 | sort -z | xargs -0`. **C'est la famille du garde décoratif, transposée à une
+mesure : un diff vide entre deux sorties vides ne dit rien.**
+
+🔴 **Et j'ai relu un code de sortie à travers un `grep`, pour la troisième fois cette semaine.**
+`zsh non_regression.sh --docs | grep -E '…' ; echo "exit=$?"` rend le code de **grep**. Reprise
+avec redirection dans un fichier et lecture du `$?` du harnais lui-même.
+
+### 🧪 Douze témoins au lieu de six, et deux sabotages
+
+Trois nouveaux témoins qui doivent être **ACCEPTÉS** — champ « retenus » verbeux, gras Markdown
+avant la parenthèse, premier champ verbeux — et trois négatifs neufs : le tableau Markdown de
+`controle-livrables`, les nombres d'un autre décompte derrière un séparateur, et deux phrases
+recollées sans séparateur.
+
+**Sabotage ①** — motif remis à la forme d'origine (`INTER = r"\s*"`) : harnais **exit 1**, et
+**chacun des trois nouveaux témoins crie avec sa propre ligne**, dont le gras Markdown qui montre
+la perte des codes (`obtenu (6, 6, 0, '')`).
+
+**Sabotage ②** — un témoin retiré du lot, motif intact. 🔴 **ET C'EST LUI QUI A RÉVÉLÉ LE SECOND
+TROU** : l'auto-test seul sort en **exit 0** en imprimant « ✓ 11/11 ». Le bloc 0 quater du harnais
+ne lisait que le code de sortie, donc **un lot amputé passait au vert** — le motif venait d'être
+desserré, et rien n'aurait empêché de le resserrer demain en supprimant son témoin. Ajout d'un
+`ATTENDU_LIENS=12` sur le modèle d'`ATTENDU_5BIS` : le harnais sort désormais en **1** avec sa
+ligne. **Le garde de compte n'est pas redondant, et ce n'est pas un raisonnement, c'est le
+sabotage qui l'a montré.**
+
+`controle_livrable_du_job.py` restauré au **sha256 identique** (`6554f4e5…`) après chacun des deux
+sabotages, et `non_regression.sh` vérifié identique à sa référence patchée.
+
+### 📌 Ce que cela ne corrige pas
+
+Le trou de la **table dossier → job** reste entier : construite depuis `jobs_config.json`, elle
+rend ㊳ et ㊳ bis aveugles aux **135 `.docx` sur 294** qui vivent dans un dossier sans job. Un
+décompte mieux lu ne sert à rien là où le contrôle ne regarde pas.

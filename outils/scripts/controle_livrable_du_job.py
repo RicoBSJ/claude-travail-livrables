@@ -118,8 +118,38 @@ RELU_DIT = re.compile(r"relue? (?:puis|et) publi|v[ée]rifi[ée]e?s? [àa] la ma
 #    Et un décompte absent peut venir d'un prompt qui n'a rien eu à tester. Les logs ANTÉRIEURS au
 #    20/10/2026 sont muets par construction : on ne leur reproche rien.
 CONSIGNE = "2026-10-20"          # date de la consigne : avant elle, un log muet est normal
-LIENS = re.compile(r"Liens\s*:\s*(\d+)\s*test[ée]s?\s*[·|-]\s*(\d+)\s*retenus?\s*"
-                   r"[·|-]\s*(\d+)\s*[ée]cart[ée]s?\s*(?:\(codes?\s*:\s*([^)]*)\))?", re.I)
+
+# 🔴 24/10/2026 — LE MOTIF EXIGEAIT LE SÉPARATEUR COLLÉ AU NOM DU CHAMP, ET IL EST RESTÉ MUET
+#    SUR LE RUN QUI ÉCARTAIT LE PLUS DE LIENS. La forme d'origine demandait
+#    « (\d+)\s*retenus?\s*[·|-] » : entre le mot du champ et le séparateur, rien que des blancs.
+#    Le rattrapage d'ai-act du 24/10 a écrit « 🔗 Liens : 16 testés · 8 retenus DANS LA NOTE ·
+#    8 écartés (codes : 403×3, 202×2, pertinence×3) » — treize caractères de trop, et le contrôle
+#    a répondu que le récapitulatif ne disait pas combien d'URL avaient été testées. Il a donc été
+#    inerte sur l'édition qui écartait CINQ liens sur un code HTTP, c'est-à-dire exactement le cas
+#    pour lequel il a été écrit le 20/10. Rien n'a été perdu — aucun 000 parmi les codes — mais le
+#    garde n'a pas gardé.
+#    🔴 ET IL PERDAIT SILENCIEUSEMENT LES CODES D'UN SECOND LOG, CE QUE PERSONNE N'AVAIT VU :
+#    placement-financier du 24/10 écrit « 🔗 **Liens : 6 testés · 6 retenus · 0 écarté** (codes :
+#    aucun rejet) ». Le gras Markdown « ** » n'est pas un blanc : le groupe des codes échouait et,
+#    étant optionnel, rendait la chaîne vide. Le décompte était lu, les codes muets.
+#    LA BORNE EST MESURÉE SUR LES 59 LOGS DU DOSSIER, PAS DEVINÉE. Tolérance de caractères
+#    intercalaires entre le mot d'un champ et le séparateur suivant : il en faut 13 pour le cas
+#    réel, 18 pour les trois cas réels, et le balayage de 10 à 60 ne fait changer AUCUN autre
+#    verdict — 2 gains, 0 régression. Plancher à 40, soit 2,2× le besoin mesuré.
+#    ⚠️ CE QUI REND L'ÉLARGISSEMENT SÛR EST STRUCTUREL, PAS LE CHIFFRE : la classe
+#    « [^·|\-\n] » EXCLUT LES SÉPARATEURS. La tolérance ne peut donc JAMAIS franchir un « · »
+#    pour aller chercher les nombres d'un autre décompte, et le séparateur de chaque champ reste
+#    le PREMIER qui suit. Mesuré : « Liens : 16 testés · sources : 12 tentées · 9 retenus ·
+#    3 écartés » reste None jusqu'à une tolérance de 60. Et « \n » est exclu pour qu'un décompte
+#    ne puisse pas se recoller d'une ligne à l'autre.
+#    ⚠️ CE QUE LA BORNE COÛTE, ET C'EST DIT : un champ verbeux contenant un TIRET
+#    (« 8 retenus hors-sujet · ») n'est pas lu, le tiret étant lui-même un séparateur accepté.
+INTER = r"[^·|\-\n]{0,40}"        # entre le mot d'un champ et le séparateur qui le suit
+FIN   = r"[^·|\-\n(]{0,40}"       # idem avant la parenthèse des codes : « ( » doit rester joignable
+LIENS = re.compile(r"Liens\s*:\s*(\d+)\s*test[ée]s?" + INTER + r"[·|-]\s*"
+                   r"(\d+)\s*retenus?" + INTER + r"[·|-]\s*"
+                   r"(\d+)\s*[ée]cart[ée]s?" + FIN +
+                   r"(?:\(codes?\s*:\s*([^)]*)\))?", re.I)
 
 
 def liens_du_log(txt):
@@ -195,10 +225,26 @@ def autotest():
          "accents absents et séparateurs simples — un récapitulatif n'est pas calibré au caractère"),
         ("🔗 Liens : 5 testés - 4 retenus - 1 écarté (code : 000)", (5, 4, 1, "000"),
          "tirets au lieu des points médians"),
+        # ── 24/10/2026 : les deux pertes MESURÉES sur des logs réels ──
+        ("🔗 Liens : 16 testés · 8 retenus dans la note · 8 écartés (codes : 403×3, 202×2)",
+         (16, 8, 8, "403×3, 202×2"),
+         "champ « retenus » VERBEUX — le défaut du 24/10, ai-act écartait 8 liens et ㊳ bis se taisait"),
+        ("🔗 **Liens : 6 testés · 6 retenus · 0 écarté** (codes : aucun rejet)",
+         (6, 6, 0, "aucun rejet"),
+         "gras Markdown avant la parenthèse — les codes étaient perdus EN SILENCE (placement-financier)"),
+        ("🔗 Liens : 16 testés et tous vérifiés un par un · 8 retenus · 8 écartés", (16, 8, 8, ""),
+         "premier champ verbeux : c'est un décompte légitime, il DOIT être accepté"),
+        # ── les négatifs : ce que la tolérance ne doit jamais laisser passer ──
         ("Liens testés : beaucoup. Écartés : quelques-uns.", None,
          "une phrase en prose n'est PAS un décompte : on n'invente pas des nombres"),
         ("nombre de livrables contrôlés, liens testés et morts, chiffres vérifiés", None,
          "la phrase de controle-livrables qui parle de liens sans les compter"),
+        ("| Liens déclarés / testés | 95 / 95 |", None,
+         "le tableau Markdown de controle-livrables : ni « retenus » ni « écartés », donc pas un décompte"),
+        ("🔗 Liens : 16 testés · sources : 12 tentées · 9 retenus · 3 écartés", None,
+         "les nombres d'un AUTRE décompte derrière un séparateur : la tolérance ne franchit pas un « · »"),
+        ("Liens : 4 testés. Sources : 9 retenus dans la note · 2 écartés", None,
+         "deux phrases recollées : sans séparateur après « testés », rien n'est lu"),
     ]
     ko = 0
     for txt, attendu, pourquoi in CAS:
