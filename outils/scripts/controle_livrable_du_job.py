@@ -33,6 +33,7 @@ pas l'observation mais l'exemption : un faux refus se lève en écrivant une phr
 livrable, pas en modifiant un contrôle.
 
 Usage : controle_livrable_du_job.py <doc.docx> [...]
+        controle_livrable_du_job.py --table [<racine> <logs>]
 Rend 1 s'il reste un document issu d'un run échoué SANS déclaration, 0 sinon. Sortie vide si
 tous viennent d'un run réussi, ou si aucun log ne correspond (un document écrit à la main
 n'est pas en cause).
@@ -43,13 +44,46 @@ RACINE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 LOGS = os.path.join(RACINE, "outils", "scripts", "logs")
 
 
-def jobs_par_dossier():
-    """Le lien dossier → job vient de jobs_config.json, source de vérité unique."""
-    m = {}
+# 🔴 LES DOSSIERS DES JOBS SUPPRIMÉS — AJOUTÉ LE 24/10/2026.
+#    LE TROU. La table venait de jobs_config.json SEULE, donc SUPPRIMER UN JOB RENDAIT SES
+#    LIVRABLES INVISIBLES à ㊳, rétroactivement et définitivement. Le contrôle ne refusait pas :
+#    il ne disait PLUS RIEN — sortie vide, exit 0, et la ligne 🔗 disparaissait du hook. Mesuré
+#    à la suppression d'`astrologie-karmique-lecon` le 22/10/2026 : 135 des 294 .docx du dépôt
+#    vivent dans un dossier sans job. Un job supprimé ne produit plus de livrable NEUF, donc le
+#    trou ne mord que sur un document CORRIGÉ — et c'est exactement ce que fait un ordre
+#    « corrige X ». Corriger une leçon d'un parcours clos contournait ㊳ en entier. C'est le
+#    jumeau aveugle de l'exemption par déclaration : celle-ci existe pour qu'un document corrigé
+#    ne soit pas refusé à jamais ; ici il n'était JAMAIS vérifié.
+#    COMMENT L'ID EST DÉDUIT, ET POURQUOI C'EST SÛR. Un dossier donne « <nom>-lecon » ou
+#    « <nom>-veille », et la déduction n'est retenue QUE si logs/ porte au moins un log de ce
+#    préfixe : le nom d'un log EST l'id du job qui l'a écrit, donc la table ne s'invente aucun
+#    job. Les ids ne contiennent jamais « _ » et le glob exige « <id>_ » : aucun appariement par
+#    préfixe sur un id plus long. Les DEUX suffixes sont essayés, celui de la racine d'abord —
+#    cas mesuré : `nocode-ia-veille`, un id en « -veille » dont les leçons sont rangées dans
+#    livrables/lecons/nocode-ia/.
+#    ⛔ LA CONFIG GAGNE TOUJOURS : un dossier qu'elle couvre n'est jamais redéduit, donc
+#    « has-actualite » reste rbpp-pipeline et ne devient pas un « has-actualite-veille » inventé.
+#    ⚠️ CE QUE CELA NE RÉPARE PAS, ET IL FAUT LE DIRE. run_job.sh purge les logs à 30 jours
+#    (`find "$LOG_DIR" -name "*.log" -mtime +30 -delete`). Des 135 documents aveugles, 20
+#    seulement ont encore le log de leur jour : les 115 autres sont hors de portée de ㊳ quoi
+#    qu'en dise la table, et une liste de dossiers écrite EN DUR n'y changerait rien non plus.
+#    La portée se réduira donc d'elle-même avec les logs — mais la table, elle, n'aura plus
+#    besoin d'être tenue à jour à chaque suppression. `--table` IMPRIME les dossiers qu'il ne
+#    peut pas attribuer, pour que ce reste soit visible au lieu d'être silencieux.
+SUFFIXES = (("livrables/lecons", "lecon", "veille"), ("sources/veille", "veille", "lecon"))
+_MEMO = {}
+
+
+def table(racine=None, logs=None):
+    """(dossier → job, dossiers venus de la config, dossiers qu'aucun log n'attribue)."""
+    racine, logs = racine or RACINE, logs or LOGS
+    if (racine, logs) in _MEMO:
+        return _MEMO[(racine, logs)]
+    m, sans_log = {}, []
     try:
-        cfg = json.load(open(os.path.join(RACINE, "jobs_config.json"), encoding="utf-8"))["jobs"]
+        cfg = json.load(open(os.path.join(racine, "jobs_config.json"), encoding="utf-8"))["jobs"]
     except OSError:
-        return m
+        cfg = []
     for j in cfg:
         liv = j.get("livrable", "")
         # 🔴 TOUS LES DOSSIERS, PAS LE PREMIER — CORRIGÉ LE 20/10/2026. La version d'origine
@@ -64,7 +98,43 @@ def jobs_par_dossier():
                     r"lecon-([a-z0-9-]+)_NN"):
             for nom in re.findall(mot, liv):
                 m[nom] = j["id"]
-    return m
+    issus = set(m)
+    for sous, propre, autre in SUFFIXES:
+        base = os.path.join(racine, *sous.split("/"))
+        for nom in (sorted(os.listdir(base)) if os.path.isdir(base) else []):
+            if nom in issus or not os.path.isdir(os.path.join(base, nom)):
+                continue
+            essais = [("%s-%s" % (nom, s),
+                       glob.glob(os.path.join(logs, "%s-%s_*.log" % (nom, s))))
+                      for s in (propre, autre)]
+            retenus = [job for job, l in essais if l]
+            if retenus:
+                m[nom] = retenus[0]
+            else:
+                sans_log.append((nom, essais[0][0]))
+    _MEMO[(racine, logs)] = (m, issus, sans_log)
+    return _MEMO[(racine, logs)]
+
+
+def jobs_par_dossier(racine=None, logs=None):
+    return table(racine, logs)[0]
+
+
+def imprime_table(racine=None, logs=None):
+    """`--table` : la table, sa provenance, et ce qu'elle ne peut PAS attribuer."""
+    m, issus, sans_log = table(racine, logs)
+    supprimes = sorted(d for d in m if d not in issus)
+    for d in sorted(m):
+        if d in issus:
+            print("  config   %-26s → %s" % (d, m[d]))
+    for d in supprimes:
+        n = len(glob.glob(os.path.join(logs or LOGS, "%s_*.log" % m[d])))
+        print("  supprimé %-26s → %-30s (%d log(s))" % (d, m[d], n))
+    for d, job in sorted(sans_log):
+        print("  ○ %s : aucun log de « %s » — ㊳ reste muet sur ce dossier" % (d, job))
+    print("  table : %d dossier(s) attribué(s) — %d de la config, %d de job(s) supprimé(s), "
+          "%d hors de portée" % (len(m), len(m) - len(supprimes), len(supprimes), len(sans_log)))
+    return 0
 
 
 def job_du_document(chemin):
@@ -264,6 +334,8 @@ if __name__ == "__main__":
         sys.exit(__doc__)
     if sys.argv[1] == "--autotest":
         sys.exit(autotest())
+    if sys.argv[1] == "--table":
+        sys.exit(imprime_table(*sys.argv[2:4]))
     alertes = [v for v in (verdict(f) for f in sys.argv[1:]) if v]
     refuses = 0
     for a in alertes:

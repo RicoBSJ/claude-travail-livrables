@@ -3493,3 +3493,83 @@ sabotages, et `non_regression.sh` vérifié identique à sa référence patchée
 Le trou de la **table dossier → job** reste entier : construite depuis `jobs_config.json`, elle
 rend ㊳ et ㊳ bis aveugles aux **135 `.docx` sur 294** qui vivent dans un dossier sans job. Un
 décompte mieux lu ne sert à rien là où le contrôle ne regarde pas.
+
+---
+
+## 24/10/2026 — la table dossier → job voit les jobs supprimés, et mon propre splice a inséré du vide
+
+### Le trou, et sa moitié qu'on ne répare pas
+
+㊳ relie un livrable au run qui l'a produit **par le dossier de ce livrable**. Cette table venait
+de `jobs_config.json` **seule** : supprimer un job rendait donc ses livrables **invisibles**, pas
+refusés — sortie vide, exit 0, ligne 🔗 disparue du hook. Mesuré le 22/10 à la suppression
+d'`astrologie-karmique-lecon` : **135 des 294 `.docx`** du dépôt vivent dans un dossier sans job.
+Un job supprimé ne produit plus rien de neuf, donc le trou ne mord que sur un document
+**corrigé** — et c'est exactement ce que fait un ordre « corrige X ».
+
+La table se construit désormais **depuis le disque** : un dossier donne `<nom>-lecon` ou
+`<nom>-veille`, et la déduction n'est retenue que si `logs/` porte **au moins un log de ce
+préfixe**. Le nom d'un log **EST** l'id du job qui l'a écrit, donc la table n'invente aucun job ;
+les ids ne contiennent jamais `_` et le glob exige `<id>_`, donc aucun appariement par préfixe.
+Les **deux** suffixes sont essayés — cas mesuré : `nocode-ia-veille`, un id en `-veille` dont les
+leçons sont rangées dans `livrables/lecons/nocode-ia/`. **La config gagne toujours**, sans quoi
+`has-actualite` repasserait de `rbpp-pipeline` à un `has-actualite-veille` inexistant et la
+correction du 20/10 serait défaite. Table **9 → 14 dossiers**.
+
+⚠️ **Et la moitié du trou ne se répare pas.** `run_job.sh:494` purge les logs à **30 jours**. Des
+135 documents aveugles, **20 seulement** ont encore le log de leur jour : les 115 autres sont hors
+de portée **quoi qu'en dise la table**, et une liste de dossiers écrite en dur — la première des
+deux pistes consignées le 22/10 — n'y aurait rien changé. Portée totale de ㊳ **mesurée : 51 des
+294 documents**, 31 par la config, 20 par la déduction. `--table [<racine> <logs>]` imprime les
+dossiers qu'il ne peut pas attribuer, pour que ce reste soit **visible** au lieu d'être muet.
+
+### Le recensement : 4 verdicts, tous des gains
+
+Les 294 `.docx` passés par le **vrai chemin du contrôle**, ancienne et nouvelle version, `find
+-print0 | xargs -0` (la leçon du 24/10 au matin : sous zsh une expansion non quotée ne se découpe
+pas en mots, et un diff entre deux sorties vides ne dit rien). Le diff est fait **d'ajouts seuls**
+— `0a1,22`, aucune ligne perdue :
+
+| Document | Ce que le log dit | Effet |
+|---|---|---|
+| `2026-09-26_lecon-appli-ia_10_securite-donnees.docx` | 3,0689 $ / 3,00 $ — **102 %**, `error_max_budget_usd`, 64 tours, 1 contrôle tracé | ⛔ refusé, ne déclare rien |
+| `2026-10-08_lecon-astrologie-karmique_10_lilith…docx` | 3,0218 $ / 3,00 $ — **101 %**, **0 contrôle tracé** | ⛔ refusé, déclare l'échec mais pas sa relecture |
+| `2026-09-30_lecon-enneagramme_18_contexte…docx` | **limite d'usage**, 1 tour, 1 012 ms, 0,00 $, **0 contrôle tracé** | ⛔ refusé, ne déclare rien |
+| `2026-10-22_lecon-astrologie-karmique_12_bilan…docx` | 13 testés · 9 retenus · 4 écartés (404×2, façade×2) | 🔗 décompte redevenu visible |
+
+Les deux premiers sont documentés dans leurs propres commits — *« plafond dépassé à 101 %, aucun
+contrôle passé par le job »* et *« leçon 18 écrite à la main »* — donc **aucun faux refus** : ce
+sont trois vrais cas, exactement ceux pour lesquels ㊳ est devenu bloquant le 16/10. ⚠️ Et ils ne
+bloquent **aucun push aujourd'hui** : le hook ne passe au contrôle que les documents **du push**.
+Ils mordront à la première correction de l'un d'eux, ce qui est l'intention.
+
+### Le témoin : tout fabriqué, rien de vivant
+
+Le nombre de jobs supprimés encore tracés est **volatile** — la purge à 30 jours le fera baisser.
+Un compte attendu sur l'arborescence réelle périmerait donc tout seul et bloquerait **tous** les
+pushs, comme le motif ⑩ le 15/10 et le témoin de `supprimer_job.sh` le 22/10. Le témoin construit
+donc son propre dossier : quatre répertoires, trois logs vides, une config d'un seul job — dont
+**un log piège** nommé `has-actualite-veille_*`, pour que « la config gagne » se prouve au lieu de
+se supposer. **6 exigences de ligne**, et chacune a mordu dans au moins un des quatre sabotages :
+
+| Sabotage | Ce qu'il casse | Ce qui crie |
+|---|---|---|
+| ① `SUFFIXES` vidé | plus aucune déduction | dossier supprimé · double suffixe · dossier sans log · décompte |
+| ② `if nom in issus` neutralisé | la config ne gagne plus | config GAGNE · décompte |
+| ③ la présence d'un log n'est plus exigée | la table invente des jobs | double suffixe · dossier sans log · décompte |
+| ④ `issus = set()` | **mon propre bug de splice** | config GAGNE · **négatif has-actualite** · décompte |
+
+Quatre sabotages, quatre refus au harnais, fichier restauré au sha256 `e8d46bcd…` à chaque fois.
+`--docs` et le mode défaut sortent en **0**, aucun `✗`, aucune régression.
+
+### 🔴 Mon erreur : une extraction qui rend du vide ne lève aucune erreur
+
+Le correctif reprend mot pour mot le commentaire `findall` du 20/10, extrait par
+`bloc[bloc.index("# 🔴 TOUS LES DOSSIERS"):bloc.index("    return m")]`. Or `    return m`
+apparaît **deux fois** dans ce bloc, et la première est celle du `except OSError`, **avant** le
+commentaire : la tranche était donc **vide**, `start > stop` ne lève rien, le fichier a été écrit,
+`--autotest` est sorti **vert** — et la table avait perdu **la config entière** : 0 dossier de la
+config, `has-actualite` et `rbpp` tombés « hors de portée ». C'est la jumelle de l'incident du
+22/10, où une substitution comptait ses coups sans toucher ce que le lecteur lit. Corrigé par
+`rindex` **et** deux assertions sur le contenu extrait, au script de patch. Le sabotage ④ montre
+que le harnais attraperait désormais cette faute précise.

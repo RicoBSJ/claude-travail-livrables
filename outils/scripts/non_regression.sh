@@ -202,6 +202,62 @@ if [ -x "$ROOT/outils/scripts/controle_livrable_du_job.py" ]; then
   fi
 fi
 
+# ── 0 quinquies. LA TABLE DOSSIER → JOB VOIT-ELLE LES JOBS SUPPRIMÉS ? (24/10/2026)
+# ㊳ lie un livrable au run qui l'a produit par le DOSSIER de ce livrable. Cette table venait de
+# jobs_config.json seule, donc SUPPRIMER UN JOB rendait ses livrables invisibles — pas refusés,
+# INVISIBLES : sortie vide, exit 0, ligne 🔗 disparue. 135 des 294 .docx du dépôt vivent dans un
+# dossier sans job, et comme un job supprimé ne produit plus rien de neuf, le trou ne mordait que
+# sur un document CORRIGÉ : corriger une leçon d'un parcours clos contournait ㊳ en entier.
+# ⚠️ TOUT EST FABRIQUÉ ICI, RIEN DE VIVANT — la leçon du 22/10, où un témoin ancré sur
+#    l'avancement réel d'un parcours a bloqué TOUS les pushs du dépôt le jour où le bilan est
+#    sorti. Le nombre de jobs supprimés dont il reste un log est VOLATILE : run_job.sh purge les
+#    logs à 30 jours. Un compte attendu sur l'arborescence réelle périmerait donc tout seul.
+# Les deux sens, et les deux pièges : un dossier sans log ne doit RIEN se voir attribuer (sinon la
+# table invente un job), et la config doit GAGNER même quand un log porte le nom qu'on déduirait
+# — sans quoi « has-actualite » repasserait de rbpp-pipeline à un « has-actualite-veille » qui
+# n'existe pas, ce qui défairait la correction du 20/10. Aucun réseau, aucun document, 0,1 s.
+if [ -x "$ROOT/outils/scripts/controle_livrable_du_job.py" ]; then
+  echo "▶ Témoin de la table dossier → job (arborescence fabriquée, aucun job réel)"
+  FX="$CUR/table_fixture"
+  rm -rf "$FX"
+  mkdir -p "$FX/livrables/lecons/dzogchen" "$FX/livrables/lecons/entretien-motivationnel" \
+           "$FX/livrables/lecons/nocode-ia" "$FX/sources/veille/has-actualite" "$FX/logs"
+  cat > "$FX/jobs_config.json" <<'JSON'
+{"jobs": [{"id": "rbpp-pipeline",
+           "livrable": "sources/veille/rbpp/ + sources/veille/has-actualite/"}]}
+JSON
+  : > "$FX/logs/dzogchen-lecon_20261013_080300.log"
+  : > "$FX/logs/nocode-ia-veille_20260801_080300.log"
+  : > "$FX/logs/has-actualite-veille_20261024_000000.log"   # LE PIÈGE : la config doit gagner
+  TB="$CUR/table.txt"
+  env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" --table "$FX" "$FX/logs" \
+      > "$TB" 2>&1
+  TB_KO=0
+  exige_table() {   # $1 = motif attendu, $2 = ce qu'il garde
+    if grep -qE "$1" "$TB"; then echo "  ✓ $2"; else
+      echo "  ✗ $2"; echo "    ligne absente de --table : $1"; TB_KO=1; fi
+  }
+  exige_table 'supprimé +dzogchen +→ dzogchen-lecon +\(1 log' \
+    "un dossier de job SUPPRIMÉ est attribué dès qu'un log porte son id"
+  exige_table 'supprimé +nocode-ia +→ nocode-ia-veille' \
+    "les deux suffixes sont essayés — un dossier de leçons servi par un id en « -veille »"
+  exige_table 'config +has-actualite +→ rbpp-pipeline' \
+    "la config GAGNE sur la déduction, même quand un log porte le nom déduit (20/10 intact)"
+  exige_table '○ entretien-motivationnel : aucun log' \
+    "un dossier sans aucun log ne se voit RIEN attribuer — la table n'invente pas de job"
+  if grep -qE 'supprimé +has-actualite' "$TB"; then
+    echo "  ✗ « has-actualite » est passé à un job DÉDUIT — la correction du 20/10 est défaite"
+    TB_KO=1
+  fi
+  exige_table 'table : 4 dossier\(s\) attribué\(s\) — 2 de la config, 2 de job\(s\) supprimé\(s\), 1 hors de portée' \
+    "le décompte de la table : un dossier perdu en silence ne passerait pas au vert"
+  if [ "$TB_KO" = 1 ]; then
+    echo "  ✗ LA TABLE DOSSIER → JOB A PERDU UNE BORNE — un livrable corrigé pourrait repasser"
+    echo "    sous ㊳ sans être vu, et le contrôle ne dirait RIEN plutôt que de refuser"
+    exit 1
+  fi
+fi
+
 # ---- Intégrité des .pptx du dépôt (17/10/2026) ----
 # Le contrôle de volume posé le 17/10 dans les neuf prompts ne regarde que les .docx. Or
 # `rbpp-pipeline` produit aussi des quiz et des infographies PowerPoint, et ses deux règles
