@@ -3237,3 +3237,141 @@ laissé `--confirmer` cassé ; ici il est borné par le seuil de temps, qui couv
 témoin figé puisse exercer sa logique sans toucher aux vrais logs. Sans cela, la validation reste
 manuelle — l'outil est **volontairement hors harnais** (un créneau manqué n'est pas une
 régression du dépôt), mais sa **logique**, elle, mériterait un témoin.
+
+---
+
+## 24/10/2026 — `ai-act-veille` rattrapé, publié, audité, puis CORRIGÉ : deux défauts qu'aucun contrôle ne pouvait voir
+
+### Le rattrapage, et la première justification mesurée du plafond à 5 $
+
+Le créneau du vendredi 23/10 avait démarré à 09:03:01 et était mort à 09:08 avec l'extinction de
+la machine — 449 octets de log, pas d'épilogue, c'est le cas qui a motivé le correctif de
+`--manques` le même jour. Relancé à la main le 24/10 à 15:50 par
+`rattrapage_jobs.sh ai-act-veille` : **exit 0, une tentative, 14 min, 90 tours, 3,0604 $ sur un
+plafond de 5,00 $ — 61 %**.
+
+🟢 **Et c'est la première fois que le relèvement du 16/10 est exercé en vrai.** Sous l'ancien
+plafond de 3,00 $, ce run aurait été coupé à **102 %** : deux créneaux consécutifs de la série
+seraient morts pour la même cause, l'un par extinction, l'autre par plafond.
+
+⚠️ **J'avais annoncé un risque d'excès de matière** sur une fenêtre élargie à 7 jours (17 → 24
+octobre) au lieu d'un. Mesuré : 61 % du plafond. **Ma prédiction était fausse dans sa direction**,
+et c'est la fenêtre qui l'a montré, pas un raisonnement.
+
+### Audit standard : le fait principal est entièrement apparié
+
+**57 requêtes d'appariement exact sur 4 pages aspirées, 8 sorties ④ dont 7 artefacts de degré.**
+`EN 18286:2026`, la décision **(UE) 2026/2274**, `presumption of conformity`, `Article 17`, `CEN`,
+`CENELEC`, `ISO/IEC 42001`, `ISO 9001`, `ISO 13485`, `only AI QMS standard` : **0 absente** sur la
+page de la Commission. Les **quatre échéances** sont ① LITTÉRAL sur le calendrier que le document
+nomme, avec leurs rattachements exacts (`02 Dec 2027 Rules for high-risk AI systems in Annex III
+apply`).
+
+⚠️ **Trois de mes ④ venaient de la graphie des dates** : j'avais demandé « 2 December 2026 » quand
+la page écrit « 02 Dec 2026 ». Troisième fois ce mois-ci que la règle du 14/10 — chercher la
+variante avant de conclure à l'absence — évite une fausse accusation. Un quatrième ④ était
+`pseudonymisation` contre `pseudonymization` à l'américaine, un cinquième `1er décembre` contre
+`1 er` (artefact du `<sup>` à l'aspiration), un sixième l'acronyme `CSAM` dont la forme développée
+est sur la page.
+
+🟢 **Et le plancher de 3 000 caractères utiles a crié pour rien.** La page du calendrier n'en sert
+que **2 760** et porte pourtant les quatre dates au littéral. **Pour une page de calendrier, ce
+plancher est un faux signal** — il dit « façade ou page en JS » là où la page est simplement
+compacte. À ne pas confondre avec le mur JavaScript de handicap.gouv.fr (93 caractères).
+
+### 🔴 Deux défauts mesurés, et le dépôt était aveugle aux deux
+
+**① UN ORGANISATEUR INVENTÉ.** La note écrivait « organisée en collaboration avec l'AFCDP, la
+Ville de Poitiers et **Poitiers Métropole** ». La page de la CNIL écrit « la Communauté urbaine du
+**Grand Poitiers** », et le mot **« Métropole » compte ZÉRO occurrence** sur ses 8 559 caractères
+— mesuré par requête dédiée puis reconfirmé. Poitiers n'a pas de métropole.
+
+⚠️ **AUCUN CONTRÔLE DU DÉPÔT NE POUVAIT LE VOIR, ET LA RAISON EST STRUCTURELLE** : la phrase ne
+porte aucun marqueur d'attribution (« selon X », « (X) », « X indique »), donc **B-NOM ne la
+regarde pas** — il n'a relevé qu'un item, sans rapport — et la passe A ne collecte que des
+adresses. **Un nom propre d'institution, faux, dans une phrase sans verbe d'attribution, sur une
+page pourtant LUE : c'est l'angle mort.** Il ne se referme pas par un réglage de seuil ; il
+demanderait une passe qui confronte les noms propres de l'entourage d'une source nommée au texte
+de cette source.
+
+**② LE VOLET IA DE L'ARTICLE PRINCIPAL AVAIT DISPARU — DANS UNE VEILLE AI ACT.** L'article IAPP
+était résumé en trois axes : définition des données personnelles, cookies ePrivacy, signalement
+d'incidents. Le quatrième, **le seul qui porte sur l'IA**, n'y était pas. L'article porte pourtant
+au littéral de nouvelles garanties ouvrant l'usage des **données sensibles** à `biometric
+verification and artificial intelligence model training`, des clarifications sur la base légale
+« in the context of AI training data », et la tribune de Lokke Moerel jugeant que les propositions
+de la Commission « miss the mark and create more issues than they simplify ». **Le sous-titre de
+l'article annonce `streamline AI training` parmi ses trois objets.**
+
+⚠️ **Et la rubrique « Impacts pour les ESSMS » en souffrait directement** : elle ne retenait de
+l'Omnibus que « pseudonymisation, cookies ». Pour un foyer d'hébergement qui traite des **données
+de santé** dans son DUI, l'ouverture des données sensibles à l'entraînement de modèles pèse
+incomparablement plus que les bannières de cookies.
+
+🔴 **C'est le défaut qu'aucune méthode d'appariement ne trouve, et il faut le dire :** l'audit
+standard vérifie ce qu'un document AFFIRME, pas ce qu'il OMET. Ce défaut n'a été vu qu'en ouvrant
+une fenêtre `lire_page.py --autour "AI training"` que **rien n'obligeait à ouvrir**. La fiche liste
+donc les requêtes passées, pour qu'on voie ce qui n'a pas été interrogé — c'est la seule parade,
+et elle est partielle.
+
+### La correction
+
+Quatre corrections, cinq édits **par position de la fin vers le début**, sauvegarde au scratchpad
+au sha256 identique d'abord. ① le nom de l'organisateur ; ② une quatrième puce sur le volet IA
+plus la rubrique ESSMS complétée ; ③ « voie de conformité **juridique** claire », l'adjectif de
+`clear legal pathway` étant tombé à la traduction — et c'est lui qui porte la présomption de
+conformité de l'article 17 ; ④ la distinction des **deux instruments homonymes**, portée au journal
+plutôt qu'au corps.
+
+📌 **Ce ④ mérite d'être retenu** : le « **Digital Omnibus on AI** » a DÉJÀ amendé l'AI Act — il est
+la source des échéances de décembre 2027 et d'août 2028, en vigueur par le règlement (UE)
+**2026/1744** du 8 juillet 2026, ce que la page du Service Desk confirme (`Following the Digital
+Omnibus on AI, certain provisions of the AI Act have been amended`) — tandis que l'« **Omnibus
+numérique** » dont le Conseil a adopté le mandat le 21 octobre porte sur le RGPD, ePrivacy et la
+cybersécurité, et n'est **pas encore passé en trilogue**. Employer le même mot pour les deux
+laissait croire que les échéances de 2027-2028 sont encore négociables. **Elles ne le sont plus.**
+
+Document après correction : **17 993 o** (contre 15 881), **18 liens inchangés**, 86 paragraphes
+porteurs de texte, marge **68**, XML conforme. `controle_decompte` COHÉRENT (aucun compte de
+source touché), `controle_attributions` **0 bloquant**, `controle_ai_act` OK, 
+`controle_edition_precedente` OK, ㊳ **exit 0** — le livrable vient d'un run réussi, donc aucune
+exemption par déclaration n'était requise.
+
+🟢 **ET L'EXEMPTION DES MARQUEURS PAR B-FR EST MESURÉE, PAS SUPPOSÉE.** Le contrôle imprime de
+lui-même : « 3 marqueur(s) de correction, 3 citation(s) écartée(s) : une formulation citée pour
+mémoire dans un « [Corrigé le … ] » n'est pas une attribution — elle n'a pas été cherchée ».
+Reproduire « Poitiers Métropole » dans son marqueur ET dans le journal ne rouvre **aucun** motif.
+⚠️ **La différence avec l'incident du 23/10 sur SERAFIN-PH n'est PAS le journal, c'est la passe** :
+là le libellé conservé était une **adresse**, et la passe A ne consulte pas `dans_marqueur()`. La
+piste bornée du 23/10 — faire passer la collecte d'adresses de A par `corps_hm` — reste la seule
+chose à faire pour que la doctrine de correction cesse de déformer les adresses d'origine.
+
+🟢 **Et le motif ① de `controle_edition_precedente.py` est désormais armé** : « Poitiers
+Métropole » étant conservé dans le journal et dans un marqueur de cette édition, son retour dans
+l'édition du 30/10 sera **bloquant**. C'est précisément ce que ce motif est là pour faire.
+
+### 📌 Deux pistes bornées, non faites
+
+**① ㊳ bis ne reconnaît pas un décompte dont le champ « retenus » porte des mots.** Le log de ce
+run porte sa ligne — `🔗 Liens : 16 testés · 8 retenus dans la note · 8 écartés (codes : 403×3,
+202×2, pertinence×3)` — et `controle_livrable_du_job.py` répond pourtant que « le récapitulatif de
+son run ne dit pas combien d'URL ont été testées ni écartées ». Cause mesurée : son motif
+`LIENS` exige `(\d+)\s*retenus?\s*[·|-]`, le séparateur **collé** au mot. Les trois mots « dans la
+note » suffisent à l'aveugler. ⚠️ **Portée réelle** : ㊳ bis a été inerte précisément sur
+l'édition qui écartait **cinq liens sur un code HTTP**, c'est-à-dire le cas pour lequel il a été
+écrit le 20/10. Rien n'a été perdu — aucun 000 parmi les codes — mais le garde n'a pas gardé.
+Correctif borné : tolérer des mots entre `retenus` et le séparateur, à mesurer sur les logs du
+dossier avant commit.
+
+**② LE PROMPT N'A AUCUNE LIGNE POUR UN HTTP 202, ET LA SÉRIE L'A RENCONTRÉ TROIS FOIS.** Sa table
+de traitement couvre **200 / 403 / 404 / 5xx** ; le seul « 202 » du prompt est dans « 2 août
+2026 ». EUR-Lex rend 202 et 0 octet sur les rafales : mesuré le 16/10, documenté le 17/10, et
+reproduit le 24/10 **sur les deux formes d'URL**, ELI comprise, lors de deux passages indépendants
+(mon aspiration, puis `controle_attributions.py`). 🔴 **Cela périme la piste ③ de la fiche du
+17/10**, qui recommandait « faire lire la forme ELI plutôt que la forme legal-content ». La forme
+ELI n'est pas « la bonne forme » : elle est **intermittente**, ce que la réserve d'origine du 17/10
+disait déjà et que la piste contredisait. ⚠️ Le job a jugé juste de lui-même les trois fois — il
+flague `⚠️ HTTP 202 (anti-bot, non lu directement)` et vérifie les identifiants dans les `href` de
+pages effectivement lues. **Rien ne le garantit la quatrième.** Un 202 est un code de SUCCÈS : le
+traiter comme une page morte jetterait une source valide, exactement le travers du 000 que le
+faisceau de certificats a corrigé le 20/10.
