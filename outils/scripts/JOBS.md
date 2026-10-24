@@ -3134,3 +3134,106 @@ de texte (marge 123), 3 tableau(x) » — plancher de tableau 3 honoré. `contro
 plancher de 3 000 signalées sans bloquer. `controle_edition_precedente` → **exit 0**, motif ②
 muet. Coffre Obsidian **9/9**. Sauvegarde de l'original dans le scratchpad, sha256 vérifié avant
 toute écriture.
+
+---
+
+## 23-24/10/2026 — `--manques` EXIGE DÉSORMAIS LA LIGNE DE FIN : UN LOG N'EST PAS UN RUN
+
+### L'incident, et pourquoi la veille ai-act manquait
+
+**Question posée** : pourquoi plus de veille `ai-act` depuis le 17/10 ? Réponse mesurée, en deux
+étages.
+
+**Étage 1 — le créneau du vendredi 23/10 est mort en route.** Le job a démarré à l'heure
+(`09:03:01`, créneau intact — `Hour 9 · Minute 3 · Weekday 5`, plist chargé, plafond 5,00 $,
+prompt 51 490 o), puis le log s'arrête net sur `--- Tentative 1/3 — 09:03:02 ---` : **449
+octets**, ni `[diagnostic]`, ni `[mesure]`, ni ligne de fin. La cause est dans la machine :
+
+```
+last shutdown  →  Fri Oct 23 09:08
+last reboot    →  Fri Oct 23 12:30
+```
+
+**Éteinte cinq minutes après le départ**, pendant l'appel `claude -p`. Processus tué, aucun
+livrable, aucun commit, et **aucun rattrapage** — launchd ne rejoue pas un créneau passé.
+Prochaine occurrence : vendredi 30/10.
+
+**Étage 2 — les deux éditions précédentes n'étaient pas des runs.** C'est ce qui fait croire que
+la série s'arrête au 17/10 plutôt qu'au 09/10 :
+
+| Créneau | Mesure | Issue |
+|---|---|---|
+| Ven 02/10 | 3,1205 $ / 3,00 $ — **104 %** | exit 1, aucun commit |
+| Ven 09/10 | 2,0626 $ / 3,00 $ — 69 % | **exit 0** — dernier run réussi |
+| Ven 16/10 | 3,2339 $ / 3,00 $ — **108 %**, `stop_reason=tool_use` | exit 1 ; plafond relevé 3 → 5 $ |
+| Sam 17/10 | **aucun log** | `a85b539` « édition manuelle du 17/10 » |
+| Ven 23/10 | aucune mesure | tué par l'extinction |
+
+**Trois des quatre derniers créneaux ont échoué** — deux sur le plafond, un sur l'extinction.
+🔴 Conséquence : **le relèvement à 5 $ n'a jamais été exercé**, aucune mesure d'`ai-act` sous le
+nouveau plafond n'existe.
+
+### 🔴 Et `--manques` déclarait ce créneau sain
+
+```
+Fri 23/10   09h03  ai-act-veille                ✓ tracé
+✓ tous les créneaux prescrits des 7 derniers jours ont leur log
+```
+**exit 0.** `if logs: etat = "✓ tracé"` — la **présence d'un fichier**. Un log de 449 octets
+arrêté à « Tentative 1/3 » comptait comme tracé. **L'outil écrit le 20/10 pour rendre visibles
+les créneaux manqués voyait celui qui n'a pas démarré, pas celui qui est mort en route.**
+
+### Le correctif, et sa borne
+
+Trois états au lieu de deux : `✓ tracé` · `· en cours` · `✗ INTERROMPU`. Le dernier sort en **1**
+avec son propre message — *« le créneau a bien démarré, et le log n'a pas de ligne de fin […]
+AUCUN livrable n'a été vérifié ni publié »* — et sa propre commande de rejeu.
+
+**Borne mesurée sur les 59 logs du dossier : un seul n'a pas d'épilogue, celui du 23/10.**
+Zéro faux positif sur tout le corpus. Motif exigé :
+`^<<< .* — Fin du job .* \(code de sortie : (-?\d+)`.
+
+⚠️ **Le mtime du log ne peut PAS servir de signal de vivacité** : pendant l'appel `claude -p`,
+`run_job.sh` n'écrit rien dans le log — le run du 16/10 a démarré à 09:03 et sa ligne suivante
+est de **09:32**. Un log « frais » ne prouve pas qu'un run vit, un log « vieux » ne prouve pas
+qu'il est mort. La vivacité se lit sur le **PID que launchd tient pour le label** ; le seuil de
+temps ne sert qu'aux rattrapages lancés à la main. Seuil fixé à **3 600 s**, soit **1,8 fois la
+durée maximale observée** (1 967 s = 32,8 min, `appli-ia` du 27/09 ; médiane 694 s).
+
+### 🔴 Deux bugs trouvés par les sens que les autres ne touchaient pas
+
+**① L'âge était compté depuis le créneau prescrit, pas depuis le démarrage du log.** Un
+rattrapage manuel lancé à 10h20 pour le créneau de 08h03 sortait en `✗ INTERROMPU` à 10h35,
+parce que `maintenant − 08h03` dépasse le seuil. Corrigé en lisant l'heure réelle dans le nom du
+fichier (`<jid>_AAAAMMJJ_HHMMSS.log`). **C'était la seule branche que les trois premiers sens ne
+touchaient pas** — exactement la configuration qui avait laissé passer le `$JOB_` de
+`supprimer_job.sh` pendant un mois.
+
+**② La première version ne jugeait que le log le PLUS RÉCENT.** Un créneau servi à 08h03 dont un
+rattrapage manuel mourait à 10h20 aurait été accusé à tort. La question étant « ce créneau a-t-il
+eu **un** run complet ? », la règle est désormais **« au moins un log du jour porte
+l'épilogue »** — un run mort suivi d'un rattrapage réussi est servi, et l'inverse aussi.
+
+### Validation, six sens
+
+| Sens | Attendu | Obtenu |
+|---|---|---|
+| état réel | exit 1 · ✗ INTERROMPU | ✓ |
+| aucun log du tout | exit 1 · ⛔ MANQUÉ (comportement d'origine) | ✓ |
+| épilogue à code **NON NUL** | exit 0 · ✓ tracé | ✓ |
+| deux logs le même jour, un complet | ✓ tracé | ✓ |
+| run réussi + rattrapage mort | ✓ tracé | ✓ |
+| seul log du jour, récent, sans épilogue | « en cours », **non compté** | ✓ |
+
+Logs fabriqués puis retirés à chaque fois, log réel du 23/10 restauré au **sha256 identique**
+(`6fee2916…`), et retour à l'état réel vérifié après chaque sabotage : **7 tracés · 1
+interrompu**.
+
+⚠️ **Branche NON TESTÉE, et il faut le dire** : le chemin `launchctl` qui reconnaît un PID vivant
+— aucun job ne tournait pendant la validation. C'est le même genre de trou que celui qui avait
+laissé `--confirmer` cassé ; ici il est borné par le seuil de temps, qui couvre le même cas.
+
+📌 **Piste bornée, non faite** : donner au script un chemin de `logs/` surchargeable, pour qu'un
+témoin figé puisse exercer sa logique sans toucher aux vrais logs. Sans cela, la validation reste
+manuelle — l'outil est **volontairement hors harnais** (un créneau manqué n'est pas une
+régression du dépôt), mais sa **logique**, elle, mériterait un témoin.

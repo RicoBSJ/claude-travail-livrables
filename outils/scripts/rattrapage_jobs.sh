@@ -48,12 +48,34 @@ fi
 # Sort en 0 si tout est tracé, en 1 s'il manque quelque chose — comme `refaire_classeur.py
 # --verifier`, pour pouvoir servir de garde un jour.
 if [ "${1:-}" = "--manques" ]; then
-  /usr/bin/python3 - "$SCRIPT_DIR" <<'PYMANQUES'
+  # 🔴 23/10/2026 — SIGNAL DE VIVACITÉ EXACT, et il ne peut pas être le mtime du log.
+  #    Pendant l'appel `claude -p`, run_job.sh n'écrit RIEN dans le log : le run du 16/10 a
+  #    démarré à 09:03 et sa ligne suivante est de 09:32. Un log « frais » ne prouve donc pas
+  #    qu'un run vit, et un log « vieux » ne prouve pas qu'il est mort. Le seul fait sûr est
+  #    le PID que launchd tient pour le label du job.
+  EN_COURS="$(launchctl list 2>/dev/null | awk '$1 ~ /^[0-9]+$/ && $3 ~ /claudetravail/ {print $3}' | sed 's/^com\.claudetravail\.//' | tr '\n' ',')"
+  /usr/bin/python3 - "$SCRIPT_DIR" "$EN_COURS" <<'PYMANQUES'
 import glob, json, os, sys, datetime, re
 SCRIPT_DIR = sys.argv[1]
+EN_COURS = {x for x in (sys.argv[2] if len(sys.argv) > 2 else "").split(",") if x}
 RACINE = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 LOGS = os.path.join(SCRIPT_DIR, "logs")
 JOURS = 7
+# 🔴 23/10/2026 — UN LOG N'EST PAS UN RUN : IL FAUT SA LIGNE DE FIN.
+#    Le 23/10, `ai-act-veille` a démarré à 09:03:01, la machine a été éteinte à 09:08, et le
+#    log s'est arrêté à « Tentative 1/3 » — 438 octets, ni [diagnostic], ni [mesure], ni ligne
+#    de fin, aucun livrable, aucun commit. `--manques` répondait « ✓ tracé » et sortait en 0 :
+#    il vérifiait la PRÉSENCE d'un fichier, pas qu'un run soit allé au bout. L'outil écrit le
+#    20/10 pour rendre visibles les créneaux manqués déclarait sain le seul créneau perdu de
+#    la semaine. Il exige désormais l'épilogue de run_job.sh.
+#    BORNE MESURÉE SUR LES 59 LOGS DU DOSSIER : un seul n'a pas de ligne de fin, celui du
+#    23/10 — donc ZÉRO faux positif sur tout le corpus. Et la durée maximale observée d'un
+#    run est de 1 967 s (32,8 min, appli-ia du 27/09), médiane 694 s : le délai au-delà
+#    duquel un run sans épilogue est tenu pour interrompu est fixé à 3 600 s, soit 1,8 fois
+#    le maximum observé. Un run encore vivant est reconnu par son PID chez launchd, pas par
+#    ce délai — le délai ne sert qu'aux runs lancés à la main, hors launchd.
+FIN = re.compile(r"^<<< .* — Fin du job .* \(code de sortie : (-?\d+)", re.M)
+SEUIL_EN_COURS = 3600
 cfg = json.load(open(os.path.join(RACINE, "jobs_config.json"), encoding="utf-8"))["jobs"]
 plan = {}
 for j in cfg:
@@ -66,7 +88,35 @@ for j in cfg:
     plan.setdefault(int(c[4]), []).append((int(c[1]), int(c[0]), j["id"]))
 maintenant = datetime.datetime.now()
 aujourdhui = maintenant.date()
-manques, lignes = [], []
+manques, interrompus, lignes = [], [], []
+
+def juge(logs, quand):
+    """-> (etat, id_du_motif). La question est « ce créneau a-t-il eu UN run complet ? », donc
+       il suffit qu'UN des logs du jour porte l'épilogue — un run mort suivi d'un rattrapage
+       réussi est servi, et un run réussi suivi d'un rattrapage mort l'est aussi.
+       ⚠️ 23/10/2026 — la première version ne jugeait que le log le PLUS RÉCENT : elle aurait
+       crié « INTERROMPU » sur un créneau servi à 08h03 dont un rattrapage manuel de 10h20
+       était mort. Mesuré par deux logs fabriqués le même jour. Si AUCUN n'a d'épilogue, c'est
+       le plus récent qui décide entre « en cours » et « interrompu »."""
+    if any(FIN.search(open(f, encoding="utf-8", errors="replace").read()) for f in logs):
+        return "✓ tracé", None
+    dernier = max(logs)
+    jid_ = os.path.basename(dernier).split("_")[0]
+    if jid_ in EN_COURS:
+        return "· en cours (launchd tient son PID)", None
+    # ⚠️ 23/10/2026 — L'ÂGE SE COMPTE DEPUIS LE DÉMARRAGE DU LOG, PAS DEPUIS LE CRÉNEAU.
+    #    Première version : age = maintenant − créneau prescrit. Un rattrapage lancé à la main
+    #    quinze minutes plus tôt pour un créneau de 08h03 était donc déclaré INTERROMPU à
+    #    10h20 — mesuré par un log fabriqué, et c'est la seule branche que les trois autres
+    #    sens ne touchaient pas. Le nom du fichier porte l'heure réelle : <jid>_AAAAMMJJ_HHMMSS.
+    depart = quand
+    m_ = re.search(r"_(\d{8})_(\d{6})\.log$", dernier)
+    if m_:
+        depart = datetime.datetime.strptime(m_.group(1) + m_.group(2), "%Y%m%d%H%M%S")
+    age = (maintenant - depart).total_seconds()
+    if age < SEUIL_EN_COURS:
+        return "· en cours ? démarré il y a %d min, pas d'épilogue" % (age // 60), None
+    return "✗ INTERROMPU — aucune ligne de fin (%d o)" % os.path.getsize(dernier), "interrompu"
 for d in range(JOURS - 1, -1, -1):
     jour = aujourdhui - datetime.timedelta(days=d)
     dow = (jour.weekday() + 1) % 7          # python : lundi=0 ; cron : dimanche=0
@@ -74,7 +124,9 @@ for d in range(JOURS - 1, -1, -1):
         quand = datetime.datetime.combine(jour, datetime.time(h, m))
         logs = glob.glob(os.path.join(LOGS, "%s_%s_*.log" % (jid, jour.strftime("%Y%m%d"))))
         if logs:
-            etat = "✓ tracé"
+            etat, motif = juge(logs, quand)
+            if motif == "interrompu":
+                interrompus.append(jid)
         elif quand > maintenant:
             etat = "· à venir"
         else:
@@ -85,13 +137,20 @@ for d in range(JOURS - 1, -1, -1):
 print("Créneaux prescrits sur les %d derniers jours, contre les logs présents :" % JOURS)
 for l in lignes:
     print(l)
+if interrompus:
+    print("\n✗ %d run(s) INTERROMPU(S) : %s" % (len(interrompus), " ".join(sorted(set(interrompus)))))
+    print("   Le créneau a bien démarré, et le log n'a pas de ligne de fin : le processus a été")
+    print("   tué avant l'épilogue de run_job.sh — extinction, veille forcée, ou plantage.")
+    print("   AUCUN livrable n'a été vérifié ni publié. Pour rejouer :")
+    print("     bash outils/scripts/rattrapage_jobs.sh %s" % " ".join(sorted(set(interrompus))))
 if manques:
     print("\n⛔ %d créneau(x) MANQUÉ(S) : %s" % (len(manques), " ".join(sorted(set(manques)))))
     print("   launchd ne rattrape pas un créneau passé machine éteinte. Pour les rejouer :")
     print("     bash outils/scripts/rattrapage_jobs.sh %s" % " ".join(sorted(set(manques))))
     print("   (anti-doublon actif, budget par job, push durci — et le livrable portera la date du jour)")
+if manques or interrompus:
     sys.exit(1)
-print("\n✓ tous les créneaux prescrits des %d derniers jours ont leur log" % JOURS)
+print("\n✓ tous les créneaux prescrits des %d derniers jours ont leur log ET sa ligne de fin" % JOURS)
 PYMANQUES
   exit $?
 fi
