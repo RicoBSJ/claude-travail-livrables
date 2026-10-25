@@ -574,6 +574,43 @@ PYTBL
   if [ "$rc" != "0" ]; then exit 1; fi
 fi
 
+# ── 0 sexies. LA TOLÉRANCE « PAGE NON LUE » DU BLOC 5 BIS (25/10/2026)
+# 🔴 QUATRIÈME INCIDENT DE LA MÊME CLASSE : UN TÉMOIN VIVANT DONT LE VERDICT DÉPEND D'UNE
+#    PROPRIÉTÉ VOLATILE. Les 23 et 25/10/2026, promenade.imcce.fr est tombé — DNS résolu, aucune
+#    réponse TCP, curl exit 28 AVEC et SANS le faisceau, donc ni TLS ni nous — et le bloc des
+#    étapes 5 bis a déclaré « faux positif du contrôle » son témoin conforme d'astrologie n°10 :
+#    « ⑦ PAGE SANS RÉPONSE, NON DÉCLARÉE (…/221.html : code 000 après 3 essais) ». Le document
+#    n'avait pas changé d'un octet, le refus du contrôle était EXACT, et le harnais sortait en 1 :
+#    LE HOOK REFUSAIT TOUS LES PUSHS DU DÉPÔT, exactement comme le motif ⑩ le 15/10 et comme le
+#    témoin de supprimer_job.sh le 22/10. Mesuré au passage : pendant la panne, un seul passage du
+#    contrôle astro prend 2 min 14 s au lieu de 11 s (3 essais × 40 s de --max-time).
+#    🟢 La décision est prise AU HARNAIS, pas dans les contrôles : en production, ⑦ doit continuer
+#    à refuser une page muette non déclarée. Ce qui est faux, c'est de lire ce refus comme la
+#    RÉGRESSION D'UN DÉPÔT. Le duo n'est donc pas joué — et le harnais le DIT, il ne le tait pas.
+#    Les neuf bornes tournent sur un serveur HTTP local et un hôte .invalid (RFC 2606, qui ne
+#    résout jamais PAR NORME) : aucun tiers, donc cette garde-là ne peut pas périmer à son tour.
+if [ -x "$NR/tolerance_page_morte.py" ]; then
+  echo "▶ Auto-tests de la tolérance « page non lue » du bloc 5 bis (serveur local, aucun tiers)"
+  TPM_OUT="$CUR/tolerance_page_morte_autotest.txt"
+  if env -i $PY "$NR/tolerance_page_morte.py" --autotest > "$TPM_OUT" 2>&1; then
+    tail -1 "$TPM_OUT"
+    # même garde qu'ATTENDU_LIENS et ATTENDU_MARQ : un lot amputé passerait au vert, et c'est
+    # L'EXCUSE qui décide si le refus d'un témoin bloque le push de tout le dépôt.
+    ATTENDU_TOL=10
+    LU_TOL=$(sed -n 's/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes de tolerance_page_morte.*/\1/p' "$TPM_OUT")
+    if [ "$LU_TOL" != "$ATTENDU_TOL" ]; then
+      echo "  ✗ ${LU_TOL:-0} borne(s) de tolérance jouée(s), $ATTENDU_TOL attendue(s) — un lot amputé"
+      echo "    passerait au vert, et l'excuse pourrait s'élargir sans bruit."
+      exit 1
+    fi
+  else
+    grep '✗' "$TPM_OUT" | head -5
+    echo "  ✗ LA TOLÉRANCE « PAGE NON LUE » A PERDU UNE BORNE — si elle excuse une page VIVANTE, un"
+    echo "    vrai faux positif de contrôle passerait désormais pour une panne de réseau."
+    exit 1
+  fi
+fi
+
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then
   shift; STATUT=0
@@ -1040,6 +1077,7 @@ if [ "$MODE" = "--complet" ]; then
   # refuser une citation que la page écrit avec une espace avant sa ponctuation).
   ATTENDU_5BIS=7
   CB_N=0
+  CB_SKIP=0
   MUTDIR=$(mktemp -d "${TMPDIR:-/tmp}/nr5bis.XXXXXX")
   # Le chemin du témoin est relatif à la racine du dépôt : le troisième duo est une VEILLE,
   # pas une leçon, et l'ancien préfixe livrables/lecons/ était codé en dur (09/10/2026).
@@ -1067,8 +1105,21 @@ if [ "$MODE" = "--complet" ]; then
     CB_N=$((CB_N + 1))
     env -i /usr/bin/python3 "$ROOT/outils/scripts/$SC" "$DOC" > "$CUR/5bis_$MOTIF.txt" 2>&1; rc=$?
     if [ "$rc" != "0" ]; then
-      echo "  ✗ $SC : le témoin conforme sort en $rc — faux positif du contrôle : $(tail -1 "$CUR/5bis_$MOTIF.txt")"
-      STATUT=1
+      # ⟳ TOLÉRANCE « PAGE NON LUE » (25/10/2026) — voir le bloc 0 sexies et l'en-tête du script
+      #   appelé. Quatre conditions, toutes nécessaires : synthèse de refus de forme connue ·
+      #   AUTANT de lignes nommant une page QUE de motifs annoncés · chaque page dans les rels DU
+      #   TÉMOIN (un contrôle saboté qui imprimerait une excuse ne s'excuse pas) · injoignable
+      #   MESURÉE ici, faisceau compris. Le sens d'échec du comptage est le refus.
+      # ⚠️ Et la mutation n'est PAS jouée : son verdict dépend des mêmes pages. Un duo non joué
+      #   est un duo NON GARDÉ — c'est assumé, et compté ligne par ligne plus bas.
+      if TOL=$(env -i $PY "$NR/tolerance_page_morte.py" "$CUR/5bis_$MOTIF.txt" "$DOC" 2>&1); then
+        echo "  ⟳ $SC : duo « $MOTIF » NON JOUÉ — $TOL"
+        CB_SKIP=$((CB_SKIP + 1))
+      else
+        echo "  ✗ $SC : le témoin conforme sort en $rc — faux positif du contrôle : $(tail -1 "$CUR/5bis_$MOTIF.txt")"
+        echo "    (tolérance « page non lue » REFUSÉE : $TOL)"
+        STATUT=1
+      fi
     else
       MUT="$MUTDIR/mutant_$MOTIF.docx"
       if ! /usr/bin/python3 "$NR/muter_docx.py" "$DOC" "$MUT" "$MOTIF" > /dev/null 2>&1; then
@@ -1098,6 +1149,13 @@ if [ "$MODE" = "--complet" ]; then
     echo "  ✗ $CB_N étape(s) 5 bis contrôlée(s), $ATTENDU_5BIS attendue(s) — un lot incomplet ne"
     echo "    prouve rien : rétablis le script ou le témoin manquant, ou mets ATTENDU_5BIS à jour."
     STATUT=1
+  fi
+  # ⚠️ UN DUO NON JOUÉ NE SE TAIT PAS. L'excuse évite un faux refus, elle ne prouve rien : pendant
+  #    la panne d'un tiers, les motifs de ce duo ne sont plus gardés DU TOUT. Dit à chaque passage.
+  if [ "$CB_SKIP" != "0" ]; then
+    echo "  ⚠️ $CB_SKIP duo(s) 5 bis non joué(s) sur $CB_N — page(s) injoignable(s) côté tiers, mesurée(s)"
+    echo "     par le harnais : ces motifs ne sont PAS gardés dans ce passage. Rejoue --complet quand"
+    echo "     le site répond, avant de croire le bloc 5 bis vert."
   fi
 
   # ── 5 ter bis. DÉLIMITATION DES BLOCS D'ARTICLE DE controle_ai_act.py (16/10/2026) ──

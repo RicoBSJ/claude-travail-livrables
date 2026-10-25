@@ -3644,3 +3644,109 @@ La veille SERAFIN-PH du 21/10 porte encore l'adresse déformée **et le motif de
 « reproduite ici avec une espace après le domaine, parce que la passe A n'exempte PAS les marqueurs
 (mesuré le 23/10/2026) » — qui est désormais **faux**. Restaurer le libellé demande une correction
 du `.docx` ; elle n'a pas été ordonnée.
+
+---
+
+## 25/10/2026 — la tolérance « page non lue » du bloc 5 bis, ou comment une panne d'observatoire bloquait tous les pushs du dépôt
+
+### L'incident, mesuré avant d'écrire une ligne de code
+
+Le 23 puis le 25/10/2026, `--complet` sortait en 1 sur **un seul `✗`** :
+
+```
+✗ controle_astrologie_karmique.py : le témoin conforme sort en 1 — faux positif du contrôle :
+  REFUSÉ — 1 motif(s) : page sans réponse …enade.imcce.fr/fr/pages2/221.html
+```
+
+Rejoué seul, le contrôle dit exactement ce qu'il doit dire :
+
+```
+⑦ PAGE SANS RÉPONSE, NON DÉCLARÉE (https://promenade.imcce.fr/fr/pages2/221.html : code 000
+  après 3 essais) : ¶19, ¶115
+```
+
+Le document est **figé depuis le 08/10** et n'a pas changé d'un octet. Ce qui a changé, c'est le
+site de l'IMCCE : DNS résolu (`benoite.obspm.fr`, 145.238.80.45), **aucune réponse TCP**, `curl`
+**exit 28 avec ET sans le faisceau** — donc ni TLS ni nous, et `https://www.imcce.fr/` est muet
+aussi. **Le refus du contrôle était EXACT** : un ¶ attribue un chiffre à une page qui ne répond pas,
+sans le déclarer. **Et le harnais en concluait une régression du dépôt, donc le hook refusait TOUS
+les pushs** — le commit `faaca80` de la passe A est resté local deux jours pour cette raison.
+
+**Troisième fois en dix jours que ce même effet bloque le dépôt entier** : motif ⑩ le 15/10, témoin
+`refus_avant_bilan` de `supprimer_job.sh` le 22/10, celui-ci le 23. La classe est toujours la même :
+**un témoin VIVANT dont le verdict dépend d'une propriété volatile.**
+
+Mesure annexe, qui a son prix : pendant la panne, **un** passage du contrôle astro prend
+**2 min 14 s au lieu de 11 s** — 3 essais × 40 s de `--max-time`, et il y a deux duos sur ce script.
+
+### La décision : au harnais, pas dans les contrôles
+
+`controle_attributions.py` a son `exit 3` « pages non lues » depuis des semaines ; les trois
+contrôles 5 bis n'ont rien d'équivalent. La tentation était de leur en donner un. **Refusé, et
+c'est la partie importante** : en **production**, ⑦ doit continuer à refuser un livrable qui
+attribue un chiffre à une page morte sans le dire — c'est son objet même. Ce qui est faux, c'est de
+lire ce refus comme la **régression d'un dépôt**. Le harnais ne doit donc conclure **ni dans un sens
+ni dans l'autre** : le duo n'est **pas joué**, et il le dit.
+
+### Quatre conditions, toutes nécessaires — `non_regression/tolerance_page_morte.py`
+
+| | Condition | Pourquoi elle est là |
+|---|---|---|
+| ① | une **synthèse de refus de forme connue** | les trois contrôles en ont **trois** : `REFUSÉ — N motif(s) :` (astro, stdout), `LEÇON REFUSÉE — … ; …` et `NOTE REFUSÉE — … ; …` (les deux autres, par `sys.exit`, donc **stderr**). On ne compte pas ce qu'on ne sait pas lire |
+| ② | **autant de lignes nommant une adresse que de motifs annoncés** | un refus qui n'est pas **entièrement** imputable à des pages ne s'excuse pas, **même en partie** : `① LIGATURE` + `⑦ page morte` = 2 motifs, 1 ligne → **bloque** |
+| ③ | chaque adresse est dans les **rels du témoin** | **un contrôle saboté qui IMPRIMERAIT une excuse ne s'excuse pas lui-même.** L'adresse est lue dans le `.docx`, jamais dans la sortie |
+| ④ | le harnais **mesure lui-même** qu'elle ne répond pas | `curl`, séquentiel, 2 essais, **faisceau compris**. Une page qui tomberait par défaut de TLS est **dénoncée**, pas excusée |
+
+**Le sens d'échec du comptage est le REFUS** : mal compter fait bloquer, jamais excuser. C'est ce
+qui rend l'élargissement sûr, et ce n'est pas un chiffre — c'est la structure.
+
+**Ce que l'excuse coûte, et c'est imprimé à chaque passage** : le duo n'est pas joué, **mutation
+comprise**, donc ses motifs ne sont plus gardés **du tout** pendant la panne. Le bloc imprime
+`⟳ … NON JOUÉ` puis, en fin de bloc, `⚠️ N duo(s) 5 bis non joué(s) sur 7`.
+
+### Les bornes : aucun tiers, par construction
+
+Dix bornes, dans **tous** les modes du harnais (`--docs` compris, 14,5 s), sur **un serveur HTTP
+local** (`http.server`, port éphémère) et un hôte **`.invalid`** — RFC 2606, **il ne résout jamais
+par norme**. Donc cette garde-là, contrairement aux trois incidents qu'elle corrige, **ne peut pas
+périmer à son tour**. Quatre doivent **excuser** (le cas réel d'astro, la forme ai-act, la forme
+psycho à deux `;`, …), six doivent **refuser** (page vivante, deux motifs une seule page, motif sans
+page, page hors témoin, forme inconnue, sortie vide).
+
+**Six sabotages, six refus**, fichier restauré au sha256 identique à chaque fois.
+
+### 🔴 Deux bugs à moi, trouvés par le sabotage, tous deux silencieux
+
+**① Le compte « 9/9 » était écrit en dur dans le message.** Retirer un témoin du lot laissait le
+harnais **vert** : `ATTENDU_TOL=9` lisait une **constante**, pas une mesure. C'est **la règle du
+15/10 — « un garde qui ne fait pas sortir en 1 est décoratif » — enfreinte pour la deuxième fois en
+deux jours**, et cette fois **dans le garde même qui devait l'appliquer**. Le compte est désormais
+incrémenté par `essai()`.
+
+**② `RACINE` copiait les trois `dirname` des contrôles alors que ce script vit un cran plus bas**
+(`outils/scripts/non_regression/`). RACINE valait `…/Claude_Travail/outils`, `import ca_bundle`
+échouait, l'`except` rendait `None`, et **les sondes partaient sans faisceau, en silence**. C'est
+l'annotation `[faisceau de certificats : …]` que j'avais ajoutée au message qui l'a dit, **au
+premier sabotage**.
+
+**⚠️ Et la borne censée garder ce second bug ne mordait pas non plus** : elle cherchait le faisceau
+sous le **même `RACINE` faux**, donc le fichier n'existait pas, la prémisse était fausse, la borne
+passait — le sabotage ⑥ sortait en **0**. Elle part désormais des **chemins absolus de brew**
+(`/usr/local/etc/ca-certificates/cert.pem`, `/opt/homebrew/…`), qui sont des faits de la machine :
+**on copie une CONSTANTE, jamais l'arithmétique de chemin, qui est précisément ce qu'on teste.**
+Sur une machine sans brew, la prémisse est légitimement fausse et la borne imprime `○ … inerte`.
+
+**Et une erreur de méthode, la même semaine que la précédente** : mon premier lot de sabotages
+restaurait le fichier par `git checkout --`, qui **échoue sur un fichier non suivi**. Les quatre
+sabotages se sont **empilés** et les quatre « exit 1 » ne prouvaient qu'une chose, la première.
+Détecté parce que le sha256 final ne tombait pas sur la référence ; le fichier a été reconstruit en
+**inversant** les quatre substitutions, et vérifié identique (`4800374b…`) avant de rejouer
+proprement, copie en scratchpad et sha256 **après chaque** sabotage.
+
+### 📌 Mesuré en passant, non corrigé
+
+**Les trois contrôles 5 bis appellent `curl` sans `--cacert`** (`-s -L --max-time 40 -A UA`). Une
+page `has-sante.fr` leur rendrait donc **000** là où le harnais, lui, lit **200** — c'est le piège
+du 18/10, qui n'a jamais été porté à ces trois scripts. La tolérance ne tranche pas à leur place :
+quand la page répond à la sonde, son message nomme **les deux** causes possibles — « le refus n'est
+PAS une panne de la page : document, ou pile TLS du contrôle ».
