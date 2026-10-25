@@ -26,6 +26,7 @@ tags:
   - theme/page-morte
   - theme/chiffre-absent-de-la-page-citee
   - correction/2026-10-25
+  - theme/panne-hebergement-obspm
 ---
 
 # 2026-09-03_lecon-astrologie-karmique_05_noeud-nord-croissance-signe-par-signe
@@ -45,6 +46,8 @@ Document source : [[2026-09-03_lecon-astrologie-karmique_05_noeud-nord-croissanc
 🔴 **Relue le 25/10/2026 : l'adresse IMCCE est repointée sur l'archive du 20/08/2026, quatorze jours avant la lecture du 03/09.** L'hôte ne répond plus depuis le **23/10/2026** — HTTP 000, `curl` **exit 28 avec ET sans** le faisceau, aucune réponse TCP sur 443, DNS résolu. L'Internet Archive corrobore, et c'est un second point de vue indépendant du nôtre : elle moissonnait `www.imcce.fr` **deux fois par jour** jusqu'au 17/10/2026 et n'a **plus aucun instantané** depuis — ni du portail, ni d'aucune page de `promenade.imcce.fr` après le 20/10.
 
 ⚠️ **Et la vérification confirme le ¶ de théorie sur deux points, en montre un troisième.** Le document écrit *« La ligne des nœuds est rétrograde : elle parcourt le zodiaque en ~18,6 ans, à raison d'environ 1,55 an par signe. (IMCCE, promenade.imcce.fr) »*. La page écrit *« les noeuds parcourent l'écliptique dans le sens rétrograde »* et *« La période PN de ce mouvement des noeuds est de 18,61 années tropiques »* : le sens et la période sont bien de la source, et **~18,6 est un arrondi juste de 18,61** — l'appariement rendait ④ uniquement parce qu'un jeton se cherche **ponctuation conservée**, donc « 18,6 » n'est pas « 18,61 ». En revanche **« environ 1,55 an par signe » ne figure pas sur la page** : c'est 18,61 ÷ 12, un calcul de la leçon et non une valeur de l'IMCCE. L'énoncé reste juste, son attribution est trop large. ⚠️ **Non réécrit** — l'ordre portait sur l'adresse —, consigné au journal du document.
+
+🔴 **Relue une seconde fois le 25/10/2026 : l'adresse de l'Observatoire de Paris passe elle aussi à l'archive.** `media4.obspm.fr` ne répond plus : **HTTP 000 et `curl` exit 28 (délai) AVEC ET SANS** le faisceau de certificats du dépôt, **aucune réponse TCP sur le port 443** alors que le DNS résout — ni le document, ni notre pile TLS. 🔴 **Et c'est UNE seule panne, pas deux** : `media4.obspm.fr` résout vers `wwwceti.obspm.fr`, `promenade.imcce.fr` vers `benoite.obspm.fr`, et **`www.obspm.fr` lui-même est muet de la même façon** — c'est tout l'hébergement de l'Observatoire de Paris qui est éteint, IMCCE compris. L'Internet Archive corrobore indépendamment de nos sondes : plus **aucun** instantané de `www.obspm.fr` après le **16/10/2026** (moisson régulière jusque-là), ni de `www.imcce.fr` après le 17/10. Archive du **02/10/2023** — HTTP 200, 25 077 caractères utiles, seul instantané existant, **deux ans et onze mois** avant la lecture du 03/09/2026. Le statut de la ligne a été réécrit pour dire ce qui est désormais cité, **en conservant le test d'origine du 03/09/2026** qui était vrai ce jour-là. Ce libellé n'attribue à la page qu'un mécanisme, retrouvé en ① dessus. **Requêtes passées** : `saison d'éclipses` (①), `ligne des nœuds` (①).
 
 ## Notes liées
 

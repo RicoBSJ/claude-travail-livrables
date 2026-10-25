@@ -4138,3 +4138,92 @@ Jusqu'ici le diagnostic reposait sur nos seules sondes (000 · `curl` exit 28 **
 - Les **trois ③ de la leçon 03** (19,35° deux fois, 15,335°) : valeurs absentes des sept pages liées et non déclarées comme constantes standard. Le journal du 02/10 montre que 19,35 est un **arrondi assumé** de 19,3549 pris à Wikipédia, les deux sources de référence ne concordant pas à cette précision — donc le défaut est **connu et ancien**, pas introduit ici.
 - Les **trois attributions de contenu** ci-dessus (25 769 ans, ~130 av. J.-C., 1,55 an/signe).
 - 📌 **La question de fond ouverte par la mesure** : faut-il faire pointer la ligne « portail » des leçons 01 et 02 vers le **LTE**, qui est l'organisme réel depuis 2025, plutôt que vers une archive d'un site renommé ? Ce serait une **source neuve**, pas la correction d'une adresse morte — et l'infrastructure de l'Observatoire de Paris étant injoignable, elle n'est même pas testable aujourd'hui.
+
+---
+
+## 25/10/2026 — les 5 adresses de l'Observatoire de Paris passent aux archives, et ce n'était pas une seconde panne : c'est la MÊME
+
+**L'ordre** : « corrige les pages obspm ». **5 adresses, 9 relations, 7 leçons** (astro 01 à 06 et 08) — tous les `⑦ PAGE SANS RÉPONSE` que l'ordre précédent avait laissés derrière lui.
+
+### 🔴 Le diagnostic est plus large que l'ordre : un seul hébergement est éteint
+
+| Sonde | Résultat |
+|---|---|
+| DNS `media4.obspm.fr` | résout → CNAME **`wwwceti.obspm.fr`** → 145.238.182.102 |
+| TCP 443 | **aucune réponse** |
+| 5 pages, **avec** faisceau | HTTP 000 · `curl` **exit 28** |
+| 5 pages, **sans** faisceau | HTTP 000 · `curl` **exit 28** |
+| `media4.obspm.fr/` (racine) | 000 · exit 28 |
+| **`www.obspm.fr/`** (hôte voisin, témoin) | **000 · exit 28** |
+
+**Ce ne sont pas cinq pages mortes, c'est tout l'hébergement de l'Observatoire de Paris qui est injoignable, site institutionnel compris.** Et cela **explique rétrospectivement la panne IMCCE** du même jour : `promenade.imcce.fr` résout vers `benoite.obspm.fr`, `media4.obspm.fr` vers `wwwceti.obspm.fr`. ⚠️ **J'ai traité deux ordres comme deux incidents alors qu'il n'y en a qu'un** — la mesure qui l'aurait montré d'emblée est un `dig` sur les deux hôtes, une commande. 🟢 **Et l'Internet Archive corrobore, indépendamment de nos sondes** : derniers instantanés de `www.obspm.fr` **réguliers jusqu'au 16/10/2026, plus aucun depuis** ; pour `www.imcce.fr`, arrêt le **17/10**. Deux hôtes, deux arrêts à un jour d'intervalle.
+
+### Les cinq archives, et ce qui justifie chacune
+
+| Page | Instantané | Écart à la lecture | Ce qui rend la substitution acceptable |
+|---|---|---|---|
+| `decalage.html` | **15/06/2026** | −2 mois (L02) | ⭐ **empreinte INCHANGÉE sur 10 instantanés depuis 2011** |
+| `intro-retrogradation-mars.html` | **21/05/2026** | −4 mois (L08) | ⭐ **empreinte INCHANGÉE sur 7 instantanés depuis 2014** |
+| `quand-eclipses-lune_impression.html` | **02/10/2023** | ⚠️ −2 ans 10 mois (L01, L03) · −2 ans 11 mois (L04, L05) | **seul instantané** ; tout ce que les leçons en tirent est retrouvé en ① |
+| `voute-celeste_impression.html` | **03/10/2022** | ⚠️ −3 ans 11 mois (L06) | **seul instantané** ; libellé confirmé terme par terme, négation comprise |
+| `repere-ecliptique.html` | **31/01/2023** | ⚠️ −3 ans 7 mois (L06) | **seul instantané** ; trois termes sur quatre en ① |
+
+🆕 **ET UNE EMPREINTE INCHANGÉE DE PART ET D'AUTRE DE LA LECTURE REMPLACE LA PROXIMITÉ.** Pour `decalage.html`, les dix instantanés de 2011 à 2026 portent **la même empreinte** ; pour la page Mars, les sept de 2014 à 2026 aussi. Ce qui a été lu les 13/08 et 24/09/2026 est donc **exactement** ce que portent les archives — ce n'est plus une inférence de proximité, c'est une **identité de contenu prouvée**. La règle de proximité écrite le matin même reste le critère **par défaut** ; l'identité d'empreinte est **plus fort** qu'elle.
+
+### 🟢 Le vrai gain : le repointage rend VÉRIFIABLE ce qui ne l'était pas
+
+Quatre citations littérales et quatre chiffres étaient attribués à ces pages sans que rien ne puisse les contrôler, l'hôte étant muet. **Tout a été mesuré sur les archives, et tout tient** :
+
+| Attribution | Leçon | Verdict |
+|---|---|---|
+| « le Soleil apparent passe par l'un des deux nœuds tous les 173,31 jours » | 03 ¶88 | **① LITTÉRAL** |
+| « il y [a] obligatoirement deux éclipses, une éclipse de Soleil et une éclipse de Lune » | 03 ¶30 | **① LITTÉRAL** — et la page écrit **« il y obligatoirement »**, sans le verbe : le `[a]` entre crochets est une **restitution éditoriale correcte** |
+| `15,335°` comme critère en longitude | 03 ¶30 | **① LITTÉRAL** — « ces 15,335° correspondent à l'écart angulaire entre une conjonction et une opposition » |
+| `346,62` · `173,31` | 03 | **① LITTÉRAL** |
+| « 23 h 56 min 4 s pour un tour complet » | 06 ¶127 | **① LITTÉRAL** à la graphie près : la page écrit **« 23h 56m 4s »** |
+| « le nadir n'y figure pas » (énoncé **NÉGATIF**) | 06 ¶158 | **CONFIRMÉ** — 0 occurrence de `nadir`, et le libellé l'annonçait |
+| « le mouvement de Mars vu depuis la Terre montre… » | 08 ¶24 | **① LITTÉRAL** (capitale initiale abaissée, citation intégrée à la phrase) |
+| Auteurs « Marc Fouchard, S. Renner, Stéphane Erard » | 08 ¶24 et ¶130 | **① LITTÉRAL**, dans cet ordre |
+| « 1 279 chars » | 08 | **CONFIRMÉ** — l'archive mesure **1 334** caractères utiles, dont ~50 d'habillage |
+
+### 🔴 QUATRE FOIS DANS LA MÊME SÉANCE, LE « ④ ABSENT » VENAIT DE MA REQUÊTE ET NON DU DOCUMENT
+
+C'est le vrai enseignement de cet ordre, et il est plus large que lui. Quatre fois j'ai lu un ④ comme une fausse attribution du document, et quatre fois c'était ma formulation :
+
+| Ma requête | Ce que la page écrit | La cause |
+|---|---|---|
+| `à chaque saison d'éclipse, il y a obligatoirement…` | `il y obligatoirement…` | le **`[a]` éditorial** du document, qui était JUSTE |
+| `23 h 56 min 4 s` | `23h 56m 4s` | **abréviations** sans espaces |
+| `le mouvement de Mars vu…` | `Le mouvement de Mars vu…` | **capitale initiale**, abaissée à bon droit dans la citation |
+| `19,35` · `19,3549` | `19,354 8° par an` | ⭐ **une espace groupant les DÉCIMALES** |
+
+🆕 **ET LE QUATRIÈME EST UNE RÈGLE DE NORMALISATION NEUVE : LA TYPOGRAPHIE FRANÇAISE GROUPE AUSSI LES DÉCIMALES.** `19,354 8` est **un seul nombre**, 19,3548 — comme `1 338` est un seul nombre côté entiers. Conséquence mesurée, et elle oppose deux outils du dépôt qui ont **tous les deux raison** : `chercher.py`, qui apparie un **jeton ponctuation conservée**, rend **④ ABSENT** pour `19,35` ; le motif ③, qui teste une **sous-chaîne** (`if val in TOUTES`), rend **présent**. ⚠️ **J'ai conclu de celui qui ne posait pas la bonne question**, et j'ai écrit dans le journal ET la fiche de la leçon 03 que « 19,35° » ne figurait sur aucune page. **C'est faux, et c'était déjà écrit** : corrigé dans les deux, à la mesure. **Avant de lire un ④ sur un NOMBRE comme une absence, chercher la graphie groupée.**
+
+🟢 **Conséquence directe** : les **trois ③** de la leçon 03 (`19,35°` ×2, `15,335°`) n'étaient **pas** un défaut du document — les valeurs étaient sur la page depuis toujours, **illisibles parce que l'hôte était éteint**. Elles sont levées par le repointage. ⚠️ Et cela **corrige ce que j'ai écrit ce matin même** dans l'entrée précédente : « défaut connu, ancien et assumé ». Il n'y avait pas de défaut. Nuance de source qui subsiste : le journal du 02/10 attribuait la valeur à **Wikipédia** sous la forme `19,3549`, là où l'Observatoire écrit **19,3548** — les deux arrondissent à 19,35, et l'attribution à l'Observatoire est désormais la bonne.
+
+### 5 bis, mesuré dans les deux sens sur les sept leçons
+
+| Leçon | AVANT | APRÈS |
+|---|---|---|
+| 01 | `REFUSÉ — 1` (⑦ obspm) | **`OK — aucun des sept motifs`** |
+| 02 | `REFUSÉ — 1` (⑦ obspm) | **`OK`** |
+| 03 | `REFUSÉ — 4` (3× ③ + ⑦ obspm) | **`OK`** |
+| 04 | `OK` | `OK` |
+| 05 | `REFUSÉ — 1` (⑦ obspm) | **`OK`** |
+| 06 | `REFUSÉ — 2` (2× ⑦ obspm) | **`OK`** |
+| 08 | `REFUSÉ — 1` (⑦ obspm, ¶24 **et** ¶130) | **`OK`** |
+
+**Les sept leçons du parcours concernées sortent toutes en `OK — aucun des sept motifs`, et plus aucun ⑦ ne subsiste dans le parcours.** Le « avant » des leçons 01 à 06 est la mesure d'après l'ordre IMCCE (commit `f5a2c3c`), celui de la 08 une mesure sur sauvegarde.
+
+### Autres vérifications
+
+**0 cible obspm vivante** (9 relations, toutes archivées) · **0 rel orphelin** · **0 marqueur dans un lien** · **0 marqueur suivi de texte** · 18 marqueurs du 25/10 au total = 9 IMCCE + 9 obspm · XML bien formé sur les 7 (`document.xml`, `.rels`, `[Content_Types].xml`) · gate `--docs` **exit 0, les 7 à 0 bloquant contre 0 en référence** · `audit_vault.py` **9/9**.
+
+⚠️ **Et une cinquième erreur de mesure à moi, dans le contrôle de vérification lui-même** : mon décompte d'orphelins annonçait **7 orphelins par document** — il comptait les relations **internes** (`styles.xml`, `numbering.xml`, `fontTable.xml`…), qui n'ont par nature aucun `r:id` dans le corps. **Seules les relations EXTERNES (`http`) sont des liens cliquables**, ce que `balayer_adresses.py` fait correctement depuis le 25/10 au matin et que ma copie jetable ne faisait pas. Refait sur les externes seules : **0 orphelin**. *Un contrôle réécrit à la hâte à côté d'un contrôle du dépôt qui fait déjà le travail est un contrôle de moins, pas un de plus.*
+
+### Ce qui n'est pas fait
+
+- 📌 **La panne elle-même** : si l'hébergement de l'Observatoire revient, ces neuf liens resteront sur des archives. Ce n'est pas faux — une archive est stable — mais ce n'est plus la source vivante. **Rien dans le dépôt ne le remarquera** : `balayer_adresses.py` sonde les adresses **citées**, et une archive répond toujours 200.
+- 📌 Les **12 adresses `DELAI`** du balayage comprenaient aussi `ipubli.inserm.fr` (psychopathologie n°16) — hôte différent, non touché par cet ordre.
+- 📌 Les **5 adresses `TLS`** et l'orphelin `enneade.lu` restent ouverts.
+- 📌 Les trois contrôles 5 bis sondent toujours **sans `--cacert`**.
