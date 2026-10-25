@@ -143,6 +143,26 @@ for l in entete.split("\n"):
 urls_texte = sorted(set(urls_de(corps, r"\s>\]«»\"")))
 urls = sorted(set(urls) | set(urls_texte))
 
+# ⚠️ LES MARQUEURS DE CORRECTION SE CALCULENT, ILS NE S'APPROXIMENT PAS (26/09/2026).
+#    Une exemption existait depuis le 17/09 : une citation était écartée si un « [ » non refermé
+#    se trouvait dans les 300 caracteres precedents ET un « ] » dans les 400 suivants. Elle tenait
+#    pour des marqueurs courts. Les marqueurs de correction font desormais 400 a 900 caracteres —
+#    ils expliquent ce qui a ete mesure —, si bien que les formulations d'origine qu'ils citent
+#    retombaient hors fenetre et redevenaient des attributions. Mesure du 26/09/2026 : corriger la
+#    lecon placement-financier n°03 la faisait passer de 1 a 3 bloquants, uniquement a cause de la
+#    trace conservee dans son propre marqueur. Quatre fois en une semaine le meme piege.
+#    On calcule donc les SPANS reels, en tolerant un niveau de crochets imbriques
+#    (« TypeError [ERR_UNKNOWN_FILE_EXTENSION] » vit a l'interieur d'un marqueur).
+MARQUEUR = re.compile(r"\[(?:Corrigé|Corrige|Précisé|Precise|Ajouté|Ajoute|Note du|Vérifié|Verifie)\b"
+                      r"[^\[\]]*(?:\[[^\]]*\][^\[\]]*)*\]", re.S)
+SPANS = [m.span() for m in MARQUEUR.finditer(corps)]
+def dans_marqueur(i):
+    """i tombe-t-il dans un marqueur de correction ? (la trace n'est pas une attribution)"""
+    return any(a <= i < b for a, b in SPANS)
+ecartes_marqueur = 0
+corps_hm = corps
+for a_, b_ in SPANS:
+    corps_hm = corps_hm[:a_] + " " * (b_ - a_) + corps_hm[b_:]
 # ── A. une page nommee dans le CORPS doit etre listee en Ressources
 #    (on s'arrete avant la section Ressources : apres, tout est un libelle de lien)
 #    ⚠️ ancre sur le TITRE (emoji compris) et non sur le mot « Ressources » : ce mot
@@ -152,6 +172,27 @@ res = corps.find("\U0001F4DA Ressources")
 if res == -1:
     res = corps.rfind("Ressources")
 avant_res = corps[:res] if res != -1 else corps
+# 🔴 ET LA PASSE A LISAIT CE CORPS MARQUEURS COMPRIS — CORRIGÉ LE 25/10/2026.
+#    L'INCIDENT, mesuré le 23/10/2026 sur la veille SERAFIN-PH du 21/10. Corriger une adresse
+#    fautive oblige, par la doctrine du dépôt, à conserver son libellé d'origine dans le marqueur
+#    de correction ET dans le 📝 Journal des corrections. Reproduit tel quel,
+#    « cnsa.fr/recueil-obligatoire-esms » ROUVRAIT le motif bloquant que la correction venait de
+#    fermer — deux fois, dans le journal PUIS dans un marqueur. Mesure refaite le 25/10 sur deux
+#    copies figées : l'adresse remise dans le marqueur rend « 1 bloquant · ORPH[cnsa.fr/recueil-
+#    obligatoire-esms] », et le document PUBLIÉ rend 0 — autrement dit, seule la déformation du
+#    libellé (une espace après le domaine) le faisait passer. Toute correction d'adresse était
+#    donc condamnée à déformer l'original pour pouvoir être publiée.
+#    ⚠️ B, B-FR, B-NOM et D écartent ces marqueurs depuis le 26/09 et le 11/10 ; la passe A ne le
+#    faisait pas, et la ligne de CLAUDE.md qui disait le contraire était vraie pour les autres et
+#    FAUSSE pour celle-ci. Ce n'est pas une exemption nouvelle, c'est la même, enfin appliquée ici.
+#    LA BORNE : on ne touche QUE la collecte d'adresses, le motif de l'incident. A2 (autorité
+#    nommée sans adresse), A3 (identifiants) et A4 (lignes « Source : ») lisent toujours
+#    « avant_res » marqueurs compris — aucun incident ne les a touchés, et un recensement des 294
+#    documents ne fait bouger aucun de leurs verdicts (ils sont tous à 0 aujourd'hui), donc rien
+#    ne serait mesurable. Les étendre serait un portage préventif, à faire quand un cas le montre.
+#    corps_hm remplace chaque marqueur par des blancs DE MÊME LONGUEUR : les indices restent
+#    alignés, donc la coupe à « res », calculée sur corps, reste valide — même argument qu'en D.
+avant_res_hm = corps_hm[:res] if res != -1 else corps_hm
 # ⚠️ PERIMETRE DEDUIT, PAS CODE EN DUR. Une liste de domaines ecrite a la main
 #    perime en silence — c'est l'incident iMac et celui de l'etape 2 de serafin-ph.
 #    On accepte tout nom de domaine plausible, et on EXCLUT les noms de fichiers
@@ -200,14 +241,14 @@ def liste(dom):
     """le domaine, ou l'un de ses sous-domaines, a une page listee"""
     return dom in doms_res or any(d.endswith("." + dom) for d in doms_res)
 nues, orphelines, sites_non_listes = set(), set(), set()
-for m in re.finditer(r"(" + DOM + r")((?:/[A-Za-z0-9._~:/#@!$&*+,;=%-]*)?)", avant_res, re.I):
+for m in re.finditer(r"(" + DOM + r")((?:/[A-Za-z0-9._~:/#@!$&*+,;=%-]*)?)", avant_res_hm, re.I):
     dom, chemin = sans_www(m.group(1)), m.group(2).rstrip("./,;:)")
-    ctx = avant_res[max(0, m.start() - 120): m.end() + 120]
+    ctx = avant_res_hm[max(0, m.start() - 120): m.end() + 120]
     if not liste(dom) and not chemin:
         # ⑭ (12/09/2026) un domaine nu cite COMME SOURCE dont AUCUNE page n'est listee etait
         #    ignore en silence, alors que la meme source nommee avec un chemin bloquait :
         #    nommer moins precisement faisait passer le test. Meme exigence pour les deux.
-        if not CODE.search(ctx) and attribue(avant_res[max(0, m.start() - 80):m.start()], avant_res[m.end():m.end() + 40]):
+        if not CODE.search(ctx) and attribue(avant_res_hm[max(0, m.start() - 80):m.start()], avant_res_hm[m.end():m.end() + 40]):
             sites_non_listes.add(dom)
         continue          # sinon : domaine simplement mentionne, jamais cite comme source
     if (dom.startswith("api.") or re.search(r"\.(sh|ps1|bat)$", chemin)
@@ -758,26 +799,10 @@ def source_nommee_fr(avant, apres):
 #    une citation anglaise de 8 mots « absente des pages ». Ouverture et fermeture non precedees d'un chiffre.
 #    un guillemet droit OUVRANT n'est pas colle a une lettre (la fermeture de "induire" suivie de l'ouverture de
 #    "covert" fabriquait la « citation » « un état hypnotique chez une tierce personne… » — hypnose n°14, 15/09/2026)
-# ⚠️ LES MARQUEURS DE CORRECTION SE CALCULENT, ILS NE S'APPROXIMENT PAS (26/09/2026).
-#    Une exemption existait depuis le 17/09 : une citation était écartée si un « [ » non refermé
-#    se trouvait dans les 300 caracteres precedents ET un « ] » dans les 400 suivants. Elle tenait
-#    pour des marqueurs courts. Les marqueurs de correction font desormais 400 a 900 caracteres —
-#    ils expliquent ce qui a ete mesure —, si bien que les formulations d'origine qu'ils citent
-#    retombaient hors fenetre et redevenaient des attributions. Mesure du 26/09/2026 : corriger la
-#    lecon placement-financier n°03 la faisait passer de 1 a 3 bloquants, uniquement a cause de la
-#    trace conservee dans son propre marqueur. Quatre fois en une semaine le meme piege.
-#    On calcule donc les SPANS reels, en tolerant un niveau de crochets imbriques
-#    (« TypeError [ERR_UNKNOWN_FILE_EXTENSION] » vit a l'interieur d'un marqueur).
-MARQUEUR = re.compile(r"\[(?:Corrigé|Corrige|Précisé|Precise|Ajouté|Ajoute|Note du|Vérifié|Verifie)\b"
-                      r"[^\[\]]*(?:\[[^\]]*\][^\[\]]*)*\]", re.S)
-SPANS = [m.span() for m in MARQUEUR.finditer(corps)]
-def dans_marqueur(i):
-    """i tombe-t-il dans un marqueur de correction ? (la trace n'est pas une attribution)"""
-    return any(a <= i < b for a, b in SPANS)
-ecartes_marqueur = 0
-corps_hm = corps
-for a_, b_ in SPANS:
-    corps_hm = corps_hm[:a_] + " " * (b_ - a_) + corps_hm[b_:]
+# ⚠️ LE BLOC DES MARQUEURS A ÉTÉ REMONTÉ AVANT LA PASSE A LE 25/10/2026 : il y était
+#    inatteignable par elle, et par le harnais, qui n'exécute la source que jusqu'au
+#    marqueur d'aspiration. MARQUEUR, SPANS, dans_marqueur(), ecartes_marqueur et
+#    corps_hm sont donc définis plus haut, juste avant « ── A. ».
 # ㊱ (15/10/2026) LES GUILLEMETS COURBES “ ” ENTRENT DANS B ET B-FR — PAR UN BALAYAGE
 #    COMPLEMENTAIRE, ET SURTOUT PAS EN LES AJOUTANT A L'ALTERNANCE CI-DESSOUS.
 #    ⚠️ LA DEMANDE PORTAIT SUR LES GUILLEMETS DROITS, ET ILS ETAIENT DEJA LA depuis
@@ -1300,7 +1325,7 @@ if not vus:
 #    corps_hm est le corps avec les marqueurs remplaces par des blancs DE MEME LONGUEUR : les
 #    indices restent alignes, donc la coupe a « res » (debut des Ressources), calculee sur corps,
 #    reste valide.
-avant_res_hm = corps_hm[:res] if res != -1 else corps_hm
+# avant_res_hm est calculé plus haut, avec avant_res (25/10/2026).
 ATTRIB = re.compile(r"(" + DOM + r")|\b(v[ée]rifi[ée]e?s?|selon|d'apr[eè]s|la doc|"
                     r"documentation|source|annonce|indique|pr[ée]cise)\b", re.I)
 IGNORE = re.compile(r"^(19|20)\d\d$")          # annees

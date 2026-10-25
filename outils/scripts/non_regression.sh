@@ -659,6 +659,75 @@ PYH
 N_A=$(wc -l < "$CUR/passe_A.tsv" | tr -d ' '); B_A=$(awk -F'\t' '$2>0' "$CUR/passe_A.tsv" | wc -l | tr -d ' ')
 echo "  $N_A documents · $B_A bloquant(s)"
 
+# ── 1 bis. LA PASSE A ÉCARTE-T-ELLE LES MARQUEURS DE CORRECTION ? (25/10/2026)
+# La doctrine du dépôt oblige, en corrigeant une adresse fautive, à CONSERVER son libellé d'origine
+# dans le marqueur et dans le 📝 Journal des corrections. Or la collecte d'adresses de la passe A
+# lisait « avant_res » marqueurs COMPRIS, là où B, B-FR, B-NOM et D lisent « corps_hm » : reproduire
+# le libellé ROUVRAIT le motif bloquant que la correction venait de fermer. Mesuré le 23/10 sur la
+# veille SERAFIN-PH du 21/10, deux fois — dans le journal puis dans un marqueur —, et contourné en
+# écrivant une espace après le domaine. Donc toute correction d'adresse déformait l'original.
+# ⚠️ LES DEUX SENS, ET LE SECOND EST CELUI QUI COMPTE. Le témoin « dans-marqueur » est la veille
+#    publiée avec son libellé RENDU À L'IDENTIQUE : il doit sortir à 0 (il sortait à 1). Le témoin
+#    « hors-marqueur » porte LA MÊME adresse, en plus, dans une ligne « Source : » du corps : il
+#    doit rester à 1. Sans lui, rien n'empêcherait d'exempter le corps entier — l'exemption doit
+#    s'arrêter aux SPANS des marqueurs, et c'est ce témoin qui le prouve, pas le commentaire.
+# Copies FIGÉES, aucun réseau : les passes A/A2/A3/A4 tournent avant l'aspiration.
+echo "▶ Témoins de la passe A et des marqueurs de correction (une adresse citée pour mémoire)…"
+MQ="$CUR/passe_A_marqueurs.tsv"
+env -i $PY - "$ROOT/outils/scripts/controle_attributions.py" "$NR"/temoins_passe_A_marqueurs/*.docx(N) > "$MQ" <<'PYH'
+import sys, io, contextlib
+src = open(sys.argv[1], encoding="utf-8").read()
+code = src[src.index("import sys, re, html, subprocess"):src.index("# ── aspiration des pages")]
+for f in sys.argv[2:]:
+    sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__"}
+    with contextlib.redirect_stdout(out):
+        try: exec(code, g)
+        except SystemExit as e: print("EXIT", e)
+    orph = sorted(g.get("orphelines", set())); snl = sorted(g.get("sites_non_listes", set()))
+    a2 = sorted(g.get("sans_adresse", set())); a3 = sorted(g.get("mal_formes", set())); a4 = list(g.get("src_sans_adresse", [])) + list(g.get("sans_cible", []))
+    print("%s\t%d\t%s\t%s\t%s" % (f.split("/")[-1], len(orph) + len(snl) + len(a2) + len(a3) + len(a4), ";".join(orph), ";".join(snl), ";".join(a2 + a3 + a4)[:200]))
+PYH
+MQ_KO=0
+MQ_N=$(grep -c . "$MQ")
+ATTENDU_MARQ=2        # un lot amputé passerait au vert : même garde qu'ATTENDU_LIENS (24/10/2026)
+ADR="cnsa.fr/recueil-obligatoire-esms"
+exige_marq() {        # $1 = part du nom, $2 = bloquants attendus, $3 = l'adresse doit-elle être là, $4 = ce qu'il garde
+  local ligne n orph
+  ligne=$(grep -- "$1" "$MQ" | head -1)
+  n=$(printf '%s' "$ligne" | cut -f2)
+  orph=$(printf '%s' "$ligne" | cut -f3)
+  if [ -z "$ligne" ]; then
+    echo "  ✗ témoin « $1 » ABSENT du lot — $4"; MQ_KO=1; return
+  fi
+  if [ "${n:-X}" != "$2" ]; then
+    echo "  ✗ $1 : ${n:-?} bloquant(s), $2 attendu(s) — $4"; MQ_KO=1; return
+  fi
+  case "$3:$orph" in
+    oui:*$ADR*) echo "  ✓ $4";;
+    oui:*) echo "  ✗ $1 : l'adresse n'est plus signalée hors marqueur — $4"; MQ_KO=1;;
+    non:*$ADR*) echo "  ✗ $1 : l'adresse du marqueur est encore accusée — $4"; MQ_KO=1;;
+    non:*) echo "  ✓ $4";;
+  esac
+}
+exige_marq "adresse-dans-marqueur" 0 non \
+  "une adresse citée POUR MÉMOIRE dans un marqueur n'est plus une page à lister"
+exige_marq "adresse-hors-marqueur" 1 oui \
+  "la même adresse écrite dans le CORPS bloque toujours — l'exemption s'arrête aux marqueurs"
+if [ "$MQ_N" != "$ATTENDU_MARQ" ]; then
+  echo "  ✗ $MQ_N témoin(s) joué(s), $ATTENDU_MARQ attendu(s) — un lot amputé passerait au vert,"
+  echo "    et l'exemption posée le 25/10 pourrait être retirée ou élargie sans bruit"
+  MQ_KO=1
+fi
+if [ "$MQ_KO" != "0" ]; then
+  echo "  ✗ LA PASSE A ET LES MARQUEURS : une correction d'adresse redeviendrait impubliable sans"
+  echo "    déformer le libellé d'origine, ou l'exemption aurait débordé du marqueur"
+fi
+# 🔴 ET SURTOUT PAS « STATUT=1 » ICI : le bloc 4 fait « STATUT=0 » à son entrée, donc un garde posé
+#    avant lui est DÉCORATIF. Mesuré le 25/10/2026 : les trois sabotages imprimaient leurs ✗ et le
+#    harnais sortait quand même en 0 — la règle du 15/10 (« un garde qui ne fait pas sortir en 1 est
+#    décoratif ») dans un garde écrit le lendemain du jour où je l'avais réécrite. MQ_KO est donc
+#    reporté APRÈS la réinitialisation, à côté de TEM_KO, qui résout le même problème depuis toujours.
+
 # ── 2. décompte sur les veilles
 echo "▶ Décompte sur les veilles…"
 : > "$CUR/decompte.tsv"
@@ -724,6 +793,7 @@ else
   echo "▶ Pas encore de référence : non_regression.sh --accepter pour enregistrer ce passage."
 fi
 [ "$TEM_KO" != "0" ] && STATUT=1
+[ "${MQ_KO:-0}" != "0" ] && STATUT=1     # passe A et marqueurs (25/10/2026)
 
 # ── 5. contrôle complet sur les témoins à citations
 # RETRY (13/09/2026) : un exit 3 (page non lue — réseau, mur, délai) ne prouve rien sur la passe B ; comme le

@@ -3573,3 +3573,74 @@ config, `has-actualite` et `rbpp` tombés « hors de portée ». C'est la jumell
 22/10, où une substitution comptait ses coups sans toucher ce que le lecteur lit. Corrigé par
 `rindex` **et** deux assertions sur le contenu extrait, au script de patch. Le sabotage ④ montre
 que le harnais attraperait désormais cette faute précise.
+
+---
+
+## 25/10/2026 — la passe A écarte enfin les marqueurs, et mon garde était décoratif au premier jet
+
+### L'incident, reproduit avant de toucher au code
+
+La doctrine du dépôt oblige, en corrigeant une adresse fautive, à **conserver son libellé
+d'origine** dans le marqueur de correction et dans le 📝 Journal des corrections. Or la collecte
+d'adresses de la passe A lisait `avant_res`, **marqueurs compris**, là où B, B-FR, B-NOM et D
+lisent `corps_hm` depuis le 26/09 et le 11/10 : reproduire le libellé **rouvrait le motif bloquant
+que la correction venait de fermer**. Mesuré le 23/10 sur la veille SERAFIN-PH du 21/10, deux fois
+— dans le journal puis dans un marqueur —, et **contourné en écrivant une espace après le
+domaine**, avec le motif de la déformation inscrit dans le document.
+
+Deux copies figées de cette veille, passées par le **vrai chemin du contrôle** (la source exécutée
+jusqu'au marqueur d'aspiration, comme le fait le bloc 1 du harnais : aucun réseau, aucune copie de
+logique) :
+
+| Copie | Avant correctif | Après |
+|---|---|---|
+| libellé **rendu à l'identique** dans le marqueur | **1 bloquant** · `ORPH[cnsa.fr/recueil-obligatoire-esms]` | **0** |
+| la **même adresse** dans une ligne « Source : » du corps | 1 bloquant | **1** |
+| la veille **publiée**, avec sa déformation | 0 | 0 |
+
+La première ligne est l'incident ; la troisième dit que **seule la déformation la faisait passer**.
+La deuxième est la borne : l'exemption s'arrête aux **spans** des marqueurs.
+
+### Le recensement : 294 documents, 0 bloquant avant, 0 après
+
+Le seul changement est le retrait de **6 entrées dans 5 documents** de la liste **non bloquante**
+« attributions au site nu, à préciser en page » : `react.dev`, `zanestein.com`,
+`longchennyingtik.org`, `crystalknows.com`, `enneagraminstitute.com`, `enneagrammepratique.fr`.
+Chacun de ces domaines figure 3 à 23 fois dans son document, mais **une seule occurrence
+qualifiait** pour cette liste, et elle était **dans un marqueur** — c'est le diff d'ensembles sur le
+vrai code qui le prouve, pas une inspection à l'œil. **0 entrée ajoutée** : le sens est vérifié, un
+rétrécissement ne peut qu'enlever. La référence du harnais ne bouge pas, puisqu'elle ne stocke que
+les bloquants — et c'est précisément pourquoi la mesure devait porter sur les **ensembles détaillés**
+et pas sur le verdict.
+
+⚠️ **Et ce retrait est une perte, assumée** : ces six entrées étaient des conseils (« préciser en
+page »). On ne demande pas de préciser une adresse citée pour mémoire.
+
+### La borne : A2, A3 et A4 ne changent pas
+
+Elles lisent toujours `avant_res` marqueurs compris. Aucun incident ne les a touchées, et comme
+leurs verdicts sont **tous à 0 sur les 294 documents**, les étendre ne serait mesurable sur rien :
+ce serait un portage préventif, à faire le jour où un cas le montre. Le commentaire du code le dit.
+
+### 🔴 Mon garde était décoratif, le lendemain du jour où j'ai réécrit la règle
+
+Premier jet : les **trois** sabotages imprimaient bien leurs `✗`… et le harnais sortait en **0**.
+Cause : le **bloc 4** (diff avec la référence) fait `STATUT=0` **à son entrée**, donc tout
+`STATUT=1` posé avant lui est **perdu**. C'est la règle du 15/10 — « un garde qui ne fait pas
+sortir en 1 est décoratif » — enfreinte le jour suivant celui où je l'ai réécrite à propos de ㊳
+bis, et le script portait déjà un avertissement sur cette classe de piège, à propos de la branche
+`--docs`. Corrigé en reportant `MQ_KO` **après** la réinitialisation, à côté de `TEM_KO`, qui
+résout le même problème depuis toujours.
+
+**La leçon opérationnelle** : un sabotage qui ne vérifie que la **ligne** ne voit pas ce piège. Il
+faut lire **les deux** — la ligne ET le code de sortie. Les trois sabotages sortent maintenant en 1 :
+① la boucle remise sur `avant_res` → le témoin au marqueur crie ; ② `SPANS` étendu au corps entier →
+le témoin hors marqueur crie ; ③ un témoin retiré du dossier → `ATTENDU_MARQ` crie. Contrôle
+restauré au sha256 `cf72d5cd…` après chaque sabotage, témoin remis en place.
+
+### Ce qui reste, et c'est une phrase dans un livrable
+
+La veille SERAFIN-PH du 21/10 porte encore l'adresse déformée **et le motif de la déformation** —
+« reproduite ici avec une espace après le domaine, parce que la passe A n'exempte PAS les marqueurs
+(mesuré le 23/10/2026) » — qui est désormais **faux**. Restaurer le libellé demande une correction
+du `.docx` ; elle n'a pas été ordonnée.
