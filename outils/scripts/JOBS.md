@@ -4009,3 +4009,70 @@ Et une règle née de la leçon n°2 d'ennéagramme : **le correcteur refuse de 
 - Les **12 adresses `DELAI`** de l'Observatoire de Paris et les **5 `TLS`** restent sans verdict — un défaut de TLS peut être **notre** pile, et c'est précisément pourquoi elles ne condamnent pas.
 - `promenade.imcce.fr/fr/pages2/221.html`, corrigée dans la leçon n°10 d'astrologie le 25/10 au matin, **reste citée par la leçon n°6**.
 - Le balayage n'est toujours **pas planifié** : c'est une photographie, et le créneau du jeudi 9h33 est libre depuis le 22/10.
+
+---
+
+## 25/10/2026 — l'adresse IMCCE de la leçon n°6 passe à l'archive, et en vérifiant le remplacement j'ai trouvé que le libellé disait ce que le glossaire ne dit pas
+
+**L'ordre** : « corrige l'adresse IMCCE encore citée par la leçon n°6 ». C'est la dernière ligne de l'entrée précédente de ce fichier : `promenade.imcce.fr/fr/pages2/221.html`, corrigée le matin même dans la leçon n°10, **restait citée par la leçon n°6**.
+
+### Ce que la mesure a redistribué
+
+La leçon n°6 ne cite pas une adresse IMCCE, elle en cite **deux** : `pages2/221.html` (Glossaire, ¶158) et `pages3/316.html` (Sphère céleste, ¶157 **et** la ligne « Sources » du §2, ¶22). **Une seule est corrigée**, et le motif n'est pas la paresse : il est mesuré. L'archive du glossaire date du **01/09/2026**, soit **neuf jours avant** le test que la leçon annonce (10/09/2026) — la substitution est fidèle à ce que le document a lu. Le dernier instantané à 200 de `316.html` date du **22/04/2025**, soit **dix-sept mois avant** ce test : la substituer, ce serait citer autre chose que ce qui a été lu. **Une archive ne remplace une page morte que si son instantané encadre la lecture que le document annonce** — règle portée dans `CLAUDE.md`.
+
+### ⑤ La panne, diagnostiquée et non devinée
+
+| Sonde | Résultat |
+|---|---|
+| `curl` **avec** le faisceau du dépôt | HTTP **000**, exit **28** |
+| `curl` **sans** le faisceau | HTTP **000**, exit **28** — donc **ce n'est pas notre pile TLS** |
+| DNS | **résout** : `promenade.imcce.fr` → `benoite.obspm.fr` → `145.238.80.45` |
+| TCP 443 (`nc -z -w 10`) | **aucune réponse** |
+| `www.imcce.fr` (hôte différent) | HTTP **000**, exit **28** |
+
+Un 000 seul n'aurait rien dit : c'est la règle du balayage du 25/10, appliquée ici dans l'autre sens — **la mesure a servi à ne PAS accuser le document**. La page est désormais citée dans l'archive, mesurée à **HTTP 200 et 51 138 caractères utiles**, **même empreinte d'instantané qu'au 06/03/2025** : le glossaire n'a pas bougé. Les leçons n°6 et n°10 citent donc le même instantané — une panne, deux leçons.
+
+### ⑥ Le second défaut n'a rien à voir avec le réseau
+
+Le libellé annonçait *« définition du nœud comme intersection de plans orbitaux »*. Le glossaire écrit : **« Noeud. L'un des deux points de la sphère céleste associés à l'intersection du plan de l'orbite avec un plan de référence. »** Le plan de référence **n'est pas un second plan orbital** — il peut être l'équateur, et ce n'est que pour les nœuds lunaires qu'il se confond avec l'écliptique. Le mot **« orbitaux » est ABSENT** de la page (`chercher.py` : ④, 0 mot plein sur 1).
+
+🧪 **Requêtes passées, pour qu'on voie ce qui n'a pas été interrogé** : `nœud` (④ — la page écrit **« noeud »** sans ligature), `noeud` (①), `intersection` (①), `plan orbital` (④), `plans orbitaux` (④), `nœud ascendant` (④, mais « noeud ascendant » est là), `ligne des nœuds` (④), la définition complète (②), `orbitaux` (④), puis `IMCCE`, `Glossaire`, `sphère céleste`, `plan de référence` — **les quatre en ①**, donc le nouveau libellé est entièrement porté par la page.
+
+⚠️ **La définition est rendue en style indirect, SANS guillemets, et c'est une décision mesurée** : l'appariement n'est qu'au degré **②**, parce que le `.brut` montre `du plan de l'<i><a href="#orb">orbite</a></i>` — **l'aspirateur insère une espace à la frontière de la balise**. Un littéral entre guillemets n'aurait donc pas été prouvé au degré ①, et la règle du dépôt est claire : ② suffit pour « la source le dit », pas pour une citation.
+
+🔴 **Et le document se faisait déjà ce reproche.** Son journal du 10/09/2026 écrit au point ③ *« une valeur juste, mais absente des pages qui la sourcent »*, et conclut qu'*« annoncer un statut HTTP ne dispense pas de regarder si la page contient quelque chose »*. Six semaines plus tard, le défaut restant était de la même famille, **deux lignes plus bas dans la même liste de ressources**.
+
+### Mécanique : deux pièges, tous deux dans MON outil
+
+🔴 **① Un marqueur posé au `</w:p>` et une réécriture du même paragraphe sont des édits qui SE CHEVAUCHENT.** La doctrine « de la fin vers le début » ordonne les édits, elle ne protège pas d'un recouvrement : l'un aurait mangé l'autre. Le paragraphe a donc été **remplacé en entier, marqueur compris, en un seul édit**, avec trois assertions — unicité du paragraphe dans le XML, marqueur **après** le `</w:hyperlink>`, et **rien** après le marqueur.
+
+🔴 **② `corriger.py` asserte qu'un texte visible EXISTE, jamais qu'il est UNIQUE — et ici il y en avait cinq.** Le run de statut ` (Statut : 200 — testé le 10/09/2026.)` apparaît **5 fois** dans ce document : passé à la clé `textes`, il aurait réécrit **cinq lignes de ressource** au lieu d'une, et `assert n > 0` aurait laissé faire. Mesuré sur la sauvegarde avant toute modification.
+
+🧪 **Donc j'ai relu les 12 documents de ce matin pour la même classe de défaut — et c'est propre : 8 marqueurs, 7 libellés réécrits, 33 ¶ de journal ajoutés, AUCUNE réécriture collatérale**. Les 5 paragraphes que l'heuristique de préfixe n'appariait pas sont tous des libellés ATIH, dont le nouveau chemin ne partage que 15 caractères avec l'ancien ; ils ont été retrouvés un par un, chacun avec son remplaçant voulu et son marqueur. Ce n'est pas une vérification que j'avais faite au moment du push : j'avais contrôlé les lignes corrigées et le verdict du gate, **pas l'absence d'effets de bord ailleurs dans le document**.
+
+🔴 **Et il m'a fallu TROIS tentatives pour mesurer ça, les trois fausses, la même racine chaque fois : j'avais fabriqué un index « nom de fichier → chemin » au lieu d'utiliser les chemins connus.** ① Un parcours `os.walk` de la racine avec `setdefault` a apparié `2026-10-18_veille_imac.docx` et `2026-06-13_veille_ai-act.docx` à leurs **homonymes figés** sous `outils/scripts/non_regression/` : il annonçait **38 paragraphes réécrits et le journal du 18/10 disparu** pour une note qui n'a que **2 paragraphes de différence**. ② Deux marches successives dans les `opcodes` de `difflib` ont recompté la même fausse alerte, parce qu'un bloc `replace` de longueurs inégales désaligne tout ce qui suit. **Un nom de fichier n'est pas un chemin, et un dépôt qui porte des témoins figés porte des homonymes** : l'index assertant `n not in cur` sur les seuls dossiers publiés trouve **319 `.docx`, aucun homonyme**. La mesure juste se fait sur la **différence de multiensembles** des textes de paragraphes, pas sur les opcodes.
+
+### Vérifications
+
+| Contrôle | Verdict |
+|---|---|
+| `zip -t`, journal présent, texte extrait | **OK** |
+| Cible morte résiduelle dans les `rels` · `rel` orphelin introduit | **AUCUNE · AUCUN** |
+| Marqueur dans un hyperlien · texte après le marqueur | **non · aucun** |
+| Gate `--docs` avant → après | **0 bloquant → 0 bloquant**, diff de verdict **VIDE** |
+| ㊳ `controle_livrable_du_job.py` | **muet** — le log du run du 10/09 est purgé (30 jours) |
+| `audit_vault.py` | **9/9**, 184 fiches, 1 379 liens wiki |
+| Étape **5 bis** (`controle_astrologie_karmique.py`) | voir ci-dessous |
+
+### 5 bis : la leçon reste refusée, et c'est exact
+
+**Mesuré dans les deux sens, sur la sauvegarde puis sur le document corrigé : `REFUSÉ — 4 motif(s)` → `REFUSÉ — 3 motif(s)`**, et le motif qui disparaît est **exactement** `promenade.imcce.fr/fr/pages2/221.html`. Les trois qui restent sont tous des ⑦ (page sans réponse non déclarée) : `promenade.imcce.fr/fr/pages3/316.html`, `media4.obspm.fr/…/repere-ecliptique.html`, `media4.obspm.fr/…/voute-celeste_impression.html`. **Le glossaire n'y est plus** : le repointage l'a bien fait taire, et ⑥ (façade sous 500 caractères) ne mord pas sur l'archive.
+
+⚠️ **ET LE CONTRÔLE NE PEUT PAS ÊTRE SATISFAIT PAR UN MARQUEUR NI PAR LE JOURNAL — c'est dans son code, pas dans mon idée.** `T` retire les marqueurs `[Corrigé le …]` de chaque paragraphe, et `n_fin` coupe tout ce qui suit « 📝 Journal des corrections ». La déclaration que ⑦ accepte doit vivre **dans le corps, dans un paragraphe qui porte le lien**. Pour une page muette, **seul le repointage** — ou une déclaration écrite dans la ligne elle-même — la fait taire. ⚠️ Et il y a une seconde borne, utile à connaître : ⑦ **ignore** une URL dont aucun paragraphe porteur ne contient **ni chiffre ni « ** (`porteurs` … `re.search(r"\d|«", T[i])`), donc une ligne de ressource qui n'annonce aucun statut échappe au motif.
+
+### Ce qui n'est pas fait, et qui n'a pas été ordonné
+
+- **`promenade.imcce.fr/fr/pages3/316.html`**, seconde adresse IMCCE de la MÊME leçon, dans le même état — archive de **22/04/2025**, dix-sept mois avant la lecture annoncée. Non corrigée, décision à prendre à part.
+- Les deux pages de l'**Observatoire de Paris** de la même liste (`voute-celeste`, `repere-ecliptique`), mêmes 000, même `exit 28`.
+- Les **quatre autres adresses IMCCE** du parcours : `pages3/333.html` (leçons 03, 04, 05), `pages3/368.html` (03), `pages4/438.html` (02), `www.imcce.fr` (01, 02). **Six adresses IMCCE distinctes, sept leçons touchées par la même panne** — la n°10 est passée à l'archive le matin du 25/10, la n°6 l'après-midi, les cinq autres non.
+- 📌 Les trois contrôles 5 bis sondent toujours **sans `--cacert`** : piste bornée du 23/10, toujours ouverte.
