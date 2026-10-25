@@ -611,6 +611,41 @@ if [ -x "$NR/tolerance_page_morte.py" ]; then
   fi
 fi
 
+# ── 0 septies. LA CLASSIFICATION DU BALAYAGE D'ADRESSES (25/10/2026)
+# `balayer_adresses.py` est le seul outil du dépôt qui relise les adresses d'un livrable que
+# PERSONNE n'a touché : les contrôles n'ouvrent que les pages du document qu'on leur donne, et le
+# harnais ne voit que les documents d'un push. Le balayage lui-même n'est PAS câblé ici — une page
+# tierce morte n'est pas une régression du dépôt, même raison que `--manques` — mais sa
+# CLASSIFICATION est de la logique du dépôt, et elle encode la leçon du 18/10 :
+# 🔴 UN DÉFAUT DE TLS NE DIT PAS QU'UNE PAGE EST MORTE. Mesuré le 25/10 sur quatre des vingt
+#    injoignables du premier balayage, faisceau compris : exit 60 (certificat) pour
+#    entretienmotivationnel.org, cité par 7 documents ; exit 35 (connexion TLS) pour
+#    service-public.gouv.fr ; exit 28 (délai) pour media4.obspm.fr ; exit 6 (hôte non résolu) pour
+#    davidstamile.com. Les quatre rendaient le même « 000 ». Classer les quatre pareil, c'était
+#    écrire en face d'une page vivante qu'elle est morte — exactement ce que `has-sante.fr` a
+#    coûté le 18/10 avant le faisceau. Seuls MORTE (404/410) et DNS (hôte disparu) condamnent.
+if [ -x "$ROOT/outils/scripts/balayer_adresses.py" ]; then
+  echo "▶ Auto-tests de la classification du balayage d'adresses (aucun réseau)"
+  BAL_OUT="$CUR/balayage_autotest.txt"
+  if env -i $PY "$ROOT/outils/scripts/balayer_adresses.py" --autotest > "$BAL_OUT" 2>&1; then
+    tail -1 "$BAL_OUT"
+    # même garde qu'ATTENDU_LIENS, ATTENDU_MARQ et ATTENDU_TOL : le total est CALCULÉ depuis le lot,
+    # donc un lot amputé imprimerait un « N/N » plus petit sans que rien ne refuse.
+    ATTENDU_BAL=34
+    LU_BAL=$(sed -n 's/.* \([0-9]\{1,\}\)\/[0-9]\{1,\} bornes de balayer_adresses.*/\1/p' "$BAL_OUT")
+    if [ "$LU_BAL" != "$ATTENDU_BAL" ]; then
+      echo "  ✗ ${LU_BAL:-0} borne(s) de classification jouée(s), $ATTENDU_BAL attendue(s) — un lot"
+      echo "    amputé imprimerait un total plus petit et passerait au vert."
+      exit 1
+    fi
+  else
+    grep '✗' "$BAL_OUT" | head -5
+    echo "  ✗ LA CLASSIFICATION DU BALAYAGE A PERDU UNE BORNE — un défaut de TLS pourrait redevenir"
+    echo "    « lien mort », et on corrigerait des adresses vivantes."
+    exit 1
+  fi
+fi
+
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then
   shift; STATUT=0

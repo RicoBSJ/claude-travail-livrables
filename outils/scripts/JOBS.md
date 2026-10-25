@@ -3836,3 +3836,87 @@ dont la base serait non nulle, et **aucun ne l'est**. Ce n'est pas un trou de s�
 direction d'erreur est le refus — mais le diff « avant/après » qu'on croit lire sur la famille A
 n'existe pas : la règle réelle est **« 0 bloquant, point »**. 📌 Piste bornée : soit régénérer la
 référence et l'assumer comme constante, soit la supprimer et dire la règle en clair.
+
+---
+
+## 25/10/2026 — balayage des 1 351 adresses citées par les 295 livrables : 10 liens condamnés, et un « 000 » qui cachait quatre choses
+
+### Le trou que ce balayage comble, et lui seul
+
+Les contrôles du dépôt n'ouvrent que les pages **du document qu'on leur donne** ; le harnais ne voit
+que les documents **d'un push**. Donc **personne ne relit un livrable que personne n'a touché** : un
+lien cité par une veille de juillet pouvait mourir en silence. C'est l'avocat du diable du rapport
+précédent, devenu ordre.
+
+### Le balayage
+
+| | |
+|---|---|
+| Portée | **1 351 adresses cliquables distinctes** (lues dans `word/_rels`, comme le font les contrôles), **408 hôtes**, **2 417 occurrences**, **295 documents** |
+| Hors portée, et il faut le dire | **98 hôtes cités en TEXTE SEUL** dans **130 documents** — un nom d'hôte sans chemin n'a rien de précis à sonder (`service-public.fr` 11 doc, `excolyon.com` 9, `cairn.info` 7, `has-sante.fr` 7…) |
+| Durée | **34 min** (15:48 → 16:22), **strictement séquentiel** |
+| Anti-débit | **tourniquet par hôte** : deux requêtes voisines ne touchent jamais le même serveur, ce qui espace les **106** adresses de `has-sante.fr` et les 99 de Wikipédia **sans allonger le total** |
+| Essais | **3**, les tours 2 et 3 **groupés à la fin** pour que l'intervalle de 20 s soit réel, et **seulement** sur le non concluant |
+| Faisceau | **utilisé** — sans lui, les 106 `has-sante.fr` rendraient 000 (18/10) |
+
+### Le verdict
+
+| Classe | N | Ce que ça veut dire |
+|---|---|---|
+| 🟢 VIVANTE | **1 234** | 2xx après redirections |
+| 🔵 REFUS | **88** | 401/403/429 — un automate est écarté, la page existe pour un humain (openai.com 19, make.com 13, rigpawiki 6, fnac 5, consilium 5, legifrance 4, economie.gouv 4, darty 4, cairn 4) |
+| 🟡 DELAI | **12** | le serveur ne répond pas — **11 des 12 sont l'Observatoire de Paris** (`promenade.imcce.fr` ×5, `media4.obspm.fr` ×5, `www.imcce.fr`), le 12ᵉ est `ipubli.inserm.fr` |
+| 🔴 **MORTE** | **8** | 404 — **le seul verdict qui demande une correction de lien** |
+| 🟠 TLS | **5** | la chaîne TLS échoue — **ce peut être la NÔTRE** : rien ne dit que la page est morte |
+| 🔴 **DNS** | **2** | l'hôte ne résout plus : le site a disparu |
+| 🟣 PANNE / HTTP2 | 1 + 1 | `discoveringhypnosis.com` 500 · `store.acer.com` exit 92 |
+
+**Adresses CONDAMNÉES : 10 sur 1 351 (0,74 %), dans 13 documents.**
+
+Les huit 404 : `atih.sante.fr/champ-d-activite/personnes-handicapees` (**6 veilles SERAFIN-PH**, la
+plus répandue), `atih.sante.fr/actualites/campagne-de-financement-2026`, `docs.n8n.io/advanced-ai/agents/`,
+`platform.openai.com/docs/agents`, `zapier.com/blog/ai-steps/`, `iapp.org/news/a/europes-cloud-and-ai-development-act…`,
+`macrumors.com/guide/m6/`, `ameliorersavie.com/stoicisme/…eupatheiai…`. Les deux DNS :
+`davidstamile.com` et `psychologie-enneagramme.fr`, deux leçons d'ennéagramme.
+
+### 🔴 La première version confondait quatre situations sous un même « 000 »
+
+Le premier passage rendait **20 INJOIGNABLE**. Un contrôle de quatre d'entre elles, faisceau
+compris, a donné **quatre causes différentes** :
+
+| Adresse | exit | Cause réelle |
+|---|---|---|
+| `www.entretienmotivationnel.org` | **60** | certificat non authentifiable — **7 documents** |
+| `www.service-public.gouv.fr/…/F2365` | **35** | erreur de connexion TLS |
+| `media4.obspm.fr/…/repere-ecliptique.html` | **28** | délai dépassé (la panne de l'Observatoire) |
+| `www.davidstamile.com/articles/…` | **6** | hôte non résolu — le site a disparu |
+
+**Lire « 20 injoignables » comme « 20 liens morts » aurait fait corriger 19 adresses qui ne sont pas
+mortes**, dont **5 où le défaut peut être notre propre pile TLS** — c'est le piège du 18/10, où
+`has-sante.fr` rendait 000 **par défaut de faisceau**, retourné contre moi. L'outil relève donc le
+**code de sortie de curl**, et `TLS` ne dit **jamais** qu'une page est morte. Après reclassement :
+**8 MORTE + 2 DNS condamnent**, les 19 autres relèvent du tiers ou de nous.
+
+### Ce qui est câblé, ce qui ne l'est pas
+
+⛔ **Le balayage n'est PAS au harnais** : une page tierce morte n'est pas une régression du dépôt, et
+bloquer un push pour cela punirait le document qui passe — même raison que `--manques` le 20/10.
+🟢 **Mais sa CLASSIFICATION l'est** (bloc 0 septies) : **34 bornes, aucun réseau**, dont les quatre
+causes mesurées en témoins et une boucle qui exige qu'**aucun** des sept codes de sortie TLS ne soit
+classé `MORTE`. **Trois sabotages** : « TLS redevient lien mort » → exit 1 · « un 403 compte pour un
+lien mort » → exit 1 · **« un témoin retiré du lot » → auto-test exit 0, harnais exit 1** grâce à
+`ATTENDU_BAL=34`, parce que le total est **calculé depuis le lot** et qu'un lot amputé imprimerait un
+« N/N » plus petit sans que rien ne refuse. **C'est le même piège que le compte « 9/9 » écrit en dur
+ce matin, dans le même après-midi** — et c'est le sabotage, encore, qui l'a montré.
+
+### 📌 Ce qui reste, et ce n'est pas fait
+
+**Les 10 adresses condamnées ne sont PAS corrigées** : l'ordre était de balayer. Elles touchent
+13 documents, dont **6 veilles SERAFIN-PH** pour la seule page de l'ATIH. ⚠️ Et le cas de
+`promenade.imcce.fr/fr/pages2/221.html` est instructif : **la même adresse morte que j'ai corrigée
+ce matin dans la leçon astro n°10 est encore citée par la leçon n°06** — une correction document par
+document ne ferme pas une adresse, elle ferme une occurrence. Les **six** adresses IMCCE et les
+**cinq** `media4.obspm.fr` relèvent d'une panne en cours, pas d'un lien cassé : elles se corrigent
+par l'archive, comme la n°10, ou se laissent revenir.
+
+Sortie complète, non versionnée (230 Ko) : `outils/scripts/logs/balayage_adresses_2026-10-25.tsv`.
