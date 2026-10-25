@@ -14,6 +14,10 @@ tags:
   - auteur/alan-leo
   - concept/karma
   - concept/statut-des-enonces
+  - source/web-archive
+  - theme/page-morte
+  - theme/organisme-renomme
+  - correction/2026-10-25
 ---
 
 # 2026-08-10_lecon-astrologie-karmique_01_cadrage-postulats-auteurs
@@ -29,6 +33,10 @@ Le point le plus utile est historique et vérifiable : **l'astrologie karmique a
 Trois auteurs de référence, **et ils ne disent pas la même chose** : Schulman parle de réincarnation au sens littéral, Spiller centre tout sur le Nœud Nord comme direction pratique, Liz Greene emploie un vocabulaire voisin pour décrire des archétypes jungiens sans postuler aucune vie antérieure. Les confondre est l'erreur la plus commune.
 
 La règle du parcours est posée ici : **toute interprétation est attribuée à son auteur**. Un tableau distingue à chaque leçon fait astronomique, usage qu'en fait le corpus, et statut de l'énoncé.
+
+🔴 **Relue le 25/10/2026 : l'adresse du portail est repointée sur une archive — et l'archive apprend que l'IMCCE n'existe plus sous ce nom.** `imcce.fr` ne répond plus depuis le **23/10/2026** : HTTP 000 et `curl` **exit 28 avec ET sans** le faisceau de certificats du dépôt, aucune réponse TCP sur le port 443 alors que le DNS résout — ni le document, ni notre pile TLS. L'Internet Archive corrobore, et c'est un second point de vue indépendant du nôtre : elle moissonnait `www.imcce.fr` **deux fois par jour** jusqu'au 17/10/2026 et n'a **plus aucun instantané** depuis — ni du portail, ni d'aucune page de `promenade.imcce.fr` après le 20/10. La ligne est désormais citée dans l'**archive du 24/08/2026**, la plus proche de la lecture du 10/08 (18/07 à 23 jours avant, 24/08 à 14 jours après).
+
+⚠️ **Et c'est la vérification du remplacement qui a trouvé le vrai défaut.** La page d'accueil archivée annonce elle-même : *« Depuis le 1er janvier 2025, l'IMCCE a fusionné avec le SYRTE pour constituer le Laboratoire Temps Espace (LTE) »*, et en anglais *« Since January 1, 2025, the IMCCE has changed its name »*. **La description au présent de cette ligne de ressource est donc périmée depuis dix-huit mois**, et la leçon ne pouvait pas le savoir le 10/08 sans lire la page. Mesuré aussi, et cela borne ce qu'on peut lui attribuer : le nom complet *« Institut de mécanique céleste et de calcul des éphémérides »* et les mots *« phénomènes célestes »* **ne figurent nulle part** sur la page archivée — **zéro occurrence de « mécanique céleste » dans les 44 063 octets de HTML brut**, le site étant rendu en JavaScript (Vue) et sa coquille de navigation essentiellement en anglais. Le libellé n'a pas été réécrit : il dit ce que l'institut **est**, non ce que la page **affiche**. **Requêtes passées** : le nom complet, `éphémérides` (①), `phénomènes célestes` (④), `mécanique céleste` (④).
 
 ## Notes liées
 

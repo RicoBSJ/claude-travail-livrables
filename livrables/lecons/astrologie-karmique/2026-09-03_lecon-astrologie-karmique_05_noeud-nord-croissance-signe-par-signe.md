@@ -22,6 +22,10 @@ tags:
   - etude/dean-kelly-2003
   - alerte/corrige
   - correction/2026-09-03
+  - source/web-archive
+  - theme/page-morte
+  - theme/chiffre-absent-de-la-page-citee
+  - correction/2026-10-25
 ---
 
 # 2026-09-03_lecon-astrologie-karmique_05_noeud-nord-croissance-signe-par-signe
@@ -37,6 +41,10 @@ Document source : [[2026-09-03_lecon-astrologie-karmique_05_noeud-nord-croissanc
 **Une erreur de nom, et elle tombe dans la section qui revendique la rigueur — corrigée dans le document le 03/09/2026**, avec journal. L'étude des jumeaux temporels est attribuée à *« Geoffrey Dean et Arthur Kelly »* : le co-auteur est **Ivan W. Kelly**, professeur à l'université de la Saskatchewan. La référence manque également — *Journal of Consciousness Studies*, 10(6-7), 2003, p. 175-198 —, tout comme celle de Carlson, donnée sans volume ni pages (*Nature* 318, 419-425). Se tromper sur le nom d'un auteur dans le seul passage consacré à ce que la science a établi est le défaut le plus visible de la leçon. Reste exact en revanche tout ce qui l'entoure : plus de deux mille personnes nées à Londres du 3 au 9 mars 1958, et l'absence de similarité au-delà du hasard.
 
 **Deux points de régime, repris le même jour — et cette fois le prompt est durci, pas seulement le document.** ① Une phrase de Schulman est donnée **entre guillemets** — *« Plus le Nœud Nord d'une personne lui semble étranger, plus c'est la preuve qu'elle en a besoin »* — alors que le livre n'a pas été ouvert : il est cité bibliographiquement, pas consulté, et les seules sources réellement récupérées sur Schulman sont un site de synthèse français. C'est le même défaut que la leçon de stoïcisme du même jour avec l'*Hymne à Zeus* : une citation traduite d'un ouvrage non ouvert. ② **La date d'ingression est déclarée en régime A sans source de régime A.** La leçon écrit que « le passage du Nœud Nord en Verseau est un fait astronomique calculable » et le date du **26 juillet 2026** — mais les pages NASA, IMCCE et Observatoire de Paris citées couvrent la géométrie des nœuds et le cycle de 18,6 ans, **pas les ingressions dans les signes**. La seule source qui traite « Nœud Nord Verseau » est un blog de régime B. S'y ajoute une ambiguïté que la leçon ne lève pas : nœud moyen et nœud vrai ne franchissent pas la limite le même jour, et l'exercice demande pourtant le *True Node*. Le texte porte désormais les trois réserves, et le parcours reçoit **trois garde-fous** : aucune citation d'un ouvrage non consulté, une date d'éphéméride n'est pas un fait de régime A sans source de régime A — avec obligation de préciser zodiaque tropical et nœud moyen ou vrai —, et des références d'études complètes ou rien.
+
+🔴 **Relue le 25/10/2026 : l'adresse IMCCE est repointée sur l'archive du 20/08/2026, quatorze jours avant la lecture du 03/09.** L'hôte ne répond plus depuis le **23/10/2026** — HTTP 000, `curl` **exit 28 avec ET sans** le faisceau, aucune réponse TCP sur 443, DNS résolu. L'Internet Archive corrobore, et c'est un second point de vue indépendant du nôtre : elle moissonnait `www.imcce.fr` **deux fois par jour** jusqu'au 17/10/2026 et n'a **plus aucun instantané** depuis — ni du portail, ni d'aucune page de `promenade.imcce.fr` après le 20/10.
+
+⚠️ **Et la vérification confirme le ¶ de théorie sur deux points, en montre un troisième.** Le document écrit *« La ligne des nœuds est rétrograde : elle parcourt le zodiaque en ~18,6 ans, à raison d'environ 1,55 an par signe. (IMCCE, promenade.imcce.fr) »*. La page écrit *« les noeuds parcourent l'écliptique dans le sens rétrograde »* et *« La période PN de ce mouvement des noeuds est de 18,61 années tropiques »* : le sens et la période sont bien de la source, et **~18,6 est un arrondi juste de 18,61** — l'appariement rendait ④ uniquement parce qu'un jeton se cherche **ponctuation conservée**, donc « 18,6 » n'est pas « 18,61 ». En revanche **« environ 1,55 an par signe » ne figure pas sur la page** : c'est 18,61 ÷ 12, un calcul de la leçon et non une valeur de l'IMCCE. L'énoncé reste juste, son attribution est trop large. ⚠️ **Non réécrit** — l'ordre portait sur l'adresse —, consigné au journal du document.
 
 ## Notes liées
 

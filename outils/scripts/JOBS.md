@@ -4076,3 +4076,65 @@ Le libellé annonçait *« définition du nœud comme intersection de plans orbi
 - Les deux pages de l'**Observatoire de Paris** de la même liste (`voute-celeste`, `repere-ecliptique`), mêmes 000, même `exit 28`.
 - Les **quatre autres adresses IMCCE** du parcours : `pages3/333.html` (leçons 03, 04, 05), `pages3/368.html` (03), `pages4/438.html` (02), `www.imcce.fr` (01, 02). **Six adresses IMCCE distinctes, sept leçons touchées par la même panne** — la n°10 est passée à l'archive le matin du 25/10, la n°6 l'après-midi, les cinq autres non.
 - 📌 Les trois contrôles 5 bis sondent toujours **sans `--cacert`** : piste bornée du 23/10, toujours ouverte.
+
+---
+
+## 25/10/2026 — les 5 adresses IMCCE restantes passent aux archives, et deux d'entre elles apprennent que l'institut a changé de nom
+
+**L'ordre** : « corrige les 5 adresses IMCCE restantes ». **5 adresses, 8 occurrences, 6 leçons** du parcours astrologie-karmique — toutes celles que l'entrée précédente avait laissées.
+
+### Les cinq, avec l'écart d'instantané mesuré
+
+| Adresse | Leçons | Archive retenue | Écart à la lecture annoncée |
+|---|---|---|---|
+| `pages3/333.html` (éclipses de Lune) | 03, 04, 05 | **20/08/2026** | **le jour même** (03) · −7 j (04) · −14 j (05) |
+| `www.imcce.fr/` (portail) | 01, 02 | **24/08/2026** | +14 j (01) · +11 j (02) |
+| `pages4/438.html` (écliptique, saisons, précession) | 02 | **07/06/2026** | −2 mois |
+| `pages3/316.html` (sphère céleste) | 06 | **22/04/2025** | ⚠️ **−17 mois** |
+| `pages3/368.html` (éclipses de Soleil) | 03 | **11/12/2024** | ⚠️ **−20 mois** |
+
+🔴 **Deux des cinq ne satisfont PAS la règle écrite le matin même** — « une archive ne remplace une page morte que si son instantané encadre la lecture que le document annonce ». L'ordre est explicite, donc elles sont repointées, **l'écart est écrit dans le marqueur**, et ce qui rend la substitution acceptable est mesuré, pas supposé : pour `316`, « sphère céleste », « horizon », « zénith », « méridien » et « repère local » sont **tous en ①** sur la page archivée, donc elle porte exactement ce que le libellé lui attribue ; pour `368`, la page est un **sommaire** — 3 414 caractères utiles, « Chapitre 1. Généralités et définitions » et la liste des chapitres —, ce que le libellé annonce mot pour mot, et non une page de contenu dont une valeur serait citée. **Une archive ancienne est acceptable quand le libellé porte sur la STRUCTURE de la page, pas sur une valeur.**
+
+### La panne a maintenant un second point de vue, indépendant du nôtre
+
+Jusqu'ici le diagnostic reposait sur nos seules sondes (000 · `curl` exit 28 **avec ET sans** le faisceau · aucune réponse TCP sur 443 · DNS résolu vers `benoite.obspm.fr`). Mesure neuve : **l'Internet Archive moissonnait `www.imcce.fr` DEUX FOIS PAR JOUR jusqu'au 17/10/2026** (14, 15, 16, 17/10 à ~10 h et ~22 h) et **n'a plus aucun instantané depuis** — ni du portail, ni d'aucune page de `promenade.imcce.fr` après le 20/10. ⚠️ **Ce n'est pas une preuve** (un calendrier de moisson peut changer), mais une cadence biquotidienne qui s'arrête net à la date où nos sondes commencent à échouer est une corroboration qui ne vient pas de notre réseau. **Un deuxième point de vue vaut mieux qu'un deuxième essai.**
+
+### 🔴 Ce que la vérification des remplacements a trouvé — et qui n'est pas de la pourriture de lien
+
+**① L'IMCCE n'existe plus sous ce nom depuis le 1er janvier 2025.** La page d'accueil archivée l'annonce elle-même : *« Depuis le 1er janvier 2025, l'IMCCE a fusionné avec le SYRTE pour constituer le Laboratoire Temps Espace (LTE) »*, et en anglais *« Since January 1, 2025, the IMCCE has changed its name »*. Les leçons **01 et 02** décrivent l'institut **au présent** — « l'organisme français de référence pour les positions et les phénomènes célestes », « Portail de l'IMCCE (éphémérides, phénomènes célestes) » : la mention est **périmée depuis dix-huit mois**. Mesuré au passage, et cela borne ce qu'on peut attribuer à cette page : le nom complet « Institut de mécanique céleste et de calcul des éphémérides » et les mots « phénomènes célestes » **n'y figurent nulle part** — **zéro occurrence de « mécanique céleste » dans les 44 063 octets de HTML brut**, le site étant rendu en JavaScript (Vue) et sa coquille de navigation essentiellement en anglais pour 3 424 caractères utiles. **Les libellés ne sont pas réécrits** — ils disent ce que l'institut *est*, non ce que la page *affiche* — et le marqueur porte la correction là où elle se lit.
+
+**② Un nombre que la page citée n'écrit pas (leçon 02).** Le ¶ sur la précession annonce *« environ 50,3″/an … Période : ~25 769 ans … Hipparque, ~130 av. J.-C. »* en citant l'IMCCE. L'archive écrit **« 50,2877" par an »** — l'arrondi est juste — mais **« une révolution en environ 26000 ans »**, pas 25 769 ; et elle ne date pas la découverte, elle situe *« Hipparque de Nicée (env. 190 - env. 125 av. J.-C. »* et ses observations **entre 162 et 128 av. J.-C.** Les deux énoncés sont justes au fond : ce qui est inexact est de les attribuer à **cette** page. Même famille exactement que le point ③ du journal du 10/09 de la leçon 06.
+
+**③ Un chiffre dérivé présenté comme de la source (leçon 05).** *« environ 1,55 an par signe »* n'est pas sur la page : c'est **18,61 ÷ 12**, un calcul de la leçon. La page écrit *« La période PN de ce mouvement des noeuds est de 18,61 années tropiques, soit 6797.157342 jours »* et *« les noeuds parcourent l'écliptique dans le sens rétrograde »* — le sens et la période **sont** de la source, et « ~18,6 ans » en est un arrondi juste.
+
+⚠️ **Les trois sont consignés dans les journaux des documents et NON réécrits** : l'ordre portait sur les adresses. Un énoncé juste mal attribué se corrige, mais c'est une décision de contenu.
+
+🧪 **Et une mesure qui a simplifié le travail** : les deux instantanés d'août 2026 de `333.html` (20/08 et 26/08) ont des **empreintes différentes au catalogue CDX** et pourtant un texte utile au **sha256 IDENTIQUE** (11 265 caractères) — la différence est dans l'habillage de l'archive, pas dans la page. **Un seul instantané sert donc les trois leçons**, et c'est mesuré, pas supposé. ⚠️ Corollaire : **une empreinte CDX différente ne signifie pas un contenu différent**, elle porte l'habillage du moissonneur.
+
+### Mon erreur
+
+🔴 **Une assertion fausse a laissé deux documents à moitié corrigés.** Mon garde disait : « si j'écris un titre de journal, c'est qu'il n'y en a pas » — `assert "Journal des corrections" not in xml`. Or **trois de ces leçons portent déjà DEUX sections de journal datées** (03, 04, 05), et je l'avais lu dix minutes plus tôt. Le script s'est arrêté à la leçon 03 **après avoir écrit 01 et 02**. Ce qui doit être unique n'est pas *le journal*, c'est **la section du jour** : l'assertion porte désormais sur « Journal des corrections — 25 octobre 2026 ». Les 12 fichiers ont été **restaurés depuis la sauvegarde au sha256 identique** — vérifié, `git status` vide — puis le script relancé en entier. **Une correction partielle est pire qu'un échec : c'est pourquoi la sauvegarde passe AVANT, et pourquoi on repart d'elle plutôt que de rattraper.**
+
+### 5 bis, mesuré dans les deux sens sur les six leçons
+
+| Leçon | AVANT | APRÈS | Motif IMCCE levé |
+|---|---|---|---|
+| 01 | `REFUSÉ — 1` (obspm) | `REFUSÉ — 1` (obspm) | — ⚠️ ⑦ n'avait jamais vu le portail mort |
+| 02 | `REFUSÉ — 1` (obspm) | `REFUSÉ — 1` (obspm) | — ⚠️ ni `438`, ni le portail |
+| 03 | `REFUSÉ — 4` (3× ③ + obspm) | `REFUSÉ — 4` (3× ③ + obspm) | — ⚠️ ni `333`, ni `368` |
+| 04 | **`OK`** | **`OK`** | — ⚠️ ni `333` |
+| 05 | `REFUSÉ — 2` (obspm + **333**) | **`REFUSÉ — 1`** (obspm) | ✅ `333` |
+| 06 | `REFUSÉ — 3` (2× obspm + **316**) | **`REFUSÉ — 2`** (2× obspm) | ✅ `316` |
+
+🟢 **Les trois ③ de la leçon 03 sont IDENTIQUES avant et après, et c'est la raison pour laquelle la mesure AVANT était obligatoire** : repointer deux pages muettes vers des archives lisibles change l'ensemble des pages que ③ peut lire, donc le verdict pouvait en principe bouger. Il ne bouge pas — `19,35°` (×2) et `15,335°` restent absents des sept pages, défaut **connu, ancien et assumé** (journal du 02/10 : arrondi de 19,3549 pris à Wikipédia, les deux sources de référence ne concordant pas à cette précision). **Sans cette mesure, je n'aurais pas pu l'écrire.**
+
+🔴 **ET LA MESURE A TROUVÉ UN ANGLE MORT DE ⑦ : SIX DES HUIT OCCURRENCES MORTES LUI ÉTAIENT INVISIBLES.** Son garde `porteurs = [i for i in range(n_fin) if u in LIENS[i] and re.search(r"\d|«", T[i])]` exige que le paragraphe portant le lien contienne **un chiffre ou un guillemet**, et `if not porteurs: continue` saute tout le reste — ⑥ compris. Or une ligne de ressource qui se contente de **nommer** une source n'en a pas : mesuré sur la leçon 01, ¶112 = *« IMCCE — Institut de mécanique céleste et de calcul des éphémérides — l'organisme français de référence pour les positions et les phénomènes célestes »*, `chiffre_ou_guillemet=False`. Les deux seules occurrences que ⑦ voyait sont celles dont le paragraphe porte un **statut de test** (`(HTTP 200 testé le 10/09/2026)`). ⚠️ **Le garde est justifié** — sans lui, ⑦ accuserait une page dont rien n'est tiré — **mais sa conséquence n'avait jamais été dite : une ligne de ressource purement nominative est hors de portée du 5 bis, morte ou vivante.** C'est `balayer_adresses.py`, écrit la veille, qui a trouvé les six autres. **Deux outils dont les angles morts ne se recouvrent pas valent mieux qu'un outil durci.**
+
+**Aucun motif IMCCE ne subsiste dans aucune des six leçons.** Tous les ⑦ restants nomment des pages de l'**Observatoire de Paris**, que cet ordre ne touchait pas.
+
+### Ce qui n'est pas fait, et qui n'a pas été ordonné
+
+- Les **pages `media4.obspm.fr`** — même panne, même hôte d'infrastructure, et elles font refuser cinq des six leçons en 5 bis. C'est la suite logique de cet ordre.
+- Les **trois ③ de la leçon 03** (19,35° deux fois, 15,335°) : valeurs absentes des sept pages liées et non déclarées comme constantes standard. Le journal du 02/10 montre que 19,35 est un **arrondi assumé** de 19,3549 pris à Wikipédia, les deux sources de référence ne concordant pas à cette précision — donc le défaut est **connu et ancien**, pas introduit ici.
+- Les **trois attributions de contenu** ci-dessus (25 769 ans, ~130 av. J.-C., 1,55 an/signe).
+- 📌 **La question de fond ouverte par la mesure** : faut-il faire pointer la ligne « portail » des leçons 01 et 02 vers le **LTE**, qui est l'organisme réel depuis 2025, plutôt que vers une archive d'un site renommé ? Ce serait une **source neuve**, pas la correction d'une adresse morte — et l'infrastructure de l'Observatoire de Paris étant injoignable, elle n'est même pas testable aujourd'hui.
