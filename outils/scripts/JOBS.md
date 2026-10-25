@@ -4227,3 +4227,51 @@ C'est le vrai enseignement de cet ordre, et il est plus large que lui. Quatre fo
 - 📌 Les **12 adresses `DELAI`** du balayage comprenaient aussi `ipubli.inserm.fr` (psychopathologie n°16) — hôte différent, non touché par cet ordre.
 - 📌 Les **5 adresses `TLS`** et l'orphelin `enneade.lu` restent ouverts.
 - 📌 Les trois contrôles 5 bis sondent toujours **sans `--cacert`**.
+
+---
+
+## 25/10/2026 — les 5 adresses « TLS » du balayage : trois corrigées, deux INNOCENTES, et c'est la mesure qui a retourné l'ordre
+
+L'ordre disait « corrige les 5 adresses TLS ». Le diagnostic a **invalidé la prémisse pour deux d'entre elles**, et c'est le résultat le plus important de l'intervention : un classement `TLS` du balayage du 25/10 ne dit pas qu'une adresse est fautive, il dit que **notre poignée de main a échoué ce jour-là**. Quatre causes se cachaient derrière le même mot.
+
+### Les cinq adresses, et ce que chacune était vraiment
+
+| Adresse | `curl` | Diagnostic mesuré | Geste |
+|---|---|---|---|
+| `www.service-public.gouv.fr/…/F2365` | **exit 0, HTTP 200** | **Rien.** Le classement était **transitoire** — et les **11/11** adresses de l'hôte dans le corpus répondent 200 | ⛔ **Aucun**. La corriger aurait réécrit une adresse saine dans **7 documents / 13 relations** |
+| `enneade.lu/…` | exit 60 | Certificat `CN=cluster129.hosting.ovh.net` sans SAN du domaine ; en `http` → **404** ; et le `rel` est **orphelin** — la leçon a été corrigée le 09/10 | ⛔ **Aucun**. Déjà traité, et correctement |
+| `www.entretienmotivationnel.org/` ×7 | exit 60 | Certificat mutualisé OVH `cluster110.hosting.ovh.net`, **renouvelé le 19/10/2026**, sans SAN du domaine. **Le site est VIVANT** : `http` → 200, **13 403 car. utiles**, `AFDEM` au degré ① | 🟢 **7 hyperliens repointés vers `http://`** |
+| `www.observalys.fr/…` | exit 35 | **Alerte TLS 80 émise par le serveur**, 6/6 essais, IPv4 **et** IPv6, `curl` **et** `openssl 3.6.2`. En `http` → 200, mais c'est le gabarit **« Parked Domain name »** de Hostinger, 927 car., les trois jetons du titre **④ ABSENT**. **Aucun** instantané Wayback | 🟢 **Hyperlien retiré**, adresse en clair |
+| `aapel.org/bdp/BLDBTresumeFR.html` | exit 60 | Certificat Let's Encrypt **expiré le 17/10/2026**. En `http` → 200 avec *« Account Suspended »*, **7 612 octets** contre **123** le 06/09. Le document le **disait déjà** — et gardait le lien **cliquable** | 🟢 **Hyperlien retiré**, adresse ajoutée en clair |
+
+### Ce que l'intervention a appris, et qui n'était pas su
+
+- 🔴 **UN CLASSEMENT `TLS` PEUT ÊTRE TRANSITOIRE, ET LA DIRECTION D'ERREUR EST BRUTALE.** `service-public.gouv.fr` était classé TLS au balayage et rend **200, exit 0** au diagnostic, **sans rien changer à la pile**. Les 11 adresses de l'hôte dans le corpus sont à 200. Appliquer l'ordre tel quel aurait réécrit une adresse **saine** dans 7 documents — c'est le piège du 25/10 (« lire 20 injoignables comme 20 liens morts ») **un cran plus fin** : ici le code de sortie de `curl` était bien relevé, et il avait **changé entre deux mesures**. **Une classe d'erreur réseau se re-mesure au moment de corriger, jamais sur la foi d'un balayage antérieur.**
+- 🔴 **UN `200` EN `http` NE PROUVE PAS QU'UNE PAGE EXISTE : LE GABARIT DE PARKING EN EST LA PREUVE.** `observalys.fr` rend **HTTP 200** et **927 caractères** de « Parked Domain name ». C'est un **angle mort mesuré de `balayer_adresses.py`** : citée en `http`, cette adresse serait classée **« vivante »**. Le balayage lit un **code**, pas un **contenu** — et seule la recherche des jetons du titre (`Observalys`, `Revenu passif`, `mythe ou réalité`, tous **④**) tranche.
+- 🔴 **UN CERTIFICAT MUTUALISÉ QUI NE PORTE PAS LE NOM DU DOMAINE N'EST PAS UNE PANNE : C'EST UNE CONFIGURATION.** Deux des cinq (`enneade.lu`, `entretienmotivationnel.org`) présentent un certificat OVH `clusterNNN.hosting.ovh.net` **valide et récemment renouvelé**, sans SAN du domaine servi. Les deux sortent en `exit 60` comme un certificat **expiré** — alors que les gestes sont opposés : l'un est mort (404 en http), l'autre est vivant (200, 13 403 car.). **`exit 60` doit être désambiguïsé par la ligne d'erreur**, `certificate has expired` contre `no alternative certificate subject name matches target host name`.
+- 🔴 **`timeout` N'EXISTE PAS SUR macOS**, et mon premier bloc de diagnostic `openssl s_client` n'a donc **rien produit** — les quatre en-têtes « chaîne présentée » du premier relevé étaient **vides**, et je ne l'ai vu qu'en relisant la sortie. Utiliser `-connect` avec `</dev/null` et les `-max-time` de `curl`.
+- 🔴 **`curl` ET `python3` DU SYSTÈME SONT TOUS DEUX EN LibreSSL** (3.3.6 et **2.8.3**), donc un test « en client OpenSSL » écrit en python du système **ne prouve rien** : il a échoué sur `observalys` comme `curl`, et j'en avais tiré une conclusion fausse (« c'est notre LibreSSL »). C'est le `openssl` de brew (**3.6.2**) qui a tranché — et il échoue aussi, **6/6** : la cause est **côté serveur**.
+- 🟢 **« DÉTECTER UN LIEN MORT ET LE DIRE N'EST PAS LE RETIRER » : LA RÈGLE DU 25/10 EST APPLIQUÉE POUR LA PREMIÈRE FOIS.** La leçon psychopathologie n°8 annonçait « PAGE MORTE » depuis le 06/09/2026 **et gardait son lien cliquable**. Le geste complet — `<w:hyperlink>` retiré, `1155CC` et le soulignement retirés, adresse conservée en clair — est maintenant fait sur ce document et sur revenus-passifs n°1.
+
+### Mesures
+
+| | |
+|---|---|
+| Documents touchés | **9** (7 entretien-motivationnel, revenus-passifs n°1, psychopathologie n°8) · **18 édits** |
+| Documents **non** touchés malgré l'ordre | **7** (`service-public`, adresse saine) **+ 1** (`enneade.lu`, déjà corrigé) |
+| Vérification structurelle | 7 liens en `http`, 0 en `https` · 2 `rels` orphelins = **les deux hyperliens retirés** · 0 défaut · XML bien formé |
+| Gate `--docs` sur les 9 | **9 verdicts, 9 × 0 bloquant, 0 `✗`, exit 0** |
+| `controle_psychopathologie.py` | avant **OK (0 motif)** → après **OK (0 motif)**, joué séquentiellement |
+| `audit_vault.py` | **9/9 au vert** |
+| ㊳ sur les 9 | **hors de portée** — sortie vide, exit 0 : les logs de juillet-août sont purgés (30 j). **La trace a disparu, ce n'est pas que les runs étaient bons** |
+
+### Mon erreur de la session, et elle est du genre que ce dépôt punit
+
+J'ai lancé le gate en ne lui passant qu'**un** des neuf fichiers, lu « 1 verdict pour 9 documents » et commencé à écrire que l'outil était en cause. La référence contenait bien les **9** — le code fait **une ligne par fichier**, mon invocation était fautive. **Avant d'accuser un outil, relire son invocation** : c'est « ne jamais décrire ce qu'un outil fait sans l'avoir mesuré » retourné contre moi, sixième fois de la série. Coût réel : deux mesures inutiles. Si j'avais poursuivi, j'aurais consigné un faux défaut du harnais.
+
+### Ce qui n'est pas fait
+
+- 📌 **`balayer_adresses.py` ne distingue pas un `200` réel d'un gabarit de parking.** Piste bornée : au-dessous d'un plancher de caractères utiles, dire `FAÇADE ?` plutôt que `VIVANTE`. Le plancher de 3 000 d'`aspirer.py` existe déjà ; le balayage, lui, ne lit pas le corps.
+- 📌 **Les 7 liens AFDEM sont en `http` non chiffré.** Un navigateur en HTTPS-first peut échouer là où `curl` réussit. Le marqueur le dit dans chacun des 7 documents. À repointer en `https` si OVH ajoute le SAN.
+- 📌 **Le classement `TLS` du balayage n'est pas re-mesuré avant usage.** Rien n'oblige à re-sonder une adresse avant de la corriger — c'est ce qui a failli faire réécrire `service-public.gouv.fr`.
+- 📌 Les trois contrôles 5 bis sondent toujours **sans `--cacert`**.

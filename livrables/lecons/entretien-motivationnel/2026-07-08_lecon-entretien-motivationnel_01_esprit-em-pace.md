@@ -12,6 +12,9 @@ tags:
   - auteur/rollnick
   - concept/pace
   - concept/evocation
+  - theme/certificat-mutualise
+  - theme/https-vers-http
+  - correction/2026-10-25
 ---
 
 # 2026-07-08_lecon-entretien-motivationnel_01_esprit-em-pace
@@ -27,6 +30,12 @@ Formalisé par William Miller dans les années 1980 à partir du champ des addic
 L'intuition fondatrice est contre-intuitive et vérifiable au quotidien : **face à quelqu'un d'ambivalent, lui expliquer pourquoi il devrait changer le pousse à défendre le statu quo**. Les arguments en faveur du changement n'ont d'effet que s'ils sortent de sa bouche à elle. Tout le dispositif de l'EM organise la conversation pour que ce soit le cas.
 
 D'où l'esprit **PACE** — Partenariat, Acceptation, Compassion, Évocation — posé avant toute technique. La leçon le dit sans détour : sans cet état d'esprit, les techniques deviennent des ficelles de manipulation.
+
+**L'adresse de l'AFDEM n'était pas morte : son hôte mutualisé ne porte pas son nom. Corrigée le 25/10/2026**, l'hyperlien passant de `https://` à `http://`. Mesuré : `https://www.entretienmotivationnel.org/` rend HTTP 000 et `curl` **exit 60**, non parce que la page a disparu mais parce que le certificat présenté est celui de l'hébergement mutualisé OVH — `CN=cluster110.hosting.ovh.net`, **renouvelé le 19/10/2026**, donc vivant — sans aucun nom alternatif couvrant le domaine : *« no alternative certificate subject name matches target host name »*. Le site, lui, **répond** : en `http` il rend **HTTP 200 et 13 403 caractères utiles**, où `AFDEM` et son nom développé s'apparient au **degré ①**. L'archive était exclue d'office : le dernier instantané de l'hôte date du **12/12/2019**, sept ans avant la leçon.
+
+**Ce que la correction coûte, et le marqueur le dit dans le document** : `http://` n'est pas chiffré, et un navigateur en HTTPS-first peut échouer là où `curl` réussit. Le lien reste donc utilisable mais dégradé — c'était le seul choix qui préserve l'accès à une ressource vivante, l'alternative étant de retirer un lien qui fonctionne.
+
+**Requêtes passées** (ce qui n'y figure pas n'a pas été interrogé) : `curl -sS -o /dev/null -w "%{http_code} %{exitcode}"` avec **et** sans le faisceau du dépôt, sur `https://` et `http://`, forme nue et forme `www.` ; `openssl s_client -showcerts` pour la chaîne et les dates ; `aspirer.py` sur la forme `http` ; `chercher.py` sur `AFDEM` et *Association Francophone de Diffusion de l'Entretien Motivationnel* ; CDX Wayback sur `www.entretienmotivationnel.org` pour le dernier instantané à 200.
 
 ## Notes liées
 

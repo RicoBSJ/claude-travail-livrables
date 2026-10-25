@@ -20,6 +20,9 @@ tags:
   - theme/lien-mort-200
   - alerte/corrige
   - correction/2026-09-06
+  - theme/page-morte
+  - theme/lien-mort-non-retire
+  - correction/2026-10-25
 ---
 
 # 2026-08-03_lecon-psychopathologie_08_troubles-personnalite-clusters-borderline
@@ -35,6 +38,12 @@ Document source : [[2026-08-03_lecon-psychopathologie_08_troubles-personnalite-c
 **Le modèle CIM-11 était faux dans la théorie et juste dans l'exercice.** La théorie alignait six « qualificateurs de traits », borderline compris. La source dit : cinq traits, puis *« **In addition to the traits**, a Borderline pattern […] may be specified »* — un spécificateur distinct, qui s'ajoute aux traits. Le tableau de l'exercice 3, deux pages plus loin, écrivait correctement *« qualificateur spécifique "borderline pattern" »*. S'y ajoutaient une inversion — l'anankastie donnée pour *« ancêtre du cluster C OCD »* alors que la CIM-11 est **postérieure** au DSM-5 — et une omission dans une section pourtant intitulée « la révolution CIM-11 » : la CIM-11 sort le **trouble schizotypique** des troubles de la personnalité pour le classer parmi les troubles psychotiques.
 
 **Et trois défauts de sourçage, dont un cas d'école.** ① `aapel.org/bdp/BLDBTresumeFR.html` répond **HTTP 200** avec pour tout contenu *« Account Suspended. This Account has been suspended. »* — **123 octets**, rangés sous l'intitulé « Sources consultées et **vérifiées** ». Plus net encore que les pages en JavaScript de `has-sante.fr` et `icd.who.int` rencontrées le même jour : celle-ci n'est pas masquée, elle est supprimée. ② L'épidémiologie du TPB — 0,5 à 5,9 %, 10 %, 15–25 % — ne vient **d'aucune des six sources** ; la mention *« (synthèse, non citation) »* disait qu'il ne s'agissait pas d'une citation, pas qu'il ne s'agissait pas d'une source. ③ La recommandation du NICE, qui porte sur le **seul trouble borderline** et date de **2009**, était étendue à *« les troubles de la personnalité »* sans date — **le même glissement d'ensemble** que les 80 % de la leçon 07 et les 30–50 % de la leçon 09. Enfin, l'efficacité de la TCD s'appuyait sur `dbt-france.com`, cabinet qui pratique et enseigne la TCD, et sur la page morte : une réserve figure désormais à l'endroit où l'affirmation est faite.
+
+**Le document disait vrai depuis le 06/09/2026 et laissait le lien cliquable. Corrigée le 25/10/2026** : hyperlien **retiré** sur la ressource n°6, adresse `aapel.org/bdp/BLDBTresumeFR.html` ajoutée **en clair** dans le libellé. Le paragraphe annonçait déjà « PAGE MORTE » et un contenu réduit à *« Account Suspended »* — mais le lecteur qui cliquait sur cette mise en garde atterrissait sur la page suspendue. **Détecter un lien mort et le dire n'est pas le retirer** : c'est le défaut relevé sur quatre documents du dépôt le 25/10, dont trois gardaient leur lien actif.
+
+**L'état a empiré, et c'est la mesure qui le montre** : le certificat de `aapel.org` a **expiré le 17/10/2026** (Let's Encrypt, chaîne YR2 → Root YR → ISRG Root X1, `NotAfter: Oct 17 13:37:55 2026 GMT`), donc l'adresse rend maintenant HTTP 000 et `curl` **exit 60** en `https`. En `http` elle répond encore 200 avec la même page suspendue — **7 612 octets**, contre les **123** relevés le 06/09/2026. Le classement « TLS » du balayage était donc exact *et* sans conséquence : la ressource était déjà morte avant que son certificat ne le devienne.
+
+**Requêtes passées** : `curl` avec et sans faisceau, `https` et `http` ; `openssl s_client -showcerts` pour la chaîne et la date d'expiration ; `aspirer.py` sur la forme `http` ; comparaison de la taille au relevé du 06/09/2026 consigné dans le document.
 
 ## Notes liées
 
