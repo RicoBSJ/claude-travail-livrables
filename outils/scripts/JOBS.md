@@ -3750,3 +3750,89 @@ page `has-sante.fr` leur rendrait donc **000** là où le harnais, lui, lit **20
 du 18/10, qui n'a jamais été porté à ces trois scripts. La tolérance ne tranche pas à leur place :
 quand la page répond à la sonde, son message nomme **les deux** causes possibles — « le refus n'est
 PAS une panne de la page : document, ou pile TLS du contrôle ».
+
+---
+
+## 25/10/2026 — l'adresse morte du témoin astro n°10 est corrigée : une archive est une adresse qui ne peut plus mourir
+
+### Ce qui a été corrigé, et pourquoi c'était la bonne fin de l'histoire
+
+La tolérance du matin empêche une panne de tiers de **bloquer le dépôt** ; elle ne rend pas le duo
+**gardé**. Un duo `⟳ NON JOUÉ` est un duo dont les motifs ne sont plus vérifiés, et rien ne bornait
+la durée de cet état : si l'IMCCE ne revenait jamais, le quatrième duo des étapes 5 bis — celui qui
+garde le correctif des exonymes du 09/10 — restait retiré du harnais **indéfiniment**, avec pour
+seule trace une ligne que personne ne lit. C'est l'avocat du diable du rapport précédent, et c'est
+l'ordre qui a suivi.
+
+**L'adresse `promenade.imcce.fr/fr/pages2/221.html` est remplacée par l'archive du 01/09/2026**,
+`web.archive.org/web/20260901183225/https://promenade.imcce.fr/fr/pages2/221.html`.
+
+### L'archive n'est pas un pis-aller — quatre mesures
+
+| Mesure | Résultat |
+|---|---|
+| HTTP et texte utile | **200 · 51 138 caractères utiles** — le **chiffre exact** que le document annonçait pour sa lecture du 08/10/2026 |
+| décompte annoncé | « apoastre » **5 fois**, comme le ¶ l'affirme ; `ellipse` 13, `foyer` 5 |
+| les deux définitions du marqueur du 08/10 | **présentes**, au degré ② — l'écart est l'**espace avant la ponctuation** que la page porte sur ses termes de glossaire (« Apoastre . Sur une orbite elliptique… »), artefact d'aplatissement et non divergence de texte : c'est le cas qui a fait naître `norm4` le 10/10 |
+| stabilité de la page | l'instantané du 01/09/2026 porte la **même empreinte** que celui du 06/03/2025 — le glossaire n'a pas changé en dix-huit mois, donc l'archive représente fidèlement ce qui a été lu le 08/10 |
+
+**Six édits par position, de la fin vers le début** : les **deux** `Target` des rels (deux rIds
+distincts pour la même adresse), l'affichage du lien et l'annotation dans le ¶ du corps **et** dans
+la ligne des ressources, un marqueur gris italique daté dans chacun des deux, et une **7ᵉ entrée au
+📝 Journal des corrections** avant `<w:sectPr>`. XML revalidé, `testzip` **OK — 22 entrées**,
+137 → 138 paragraphes, 21 976 → 23 ko. **Zéro apostrophe courbe** dans tout le document : mes
+ajouts en portaient 19, normalisées en `&apos;` comme le reste du document.
+
+**L'adresse d'origine reste lisible NON DÉFORMÉE** dans les deux marqueurs et dans le journal —
+**premier usage réel du correctif de la passe A du matin même**. Avant lui, reproduire cette
+adresse rouvrait le motif bloquant `ORPH[…]` et il fallait lui ajouter une espace pour pouvoir
+publier ; c'est encore le cas, non corrigé, dans la veille SERAFIN-PH du 21/10.
+
+### Contrôles rejoués : aucune régression, et le gain est net
+
+- `controle_attributions` : **exit 3 · 0 bloquant · 1 vérification impossible (le PDF) · 1 citation
+  française · 5 ㉚ · 0 valeur en D** — **ligne pour ligne identique** avant et après. Les nombres
+  que mes marqueurs ajoutent (000, 28, 51 138, les dates) n'ont introduit **aucune** réserve.
+- étape 5 bis : `REFUSÉ — 1 motif(s) : page sans réponse` → **`OK — aucun des sept motifs`**, et
+  **2 min 14 s → 20,6 s**.
+- mutation « nompropre » : **intacte** — `⑤ NOM PROPRE HORS SOURCE (¶8) : « Zorblax »`, exit 1.
+- `--docs` sur le document : **exit 0**.
+
+### 🔴 Mon hypothèse sur le coût de la panne était FAUSSE, et la mesure la corrige
+
+J'avais supposé que la panne rendait le duo « vert pour la mauvaise raison » : la mutation sortant
+en 1 sur ⑦ au lieu de ⑤, le garde des exonymes aurait été **inerte** depuis le 23/10. Mesuré sur
+l'ancien document : la mutation rendait **DEUX** motifs — `⑤ ¶8 Zorblax` **et** `⑦ page sans
+réponse` —, donc ⑤ fonctionnait. La raison est que son garde-fou est **par paragraphe** (`lus` ne
+retient que les pages lues **du ¶ examiné**) et que « Zorblax » est inséré dans un ¶ servi par une
+**autre** page, vivante. **La panne ne touchait que le témoin, jamais la mutation.**
+
+### 🔴 Et le correctif de ㊳ du 24/10 a mordu sur sa première correction réelle : pour un parcours CLOS, « relancer le job » n'existe plus
+
+Le gate `--docs` est sorti en **1** : *« le document ne DÉCLARE pas sa relecture hors du job »*.
+C'était annoncé le 24/10 — ㊳ voit depuis ce jour les dossiers des **jobs supprimés**, le run du
+08/10 est mort sur son plafond (**3,0218 $ / 3,00 $, `error_max_budget_usd`, exit 1**) et son log
+porte **0 contrôle tracé**. Mesuré précisément : la condition ① était satisfaite (« plafond de
+coût » figure dans le ¶ de relecture du 08/10), la ② **non** — aucune forme de `RELU_DIT` n'était
+dans le `.docx`, la phrase « j'ai passé moi-même les deux contrôles » vivant dans la **fiche** et
+non dans le livrable.
+
+⛔ **Et la voie que le contrôle recommande n'existe plus** : *« relancer le job est la voie sûre »*
+désigne `astrologie-karmique-lecon`, **supprimé le 22/10/2026**. Pour un parcours fermé,
+**la déclaration est le SEUL chemin** — un cas que la doctrine du 16/10 n'avait pas nommé.
+
+Corrigé **dans le document, pas dans le contrôle** : le journal porte désormais le plafond crevé,
+l'absence de contrôle lancé par le job, et les « contrôles rejoués à la main hors du job le 08/10
+puis le 25/10 ». ㊳ rend *« DÉCLARÉ par le document … Accepté — la trace est dans le livrable, pas
+seulement ici »*. **Le mécanisme a fonctionné comme prévu, gêne comprise** : c'est le prix de
+l'exemption en ET, et il est juste.
+
+### 📌 Mesuré en passant, non corrigé
+
+**`reference/passe_A.tsv` ne contient aucune information** : **264 lignes, toutes à 0**, pour un
+corpus de **295 `.docx`** — et les **31 absents** (tous postérieurs au 04/10) sont traités avec
+`ref=0`, donc à la **borne la plus stricte**. Le fichier ne sert donc qu'à autoriser un document
+dont la base serait non nulle, et **aucun ne l'est**. Ce n'est pas un trou de sécurité — la
+direction d'erreur est le refus — mais le diff « avant/après » qu'on croit lire sur la famille A
+n'existe pas : la règle réelle est **« 0 bloquant, point »**. 📌 Piste bornée : soit régénérer la
+référence et l'assumer comme constante, soit la supprimer et dire la règle en clair.
