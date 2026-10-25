@@ -85,27 +85,50 @@ def faisceau():
         return None
 
 
-def adresses(seulement=None):
-    """{adresse : [documents qui la citent]} — lues dans les rels, comme le font les contrôles."""
+def adresses(seulement=None, orphelines=None):
+    """{adresse : [documents qui la citent]} — lues dans les rels, comme le font les contrôles.
+
+    🔴 25/10/2026 — UN rel N'EST PAS UN LIEN CLIQUABLE. Une correction qui retire un
+    <w:hyperlink> sans retirer sa relation laisse une cible que le lecteur ne peut plus
+    atteindre : le balayage la condamnait quand même. Mesuré sur la leçon n°3 d'ennéagramme,
+    dont la correction du 09/10/2026 avait retiré les deux liens morts et conservé les
+    adresses en clair, exactement comme il fallait — et le balayage du 25/10 a rendu
+    « DNS » pour psychologie-enneagramme.fr, accusant un document qui avait raison.
+    Borne mesurée sur les 294 documents : 4 rels orphelins dans 3 documents sur 2 951.
+    Un rel orphelin est désormais RECENSÉ À PART et jamais sondé : il ne peut donc plus
+    condamner. `orphelines` reçoit {adresse : [documents]} quand l'appelant la fournit."""
     par = defaultdict(set)
+    orph = defaultdict(set)
     for base in ("livrables/lecons", "sources/veille"):
         for r, _, f in os.walk(os.path.join(RACINE, base)):
             for n in sorted(f):
                 if not n.endswith(".docx"):
                     continue
                 try:
-                    rels = zipfile.ZipFile(os.path.join(r, n)).read(
-                        "word/_rels/document.xml.rels").decode("utf-8", "ignore")
+                    z = zipfile.ZipFile(os.path.join(r, n))
+                    rels = z.read("word/_rels/document.xml.rels").decode("utf-8", "ignore")
+                    corps = z.read("word/document.xml").decode("utf-8", "ignore")
                 except Exception:
                     continue
-                for m in re.finditer(r'Target="(https?://[^"]+)"', rels):
-                    par[html.unescape(m.group(1))].add(n)
+                vus = set(re.findall(r'r:id="([^"]+)"', corps))
+                # une adresse peut avoir PLUSIEURS rels dans le même document : elle n'est
+                # orpheline que si AUCUN ne sert, d'où les deux ensembles puis la différence
+                cliquables, mortes_nees = set(), set()
+                for m in re.finditer(r'Id="([^"]+)"[^>]*Target="(https?://[^"]+)"', rels):
+                    u = html.unescape(m.group(2))
+                    (cliquables if m.group(1) in vus else mortes_nees).add(u)
+                for u in cliquables:
+                    par[u].add(n)
+                for u in mortes_nees - cliquables:
+                    orph[u].add(n)
     if seulement:
         garde = {l.strip() for l in open(seulement, encoding="utf-8") if l.strip()}
         absentes = garde - set(par)
         par = {u: v for u, v in par.items() if u in garde}
         if absentes:
             print("⚠️ %d adresse(s) de la liste ne sont plus citées par aucun document" % len(absentes))
+    if orphelines is not None:
+        orphelines.update({u: sorted(v) for u, v in orph.items()})
     return {u: sorted(v) for u, v in par.items()}
 
 
@@ -133,7 +156,8 @@ def sonde(u, ca):
 
 
 def balaye(limite=0, essais=3, sortie=None, seulement=None):
-    par_doc = adresses(seulement)
+    orphelines = {}
+    par_doc = adresses(seulement, orphelines)
     ca = faisceau()
     print("faisceau : %s" % ("utilisé" if ca and os.path.exists(ca) else "⚠️ ABSENT"))
     liste = tourniquet(par_doc)
@@ -142,6 +166,12 @@ def balaye(limite=0, essais=3, sortie=None, seulement=None):
     print("%d adresse(s) distincte(s) · %d hôte(s) · %d document(s) citants"
           % (len(liste), len({u.split("/")[2].lower() for u in liste}),
              len({d for u in liste for d in par_doc[u]})))
+    if orphelines:
+        print("↯ %d adresse(s) dans %d document(s) ne sont PLUS cliquables — leur relation "
+              "survit, aucun <w:hyperlink> ne la nomme : non sondées, non condamnées"
+              % (len(orphelines), len({d for v in orphelines.values() for d in v})))
+        for u in sorted(orphelines):
+            print("    %s  [%s]" % (u, ", ".join(orphelines[u])))
     codes, t0 = {}, time.time()
     for i, u in enumerate(liste, 1):
         codes[u] = sonde(u, ca)
@@ -218,11 +248,60 @@ def autotest():
         if (classe(code, rc) not in CONCLUANT) != rejoue:
             print("  ✗ code %s/%d : rejeu=%s, attendu %s"
                   % (code, rc, not rejoue, rejoue)); ko += 1
-    total = len(cas) + len(SORTIES_TLS) + 2 + len(rejeux)
+    # ── un rel N'EST PAS un lien cliquable (25/10/2026) ───────────────────────────────
+    # Arborescence FABRIQUÉE : rien de vivant dans le verdict (leçon du 22/10/2026, où un
+    # témoin ancré sur l'avancement réel d'un parcours a bloqué tous les pushs du dépôt).
+    # On exerce le VRAI chemin, adresses(), en déplaçant RACINE — pas une copie de sa logique
+    # (leçon du 15/10/2026 : un test qui teste une copie de la logique ne garde rien).
+    import tempfile
+    U = "https://exemple-temoin-orphelin.invalid/p"
+    def docx(chemin, paires):
+        """paires : [(Id, sert_dans_le_corps)] — toutes pointent U."""
+        rels = ('<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org'
+                '/package/2006/relationships">' + "".join(
+                '<Relationship Id="%s" Type="http://schemas.openxmlformats.org/officeDocument'
+                '/2006/relationships/hyperlink" Target="%s" TargetMode="External"/>' % (i, U)
+                for i, _ in paires) + '</Relationships>')
+        corps = ('<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org'
+                 '/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org'
+                 '/officeDocument/2006/relationships"><w:body>' + "".join(
+                 '<w:p><w:hyperlink r:id="%s"><w:r><w:t>lien</w:t></w:r></w:hyperlink></w:p>' % i
+                 for i, sert in paires if sert) + '</w:body></w:document>')
+        with zipfile.ZipFile(chemin, "w") as o:
+            o.writestr("word/_rels/document.xml.rels", rels)
+            o.writestr("word/document.xml", corps)
+    orphelins_attendus = [
+        # (nom, [(Id, sert)], l'adresse est-elle CLIQUABLE ?, est-elle ORPHELINE ?)
+        ("tout_orphelin.docx", [("rId1", False)], False, True),
+        ("vivant_et_orphelin.docx", [("rId1", True), ("rIdcorr", False)], True, False),
+        ("tout_vivant.docx", [("rId1", True)], True, False)]
+    vieille_racine = globals()["RACINE"]
+    for nom, paires, cliquable, orpheline in orphelins_attendus:
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "livrables", "lecons"))
+            os.makedirs(os.path.join(d, "sources", "veille"))
+            docx(os.path.join(d, "livrables", "lecons", nom), paires)
+            globals()["RACINE"] = d
+            try:
+                orph = {}
+                par = adresses(None, orph)
+            finally:
+                globals()["RACINE"] = vieille_racine
+            if (U in par) != cliquable:
+                print("  ✗ %s : cliquable=%s, attendu %s" % (nom, U in par, cliquable)); ko += 1
+            if (U in orph) != orpheline:
+                print("  ✗ %s : orpheline=%s, attendu %s — un rel que le corps ne nomme plus "
+                      "ne doit PAS être condamné" % (nom, U in orph, orpheline)); ko += 1
+    if globals()["RACINE"] != vieille_racine:
+        print("  ✗ RACINE n'a pas été rendue — le balayage réel sondrait l'arborescence du témoin")
+        ko += 1
+
+    total = (len(cas) + len(SORTIES_TLS) + 2 + len(rejeux)
+             + 2 * len(orphelins_attendus) + 1)
     if ko:
         print("  ✗ %d/%d borne(s) de balayer_adresses.py en échec" % (ko, total)); return 1
-    print("  ✓ %d/%d bornes de balayer_adresses.py — un 403 n'est pas un lien mort, un défaut de TLS"
-          " non plus" % (total, total))
+    print("  ✓ %d/%d bornes de balayer_adresses.py — un 403 n'est pas un lien mort, un défaut de"
+          " TLS non plus, et un rel orphelin n'est pas une adresse cliquable" % (total, total))
     return 0
 
 

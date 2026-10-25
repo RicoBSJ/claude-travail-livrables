@@ -33,6 +33,8 @@ tags:
   - alerte/push-refuse
   - alerte/corrige
   - correction/2026-10-18
+  - theme/page-morte
+  - theme/lien-mort-declare-mais-cliquable
 ---
 
 # 2026-10-18_veille_imac.fiche
@@ -98,6 +100,8 @@ Treize pages aspirées sur disque (`aspirer.py`), **aucune n'est entrée en cont
 | `1 971,00 €` (leclerc, 16 Go/512 Go Vert) | sur le comparateur, **−11 %**, absente de la note |
 
 **Ce que « standard » n'a pas interrogé, et il faut le dire** : les pages Fnac (HP OmniStudio) et le roundup M6 sont illisibles, donc le 1 799,99 € et le « 3 nm N3E » restent sur la seule déclaration de la note ; `darty.com` et `dell.com` n'ont pas été ouverts, puisque la note ne les liste pas ; et l'article macg.co du 22/09 qui porte le **1 049 € du Mac mini M6** n'a pas été retrouvé — c'est la **troisième édition** où ce chiffre est déclaré non relu, et c'est lui qui fonde le seul chiffrage prospectif du document (le « ~1 899 € » du scénario A).
+
+**Le 404 de MacRumors était déjà déclaré par cette note ; le lien, lui, restait cliquable.** L'exécution du 18/10 avait testé `macrumors.com/guide/m6/`, obtenu un 404, écrit *« ⛔ 12. MacRumors — roundup puce M6 — page introuvable (404) »* et re-sourcé les specs M6 sur `apple.com/fr/mac-mini/` : **le travail de détection et de re-sourçage était fait**. Ce qui manquait est le geste suivant — retirer l'hyperlien. Un lecteur cliquait sur une ligne qui lui annonçait un 404 et atterrissait sur ce 404. Le 25/10/2026 : 404 revérifié, aucun instantané Wayback de cette adresse, **lien retiré, adresse et déclaration conservées en clair**. C'est le traitement que la leçon n°3 d'ennéagramme avait appliqué le 09/10/2026, et qui n'avait pas été porté ici.
 
 ## Notes liées
 

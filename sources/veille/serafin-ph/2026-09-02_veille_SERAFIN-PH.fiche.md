@@ -14,6 +14,8 @@ tags:
   - theme/perimetre-adultes
   - source/legifrance
   - alerte/liens-morts
+  - theme/page-morte
+  - theme/lien-repointe
 ---
 
 # 2026-09-02_veille_SERAFIN-PH
@@ -31,6 +33,8 @@ Document source : [[2026-09-02_veille_SERAFIN-PH.docx]]
 **Sur le fond, rien de neuf, et c'est l'information.** Le calendrier tient : recueil PH 2026 clos le 3 juillet, export et simulations CNSA en cours depuis juillet, transmission aux ARS attendue au dernier trimestre, déploiement au 1ᵉʳ janvier 2027 pour les ESMS enfants et jeunes adultes, convergence sur huit ans, 2026 restant une **année blanche** sans incidence financière. Pour ton foyer d'hébergement, le point de vigilance n° 6 redit ce que le dossier avait tranché le 19/08 et qu'il faut continuer de tenir : **le déploiement 2027 ne couvre pas le secteur adultes**, dont le calendrier n'est pas fixé publiquement. La seule échéance qui t'engage vraiment reste celle du 26/08 — la section 6.2 de l'instruction DGCS n° 2026/80 et son cadre EPRD au 1ᵉʳ janvier 2027 **ou** à la signature du CPOM, la date la plus proche étant retenue.
 
 **Pages nommées sans lien, liées le 12/09/2026.** Relevé par la passe A du contrôle d'attribution (règle ⑭) : sept chemins complets et cinq sites, vingt liens. Contenu inchangé (sauf mention contraire), journal des corrections créé dans le document.
+
+**L'adresse ATIH de la rubrique Sources est morte, et le lien est repointé le 25/10/2026.** Le balayage des 1 351 adresses citées par les 295 documents du dépôt a trouvé `atih.sante.fr/champ-d-activite/personnes-handicapees` en **HTTP 404** — l'ATIH a réorganisé son site et la branche `/champ-d-activite/` a disparu, alors que l'hôte répond 200 à sa racine. La page qui porte aujourd'hui ce contenu est **« Modalités pour les établissements et services médico-sociaux »**, où figurent la réforme SERAFIN-PH et les recueils PH — *« un recueil national en 2025 »* y est écrit, vérifié le 25/10/2026. Le lien et, là où elle était affichée, l'adresse visible pointent désormais cette page. L'adresse d'origine est conservée dans le marqueur et au journal : **la page citée existait bien quand la note a été produite**, le défaut est une pourriture de lien, pas une erreur d'attribution.
 
 ## Notes liées
 

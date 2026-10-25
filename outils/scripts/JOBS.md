@@ -3920,3 +3920,92 @@ document ne ferme pas une adresse, elle ferme une occurrence. Les **six** adress
 par l'archive, comme la n°10, ou se laissent revenir.
 
 Sortie complète, non versionnée (230 Ko) : `outils/scripts/logs/balayage_adresses_2026-10-25.tsv`.
+
+---
+
+## 25/10/2026 — Les 10 adresses condamnées sont corrigées, et quatre d'entre elles étaient DÉJÀ déclarées mortes par le document qui les citait
+
+**Ordre** : « corrige les 10 adresses condamnées » — les 8 `MORTE` (404) et 2 `DNS` du balayage du 25/10 (commit `bb3e569`).
+
+### Ce que la mesure a changé dans l'ordre lui-même
+
+Le balayage condamnait **10 adresses dans 13 documents**. En les ouvrant, trois faits ont redistribué le travail :
+
+| Fait mesuré | Nombre | Conséquence |
+|---|---|---|
+| Adresse **déjà déclarée morte** par son document | **4** | le pipeline SAIT détecter un lien mort et le dire — il ne sait pas **retirer le lien** |
+| Adresse **jamais publiée**, pas pourrie | **2** | 404 **ET** aucun instantané Wayback, sur des hôtes largement moissonnés |
+| Adresse **fautive d'un caractère** | **1** | slug `europes-` quand l'IAPP publie `europe-s-` |
+| Document **qui avait raison** et que MON outil accusait | **1** | `psychologie-enneagramme.fr` : lien retiré le 09/10, seul le `rel` survit |
+
+Les quatre déjà déclarées : `macrumors.com/guide/m6/` (imac 18/10), `davidstamile.com` (ennéagramme 02, 12/10), `atih.sante.fr/champ-d-activite/personnes-handicapees` (SERAFIN 30/09) et `psychologie-enneagramme.fr/notre-modele/` (ennéagramme 03, 09/10). **Trois des quatre gardaient leur hyperlien cliquable** : un lecteur cliquait sur une ligne qui lui annonçait un 404 et atterrissait sur ce 404. Seule la leçon n°3 d'ennéagramme avait fait le geste complet — retirer le lien, conserver l'adresse en clair —, et ce traitement n'avait pas été porté ailleurs.
+
+### 🔴 Mon hypothèse « sources fabriquées » était fausse deux fois sur trois
+
+Devant trois adresses en 404 **sans aucun instantané Wayback** sur des hôtes bien moissonnés, j'ai conclu à des sources inventées. `WebSearch` a démenti pour deux d'entre elles :
+
+| Adresse citée | Verdict réel | Adresse publiée |
+|---|---|---|
+| `iapp.org/news/a/europes-cloud-and-ai-…` | **slug fautif d'un tiret** — titre et date du 11 juin 2026 **exacts** | `…/europe-s-cloud-and-ai-…` |
+| `ameliorersavie.com/stoicisme/le-stoicisme-au-quotidien-cultiver-les-eupatheiai-…` | **jamais publiée**, mais l'article existe sous un autre slug | `…/eupatheiai-et-stoicisme-guide-pratique-…` |
+| `zapier.com/blog/ai-steps/` | **jamais publiée**, le guide existe sous un autre titre | `zapier.com/blog/ai-by-zapier-guide/` |
+
+**L'absence d'un instantané Wayback distingue bien l'erreur d'écriture de la pourriture de lien** — une page publiée puis déplacée y laisse une trace — **mais elle ne dit rien du contenu**. Deux des trois adresses fautives désignaient un contenu qui existe. ⚠️ **Avant d'écrire qu'une source est inventée, chercher le contenu, pas seulement l'adresse.** C'est la règle « chercher la variante avant de conclure à l'absence », au niveau de l'URL.
+
+Bonus de la vérification : la page de remplacement du stoïcisme nomme la troisième eupatheia **eulabeia**, le terme juste, et c'est celui que la leçon emploie trois fois — une **autre** page du même site écrit *eusebeia*, qui signifie « piété ». Le contenu de la leçon est inchangé parce qu'il était exact.
+
+### Ce qui a été fait, document par document
+
+**12 documents touchés, 13 occurrences.** 10 repointages, 2 liens rendus non cliquables, 1 document délibérément **non touché**.
+
+| Document(s) | Adresse morte | Traitement |
+|---|---|---|
+| 6 veilles SERAFIN-PH (15/07, 22/07, 29/07, 12/08, 02/09, 30/09) | `atih.sante.fr/champ-d-activite/personnes-handicapees` | repointée sur `…/contribuer-au-financement/modalites-pour-les-etablissements-et-services-medico-sociaux` |
+| SERAFIN-PH 12/08 | `atih.sante.fr/actualites/campagne-de-financement-2026` | repointée sur l'index `…/campagnes-de-financement` ⚠️ index volatile, dit au marqueur |
+| ai-act 13/06 | slug `europes-` | repointée, titre et date inchangés car exacts |
+| nocode-ia n°2 | `docs.n8n.io/advanced-ai/agents/` · `zapier.com/blog/ai-steps/` | repointées sur le nœud « AI Agent » et le guide « AI by Zapier » |
+| nocode-ia n°3 | `platform.openai.com/docs/agents` | repointée sur `developers.openai.com/api/docs/guides/agents`, **libellé visible corrigé aussi** |
+| stoïcisme n°7 | slug eupatheiai jamais publié | repointée, trois eupatheiai vérifiées au degré ① |
+| imac 18/10 | `macrumors.com/guide/m6/` | **lien retiré**, adresse et déclaration du 18/10 conservées |
+| ennéagramme n°2 | `davidstamile.com/articles/…` | **lien retiré**, déclaration du 12/10 conservée mot pour mot |
+| ennéagramme n°3 | `psychologie-enneagramme.fr/notre-modele/` | **AUCUNE ÉDITION** — le document avait raison |
+
+### 🔴 Et le défaut était dans MON outil : un `rel` n'est pas un lien cliquable
+
+La leçon n°3 d'ennéagramme avait été corrigée le 09/10/2026 **exactement comme il fallait** : hyperliens retirés, adresses conservées en clair. Le balayage du 25/10 a pourtant rendu **`DNS`** pour `psychologie-enneagramme.fr` — parce que `adresses()` lit les **relations** du `.docx`, et qu'une relation survit au retrait de son `<w:hyperlink>`. **J'ai annoncé « 1 351 adresses cliquables » : c'était faux, ce sont 1 351 cibles de relation.**
+
+Borne **mesurée sur les 294 documents, pas devinée** : **4 `rels` orphelins dans 3 documents sur 2 951**. Et la mesure a fixé la règle exacte : une adresse n'est orpheline que si **AUCUN** de ses `rels` ne sert dans ce document — deux des quatre orphelins (`has-actualite` 14/09, astrologie n°7 17/09) sont des **doublons** laissés par une correction, à côté d'un `rel` vivant vers la même adresse, donc le lecteur peut toujours cliquer. Un `rel` orphelin est désormais **recensé à part, jamais sondé, jamais condamné**, et le balayage l'imprime avec ses documents.
+
+🧪 **Au harnais** : 7 bornes neuves (**34 → 41**, `ATTENDU_BAL` relevé), sur une arborescence **FABRIQUÉE** en `tempfile` — rien de vivant dans le verdict, leçon du 22/10 où un témoin ancré sur l'avancement réel d'un parcours a bloqué tous les pushs du dépôt. Les bornes exercent le **vrai** `adresses()` en déplaçant `RACINE`, et une 8ᵉ vérifie que `RACINE` est **rendue** — sans quoi le balayage réel irait sonder l'arborescence du témoin. Trois cas : tout orphelin → non cliquable **et** orpheline ; vivant + orphelin → cliquable **et** non orpheline (la borne mesurée) ; tout vivant → cliquable. **Trois sabotages, trois refus** avec chacun sa ligne, dont celui du **lot amputé : vert à l'auto-test seul (39/39), rouge au harnais** grâce à `ATTENDU_BAL`. Fichier restauré au sha256 identique (`92e5a9d59dd9e8f2`) à chaque fois.
+
+### 🔴 Trois défauts de MON correcteur, trouvés par ses propres assertions
+
+1. **L'ancre du marqueur se cherchait dans le XML d'AVANT édition** — j'ai ancré sur la nouvelle adresse. L'assertion a refusé, et le fichier est resté au **sha256 identique** : la propriété « tout ou rien » tient.
+2. **Un libellé scindé en deux runs** n'était pas un cas prévu : dans une cellule de tableau, `atih.sante.fr` et ` — Recueil national PH` sont deux runs, et le second n'est pas dans l'hyperlien. Deux documents refusés, intacts. Ancrage généralisé.
+3. **Le marqueur COUPAIT la phrase.** Posé après le libellé, il donnait *« ⛔ 12. MacRumors — roundup puce M6 [Corrigé le 25/10…] — page introuvable (404) »*. Mesuré sur **quatre** documents. Les marqueurs se posent désormais **en fin de paragraphe**, et une vérification compte les marqueurs suivis de texte dans leur paragraphe : **0 sur 12**.
+
+Et une règle née de la leçon n°2 d'ennéagramme : **le correcteur refuse de poser un marqueur à l'intérieur d'un `<w:hyperlink>`**, parce que c'est exactement ce que la correction du 12/10 avait fait — le marqueur qui annonce la mort du lien était lui-même cliquable vers le domaine mort.
+
+### Les vérifications
+
+| Vérification | Résultat |
+|---|---|
+| Les 9 cibles condamnées dans les `rels` des 12 documents | **0**, et le garde **mord** (sabotage par réinjection → exit 1) |
+| Marqueur posé dans un hyperlien | **0 sur 12** |
+| Marqueur suivi de texte dans son paragraphe | **0 sur 12** |
+| `rels` orphelins laissés par mes éditions | **0 sur 12** |
+| Intégrité du zip, journal présent | **12/12** |
+| Les 7 adresses de remplacement | **7 VIVANTE**, faisceau utilisé |
+| Harnais `--docs` sur les 12, avant vs après | **12/12 à 0 bloquant · diff de verdict VIDE** |
+| Harnais mode défaut | **exit 0**, aucun `✗` |
+| `audit_vault.py` | **9 contrôles au vert**, 184 fiches |
+| ㊳ sur les 12 | muet, exit 0 — logs purgés sauf imac 18/10, dont l'exécution a réussi |
+
+**Les adresses d'origine sont conservées** dans chaque marqueur et dans chaque journal, et le harnais `--docs` confirme que cela ne rouvre **aucun** motif bloquant de la passe A — la correction d'exemption des marqueurs du 25/10 au matin, vérifiée ici sur 12 documents neufs.
+
+### Ce qui reste, et qui n'a pas été ordonné
+
+- **`enneade.lu/lenneagramme-et-ses-3-centres/`** est le second `rel` orphelin de la leçon n°3 d'ennéagramme, même cas exactement, mais il est classé `TLS` et non condamné : hors de l'ordre.
+- Les **12 adresses `DELAI`** de l'Observatoire de Paris et les **5 `TLS`** restent sans verdict — un défaut de TLS peut être **notre** pile, et c'est précisément pourquoi elles ne condamnent pas.
+- `promenade.imcce.fr/fr/pages2/221.html`, corrigée dans la leçon n°10 d'astrologie le 25/10 au matin, **reste citée par la leçon n°6**.
+- Le balayage n'est toujours **pas planifié** : c'est une photographie, et le créneau du jeudi 9h33 est libre depuis le 22/10.

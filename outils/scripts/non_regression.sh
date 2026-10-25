@@ -631,7 +631,7 @@ if [ -x "$ROOT/outils/scripts/balayer_adresses.py" ]; then
     tail -1 "$BAL_OUT"
     # même garde qu'ATTENDU_LIENS, ATTENDU_MARQ et ATTENDU_TOL : le total est CALCULÉ depuis le lot,
     # donc un lot amputé imprimerait un « N/N » plus petit sans que rien ne refuse.
-    ATTENDU_BAL=34
+    ATTENDU_BAL=41
     LU_BAL=$(sed -n 's/.* \([0-9]\{1,\}\)\/[0-9]\{1,\} bornes de balayer_adresses.*/\1/p' "$BAL_OUT")
     if [ "$LU_BAL" != "$ATTENDU_BAL" ]; then
       echo "  ✗ ${LU_BAL:-0} borne(s) de classification jouée(s), $ATTENDU_BAL attendue(s) — un lot"

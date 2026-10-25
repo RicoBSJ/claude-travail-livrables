@@ -15,6 +15,8 @@ tags:
   - concept/loi-de-sept
   - concept/validite
   - theme/lien-mort-non-declare
+  - theme/page-morte
+  - theme/lien-mort-declare-mais-cliquable
 ---
 
 # 2026-06-10_lecon-enneagramme_02_origines-structure-symbole
@@ -34,6 +36,8 @@ Surtout, la leçon porte un **avertissement épistémique explicite** : la valid
 ## Correction du 12/10/2026
 
 **Un lien mort, déclaré le 12/10/2026 — c'était le seul problème bloquant du document.** La ressource « David Stamile — The Meaning and History of the Enneagram Symbol » était listée sans réserve. Le domaine `davidstamile.com` **ne résout plus** : NXDOMAIN sur l'apex comme sur `www`, trois essais le 12/10/2026, `HTTP 000` / `curl 6`, alors que `wikipedia.org` répondait 200 dans la même minute — la garde réseau est donc levée. La ligne porte désormais la déclaration du lien mort, et `controle_attributions.py` passe de **1 à 0 problème bloquant**. ⚠️ Le défaut avait été rendu visible par la passe **㉞**, ajoutée la veille, le 11/10/2026 : A6 ne regardait jusque-là que les 404 et 410, et un domaine qui ne résout pas lui était invisible. **Aucune affirmation du corps ne reposait sur cette source** — seule la ligne de ressource est touchée, et le fond de la leçon est intact.
+
+**Le marqueur qui annonçait la mort du lien était lui-même DANS le lien.** La correction du 12/10/2026 avait fait l'essentiel : NXDOMAIN mesuré sur `davidstamile.com`, déclaration datée posée sur la ligne de ressource, constat qu'aucune affirmation du corps ne reposait sur cette source. Mais le `<w:hyperlink>` n'avait pas été retiré — et le marqueur explicatif avait été inséré **à l'intérieur** de cet hyperlien : **cliquer sur l'explication menait au domaine mort**. Le 25/10/2026, NXDOMAIN revérifié (HTTP 000, `curl` 6), lien retiré, texte et déclaration du 12/10 conservés mot pour mot. Le correcteur employé refuse désormais de poser un marqueur dans un hyperlien : c'est ce document qui a fourni la borne.
 
 ## Notes liées
 

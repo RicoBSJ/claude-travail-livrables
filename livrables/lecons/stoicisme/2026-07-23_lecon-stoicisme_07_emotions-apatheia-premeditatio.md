@@ -15,6 +15,8 @@ tags:
   - concept/eupatheiai
   - concept/premeditatio-malorum
   - concept/emotion-jugement
+  - theme/page-morte
+  - theme/adresse-jamais-publiee
 ---
 
 # 2026-07-23_lecon-stoicisme_07_emotions-apatheia-premeditatio
@@ -30,6 +32,8 @@ Quatre passions primaires, croisant temporalité et évaluation : affliction (*l
 La leçon corrige un contresens fréquent : **l'*apatheia* n'est pas l'apathie**. Le sage n'est pas insensible ; il est libéré des émotions fondées sur des jugements erronés, et éprouve à leur place les *eupatheiai* — joie rationnelle, volonté rationnelle, précaution. Il n'éteint pas ses émotions, il les éduque.
 
 S'y ajoute la *premeditatio malorum*, préparation mentale à l'adversité.
+
+**L'article cité en ressource n'a vraisemblablement jamais existé à cette adresse.** Le slug `le-stoicisme-au-quotidien-cultiver-les-eupatheiai-pour-une-vie-sereine-et-epanouie` rend **404** le 25/10/2026 **et ne figure dans aucun instantané de la Wayback Machine**, qui porte pourtant une vingtaine d'articles `ameliorersavie.com/stoicisme/` : l'adresse était une reconstruction plausible, pas une page lue. L'article qui porte réellement ce contenu est **« Eupatheiai et stoïcisme : guide pratique pour appliquer les bons affects au quotidien »**, où **chara**, **boulêsis** et **eulabeia** figurent au degré ① LITTÉRAL. ⚠️ **Et c'est une bonne nouvelle pour la leçon** : une autre page du même site nomme la troisième eupatheia *eusebeia* — qui veut dire « piété » —, alors que cette leçon écrit **eulabeia**, le terme juste, trois fois. Le contenu de la leçon est inchangé parce qu'il était exact ; seule l'adresse était fausse.
 
 ## Notes liées
 
