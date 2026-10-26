@@ -4275,3 +4275,54 @@ J'ai lancé le gate en ne lui passant qu'**un** des neuf fichiers, lu « 1 verdi
 - 📌 **Les 7 liens AFDEM sont en `http` non chiffré.** Un navigateur en HTTPS-first peut échouer là où `curl` réussit. Le marqueur le dit dans chacun des 7 documents. À repointer en `https` si OVH ajoute le SAN.
 - 📌 **Le classement `TLS` du balayage n'est pas re-mesuré avant usage.** Rien n'oblige à re-sonder une adresse avant de la corriger — c'est ce qui a failli faire réécrire `service-public.gouv.fr`.
 - 📌 Les trois contrôles 5 bis sondent toujours **sans `--cacert`**.
+
+---
+
+## 26/10/2026 — les 7 liens AFDEM sont retirés : l'arbitrage de la veille est annulé, et c'est une décision, pas une mesure
+
+Le 25/10, les 7 hyperliens AFDEM avaient été **repointés de `https://` vers `http://`** pour préserver l'accès à un site vivant, le coût étant écrit dans chaque marqueur. L'ordre du 26/10 tranche dans l'autre sens : **les liens sont retirés, l'adresse reste en clair.**
+
+### Ce qui change, et ce qui ne change pas
+
+| | |
+|---|---|
+| **Décision** | `http://` **annulé** · 7 `<w:hyperlink>` retirés · 7 relations retirées · adresse `www.entretienmotivationnel.org` **en clair, en fin de libellé** |
+| **Motif** | un lien en `http` n'est pas chiffré, et un navigateur en HTTPS-first peut le refuser **là où `curl` réussit** — le lecteur se retrouvait devant un lien qui échoue sans lui dire pourquoi |
+| **Mesures, inchangées** | le site **répond** : HTTP 200, **13 403 car. utiles** (25/10), `AFDEM` et son nom développé au **degré ①** · certificat mutualisé OVH `cluster110.hosting.ovh.net`, **renouvelé le 19/10/2026**, sans SAN du domaine, `curl` **exit 60** |
+| **Ce que ça coûte** | **la ressource n'est pas morte, elle n'est plus cliquable.** Perte d'accès assumée, et le document le dit pour qu'on ne la relise pas comme un 404 |
+
+### 🔴 Mon défaut, attrapé par une assertion — et la règle du 25/10 avait un angle mort
+
+**L'hyperlien ne couvrait qu'une PARTIE du libellé.** Mesuré : `AFDEM — Association Francophone de Diffusion de l'EM` était dans le lien, `— ressources francophones, formation, actualités EM` **en dehors**. Poser l'adresse « juste après le lien retiré » l'a donc plantée **au milieu de la phrase** :
+
+> *« AFDEM — Association Francophone de Diffusion de l'EM **(www.entretienmotivationnel.org, hyperlien retiré)** — ressources francophones, formation, actualités EM »*
+
+C'est **exactement** le défaut que la règle du 25/10 interdit — *« un marqueur ancré après le libellé coupe la phrase »* — **et il m'a échappé parce que la règle ne parle que des MARQUEURS.** Une adresse conservée en clair n'est pas un marqueur ; elle se pose au même endroit et se coupe de la même manière. **La règle valait pour tout ce qu'une correction AJOUTE dans un ¶, pas seulement pour le marqueur.**
+
+🟢 **Les 7 documents ont été restaurés depuis la sauvegarde au sha256 identique** (`git status` vide, 7/7 concordants), le point d'insertion déplacé en **fin de libellé, avant le premier marqueur**, et le script porte désormais l'assertion qui aurait mordu :
+
+```python
+j = vis_ap.index(vis_adr) + len(vis_adr)
+assert vis_ap[j:].startswith("   [Corrigé le 25/10/2026"), "l'adresse coupe la phrase"
+```
+
+⚠️ **Et la PREMIÈRE assertion du script était fausse elle aussi, mais dans le bon sens** : `assert vis_av in vis_ap` — une **inclusion** — a mordu sur le document 01 **avant toute écriture**, parce que l'adresse s'insère au milieu. Rien n'a été touché. Elle est remplacée par une **égalité exacte** : on retire du texte final ce qu'on a ajouté et on doit retomber sur le texte d'avant. **Une inclusion ne dit pas OÙ on a inséré ; une égalité, si.**
+
+### Mesures de vérification
+
+| | |
+|---|---|
+| Documents · édits | **7** · 7 décliquages + 7 marqueurs + 7 sections de journal + 7 relations retirées |
+| Liens AFDEM restants | **0** dans les relations des 7 documents |
+| `rels` **externes** orphelins | **0** — la relation est retirée avec le lien, donc le balayage ne recensera pas 7 orphelins de plus |
+| Hyperliens résiduels dans le ¶ · marqueurs suivis de texte | **0 · 0** |
+| XML bien formé | 7 `document.xml` + 7 `document.xml.rels` |
+| Gate `--docs` | **7 verdicts, 7 × 0 bloquant, 0 `✗`, exit 0** |
+| Passe A sur l'adresse nue du corps | **ne bronche pas** — mesuré, et donc l'espace de contournement du 23/10 n'était pas nécessaire ici |
+| `audit_vault.py` | **9/9 au vert** |
+
+### Ce qui n'est pas fait
+
+- 📌 **L'adresse en clair n'est pas vérifiable automatiquement.** `balayer_adresses.py` sonde les cibles de relation : en retirant la relation, on retire aussi **la seule prise qu'avait le dépôt sur cette adresse**. Elle est désormais hors de portée de tout contrôle — c'est le prix du décliquage, et il est symétrique de l'angle mort des orphelins.
+- 📌 **Les 5 autres adresses AFDEM du corpus** — s'il en existe dans des documents non touchés par cet ordre — n'ont pas été cherchées : l'ordre portait sur les 7 liens corrigés la veille.
+- 📌 La règle « un marqueur ne coupe pas une phrase » reste écrite **pour les marqueurs** dans `CLAUDE.md` ; elle est élargie ce jour à **tout ajout dans un ¶**.
