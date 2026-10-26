@@ -4401,3 +4401,164 @@ propreté du `.docx`, le coût est la perte de visibilité — le même prix que
   le défaut.** Non ordonné, non touché.
 - 📌 Rendre le décliquage mécanique (un script qui retire lien **et** relation) reste à faire ; trois ordres de
   décliquage en deux jours l'ont fait à la main, dont deux fois à moitié.
+
+---
+
+## 26/10/2026 — le faisceau prend un SECOND maillon pour `cnsa.fr`, et l'incident révèle que le module n'en acceptait qu'un
+
+**Ordre reçu** : « corrige le faisceau pour cnsa.fr ». Le correctif est fait, mesuré, gardé au harnais — **et il ne
+rend pas les pages lisibles pour autant.** Les deux moitiés sont dans ce qui suit.
+
+### Le diagnostic, re-mesuré le jour de la correction
+
+Le balayage du matin classait 5 adresses `cnsa.fr` en `TLS`, dont **quatre passées de `HTTP 200` à `000 · curl 60`
+en vingt-quatre heures**. ⚠️ Conformément à la règle du 25/10 — *« un balayage date ; une correction se décide sur
+une sonde du jour »* —, les cinq ont été re-sondées une par une avant de toucher à quoi que ce soit :
+**5/5 en `exit 60`**, confirmé.
+
+| Fait mesuré | Valeur |
+|---|---|
+| Adresses, documents | **5 adresses · 38 documents** (1 + 1 + 23 + 3 + 10), tous de la série SERAFIN-PH |
+| Certificats présentés par le serveur | **1** — la feuille seule |
+| Émetteur de la feuille | `C=ES, O=Sectigo (Europe) SL, CN=Sectigo Qualified Website Authentication CA R39` |
+| Validité de la feuille | **14/10/2026 → 30/04/2027** — valide, donc *pas* un certificat expiré |
+| Verdict `openssl` | `21 — unable to verify the first certificate` |
+| Avec / sans le faisceau du dépôt | `exit 60` **dans les deux cas** → le défaut n'est pas le nôtre |
+
+C'est le mécanisme de `has-sante.fr` du 18/10 à l'identique : **un serveur qui omet sa chaîne intermédiaire.**
+
+### 🔴 Mais l'émetteur n'est pas le même, et c'est tout l'os de l'incident
+
+La HAS passe par `Sectigo Public Server Authentication CA OV R36` ; la CNSA, entité publique
+(`businessCategory=Government Entity`), par **`Sectigo Qualified Website Authentication CA R39`** — un certificat
+**qualifié eIDAS**, émis par la filiale espagnole de Sectigo. Le maillon versionné le 18/10 ne pouvait donc rien
+pour elle, et c'est **mesuré, pas supposé** : la feuille de la CNSA contre le faisceau à 201 certificats rend
+`error 20 at 0 depth lookup: unable to get local issuer certificate`.
+
+**Et pourtant la racine suffisait aux deux.** `Sectigo Public Server Authentication Root R46` émet les deux
+intermédiaires et était déjà dans le bundle de `brew` — vérifié par **extraction de chaque certificat et lecture de
+son sujet**, jamais au `grep`, l'avertissement du README de `ca/` valant toujours. Les trois vérifications :
+
+| | Commande | Résultat |
+|---|---|---|
+| L'intermédiaire seul | `openssl verify -CAfile <brew> r39.pem` | **OK** |
+| La chaîne complète | `openssl verify -CAfile <brew> -untrusted r39.pem <feuille>` | **OK** |
+| Contre l'ancien faisceau | `openssl verify -CAfile <faisceau 201> <feuille>` | `error 20` |
+
+⛔ **Rien de neuf n'entre dans la confiance** : on fournit au client ce que le serveur omet, et la chaîne est validée
+**entièrement** jusqu'à une racine publique que la distribution Mozilla approuve. **Le magasin de confiance de la
+machine n'est pas touché**, et ne doit pas l'être. Aucun `-k`, aucun `--insecure`.
+
+L'intermédiaire a été pris à l'adresse que l'**extension AIA de la feuille désigne elle-même** — elle ne se devine
+pas, et le nom de fichier du 18/10 (`…OVR36.crt`) aurait été faux :
+`http://crt.sectigo.com/SectigoQualifiedWebsiteAuthenticationCAR39.crt`
+HTTP 200 · 1 612 octets · `application/pkix-cert` · sha256 du DER
+`ac8c7ef96eb4b535fbfb4e7521f130536198a60dff716312b22d4acc4afe9a7d`.
+
+### 🔴 LE DÉFAUT DU MODULE : UN CHEMIN EN DUR, ET UN SECOND `.pem` N'AURAIT RIEN FAIT
+
+`ca_bundle.py` ne connaissait **qu'un** intermédiaire, écrit en dur dans la constante `INTER`. Déposer
+`sectigo-qualified-website-auth-ca-r39.pem` dans `ca/` et s'arrêter là **n'aurait eu aucun effet** — et **rien ne
+l'aurait dit** : pas d'erreur, pas d'avertissement, le faisceau se reconstruit sans lui, `curl` continue de rendre
+`60`, et les pages de la CNSA restent « NON LUES ». ⚠️ **Or « non lue » est indiscernable de « citation absente »** :
+c'est exactement l'angle mort d'une source écartée sur un `000`, celui qui a coûté la semaine du 18/10.
+
+Le module charge désormais **tous** les `.pem` de `ca/`, par une fonction `intermediaires()` qui remplace la
+constante. Faisceau **201 → 202 certificats**.
+
+### Le garde au harnais — bloc `0 octies`, joué dans TOUS les modes
+
+`ca_bundle.py --autotest` — **6 bornes, aucun réseau, aucun tiers** :
+
+| Borne | Ce qu'elle garde |
+|---|---|
+| ① | `chemin()` rend un fichier existant |
+| ② | `ca/` porte au moins un intermédiaire |
+| ③ | **compte du faisceau = brew + TOUS les `.pem` de `ca/`** |
+| ④ | **chaque `.pem` est dans le faisceau — et la borne le NOMME** |
+| ⑤ | seuls les `.pem` sont pris, et triés |
+| ⑥ | dossier `ca/` absent → aucun intermédiaire : le repli d'avant le faisceau est préservé |
+
+⑤ et ⑥ exercent le **vrai** `intermediaires()` en déplaçant `CA_DIR` vers une arborescence fabriquée en `tempfile` —
+**pas une copie de sa logique**, et rien de vivant dans le verdict (leçon du 22/10).
+
+⚠️ **Ces bornes ne peuvent pas périmer sur la panne d'un tiers.** C'est délibéré : les témoins qui ont bloqué *tous*
+les pushs du dépôt les **15/10** (taille d'une page d'index), **22/10** (avancement d'un parcours) et **23/10**
+(`promenade.imcce.fr` éteint) étaient tous ancrés sur une propriété volatile. Celles-ci ne regardent que le dossier
+`ca/` et le fichier en cache.
+
+🛡️ `ATTENDU_CA=6` garde le lot contre sa propre amputation, sur le modèle d'`ATTENDU_BAL`, `ATTENDU_TOL`,
+`ATTENDU_LIENS` et `ATTENDU_MARQ` — un lot réduit imprimerait un « N/N » plus petit et passerait au vert.
+
+🧪 **Sabotage, et il mord** : remettre `inters[:1]` dans la concaténation — c'est-à-dire **reproduire exactement le
+défaut d'avant le 26/10** — fait échouer ③ (`201 mesuré, 202 attendu`) **et** ④
+(`absents : sectigo-qualified-website-auth-ca-r39.pem`), **exit 1**. Les deux ne sont pas redondantes : ③ **compte**,
+④ **nomme**, et un `.pem` échangé contre un autre garderait le compte juste. `ca_bundle.py` restauré au **sha256
+identique** (`012587ae…`, puis `d9a1ac8c…` après la ligne finale rendue distinctive).
+
+### 🔴 CE QUE LE CORRECTIF NE RÉPARE PAS — ET C'EST LA MOITIÉ DU RÉSULTAT
+
+**Les pages de la CNSA ne sont toujours pas lisibles.** Le TLS est réparé, `exit 60 → exit 0`, et
+**`https://www.cnsa.fr/` rend `HTTP 200`** : c'est la preuve que le maillon fait son travail. Mais les cinq pages
+citées rendent **`HTTP 500`**.
+
+```
+HTTP/2 500 · content-type: text/html; charset=UTF-8 · x-varnish-cache: MISS · x-cacheable: NO
+corps : 67 octets — « The website encountered an unexpected error. Try again later. »
+```
+
+Mesuré avec notre UA, avec un UA Chrome complet, et **sans aucun UA** : `500` les trois fois. C'est le message
+générique de Drupal derrière Varnish, donc une panne applicative côté CNSA.
+
+⚠️ **Cette panne était INVISIBLE derrière l'échec TLS**, qui survient avant toute réponse HTTP. Elle n'est pas
+causée par le correctif : elle est **révélée** par lui. 🟢 Et un **second point de vue** le confirme, plutôt qu'un
+second essai (règle du 25/10) : l'Internet Archive avait `www.cnsa.fr/actualites` à **200 le 17/10/2026** — neuf
+jours avant. La panne est postérieure, et cohérente avec la réémission du certificat du 14/10.
+
+📊 **Ce que le correctif change donc vraiment** : les 5 adresses passent de `TLS` à `PANNE` dans la classification
+du balayage. **Ce n'est pas cosmétique.** C'est la différence entre *« notre pile ne sait pas valider, donc on ne
+sait rien de la page »* et *« le serveur de la CNSA est en panne »* — le premier verdict fait écarter une source
+valide en silence, le second est un fait sur lequel on peut agir, attendre, ou déclarer une semaine creuse **en le
+disant**. ⚠️ Pour `serafin-ph-veille`, **mercredi 8h03**, la conséquence pratique est la même aujourd'hui (les
+pages ne sont pas lisibles) ; elle cessera de l'être dès que la CNSA réparera son serveur, **sans qu'il faille
+retoucher au dépôt**.
+
+### 🔴 Mes erreurs de la séance, et la troisième est la même que le 25/10
+
+1. **Deux heredocs de même délimiteur dans une commande `||`** ont avalé la suite du script : les étapes ② et ③ de
+   la vérification de chaîne n'ont rien imprimé, et j'ai cru à un échec silencieux d'`openssl`. Rejouées séparément,
+   les deux rendent **OK**.
+2. **J'ai cherché les documents citant la CNSA par `grep -rl "cnsa.fr" --include="*.docx"`** — un `.docx` est un
+   **zip**, le `grep` rend 0 et j'ai passé au gate une liste vide, qui a répondu `(aucun document)` sans rien dire
+   d'anormal. Les adresses vivent dans `word/_rels/document.xml.rels`, à l'intérieur de l'archive.
+3. 🔴 **J'ai cru retrouver un trou de couverture du gate `--docs`, et c'était ENCORE mon invocation.** Le gate
+   imprimait **un seul verdict pour trois documents**, et le nom affiché était celui du **dernier** des trois. Cause
+   mesurée : **zsh ne découpe PAS un `$ARGS` non quoté sur l'IFS**, contrairement à bash — le gate recevait **une
+   seule chaîne** de trois chemins. Passés en arguments vraiment séparés : **3 verdicts + 3 décomptes, exit 0**, la
+   couverture est correcte. C'est la règle du 25/10 (*« avant d'accuser un outil, relire son invocation »*)
+   enfreinte **sur le même outil, le lendemain** — et c'est la troisième fois que je mal-invoque ce gate.
+
+### 🔴 Mais la mauvaise invocation a mis au jour un VRAI défaut du gate, lui
+
+En répondant à une chaîne de trois chemins, le gate a imprimé **`✓ 0 bloquant(s)`** — un verdict **vert sur un
+fichier qu'il n'a jamais ouvert**. Mesuré dans les deux cas :
+
+| Chemin inexistant | Verdict du gate | Exit |
+|---|---|---|
+| `sources/veille/serafin-ph/FANTOME.docx` | `✓ 0 bloquant(s)` **puis** `✗ décompte INCOHÉRENT — EXTRACTION IMPOSSIBLE` et `✗ REJEU … fichier introuvable` | **1** |
+| `livrables/lecons/hypnose/FANTOME.docx` | `✓ 0 bloquant(s) (nouveau)` — **et rien d'autre** | **0** |
+
+**La passe attributions est silencieusement verte sur un fichier illisible.** Pour une veille, le décompte et la
+relecture d'édition la rattrapent ; **pour une leçon, rien ne la rattrape** — il n'y a pas de décompte hors
+`sources/veille/`. ⚠️ **Portée réelle** : le hook alimente le gate avec les noms que `git diff --diff-filter=AMR`
+lui donne, donc des chemins qui existent — le défaut ne mord pas en production. Il mord sur une invocation **à la
+main**, c'est-à-dire exactement ce que je fais pour vérifier une correction : une faute de frappe rend un vert.
+📌 **Non corrigé, non ordonné** : c'est une modification de la porte des pushs de job, et elle se décide à part.
+
+### Ce qui n'est pas fait
+
+- 📌 **Le `500` de la CNSA** n'est pas de notre ressort. À re-sonder ; s'il tient mercredi, la veille SERAFIN-PH
+  devra le **dire** plutôt que de déclarer une semaine creuse.
+- 📌 **Porter `--cacert` aux trois contrôles 5 bis**, qui sondent toujours sans faisceau (piste du 25/10, non faite).
+  Avec deux intermédiaires au dossier, l'écart entre ce que voit le harnais et ce que voient ces contrôles grandit.
+- 📌 Le vert silencieux de la passe attributions sur un fichier illisible (ci-dessus).

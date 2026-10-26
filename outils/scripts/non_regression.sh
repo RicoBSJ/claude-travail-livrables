@@ -646,6 +646,43 @@ if [ -x "$ROOT/outils/scripts/balayer_adresses.py" ]; then
   fi
 fi
 
+# ── 0 octies. LE FAISCEAU DE CERTIFICATS EST-IL COMPLET ? (26/10/2026)
+# `ca_bundle.py` ne connaissait QU'UN intermédiaire, écrit en dur : celui que l'AIA du certificat
+# de `has-sante.fr` désigne. Le 26/10, `cnsa.fr` est tombé du MÊME défaut — certificat réémis le
+# 14/10/2026, chaîne intermédiaire absente, `curl` 60 sur les 38 documents qui citent la CNSA —
+# mais avec un AUTRE émetteur, « Sectigo Qualified Website Authentication CA R39 ». Il a donc fallu
+# un SECOND maillon, et le chemin en dur l'aurait ignoré en silence.
+# 🔴 LE DÉFAUT QUE CES BORNES GARDENT EST EXACTEMENT CELUI-LÀ : un `.pem` déposé dans `ca/` et
+#    jamais chargé. Rien ne l'aurait dit — ni une erreur, ni un `✗` : le faisceau se serait
+#    reconstruit sans lui, et les pages de l'hôte concerné seraient restées « NON LUES », donc
+#    indiscernables d'une citation absente. C'est le même angle mort qu'un lien écarté sur un 000.
+# ⚠️ Aucun réseau, aucun tiers : ces bornes comparent le faisceau en cache à ce que `ca/` contient,
+#    et exercent le VRAI `intermediaires()` en déplaçant `CA_DIR` vers une arborescence fabriquée.
+#    Elles ne peuvent donc PAS périmer sur la panne d'un site — la leçon des 15, 22 et 23/10.
+if [ -f "$ROOT/outils/scripts/ca_bundle.py" ]; then
+  echo "▶ Auto-tests du faisceau de certificats (aucun réseau)"
+  CAB_OUT="$CUR/ca_bundle_autotest.txt"
+  # ⚠ PAS de pipe : « ... --autotest | tail -1 » testerait le code de `tail` (leçon du 15/10).
+  if env -i $PY "$ROOT/outils/scripts/ca_bundle.py" --autotest > "$CAB_OUT" 2>&1; then
+    tail -1 "$CAB_OUT"
+    # même garde qu'ATTENDU_BAL, ATTENDU_TOL, ATTENDU_LIENS et ATTENDU_MARQ : le total est CALCULÉ
+    # depuis le lot, donc un lot amputé imprimerait un « N/N » plus petit sans que rien ne refuse.
+    ATTENDU_CA=6
+    LU_CA=$(sed -n 's/.* \([0-9]\{1,\}\)\/[0-9]\{1,\} bornes du faisceau.*/\1/p' "$CAB_OUT")
+    if [ "$LU_CA" != "$ATTENDU_CA" ]; then
+      echo "  ✗ ${LU_CA:-0} borne(s) de faisceau jouée(s), $ATTENDU_CA attendue(s) — un lot amputé"
+      echo "    imprimerait un total plus petit et passerait au vert."
+      exit 1
+    fi
+  else
+    grep '✗' "$CAB_OUT" | head -5
+    echo "  ✗ LE FAISCEAU DE CERTIFICATS EST INCOMPLET — un intermédiaire versionné dans ca/ n'est"
+    echo "    pas chargé. Les pages de l'hôte concerné redeviendraient « NON LUES » en silence,"
+    echo "    et leurs sources seraient écartées sur un 000 qui ne dit rien de la page."
+    exit 1
+  fi
+fi
+
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then
   shift; STATUT=0
