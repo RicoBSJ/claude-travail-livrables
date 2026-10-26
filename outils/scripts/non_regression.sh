@@ -718,6 +718,41 @@ if [ -f "$ROOT/outils/scripts/non_regression/faisceau_5bis.py" ]; then
   fi
 fi
 
+# ── 0 undecies. LE MOTIF (1) DE PSYCHOPATHOLOGIE RESTE-T-IL BORNÉ AUX PAGES DE RBPP ? (26/10/2026)
+#    Le portage du faisceau, le matin même, a rendu ACTIF un motif inerte depuis le 18/10, et
+#    devenu actif il a mordu sur un COMMUNIQUÉ DE PRESSE — il exigeait des ressources de la
+#    leçon l'annexe thématique d'une page d'actualité. Borné à l'étiquette de type que chaque
+#    page HAS se donne, mesurée sur les 17 pages jcms du corpus : `Recommandation de bonne
+#    pratique` (9), `Communiqué de presse` (1), `Flash sécurité patient` (1), `Article HAS` (2),
+#    aucune pour les 4 portails. Effet mesuré sur les 20 leçons : 0 verdict changé,
+#    UNE SEULE raison de refus retirée (la leçon 07 reste en exit 1 sur son autre motif).
+#    ⚠️ La borne ⑤ est la seule qui sépare ce bornage d'un `"…" in page` naïf, et la ⑨ est la
+#    seule qui empêche de rendre l'exemption SILENCIEUSE — le défaut fermé le matin même.
+#    AUCUN RÉSEAU, témoins figgés en HTML inline — joué dans TOUS les modes.
+if [ -f "$ROOT/outils/scripts/non_regression/etiquette_has.py" ]; then
+  echo "▶ Témoin de l'étiquette HAS — le motif (1) borné aux RBPP (aucun réseau)"
+  ETQ_OUT="$CUR/etiquette_has.txt"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/etiquette_has.py" > "$ETQ_OUT" 2>&1; then
+    tail -1 "$ETQ_OUT"
+    # ⚠️ LE GARDE LIT LE DÉNOMINATEUR, c'est-à-dire le nombre de bornes JOUÉES. Avec le
+    #    numérateur, retirer une borne laissait « 9/9 » : défaut mesuré le 26/10 sur mes deux
+    #    propres gardes (ATTENDU_CA et ATTENDU_CB5), les deux étaient décoratifs.
+    ATTENDU_ETIQ=10
+    LU_ETIQ=$(sed -n "s/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes de l'étiquette HAS.*/\1/p" "$ETQ_OUT")
+    if [ "$LU_ETIQ" != "$ATTENDU_ETIQ" ]; then
+      echo "  ✗ $LU_ETIQ borne(s) jouée(s), $ATTENDU_ETIQ attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_ETIQ à jour en disant pourquoi."
+      exit 1
+    fi
+  else
+    grep '✗' "$ETQ_OUT" | head -9
+    echo "  ✗ LE MOTIF (1) DE PSYCHOPATHOLOGIE N'EST PLUS BORNÉ AUX PAGES DE RBPP — soit il"
+    echo "    refusera une leçon pour un communiqué de presse, soit il est redevenu INERTE et"
+    echo "    ne dira plus rien du tout. Les deux sens sont gardés ici."
+    exit 1
+  fi
+fi
+
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then
   shift; STATUT=0

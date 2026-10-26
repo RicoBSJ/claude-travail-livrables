@@ -46,11 +46,38 @@ fin = [i for i, t in enumerate(T) if "Journal des corrections" in t]
 if fin: T = T[:fin[0]]
 pb = []
 # 1. UNE PAGE HAS DE PRÉSENTATION N'EST PAS LE DOCUMENT — si la page jcms lie un PDF has-sante.fr, ce PDF est dans les ressources
+# 🔴 BORNÉ AUX PAGES DE RBPP LE 26/10/2026. Le motif a mordu sur `p_3590541/la-has-adopte-son-nouveau-programme-sante-mentale-et-psychiatrie-2025-2030`, qui est
+# un COMMUNIQUÉ DE PRESSE : il exigeait des ressources de la leçon l'annexe thématique d'une
+# page d'actualité. La lettre de la règle B3 bis était respectée, son esprit visait la page de
+# présentation d'une RECOMMANDATION. La largeur n'est devenue visible qu'au portage du
+# faisceau, le même jour : avant, une page vide rendait le motif inerte et il ne s'exerçait
+# jamais.
+# LE DISCRIMINANT EST STRUCTUREL, PAS LEXICAL, et c'est mesuré sur les 17 pages jcms du
+# corpus : chaque page HAS déclare son propre type dans UNE seule étiquette, celle de sa zone
+# sub-title — `Recommandation de bonne pratique` (9 pages), `Communiqué de presse` (1),
+# `Flash sécurité patient` (1), `Article HAS` (2), aucune pour les 4 portails thématiques.
+# ⚠️ UN SIMPLE `"Recommandation de bonne pratique" in page` NE MARCHE PAS : la chaîne
+# apparaît aussi dans la colonne « Voir aussi » de pages qui n'en sont pas une (mesuré sur
+# p_3953998 et p_3741239, 2 occurrences chacune). C'est l'ÉTIQUETTE qui tranche, pas la page.
+# ⚠️ ET L'EXEMPTION EST DITE, JAMAIS SILENCIEUSE : si le gabarit de la HAS changeait de
+# classe, toutes les pages deviendraient exemptes et le motif redeviendrait inerte — le défaut
+# même corrigé le 26/10 au matin. La ligne imprimée rend ce cas visible dans le log.
+ETIQ_HAS = re.compile(r'<div class="sub-title">\s*<span class="titleLabelCaps">([^<]{2,60})</span>')
+RBPP_HAS = "Recommandation de bonne pratique"
 for u in [u for u in urls if "has-sante.fr/jcms/" in u]:
     r = subprocess.run(["curl", "-s", "-L", "--max-time", "30"] + CA + ["-A", UA, u], capture_output=True); page = r.stdout.decode("utf-8", "ignore")
     pdfs = sorted(set(re.findall(r'https?://www\.has-sante\.fr/upload/docs/application/pdf/[^"\']+\.pdf', page)))
     pdfs = [d for d in pdfs if not re.search(r"(?i)focus_on|_en\.pdf|english", d)]
-    if pdfs and not any(d in urls for d in pdfs):
+    if not pdfs:
+        continue
+    _m = ETIQ_HAS.search(page)
+    _et = _m.group(1).strip() if _m else ""
+    if _et != RBPP_HAS:
+        print("PAGE HAS NON-RBPP, MOTIF (1) NON APPLIQUÉ :", u,
+              "\n   type déclaré par la page :", _et or "⟨aucune étiquette titleLabelCaps⟩",
+              "—", len(pdfs), "PDF non confronté(s) aux ressources")
+        continue
+    if not any(d in urls for d in pdfs):
         print("PAGE HAS DE PRÉSENTATION SANS SON DOCUMENT :", u, "\n   PDF lié(s) sur la page, absent(s) des ressources :", " ; ".join(pdfs)); pb.append("PDF HAS non lié (%s)" % u.split("/")[-1][:50])
 # 2. UNE FRACTION PORTE SON EFFECTIF (A2 bis) — « 1/3 », « un tiers », « la moitié », « un sur cinq » dans un paragraphe qui nomme une source et ne donne aucun % : l'effectif compté est dans le paragraphe
 for i, t in enumerate(T):

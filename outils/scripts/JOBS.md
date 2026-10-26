@@ -4814,3 +4814,79 @@ Le hook a imprimé **`✓ aucun verdict n'a changé — push autorisé`**, et `g
 🟢 **Ce qui a été fait** : `--complet` lancé à la main (**exit 0**, 7 duos 5 bis verts), le hook lui-même ayant déjà autorisé **deux fois** dans la minute précédente, puis `SKIP_NR=1 git push`. **La vérification a bien eu lieu** — elle n'a simplement pas tenu dans la fenêtre du transport. C'est le seul usage légitime de l'échappatoire : le garde a été satisfait, pas contourné.
 
 📌 **Deux pistes bornées, non faites, et aucune n'est de mon ressort seul** : un `ServerAliveInterval`/`ServerAliveCountMax` dans `~/.ssh/config` — cela modifie la configuration de la machine, décision de son propriétaire — ou basculer le remote de ce dépôt en HTTPS.
+
+---
+
+## 26/10/2026 — le motif (1) de psychopathologie est borné aux pages de RBPP
+
+**Ordre** : « borne le motif (1) aux pages de RBPP ». Il vient directement de la ligne d'avocat du diable du portage du faisceau, quelques heures plus tôt : le motif, devenu actif, a mordu sur un **communiqué de presse**.
+
+### Le cas
+
+`p_3590541/fr/la-has-adopte-son-nouveau-programme-sante-mentale-et-psychiatrie-2025-2030` lie un PDF `has-sante.fr` : `themes_du_programme_sante_mentale_et_psychiatrie.pdf`. Le motif exigeait que la leçon 07 porte cette **annexe thématique d'une page d'actualité** dans ses ressources. La lettre de la règle B3 bis était respectée — « une page de présentation n'est pas le document » — mais son esprit visait la page de présentation d'une **recommandation**, dont l'argumentaire est la substance.
+
+### Le discriminant est STRUCTUREL, et il est mesuré sur les 17 pages jcms du corpus
+
+Chaque page HAS déclare son propre type dans **une seule** étiquette, celle de sa zone `sub-title` :
+
+```html
+<div class="sub-title"> <span class="titleLabelCaps">Recommandation de bonne pratique</span> - Mis en ligne le 08 nov. 2017
+```
+
+| étiquette | pages | PDF liés | verdict |
+|---|---|---|---|
+| `Recommandation de bonne pratique` | **9** | 1 à 21 | le motif **mord** |
+| `Communiqué de presse` | 1 (`p_3590541`) | 1 | **exemptée** ← l'incident |
+| `Flash sécurité patient` | 1 (`p_3381939`) | 1 | exemptée |
+| `Article HAS` | 2 | 0 | exemptées |
+| ⟨aucune⟩ — portails thématiques | 4 | 0 | exemptées |
+
+Exactement **une** occurrence de `titleLabelCaps` par page, **zéro** pour les portails. Et le contrôle lit le **HTML brut de `curl`**, pas le texte utile : la mesure a donc été refaite sur le `.brut`, qui est ce que le contrôle voit — sans quoi j'aurais implémenté contre la mauvaise entrée.
+
+### Effet mesuré sur les 20 leçons : 0 verdict changé, UNE raison de refus retirée
+
+| | avant le bornage | après |
+|---|---|---|
+| leçon 07 | `LEÇON REFUSÉE — PDF HAS non lié (la-has-adopte-son-nouveau-programme…) ; PDF HAS non lié (diagnostic-et-evaluation-des-troubles-schizophreni)` | `LEÇON REFUSÉE — PDF HAS non lié (diagnostic-et-evaluation-des-troubles-schizophreni)` |
+| codes de sortie | 06·07·09·10·12 en 1, le reste en 0 | **identiques** |
+| exemptions imprimées | — | **2** (leçons 07 et 17) |
+
+**Le bornage retire une RAISON, pas un REFUS** : la leçon 07 reste refusée sur `p_3953998`, qui est une vraie page de RBPP (note de cadrage, étiquetée comme telle par la HAS). La leçon 17 gagne une ligne d'exemption sans changer de verdict — son PDF `Flash sécurité patient` était déjà dans ses ressources.
+
+### ⚠️ Ce que la mesure a DÉMENTI, et c'est l'essentiel
+
+J'avais annoncé qu'un test naïf se tromperait. Mesuré, en jouant les trois formes sur les 17 pages :
+
+| forme du test | verdicts différents du structuré |
+|---|---|
+| `"Recommandation de bonne pratique" in page` | **3** — les trois portails thématiques mordraient… **mais ils ont 0 PDF**, donc 0 verdict changé |
+| première étiquette `titleLabelCaps` **où qu'elle soit** | **0 sur 17** |
+
+Donc : **l'ancrage à la zone `sub-title` est un durcissement PUREMENT PRÉVENTIF**, et le dire autrement serait le vendre pour une correction. Ce qui corrige l'incident, c'est de lire l'**étiquette** plutôt que de chercher la chaîne — pas l'ancrage lui-même.
+
+### 🔴 Et mon témoin prétendait garder ce que justement il ne gardait pas
+
+Ma borne ⑤ — « la chaîne dans *Voir aussi* seule ne suffit pas » — était annoncée comme **la seule à séparer les deux implémentations**. Le sabotage l'a démentie : retirer l'ancrage laissait le lot **vert, harnais en exit 0**. La cause est dans mon témoin : son `<aside>` était placé **après** la zone `sub-title`, donc `.search()` trouvait la bonne étiquette en premier **dans les deux cas**.
+
+🟢 Corrigé par une borne ⑩ dont le témoin est **fabriqué et dit comme tel** — étiquette de barre latérale **avant** la zone sub-title, forme absente du corpus puisque la colonne « Voir aussi » de la HAS vient toujours après. Elle mord. Et la borne ⑤ reste : elle garde l'autre forme naïve (`in page`), ce qui est mesuré sur 3 pages réelles.
+
+### Le témoin — `non_regression/etiquette_has.py`, 10 bornes, aucun réseau
+
+| borne | ce qu'elle garde |
+|---|---|
+| ① | une page de RBPP : le motif **mord** encore — interdit de resserrer jusqu'à l'inutilité |
+| ② ③ ④ | `Communiqué de presse`, `Flash sécurité patient`, portail sans étiquette → exemptés |
+| ⑤ | la chaîne dans le corps seule ne suffit pas (garde contre `RBPP in page`) |
+| ⑥ | le gabarit réel, avec ses blancs entre balises, est bien lu |
+| ⑦ | **RACINE est rendue** — quatre `dirname`, le piège du 23/10 |
+| ⑧ | la regex et la constante sont **extraites du contrôle**, pas recopiées — si elles en disparaissent, le témoin le **dit** au lieu de rester vert sur du vide |
+| ⑨ | **l'exemption est IMPRIMÉE, pas silencieuse** — une inertie muette est le défaut fermé le matin même |
+| ⑩ | étiquette de barre latérale avant la zone sub-title (témoin **fabriqué**, durcissement préventif) |
+
+**Sept sabotages, sept refus au harnais**, chacun avec sa ligne, fichiers restaurés au sha256 identique à chaque fois.
+
+⚠️ **Risque résiduel, et il est dit à chaque passage** : si la HAS renommait sa classe CSS, **toutes** les pages deviendraient exemptes et le motif redeviendrait **inerte** — exactement le défaut fermé le matin. Aucun témoin figé ne peut voir le changement d'un gabarit tiers. Ce qui le rend visible est la ligne `PAGE HAS NON-RBPP, MOTIF (1) NON APPLIQUÉ` imprimée par le contrôle, et la borne ⑨ garde qu'elle soit imprimée.
+
+### 🔴 Mon autre erreur de la séance : un sabotage qui n'a pas tourné
+
+Le septième scénario a échappé à l'échappement — `\$C` injecté dans un `python3 -c '…'` à guillemets simples est resté **littéral**, le patch est mort en `FileNotFoundError`, **aucun fichier n'a été touché** — et le harnais, évidemment vert, a imprimé « SABOTAGE NON VU ». Rejoué à part, il mord sur les bornes ⑤ et ⑩. **Un sabotage doit prouver qu'il a modifié le fichier avant qu'on lise le verdict du harnais.**
