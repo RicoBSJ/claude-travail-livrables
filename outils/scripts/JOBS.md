@@ -4802,3 +4802,15 @@ C'est la règle du 15/10 — *« un garde qui ne fait pas sortir en 1 est décor
 2. **Dans la même commande, j'ai lu `exit=$?` après un `| tail`**, donc le code d'un `tail`. Deux fois la même classe d'erreur en une ligne.
 3. **Mon assertion de patch a mordu sur mon propre commentaire**, qui citait le motif fautif `7 - len(ko)` pour l'expliquer. Rien n'a été écrit — l'échec est antérieur à toute écriture, ce qui est le bon sens d'échec. Corrigé en portant l'assertion sur la **forme exécutable** (`'" % (7 - len(ko))'`) et non sur la chaîne nue.
 4. **Et un compte attendu deviné était faux** : j'ai écrit `assert s.count("len(jouees)") == 5` quand la réponse est **4** — deux par `print`, deux `print`. Un compte deviné est un compte faux, et mon assertion l'a dit avant d'écrire.
+
+### 🔴 26/10/2026 — et le push de ce portage a échoué deux fois pour une raison qui n'est pas le dépôt
+
+Le hook a imprimé **`✓ aucun verdict n'a changé — push autorisé`**, et `git push` est mort en **141 (SIGPIPE)** juste après, sur `Connection to github.com closed by remote host.` — **`origin/main` inchangé, rien publié**. Deux fois de suite, à l'identique.
+
+**La cause est l'ordre des opérations de git** : la connexion SSH vers GitHub est ouverte **avant** l'exécution du `pre-push`. Le hook, déclenché en `--complet` parce que les trois étapes 5 bis sont dans le push, dure **~25 min** ; GitHub ferme une connexion inactive bien avant. Le hook autorise, le transfert écrit dans un tuyau mort.
+
+⚠️ **Le mode défaut (~160 s) ne le déclenche pas** : les deux pushs précédents du même jour (`e491166`, `fa6226b`) sont passés sans incident. Seuls les pushs qui touchent un contrôle à **aspiration**, une **étape 5 bis** ou la **relecture d'édition** sont concernés — les regex `ASPIRATION` / `CINQBIS` / `EDPREC` du hook.
+
+🟢 **Ce qui a été fait** : `--complet` lancé à la main (**exit 0**, 7 duos 5 bis verts), le hook lui-même ayant déjà autorisé **deux fois** dans la minute précédente, puis `SKIP_NR=1 git push`. **La vérification a bien eu lieu** — elle n'a simplement pas tenu dans la fenêtre du transport. C'est le seul usage légitime de l'échappatoire : le garde a été satisfait, pas contourné.
+
+📌 **Deux pistes bornées, non faites, et aucune n'est de mon ressort seul** : un `ServerAliveInterval`/`ServerAliveCountMax` dans `~/.ssh/config` — cela modifie la configuration de la machine, décision de son propriétaire — ou basculer le remote de ce dépôt en HTTPS.
