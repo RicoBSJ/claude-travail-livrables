@@ -4562,3 +4562,119 @@ main**, c'est-à-dire exactement ce que je fais pour vérifier une correction : 
 - 📌 **Porter `--cacert` aux trois contrôles 5 bis**, qui sondent toujours sans faisceau (piste du 25/10, non faite).
   Avec deux intermédiaires au dossier, l'écart entre ce que voit le harnais et ce que voient ces contrôles grandit.
 - 📌 Le vert silencieux de la passe attributions sur un fichier illisible (ci-dessus).
+
+---
+
+## 26/10/2026 — le vert silencieux du gate sur un fichier illisible : DEUX causes, TROIS sites, et c'est le harnais qui faisait taire le contrôle
+
+**Ordre reçu** : « corrige le vert silencieux du gate sur un fichier illisible ». Le défaut avait été trouvé le matin
+même, par accident, en vérifiant le correctif TLS de `cnsa.fr`.
+
+### L'état mesuré AVANT
+
+```
+$ non_regression.sh --docs livrables/lecons/hypnose/PAS-LA.docx
+  ✓ PAS-LA.docx : 0 bloquant(s) (nouveau)            → exit 0
+$ non_regression.sh --docs <un .docx de 22 octets qui n'est pas un zip>
+  ✓ illisible.docx : 0 bloquant(s) (nouveau)         → exit 0
+```
+
+### 🔴 Cause ① — LE REFUS DU CONTRÔLE ÉTAIT JETÉ
+
+`controle_attributions.py` dit **exactement ce qu'il faut**, et c'est le **seul `sys.exit` de la tranche extraite** :
+
+```python
+if "=== TEXTE COMPLET" not in t:
+    sys.exit("EXTRACTION IMPOSSIBLE (fichier introuvable ou illisible) : " + DOCX)
+```
+
+Le harnais l'attrapait par `except SystemExit as e: print("EXIT", e)` — **à l'intérieur du `redirect_stdout(out)`**,
+donc dans un tampon jamais relu. **Le contrôle avait raison ; le harnais le faisait taire**, puis imprimait la ligne
+suivante avec un décompte de zéro. Mesuré : `SystemExit` rend la chaîne complète pour un fantôme, et `None` pour un
+document réel — la discrimination était là, elle était jetée.
+
+### 🔴 Cause ② — ET UN FICHIER CORROMPU QUI EXISTE NE DÉCLENCHE MÊME PAS CE `sys.exit`
+
+C'est la pire des deux, parce que le fichier **existe** — donc `--accepter` le figerait. Mesuré :
+
+```
+$ extract_docx.py <non-zip>
+ERROR: File is not a zip file            ← sur STDERR
+=== URLS (0) ===
+=== LIENS (0) ===
+=== TEXTE COMPLET (0 caractères) ===     ← sur stdout, et le marqueur EST là
+$ echo $?
+0
+```
+
+Le contrôle fait `subprocess.run(..., capture_output=True).stdout` : **il ne lit pas stderr**, donc l'`ERROR:` est
+perdu ; le marqueur est présent, donc son garde passe ; et il voit un document **VIDE**, pas illisible. `0 bloquant(s)`
+en toute bonne foi. 🟢 Le signal exploitable est donc **le compte de caractères annoncé sur stdout**, et la borne est
+**mesurée sur les 296 documents du corpus** : **0** portent `TEXTE COMPLET (0 `, **0** portent `ERROR:`, **0** sont
+sans marqueur — **zéro faux refus possible**.
+
+### ⚠️ TROIS sites, octet pour octet identiques — et le deuxième alimente la RÉFÉRENCE
+
+| Site | Rôle | Ce qu'un `KO` y faisait |
+|---|---|---|
+| `--docs` | **porte des pushs de job** | `✓ 0 bloquant(s)`, exit 0 |
+| corpus complet | **nourrit `reference/passe_A.tsv`** | `0 bloquant` inscrit dans la référence par `--accepter` |
+| témoins de marqueurs | lot figé | **déjà protégé** par `[ "${n:-X}" != "$2" ]`, à l'égalité exacte |
+
+🔴 **Le deuxième est le plus grave et il n'avait pas été vu le matin** : `--accepter` fait `cp passe_A.tsv` dans
+`reference/`. Un « KO » accepté **une seule fois** serait comparé à lui-même au passage suivant (`$2!=$3` faux) et
+**le vert deviendrait définitif** — le document ne serait plus jamais comparé à rien. Le garde refuse donc **avant**
+que `--accepter` puisse écrire. Le troisième était déjà couvert : **vérifié par la mesure, pas supposé.**
+
+### ⚠️ Ce que le défaut NE coûtait PAS, et il faut le dire
+
+Le hook `pre-push` fait `[ -f "$ROOT/$d" ]` **avant** d'ajouter un document à la liste qu'il passe au gate. **Aucun
+push de job n'a donc jamais pu en souffrir.** Le défaut mordait l'invocation **à la main** — c'est-à-dire la
+vérification d'une correction, où une faute de frappe dans un chemin rendait un vert. C'est exactement le geste que
+font les ordres « corrige X ».
+
+### Le témoin — bloc `0 nonies`
+
+Placé **après la branche `--docs`** pour que l'appel imbriqué ne puisse pas récurser, avec `NR_SANS_TEMOIN_KO` en
+garde de réentrance si quelqu'un le déplaçait un jour. Il tourne dans le **mode défaut**, celui que le hook lance
+quand un contrôle surveillé est dans le push. Il exerce le **VRAI gate** (`non_regression.sh --docs`), jamais une
+copie de sa logique, sur une arborescence **fabriquée en `mktemp`** — rien de vivant dans le verdict (leçon du 22/10).
+Trois cas en **un seul appel**, dont **un qui doit être ACCEPTÉ**, plus `ATTENDU_KO=3`.
+
+### 🔴 ET LE SABOTAGE A CORRIGÉ MON TÉMOIN AVANT DE LE VALIDER
+
+Première rédaction : les trois cas exigeaient la même phrase, `LE CONTRÔLE N'A PAS PU LIRE`. Or pour un fichier
+**introuvable**, `g["t"]` est vide : **le témoin positif suffit à le détecter**, donc la capture du `SystemExit`
+était **redondante au regard de cette exigence lâche** — la casser n'aurait rien fait crier. Et c'est elle qui fait
+dire **pourquoi**, avec les mots du contrôle **et le chemin fautif**. Chaque couche exige désormais son propre
+libellé : `EXTRACTION IMPOSSIBLE` pour ①, `rien extrait` pour ②.
+
+**Une exigence trop lâche rend un garde redondant sans le dire — c'est le sabotage qui le montre, pas la relecture.**
+
+### 🧪 Quatre sabotages, quatre refus, chacun avec sa ligne
+
+| Sabotage | Harnais | Ligne obtenue |
+|---|---|---|
+| capture du `SystemExit` rejetée (×3) | **exit 1** | `✗ absent.docx : attendu « EXTRACTION IMPOSSIBLE », obtenu : … rien extrait` |
+| sentinelle rognée à `if not tt:` (×3) | **exit 1** | `✗ corrompu.docx : attendu « rien extrait », obtenu : ✓ 0 bloquant(s)` |
+| un cas du lot retiré | **exit 1** | `✗ 2 cas joué(s), 3 attendu(s) — un lot amputé passerait au vert` |
+| sentinelle élargie à `if True:` (×3) | **exit 1** | `✗ bon.docx : attendu « ✓ », obtenu : ✗ … — le témoin qui interdit de réélargir` |
+
+`non_regression.sh` restauré au **sha256 identique** (`00738ccc…`) les quatre fois, état final vérifié.
+
+### Validation
+
+| | Résultat |
+|---|---|
+| Les trois sens sur le gate | fichier manquant **exit 1** · fichier corrompu **exit 1** · document réel **exit 0** |
+| Harnais mode défaut | **exit 0, 162 s, zéro `✗`**, témoin 3/3 |
+| Corpus | **296 documents · 0 bloquant · « aucun verdict n'a changé »** |
+
+### Ce qui n'est pas fait
+
+- 📌 **`extract_docx.py` imprime son `ERROR:` sur `stderr`, que le contrôle jette** (`capture_output=True` puis
+  `.stdout` seul). Le gate se passe désormais de ce signal, mais **le contrôle, lui, reste aveugle à un `.docx`
+  corrompu** : il le traite comme un document vide et sort en 0. Le corriger changerait le comportement des **8
+  prompts** en production — non ordonné, et aucun document du corpus n'est dans ce cas aujourd'hui.
+- 📌 Le témoin ajoute **~16 s** au mode défaut (162 s contre 136 s) : un appel imbriqué du gate. C'est le prix
+  d'exercer le vrai chemin plutôt qu'une copie.

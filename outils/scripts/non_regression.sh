@@ -713,14 +713,39 @@ src = open(sys.argv[1], encoding="utf-8").read()
 code = src[src.index("import sys, re, html, subprocess"):src.index("# ── aspiration des pages")]
 for f in sys.argv[2:]:
     sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__"}
+    ko = None
     with contextlib.redirect_stdout(out):
         try: exec(code, g)
-        except SystemExit as e: print("EXIT", e)
+        except SystemExit as e: ko = e.code
+    # 26/10/2026 — NE PLUS JETER LE REFUS DU CONTROLE. Le SEUL sys.exit de la tranche extraite
+    # est « EXTRACTION IMPOSSIBLE (fichier introuvable ou illisible) » : il partait dans le
+    # tampon redirige, abandonne, et la ligne suivante annoncait « 0 bloquant(s) ». Le temoin
+    # positif g["t"] garde le cas d'un refus qui ne passerait plus par sys.exit.
+    # ⚠️ ET LE FICHIER CORROMPU QUI EXISTE EST LE CAS LE PLUS SOURNOIS DES DEUX : extract_docx.py
+    # imprime « ERROR: File is not a zip file » sur STDERR — que le controle jette, ne lisant que
+    # stdout — puis emet ses marqueurs A ZERO et sort en 0. Le controle voit alors un document
+    # VIDE, pas un document illisible, et rend « 0 bloquant(s) ». Le signal visible sur stdout est
+    # le compte de caracteres. BORNE MESUREE SUR LES 296 DOCUMENTS DU CORPUS : zero porte
+    # « TEXTE COMPLET (0 », zero porte « ERROR: », zero est sans marqueur — donc zero faux refus.
+    if ko is None:
+        tt = g.get("t") or ""
+        if not tt or "=== TEXTE COMPLET (0 " in tt:
+            ko = "le controle n'a rien extrait (document vide ou illisible)"
+    if ko is not None:
+        print("%s\tKO\t%s" % (f.split("/")[-1], str(ko).replace("\t", " ")[:200]))
+        continue
     orph = sorted(g.get("orphelines", set())); snl = sorted(g.get("sites_non_listes", set()))
     a2 = sorted(g.get("sans_adresse", set())); a3 = sorted(g.get("mal_formes", set())); a4 = list(g.get("src_sans_adresse", [])) + list(g.get("sans_cible", []))
     print("%s\t%d\t%s" % (f.split("/")[-1], len(orph) + len(snl) + len(a2) + len(a3) + len(a4), " ; ".join(orph + snl + a2 + a3 + a4)[:300]))
 PYH
   while IFS=$'\t' read -r nom n detail; do
+    # 26/10/2026 — UN FICHIER ILLISIBLE N'EST PAS UN DOCUMENT À ZÉRO BLOQUANT.
+    if [ "$n" = "KO" ]; then
+      echo "  ✗ $nom : LE CONTRÔLE N'A PAS PU LIRE CE DOCUMENT — $detail"
+      echo "    Jusqu'au 26/10/2026 ce cas imprimait « ✓ 0 bloquant(s) » : le refus du contrôle"
+      echo "    partait dans un tampon abandonné. Vérifie le chemin, puis relance."
+      STATUT=1; continue
+    fi
     ref=$(awk -F'\t' -v n="$nom" '$1==n{print $2}' "$REF/passe_A.tsv" 2>/dev/null)
     if [ -z "$ref" ]; then etat="nouveau"; ref=0; else etat="référence $ref"; fi
     if [ "$n" -gt "$ref" ]; then echo "  ✗ $nom : $n bloquant(s) ($etat) — $detail"; STATUT=1
@@ -749,6 +774,76 @@ PYH
   exit $STATUT
 fi
 
+# ── 0 nonies. LE GATE REFUSE-T-IL UN FICHIER QU'IL N'A PAS PU LIRE ? (26/10/2026)
+# Jusqu'à ce jour, `--docs` sur un .docx introuvable OU corrompu imprimait « ✓ 0 bloquant(s) » et
+# sortait en 0. Deux causes distinctes, les deux mesurées :
+# 🔴 ① LE REFUS DU CONTRÔLE ÉTAIT JETÉ. `controle_attributions.py` dit pourtant exactement ce qu'il
+#    faut — `sys.exit("EXTRACTION IMPOSSIBLE (fichier introuvable ou illisible)")`, le SEUL sys.exit
+#    de la tranche extraite — mais le harnais l'attrapait par `except SystemExit as e: print("EXIT", e)`
+#    DANS le `redirect_stdout`, c'est-à-dire dans un tampon abandonné. Le contrôle avait raison, le
+#    harnais le faisait taire.
+# 🔴 ② ET UN FICHIER CORROMPU QUI EXISTE NE DÉCLENCHE MÊME PAS CE sys.exit : `extract_docx.py` écrit
+#    « ERROR: File is not a zip file » sur STDERR — que le contrôle jette, ne lisant que stdout — puis
+#    émet ses marqueurs À ZÉRO et sort en 0. Le contrôle voit alors un document VIDE, pas illisible.
+#    D'où le témoin positif sur le compte de caractères annoncé par stdout.
+# ⚠️ CE QUE LE DÉFAUT NE COÛTAIT PAS, ET IL FAUT LE DIRE : le hook teste `[ -f ... ]` avant de passer
+#    un document au gate, donc aucun push de job n'a jamais pu en souffrir. Il mordait l'invocation À
+#    LA MAIN — c'est-à-dire la vérification d'une correction, où une faute de frappe rendait un vert.
+# 🧪 Le témoin exerce le VRAI gate (`non_regression.sh --docs`), jamais une copie de sa logique, sur une
+#    arborescence FABRIQUÉE en mktemp : rien de vivant dans le verdict (leçon du 22/10). Les trois cas
+#    dans un seul appel, dont un qui doit être ACCEPTÉ — sans lui, rien n'empêcherait de réélargir.
+#    Placé APRÈS la branche --docs : l'appel imbriqué ne peut donc pas récurser, et NR_SANS_TEMOIN_KO
+#    le garde si quelqu'un déplaçait ce bloc plus haut un jour.
+if [ -z "${NR_SANS_TEMOIN_KO:-}" ] && [ -d "$NR/temoins_passe_A_marqueurs" ]; then
+  echo "▶ Témoin du gate --docs : un fichier illisible ne doit pas passer pour « 0 bloquant »"
+  TKO=$(mktemp -d)
+  SRC=$(ls "$NR"/temoins_passe_A_marqueurs/*dans-marqueur*.docx(N) | head -1)
+  if [ -z "$SRC" ]; then
+    echo "  ✗ aucun témoin figé à copier — le lot est amputé, rien n'est prouvé"
+    rm -rf "$TKO"; exit 1
+  fi
+  cp "$SRC" "$TKO/bon.docx"
+  printf 'ceci n est pas un zip
+' > "$TKO/corrompu.docx"
+  KO_OUT="$CUR/temoin_gate_illisible.txt"
+  NR_SANS_TEMOIN_KO=1 "$ROOT/outils/scripts/non_regression.sh" --docs     "$TKO/bon.docx" "$TKO/corrompu.docx" "$TKO/absent.docx" > "$KO_OUT" 2>&1
+  RC_KO=$?
+  TKO_KO=0; TKO_N=0
+  exige_ko() {          # $1 = fichier, $2 = ✓ ou ✗, $3 = ce qu'il garde
+    local ligne
+    TKO_N=$((TKO_N + 1))
+    ligne=$(grep -- " $1 :" "$KO_OUT" | head -1)
+    if [ -z "$ligne" ]; then
+      echo "  ✗ $1 : AUCUNE ligne de verdict — le gate n'a rien dit de ce fichier ; $3"; TKO_KO=1; return
+    fi
+    case "$ligne" in
+      *"$2"*) echo "  ✓ $3";;
+      *) echo "  ✗ $1 : attendu « $2 », obtenu : ${ligne# } ; $3"; TKO_KO=1;;
+    esac
+  }
+  # ⚠️ CHAQUE COUCHE A SA PROPRE LIGNE, ET CE N'EST PAS DÉCORATIF. Pour un fichier INTROUVABLE, « t »
+  # est vide : le témoin positif suffirait donc à le détecter, et la capture du SystemExit serait
+  # redondante au regard d'une exigence lâche. Or c'est elle qui fait dire POURQUOI, avec les mots du
+  # contrôle ET le chemin fautif. On exige donc le libellé propre à chaque couche : « EXTRACTION
+  # IMPOSSIBLE » vient du contrôle (couche ①), « rien extrait » du témoin positif sur stdout (couche ②).
+  exige_ko "bon.docx"      "✓" "un document RÉEL reste accepté (le témoin qui interdit de réélargir)"
+  exige_ko "corrompu.docx" "rien extrait" "un .docx corrompu qui EXISTE est refusé, pas lu comme vide (couche ②)"
+  exige_ko "absent.docx"   "EXTRACTION IMPOSSIBLE" "un .docx introuvable est refusé AVEC les mots du contrôle (couche ①)"
+  ATTENDU_KO=3            # un lot amputé imprimerait moins de lignes sans que rien ne refuse
+  if [ "$TKO_N" != "$ATTENDU_KO" ]; then
+    echo "  ✗ $TKO_N cas joué(s), $ATTENDU_KO attendu(s) — un lot amputé passerait au vert."; TKO_KO=1
+  fi
+  if [ "$RC_KO" = "0" ]; then
+    echo "  ✗ le gate est sorti en 0 avec deux fichiers illisibles — un push manuel passerait."; TKO_KO=1
+  fi
+  rm -rf "$TKO"
+  if [ "$TKO_KO" != "0" ]; then
+    echo "  ✗ LE GATE DES PUSHS PEUT REDONNER UN VERT SUR UN FICHIER QU'IL N'A PAS LU — la"
+    echo "    vérification d'une correction ne prouverait plus rien."
+    exit 1
+  fi
+fi
+
 # ── 1. passes A, A2, A3, A4 des attributions, sans aspiration : le fichier est exécuté jusqu'au marqueur « # ── aspiration »
 echo "▶ Passes A/A2/A3/A4 (attributions, sans aspiration) sur leçons + veilles…"
 find "$ROOT/livrables/lecons" "$ROOT/sources/veille" -name "*.docx" | sort > "$CUR/corpus.txt"
@@ -758,13 +853,41 @@ src = open(sys.argv[1], encoding="utf-8").read()
 code = src[src.index("import sys, re, html, subprocess"):src.index("# ── aspiration des pages")]
 for f in sys.argv[2:]:
     sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__"}
+    ko = None
     with contextlib.redirect_stdout(out):
         try: exec(code, g)
-        except SystemExit as e: print("EXIT", e)
+        except SystemExit as e: ko = e.code
+    # 26/10/2026 — NE PLUS JETER LE REFUS DU CONTROLE. Le SEUL sys.exit de la tranche extraite
+    # est « EXTRACTION IMPOSSIBLE (fichier introuvable ou illisible) » : il partait dans le
+    # tampon redirige, abandonne, et la ligne suivante annoncait « 0 bloquant(s) ». Le temoin
+    # positif g["t"] garde le cas d'un refus qui ne passerait plus par sys.exit.
+    # ⚠️ ET LE FICHIER CORROMPU QUI EXISTE EST LE CAS LE PLUS SOURNOIS DES DEUX : extract_docx.py
+    # imprime « ERROR: File is not a zip file » sur STDERR — que le controle jette, ne lisant que
+    # stdout — puis emet ses marqueurs A ZERO et sort en 0. Le controle voit alors un document
+    # VIDE, pas un document illisible, et rend « 0 bloquant(s) ». Le signal visible sur stdout est
+    # le compte de caracteres. BORNE MESUREE SUR LES 296 DOCUMENTS DU CORPUS : zero porte
+    # « TEXTE COMPLET (0 », zero porte « ERROR: », zero est sans marqueur — donc zero faux refus.
+    if ko is None:
+        tt = g.get("t") or ""
+        if not tt or "=== TEXTE COMPLET (0 " in tt:
+            ko = "le controle n'a rien extrait (document vide ou illisible)"
+    if ko is not None:
+        print("%s\tKO\t%s" % (f.split("/")[-1], str(ko).replace("\t", " ")[:200]))
+        continue
     orph = sorted(g.get("orphelines", set())); snl = sorted(g.get("sites_non_listes", set()))
     a2 = sorted(g.get("sans_adresse", set())); a3 = sorted(g.get("mal_formes", set())); a4 = list(g.get("src_sans_adresse", [])) + list(g.get("sans_cible", []))
     print("%s\t%d\t%s\t%s\t%s" % (f.split("/")[-1], len(orph) + len(snl) + len(a2) + len(a3) + len(a4), ";".join(orph), ";".join(snl), ";".join(a2 + a3 + a4)[:200]))
 PYH
+# 26/10/2026 — ET CE SITE-CI EST LE PLUS GRAVE DES TROIS : c'est lui qui alimente la référence.
+# `--accepter` fait `cp passe_A.tsv` dans reference/ ; un « KO » accepté une fois serait comparé à
+# lui-même au passage suivant ($2!=$3 faux) et le vert deviendrait DÉFINITIF. On refuse avant.
+KO_A=$(awk -F'\t' '$2=="KO"' "$CUR/passe_A.tsv")
+if [ -n "$KO_A" ]; then
+  printf '%s\n' "$KO_A" | sed 's/^/  ✗ ILLISIBLE : /'
+  echo "  ✗ UN DOCUMENT DU CORPUS EST ILLISIBLE — ne surtout pas --accepter : la référence"
+  echo "    figerait « KO » et ce document ne serait plus jamais comparé à rien."
+  exit 1
+fi
 N_A=$(wc -l < "$CUR/passe_A.tsv" | tr -d ' '); B_A=$(awk -F'\t' '$2>0' "$CUR/passe_A.tsv" | wc -l | tr -d ' ')
 echo "  $N_A documents · $B_A bloquant(s)"
 
@@ -789,9 +912,27 @@ src = open(sys.argv[1], encoding="utf-8").read()
 code = src[src.index("import sys, re, html, subprocess"):src.index("# ── aspiration des pages")]
 for f in sys.argv[2:]:
     sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__"}
+    ko = None
     with contextlib.redirect_stdout(out):
         try: exec(code, g)
-        except SystemExit as e: print("EXIT", e)
+        except SystemExit as e: ko = e.code
+    # 26/10/2026 — NE PLUS JETER LE REFUS DU CONTROLE. Le SEUL sys.exit de la tranche extraite
+    # est « EXTRACTION IMPOSSIBLE (fichier introuvable ou illisible) » : il partait dans le
+    # tampon redirige, abandonne, et la ligne suivante annoncait « 0 bloquant(s) ». Le temoin
+    # positif g["t"] garde le cas d'un refus qui ne passerait plus par sys.exit.
+    # ⚠️ ET LE FICHIER CORROMPU QUI EXISTE EST LE CAS LE PLUS SOURNOIS DES DEUX : extract_docx.py
+    # imprime « ERROR: File is not a zip file » sur STDERR — que le controle jette, ne lisant que
+    # stdout — puis emet ses marqueurs A ZERO et sort en 0. Le controle voit alors un document
+    # VIDE, pas un document illisible, et rend « 0 bloquant(s) ». Le signal visible sur stdout est
+    # le compte de caracteres. BORNE MESUREE SUR LES 296 DOCUMENTS DU CORPUS : zero porte
+    # « TEXTE COMPLET (0 », zero porte « ERROR: », zero est sans marqueur — donc zero faux refus.
+    if ko is None:
+        tt = g.get("t") or ""
+        if not tt or "=== TEXTE COMPLET (0 " in tt:
+            ko = "le controle n'a rien extrait (document vide ou illisible)"
+    if ko is not None:
+        print("%s\tKO\t%s" % (f.split("/")[-1], str(ko).replace("\t", " ")[:200]))
+        continue
     orph = sorted(g.get("orphelines", set())); snl = sorted(g.get("sites_non_listes", set()))
     a2 = sorted(g.get("sans_adresse", set())); a3 = sorted(g.get("mal_formes", set())); a4 = list(g.get("src_sans_adresse", [])) + list(g.get("sans_cible", []))
     print("%s\t%d\t%s\t%s\t%s" % (f.split("/")[-1], len(orph) + len(snl) + len(a2) + len(a3) + len(a4), ";".join(orph), ";".join(snl), ";".join(a2 + a3 + a4)[:200]))
