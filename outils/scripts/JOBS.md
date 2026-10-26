@@ -4326,3 +4326,78 @@ assert vis_ap[j:].startswith("   [Corrigé le 25/10/2026"), "l'adresse coupe la 
 - 📌 **L'adresse en clair n'est pas vérifiable automatiquement.** `balayer_adresses.py` sonde les cibles de relation : en retirant la relation, on retire aussi **la seule prise qu'avait le dépôt sur cette adresse**. Elle est désormais hors de portée de tout contrôle — c'est le prix du décliquage, et il est symétrique de l'angle mort des orphelins.
 - 📌 **Les 5 autres adresses AFDEM du corpus** — s'il en existe dans des documents non touchés par cet ordre — n'ont pas été cherchées : l'ordre portait sur les 7 liens corrigés la veille.
 - 📌 La règle « un marqueur ne coupe pas une phrase » reste écrite **pour les marqueurs** dans `CLAUDE.md` ; elle est élargie ce jour à **tout ajout dans un ¶**.
+
+---
+
+## 26/10/2026 — le balayage relancé attrape MA correction de la veille : deux relations orphelines, fabriquées par le décliquage TLS
+
+**L'ordre était « relance le balayage des adresses » puis « compare avec le balayage d'hier ».** Le comparatif a
+trouvé un défaut qui n'est ni dans un livrable ni dans un contrôle : il est dans **ma correction du 25/10**.
+
+### 🔴 Ce que le recensement des orphelins a dit, et que rien d'autre ne pouvait dire
+
+Le décliquage TLS du 25/10 (`d190c78`) a retiré les `<w:hyperlink>` d'`observalys.fr` et d'`aapel.org`
+**sans retirer leurs `<Relationship>`**. Mesuré sur git, avant/après le commit :
+
+```
+observalys.fr               AVANT d190c78 : 1 rel, 1 servi  →  HEAD : 1 rel, 0 servi
+aapel.org                   AVANT d190c78 : 1 rel, 1 servi  →  HEAD : 1 rel, 0 servi
+psychologie-enneagramme.fr  AVANT d190c78 : 1 rel, 0 servi  →  HEAD : 1 rel, 0 servi   (préexistant, 09/10)
+```
+
+**Vingt-quatre heures plus tard, le même geste sur les 7 liens AFDEM retirait la relation** — et la vérification
+de cet ordre annonçait fièrement « 0 `rel` externe orphelin ». **Mes deux décliquages consécutifs étaient
+incohérents entre eux**, et c'est le recensement des orphelins de `balayer_adresses.py`, écrit la veille pour une
+autre raison, qui l'a vu. Aucun contrôle du dépôt ne regarde cette classe : le harnais lit les documents d'un
+push, et un orphelin ne fait échouer aucune passe.
+
+### 🔴 Et une erreur de mesure à moi, dans le script de comparaison lui-même
+
+Mon premier script supposait que `adresses()` rendait un tuple `(couples, orphelins)`. Elle rend un **dict**
+`{adresse: [documents]}`, les orphelins sortant par un **paramètre de sortie** `orphelines` que l'appelant
+fournit. Mon `orph = []` de repli a donc imprimé **« orphelins recensés : 0 »** — un chiffre tiré d'une variable
+que j'avais inventée, pour une fonction dont je n'avais pas lu la signature. C'est la règle du 25/10 (« avant
+d'accuser un outil, relire son invocation ») dans sa forme la plus bête, et le chiffre faux allait **dans le sens
+rassurant**. Refait par la vraie signature : **4 orphelins dans 3 documents**.
+
+### Le nettoyage, et pourquoi il ne porte NI marqueur NI journal
+
+Le marqueur daté et le `📝 Journal des corrections` existent pour conserver un **libellé que le lecteur voit
+changer**. Ici **rien de visible ne bouge** : on retire une entrée de `word/_rels/document.xml.rels` que plus
+aucune partie du zip ne nomme. Écrire de la prose sur des relations OOXML dans une leçon serait du bruit pour le
+lecteur. En échange, la vérification est plus forte que d'habitude — **`word/document.xml` identique à l'octet**.
+
+| Vérification | `revenus-passifs` 01 | `psychopathologie` 08 |
+|---|---|---|
+| `document.xml` identique à l'octet | ✓ | ✓ |
+| Texte visible strictement égal | ✓ | ✓ |
+| `<Relationship>` | 16 → **15** | 14 → **13** |
+| Cible encore dans les rels | **non** | **non** |
+| Adresse restée **lisible** dans le corps | ✓ (9 hyperliens conservés) | ✓ (6 conservés) |
+| Entrées du zip conservées, dans l'ordre | ✓ | ✓ |
+| XML bien formé (`document.xml` + `.rels`) | ✓ | ✓ |
+
+Garde-fou décisif du script : **le `rId` visé est cherché dans TOUTES les parties `.xml`** du zip (`r:id=` et
+`r:embed=`), pas seulement `document.xml` — une relation encore servie aurait fait mordre l'assertion avant
+toute écriture. Et le compte doit baisser d'**exactement un**.
+
+Recensement après nettoyage : **adresses sondées 1 341 · orphelins 2 dans 1 document**.
+
+### ⚠️ Le nettoyage a un coût, et il va contre le sens attendu
+
+| | Relation laissée | Relation retirée |
+|---|---|---|
+| Ce que voit le lecteur | rien de cliquable | rien de cliquable — **identique** |
+| Ce que voit le dépôt | `⊘` au recensement des orphelins | **plus rien du tout** |
+
+**Un orphelin était une prise listée mais non sondée ; après nettoyage il n'y a plus de prise.** Le gain est la
+propreté du `.docx`, le coût est la perte de visibilité — le même prix que les 7 adresses AFDEM.
+
+### Ce qui n'est pas fait
+
+- 📌 **Les 2 orphelins restants** (`enneade.lu`, `psychologie-enneagramme.fr`, tous deux dans la leçon n°3
+  d'ennéagramme) viennent de la correction du **09/10**, que la doctrine cite comme **le geste complet** — lien
+  retiré, adresse conservée en clair. Elle a pourtant laissé ses relations : **le modèle du dépôt porte lui-même
+  le défaut.** Non ordonné, non touché.
+- 📌 Rendre le décliquage mécanique (un script qui retire lien **et** relation) reste à faire ; trois ordres de
+  décliquage en deux jours l'ont fait à la main, dont deux fois à moitié.
