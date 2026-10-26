@@ -28,6 +28,11 @@ if len(sys.argv) < 2:
     sys.exit("usage : controle_astrologie_karmique.py <chemin du .docx>")
 
 import zipfile, re, sys, html, subprocess, unicodedata
+try:
+    import ca_bundle
+    CA = ca_bundle.args_curl()      # ⚠️ 26/10/2026, voir ca/README.md : chaîne complète, rien n'est désactivé
+except Exception:
+    CA = []
 p = sys.argv[1]
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
 SIGNES = {"Bélier":0, "Taureau":30, "Gémeaux":60, "Cancer":90, "Lion":120, "Vierge":150, "Balance":180,
@@ -81,7 +86,7 @@ pages = {}; codes = {}
 def page(u):
     if u in pages: return pages[u]
     for _ in range(3):
-        r = subprocess.run(["curl", "-s", "-L", "--max-time", "40", "-A", UA, "-w", "\n%{http_code}", u],
+        r = subprocess.run(["curl", "-s", "-L", "--max-time", "40"] + CA + ["-A", UA, "-w", "\n%{http_code}", u],
                            capture_output=True)
         s_ = r.stdout.decode("utf-8", "ignore"); c_ = s_.rsplit("\n", 1)[-1].strip()
         t = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", s_.rsplit("\n", 1)[0])

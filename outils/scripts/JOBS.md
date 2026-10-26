@@ -4678,3 +4678,127 @@ libellé : `EXTRACTION IMPOSSIBLE` pour ①, `rien extrait` pour ②.
   prompts** en production — non ordonné, et aucun document du corpus n'est dans ce cas aujourd'hui.
 - 📌 Le témoin ajoute **~16 s** au mode défaut (162 s contre 136 s) : un appel imbriqué du gate. C'est le prix
   d'exercer le vrai chemin plutôt qu'une copie.
+
+---
+
+## 26/10/2026 — le faisceau est porté aux trois étapes 5 bis, et le défaut qu'il réparait était SILENCIEUX
+
+**Ordre** : « porte `--cacert` aux trois contrôles 5 bis ». La piste était consignée dans `CLAUDE.md` depuis le 23/10, en bas de l'incident de `tolerance_page_morte.py` : *« 📌 Piste bornée, non faite : porter `--cacert` aux trois contrôles 5 bis, qui sondent sans faisceau. »*
+
+### L'incident, mesuré sur l'hôte que le contrôle sonde vraiment
+
+Deux URL `has-sante.fr/jcms/` citées par les leçons de psychopathologie, sondées avec la commande exacte du contrôle :
+
+| | HTTP | code de sortie `curl` |
+|---|---|---|
+| sans le faisceau | **000** | **60** (vérification du certificat) |
+| avec le faisceau | **200** | **0** |
+
+C'est la mécanique du 18/10 : `has-sante.fr` n'envoie pas sa chaîne intermédiaire et le magasin d'Apple n'a pas la racine Sectigo R46. Les trois contrôles 5 bis étaient les derniers consommateurs du dépôt à sonder sans `--cacert`, quand `aspirer.py`, `controle_attributions.py`, `balayer_adresses.py`, `tolerance_page_morte.py` et les huit prompts de job le passent depuis le 18 et le 20/10.
+
+### 🔴 Ce que le défaut faisait, et ce n'était PAS un faux refus
+
+Le motif (1) de `controle_psychopathologie.py` s'écrit :
+
+```python
+pdfs = sorted(set(re.findall(r'…upload/docs/application/pdf/[^"\']+\.pdf', page)))
+if pdfs and not any(d in urls for d in pdfs):
+```
+
+Une page vide donne `pdfs = []`, donc la condition est **toujours fausse**. Le motif n'accusait pas à tort : **il ne voyait rien**. Depuis le 18/10 — date à laquelle le reste du dépôt a reçu le faisceau — ce motif était inerte sur la totalité du corpus psychopathologie.
+
+**Et la direction de l'effet diffère d'un motif à l'autre, ce qui interdisait de prédire le résultat :**
+
+| motif | forme | sans faisceau | effet attendu | **observé sur le corpus ?** |
+|---|---|---|---|---|
+| psy (1) — PDF HAS non lié | `if pdfs and not any(…)` | **inerte** | **ajoute** des refus | ✅ **oui — les 4 changements viennent tous de lui** |
+| psy (4) — DCI absente des pages ANSM | `if norm(dci) not in corpus` | accuserait | retire des faux refus | ⚠️ **non observé** |
+| astro ⑦ — page sans réponse | `codes[u] == "000"` | accuserait | retire des faux refus | ⚠️ **non observé** |
+
+⚠️ **Et cette dernière colonne est le point d'honnêteté de la séance.** Les deux lignes
+« retire des faux refus » sont un **raisonnement sur la forme du code**, pas une mesure : les
+**quatre** verdicts changés viennent tous du motif (1), et les deux documents astro sortaient
+déjà en `exit 0` **avant** le portage — donc ⑦ ne les accusait pas, malgré le 000 sur
+`ssd.jpl.nasa.gov`. La raison est connue et consignée au 25/10 : le garde `porteurs` de ⑦
+exige un chiffre ou un guillemet dans le ¶ qui porte le lien, et ces lignes de ressource n'en
+ont pas. **Le mécanisme existe ; son effet n'a été mesuré sur aucun document du dépôt.**
+Le seul effet observable du portage sur astro est le **temps** (52 s → 9 s, 21 s → 9 s).
+
+### La borne : seuls 15 documents sur 54 pouvaient changer de verdict
+
+La seule entrée réseau de ces trois contrôles est **la liste d'adresses du document**. La borne est donc mesurable hors réseau, et elle l'a été par recensement, pas par échantillon :
+
+- **54 documents** dans les trois corpus (astro 12, psy 20, ai-act 22), **88 hôtes distincts** ;
+- chaque hôte sondé **sans** le faisceau, et les seuls échecs rejoués **avec** ;
+- **4 échecs**, dont **3 hôtes où le faisceau change la réponse** : `has-sante.fr`, `www.has-sante.fr`, `ssd.jpl.nasa.gov` (ce dernier était déjà l'un des trois gains du 18/10) ;
+- ⚠️ `ipubli.inserm.fr` échoue **avec et sans** (`exit 56`, un défaut de réception, pas de chaîne) : **ce n'est pas un gain**, et le compter en serait un de trop ;
+- documents concernés : **2 astro + 13 psy + 0 ai-act = 15**.
+
+⚠️ **Le portage à `controle_ai_act.py` est donc purement PRÉVENTIF**, et il faut le dire : aucun de ses 22 documents ne cite un hôte affecté, donc aucun de ses verdicts ne peut bouger. Même honnêteté que le portage préventif de l'assertion de tableau à `serafin-ph` le 18/10.
+
+### Avant / après sur les 15, strictement séquentiel
+
+**4 verdicts changés, 0 régression.** Les quatre sont des leçons de psychopathologie qui passent de `exit 0` à `exit 1`, toutes sur le même motif (1) :
+
+| leçon | refus |
+|---|---|
+| 06 troubles de l'humeur | PDF HAS non lié (`episode-depressif-caracterise-de-l-adulte-prise-en`) |
+| 07 troubles psychotiques | 2 refus (`la-has-adopte-son-nouveau-programme-sante-mentale-`, `diagnostic-et-evaluation-des-troubles-schizoph…`) |
+| 10 conduites alimentaires | 2 refus (`boulimie-et-hyperphagie-boulimique-…`, `anorexie-mentale-prise-en-charge`) |
+| 12 psychotraumatisme | PDF HAS non lié (`evaluation-et-prise-en-charge-des-syndromes-psycho`) |
+
+**Les quatre refus ont été vérifiés à la main, page par page, avant d'être appelés des gains** : la page jcms lie **1 à 12** PDF `has-sante.fr`, et les quatre documents ont **zéro PDF dans leurs ressources**. C'est exactement la règle B3 bis — « une page de présentation n'est pas le document ».
+
+⚠️ **Avocat du diable, et il faut le consigner** : la leçon 07 est refusée sur `themes_du_programme_sante_mentale_et_psychiatrie.pdf`, l'annexe thématique d'une page d'**actualité**, pas l'argumentaire d'une RBPP. La lettre de la règle est respectée ; son **esprit** visait la page de présentation d'une recommandation. La largeur du motif devient visible pour la première fois, parce qu'avant il ne s'exerçait jamais.
+
+🟢 **Gain de temps mesuré au passage** : le contrôle astro passe de **52 s à 9 s** et de **21 s à 9 s**, à **verdict inchangé** (`exit 0` dans les deux sens) — le faisceau supprime les réessais de 40 s sur une chaîne qui n'aurait jamais abouti.
+
+Le refus préexistant de la leçon 09 (`¶221 proportion sans effectif`) est **inchangé** : il ne vient pas du réseau, et il est antérieur au portage.
+
+### Le témoin — `non_regression/faisceau_5bis.py`, 7 bornes, aucun réseau, 0,1 s
+
+Joué dans **tous** les modes du harnais, comme les auto-tests du faisceau, puisqu'il ne coûte rien.
+
+| borne | ce qu'elle garde |
+|---|---|
+| ① ② ③ | chaque `subprocess.run(["curl"…])` des trois porte `+ CA +` — **comptage**, donc un site ajouté sans faisceau fait crier |
+| ④ | le bloc `try/except` est **extrait des fichiers** puis exécuté avec `ca_bundle` rendu inimportable : `CA` doit retomber à `[]` — le principe du 18/10 (« sur une machine sans brew, repli sur le magasin système ») enfin prouvé plutôt qu'affirmé |
+| ⑤ | avec `ca_bundle` importable, `CA` doit **égaler** `ca_bundle.args_curl()` — sans quoi un chemin en dur passerait ④ comme ① ② ③, et c'est le défaut que `ca_bundle.py` portait lui-même jusqu'au 26/10 pour ses intermédiaires |
+| ⑥ | aucun `-k`, aucun `--insecure` |
+| ⑦ | **RACINE est rendue** — le piège du 23/10 : ce script vit un cran plus bas que les contrôles, donc **quatre** `dirname`. Avec trois, toutes les bornes seraient vertes sur des fichiers absents |
+
+⚠️ **Borne textuelle assumée pour ① ② ③** : un `curl` bâti dans une variable y échapperait. Les trois l'écrivent en littéral, c'est mesuré, et c'est la seule forme que le dépôt emploie.
+
+**Six sabotages, six refus au harnais, chacun avec sa ligne**, fichiers restaurés au sha256 identique à chaque fois.
+
+### 🔴 ET LE SABOTAGE A TROUVÉ DEUX GARDES DÉCORATIFS, LES DEUX DE MOI
+
+Le quatrième sabotage — retirer une borne du lot — **n'a pas mordu** : harnais en `exit 0`.
+
+La cause est générale et elle vaut d'être retenue. Le lot imprimait `"  %d/7 bornes…" % (7 - len(ko))` : un **dénominateur en dur** et un numérateur « bornes moins échecs ». Retirer une borne ne change **aucun des deux chiffres** — « 7/7 » reste « 7/7 » — et le harnais, qui capturait le **numérateur**, trouvait son `ATTENDU_CB5=7` satisfait.
+
+**Et `ATTENDU_CA`, écrit la veille (commit `e491166`), avait exactement le même défaut** : `print("  %d/6 bornes du faisceau de certificats" % (6 - len(ko)))`. Vérifié par sabotage, pas par lecture : lot amputé, harnais vert.
+
+C'est la règle du 15/10 — *« un garde qui ne fait pas sortir en 1 est décoratif »* — **par un troisième bout**. Le garde existait, il sortait bien en 1 quand il voyait un écart : mais le **nombre qu'il comparait ne bougeait jamais**.
+
+🟢 Corrigé dans les deux : le dénominateur est le nombre de bornes **réellement jouées** (`len(jouees)`), et le harnais capture le **dénominateur** (lignes 671 et 706 de `non_regression.sh`).
+
+⚠️ **Audit de la classe entière, qui borne la correction au lieu de la généraliser à l'aveugle** :
+
+| garde | dénominateur | ce que le harnais lit | mord ? |
+|---|---|---|---|
+| `ATTENDU_LIENS` (㊳ bis) | `len(CAS)`, compté | dénominateur | ✅ |
+| `ATTENDU_TOL` | `vus`, compté | dénominateur | ✅ |
+| `ATTENDU_BAL` | `total`, calculé depuis les données | numérateur (= total − ko) | ✅ |
+| `ATTENDU_CA` | **6 en dur** | numérateur | ❌ → corrigé |
+| `ATTENDU_CB5` | **7 en dur** | numérateur | ❌ → corrigé |
+| `lire_page.py` | **7 en dur** | **aucun `ATTENDU_`** | ❌ **non corrigé** |
+
+📌 **Trou mesuré, non corrigé, et c'est une décision** : `lire_page.py --autotest` imprime « %d/7 » avec un 7 en dur, et le harnais n'a **aucun** `ATTENDU_` pour lui — il ne lit que son code de sortie. Amputer son lot de 7 bornes est donc **invisible**. Le remède est un dénominateur compté plus un `ATTENDU_LP=7` sur le modèle des autres ; ce n'est pas dans l'ordre reçu, donc ce n'est pas fait.
+
+### Mes erreurs de la séance
+
+1. **J'ai lancé le harnais avec `sh` au lieu de son shebang `#!/bin/zsh`**, et il a crié sur un glob `(N)` qui est une syntaxe zsh parfaitement valide — le hook, lui, appelle le script **directement**. J'ai commencé à lire ça comme un défaut du témoin que j'avais écrit la veille. C'est la règle du 25/10 *« avant d'accuser un outil, relire son invocation »* enfreinte **le lendemain du jour où je l'ai écrite**, sur le même outil.
+2. **Dans la même commande, j'ai lu `exit=$?` après un `| tail`**, donc le code d'un `tail`. Deux fois la même classe d'erreur en une ligne.
+3. **Mon assertion de patch a mordu sur mon propre commentaire**, qui citait le motif fautif `7 - len(ko)` pour l'expliquer. Rien n'a été écrit — l'échec est antérieur à toute écriture, ce qui est le bon sens d'échec. Corrigé en portant l'assertion sur la **forme exécutable** (`'" % (7 - len(ko))'`) et non sur la chaîne nue.
+4. **Et un compte attendu deviné était faux** : j'ai écrit `assert s.count("len(jouees)") == 5` quand la réponse est **4** — deux par `print`, deux `print`. Un compte deviné est un compte faux, et mon assertion l'a dit avant d'écrire.

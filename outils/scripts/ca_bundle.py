@@ -84,10 +84,16 @@ def _autotest():
     """Bornes HORS RESEAU. Le defaut qu'elles gardent : un .pem depose dans ca/ et jamais
     charge — c'est ce que faisait le chemin en dur d'avant le 26/10/2026."""
     import tempfile
-    ko = []
+    # ⚠️ 26/10/2026 — LE DENOMINATEUR ETAIT EN DUR, DONC LE GARDE DU HARNAIS ETAIT DECORATIF.
+    #    Un numerateur « bornes moins echecs » sur un denominateur fixe ne bouge pas quand on
+    #    RETIRE une borne : le lot pouvait etre ampute et ATTENDU_CA restait satisfait. Mesure
+    #    du 26/10 : sabotage pose, harnais en exit 0. Le denominateur est desormais le nombre de
+    #    bornes jouees, et le harnais le lit. Meme correctif que non_regression/faisceau_5bis.py.
+    ko, jouees = [], []
 
     def borne(nom, ok, detail=""):
         print("  %s %s%s" % ("✓" if ok else "✗", nom, (" — " + detail) if detail else ""))
+        jouees.append(nom)
         if not ok:
             ko.append(nom)
 
@@ -128,7 +134,8 @@ def _autotest():
     finally:
         CA_DIR = vrai
 
-    print("  %d/6 bornes du faisceau de certificats" % (6 - len(ko)))
+    print("  %d/%d bornes du faisceau de certificats"
+          % (len(jouees) - len(ko), len(jouees)))
     return 1 if ko else 0
 
 

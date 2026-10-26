@@ -30,6 +30,11 @@ if len(sys.argv) < 2:
     sys.exit("usage : controle_psychopathologie.py <chemin du .docx>")
 
 import zipfile, re, sys, html, subprocess, unicodedata
+try:
+    import ca_bundle
+    CA = ca_bundle.args_curl()      # ⚠️ 26/10/2026, voir ca/README.md : chaîne complète, rien n'est désactivé
+except Exception:
+    CA = []
 p = sys.argv[1]
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
 z = zipfile.ZipFile(p); x = z.read("word/document.xml").decode("utf-8")
@@ -42,7 +47,7 @@ if fin: T = T[:fin[0]]
 pb = []
 # 1. UNE PAGE HAS DE PRÉSENTATION N'EST PAS LE DOCUMENT — si la page jcms lie un PDF has-sante.fr, ce PDF est dans les ressources
 for u in [u for u in urls if "has-sante.fr/jcms/" in u]:
-    r = subprocess.run(["curl", "-s", "-L", "--max-time", "30", "-A", UA, u], capture_output=True); page = r.stdout.decode("utf-8", "ignore")
+    r = subprocess.run(["curl", "-s", "-L", "--max-time", "30"] + CA + ["-A", UA, u], capture_output=True); page = r.stdout.decode("utf-8", "ignore")
     pdfs = sorted(set(re.findall(r'https?://www\.has-sante\.fr/upload/docs/application/pdf/[^"\']+\.pdf', page)))
     pdfs = [d for d in pdfs if not re.search(r"(?i)focus_on|_en\.pdf|english", d)]
     if pdfs and not any(d in urls for d in pdfs):
@@ -84,7 +89,7 @@ ansm = [u for u in urls if "ansm.sante.fr" in u]
 if ansm and i_ex:
     corpus = ""
     for u in ansm:
-        r = subprocess.run(["curl", "-s", "-L", "--max-time", "30", "-A", UA, u], capture_output=True); h = r.stdout.decode("utf-8", "ignore")
+        r = subprocess.run(["curl", "-s", "-L", "--max-time", "30"] + CA + ["-A", UA, u], capture_output=True); h = r.stdout.decode("utf-8", "ignore")
         corpus += " " + norm(html.unescape(re.sub(r"<[^>]+>", " ", re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", h, flags=re.S | re.I))))
     k_ex = x.find(ps[i_ex[0]])
     cellules = " ".join(html.unescape("".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", c))) for c in re.findall(r"<w:tc>.*?</w:tc>", x[:k_ex], re.S))

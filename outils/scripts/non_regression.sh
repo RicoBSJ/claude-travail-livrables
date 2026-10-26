@@ -668,7 +668,7 @@ if [ -f "$ROOT/outils/scripts/ca_bundle.py" ]; then
     # même garde qu'ATTENDU_BAL, ATTENDU_TOL, ATTENDU_LIENS et ATTENDU_MARQ : le total est CALCULÉ
     # depuis le lot, donc un lot amputé imprimerait un « N/N » plus petit sans que rien ne refuse.
     ATTENDU_CA=6
-    LU_CA=$(sed -n 's/.* \([0-9]\{1,\}\)\/[0-9]\{1,\} bornes du faisceau.*/\1/p' "$CAB_OUT")
+    LU_CA=$(sed -n 's/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes du faisceau.*/\1/p' "$CAB_OUT")
     if [ "$LU_CA" != "$ATTENDU_CA" ]; then
       echo "  ✗ ${LU_CA:-0} borne(s) de faisceau jouée(s), $ATTENDU_CA attendue(s) — un lot amputé"
       echo "    imprimerait un total plus petit et passerait au vert."
@@ -679,6 +679,41 @@ if [ -f "$ROOT/outils/scripts/ca_bundle.py" ]; then
     echo "  ✗ LE FAISCEAU DE CERTIFICATS EST INCOMPLET — un intermédiaire versionné dans ca/ n'est"
     echo "    pas chargé. Les pages de l'hôte concerné redeviendraient « NON LUES » en silence,"
     echo "    et leurs sources seraient écartées sur un 000 qui ne dit rien de la page."
+    exit 1
+  fi
+fi
+
+# ── 0 decies. LES TROIS ÉTAPES 5 BIS SONDENT-ELLES AVEC LE FAISCEAU ? (26/10/2026)
+#    Elles appelaient `curl` SANS `--cacert` quand tout le reste du dépôt le passe depuis le
+#    18/10. Mesuré sur l'hôte même que `controle_psychopathologie.py` sonde — deux URL
+#    `has-sante.fr/jcms/` citées par ses leçons : 000 · exit 60 sans le faisceau, 200 · exit 0
+#    avec. ET LE DÉFAUT ÉTAIT SILENCIEUX : son motif (1) s'écrit `if pdfs and not any(…)`,
+#    donc une page vide le rend INERTE — il ne refusait pas à tort, il ne voyait rien.
+#    Le portage a rendu QUATRE refus exacts sur treize leçons (vérifiés à la main : 1 à 12 PDF
+#    liés sur la page jcms, zéro dans les ressources du document).
+#    ⚠️ Et le portage à `controle_ai_act.py` est PRÉVENTIF, il faut le dire : aucun de ses
+#    22 documents ne cite un hôte où le faisceau change la réponse. Même honnêteté que le
+#    portage préventif de l'assertion de tableau à `serafin-ph` le 18/10.
+#    AUCUN RÉSEAU, 0,1 s — donc joué dans TOUS les modes, comme les auto-tests du faisceau.
+if [ -f "$ROOT/outils/scripts/non_regression/faisceau_5bis.py" ]; then
+  echo "▶ Témoin du faisceau dans les trois étapes 5 bis (aucun réseau)"
+  CB5_OUT="$CUR/faisceau_5bis.txt"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/faisceau_5bis.py" > "$CB5_OUT" 2>&1; then
+    tail -1 "$CB5_OUT"
+    # ⚠️ LE GARDE DE COMPTE N'EST PAS REDONDANT (23 et 24/10/2026, deux fois mesuré) : sans
+    #    lui, retirer une borne du lot fait imprimer « ✓ 6/6 » et sortir en 0.
+    ATTENDU_CB5=7
+    LU_CB5=$(sed -n 's/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes du faisceau des étapes 5 bis.*/\1/p' "$CB5_OUT")
+    if [ "$LU_CB5" != "$ATTENDU_CB5" ]; then
+      echo "  ✗ $LU_CB5 borne(s) tenue(s), $ATTENDU_CB5 attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_CB5 à jour en disant pourquoi."
+      exit 1
+    fi
+  else
+    grep '✗' "$CB5_OUT" | head -7
+    echo "  ✗ UNE ÉTAPE 5 BIS SONDE SANS LE FAISCEAU DE CERTIFICATS — les pages de l'hôte"
+    echo "    concerné rendraient 000, et le motif (1) de psychopathologie redeviendrait INERTE"
+    echo "    au lieu de refuser : un défaut invisible, pas un faux refus."
     exit 1
   fi
 fi

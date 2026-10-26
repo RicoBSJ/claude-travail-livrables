@@ -44,6 +44,11 @@ Usage : controle_ai_act.py <chemin du .docx>    (exit 0 = conforme, 1 = refusée
 Témoin de non-régression : section 5 ter de outils/scripts/non_regression.sh.
 """
 import zipfile, re, sys, html, json, subprocess
+try:
+    import ca_bundle
+    CA = ca_bundle.args_curl()      # ⚠️ 26/10/2026, voir ca/README.md : chaîne complète, rien n'est désactivé
+except Exception:
+    CA = []
 p = sys.argv[1]
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
 z = zipfile.ZipFile(p); x = z.read("word/document.xml").decode("utf-8")
@@ -76,7 +81,7 @@ def norm(s):
 cache, cbrut = {}, {}
 def brut(u):
     if u not in cbrut:
-        r = subprocess.run(["curl", "-s", "-L", "--max-time", "30", "-A", UA, u], capture_output=True)
+        r = subprocess.run(["curl", "-s", "-L", "--max-time", "30"] + CA + ["-A", UA, u], capture_output=True)
         cbrut[u] = r.stdout.decode("utf-8", "ignore")
     return cbrut[u]
 def page(u):
