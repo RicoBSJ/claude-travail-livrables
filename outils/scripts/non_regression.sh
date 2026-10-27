@@ -72,11 +72,47 @@ bloc_orthographe () {
   return $ORTH_KO
 }
 
+bloc_coherence_skill () {
+  local OUT="$CUR/coherence_skill.txt" SK_KO=0 LU
+  local ATTENDU_SK=7           # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  echo "▶ Cohérence du skill lancer-job avec jobs_config.json (aucun réseau, 0,1 s)"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/coherence_skill.py" --autotest > "$OUT" 2>&1; then
+    tail -1 "$OUT"
+    LU=$(sed -n 's/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes de la cohérence du skill.*/\1/p' "$OUT")
+    if [ "${LU:-0}" != "$ATTENDU_SK" ]; then
+      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_SK attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_SK à jour en disant pourquoi."
+      SK_KO=1
+    fi
+  else
+    grep '✗' "$OUT" | head -6
+    echo "  ✗ les bornes de coherence_skill.py ne passent plus."
+    SK_KO=1
+  fi
+  # Puis le dépôt RÉEL. L'invariant gardé — « le skill décrit exactement les jobs de la
+  # config » — ne devient faux que si le dépôt est incohérent : aucun tiers, aucune date,
+  # donc ce contrôle-ci ne peut pas se périmer seul comme l'ont fait le motif ⑩ (15/10), ce
+  # lot-ci (22/10) et une page tierce (23/10).
+  if env -i $PY "$ROOT/outils/scripts/non_regression/coherence_skill.py" >> "$OUT" 2>&1; then
+    tail -1 "$OUT"
+  else
+    grep '✗' "$OUT" | tail -6
+    echo "  ✗ LE SKILL lancer-job NE DÉCRIT PLUS LES JOBS DE LA CONFIG."
+    echo "    Mesuré le 27/10 : la suppression du 22/10 a laissé « /lancer-job astro » et le"
+    echo "    jeton « astro, » de la description, et la vérification finale de supprimer_job.sh"
+    echo "    a répondu « ✓ ids du skill = ids de la config » — elle n'apparie que job id."
+    SK_KO=1
+  fi
+  return $SK_KO
+}
+
 # ── mode --consignes : ce que le hook lance quand un push ne touche QUE les consignations.
 #    Sans lui, ce push ne déclenchait AUCUN mode — mesuré le 27/10 — donc le contrôle n'aurait
 #    jamais tourné sur elles et serait resté décoratif, le défaut même corrigé la veille.
 if [ "$MODE" = "--consignes" ]; then
-  bloc_orthographe; exit $?
+  bloc_orthographe || CO_KO=1
+  bloc_coherence_skill || CO_KO=1
+  exit ${CO_KO:-0}
 fi
 
 # ── DÉSARMEMENT DE L'ENVIRONNEMENT GIT (27/10/2026). `git push` exporte GIT_DIR à ses hooks, et
@@ -853,6 +889,7 @@ fi
 
 bloc_orthographe || exit 1
 bloc_desarmement || exit 1
+bloc_coherence_skill || exit 1
 
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then
@@ -1758,8 +1795,9 @@ if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/supprimer_job.sh" ]; th
   #    les deux — le témoin s'était périmé seul, aucun code n'avait changé. Troisième fois que
   #    « un témoin VIVANT qui annote une propriété volatile périme tout seul » se vérifie.
   #    ⚠️ Et les cinq scénarios étaient ancrés sur le job qu'on allait SUPPRIMER : la
-  #    suppression seule les aurait tous fait répondre « job inconnu ». D'où le job témoin
-  #    ci-dessous, qui doit être un parcours de leçons ENCORE dans la config.
+  #    suppression seule les aurait tous fait répondre « job inconnu ». Le recâblage du 22/10
+  #    les ancrait donc sur un parcours de leçons ENCORE dans la config — correctif qui n'a
+  #    tenu que cinq jours, voir le bloc du 27/10 juste en dessous.
   # ⚠️ 17/10/2026 — ON COMPARE AVANT/APRÈS, PAS À UN ARBRE PROPRE. La première version
   #    exigeait que les quatre fichiers soient NON MODIFIÉS dans l'arbre de travail : elle
   #    confondait « sale » et « sali par le test ». Mesuré ce jour : l'édition des prompts de
@@ -1769,7 +1807,16 @@ if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/supprimer_job.sh" ]; th
   #    l'état avant, on le rephotographie après, et on compare les deux.
   SJ_AV=$(cd "$ROOT" && git status --porcelain jobs_config.json outils/scripts/run_job.sh \
           outils/scripts/setup_launchd.sh .claude/skills/lancer-job/SKILL.md 2>/dev/null); SJ_AVE=$?
-  SJ_JOBT="hypnose-lecon"
+  # 🔴 27/10/2026 — LE JOB TÉMOIN N'EST PLUS UN JOB DE LA CONFIG, IL EST FABRIQUÉ. La
+  #    suppression de `hypnose-lecon`, `placement-financier-lecon` et `stoicisme-lecon` ce
+  #    jour-là laisse la config SANS AUCUN job de parcours de leçons : ancré sur l'un des
+  #    trois, ce lot aurait répondu « job inconnu » cinq fois et le harnais serait sorti en 1,
+  #    bloquant TOUS les pushs — la QUATRIÈME fois que « un témoin VIVANT périme tout seul »
+  #    mord, après le motif ⑩ (15/10), ce même lot (22/10) et une page tierce (23/10).
+  #    Le job est donc INJECTÉ dans les deux configs fabriquées, et il pointe vers un parcours
+  #    CLOS — `dzogchen`, 20 leçons sur le disque, job supprimé le 15/10 — dont le compte ne
+  #    peut plus bouger : la seule chose encore vivante dans ce verdict est un dossier figé.
+  SJ_JOBT="dzogchen-lecon"
   SJ_CFG="$CUR/cfg_parcours_complet.json"
   SJ_CFGI="$CUR/cfg_parcours_incomplet.json"
   env -i $PY - "$ROOT" "$SJ_CFG" "$SJ_CFGI" "$SJ_JOBT" <<'PYSJ' || { echo "  ✗ configs de test non fabriquées"; SJ_KO=1; }
@@ -1787,8 +1834,21 @@ assert n > 0, "aucune leçon sur le disque pour " + parcours
 #    contrôle sur la config fabriquée et exige le compte voulu.
 FORMES = ((r"en\s+\d+\s+LEÇONS", "en %d LEÇONS"), (r"\(\d+\s+leçons\)", "(%d leçons)"),
           (r"—\s*\d+\s+leçons\s*:", "— %d leçons :"), (r"limite de \d+", "limite de %d"))
+# Le prompt du job témoin est un GABARIT, et son compte annoncé est volontairement FAUX (1) :
+# les quatre formes de FORMES doivent donc toutes être réécrites pour que la vérification de
+# bout en bout lise le compte voulu. C'est plus fort que l'ancien témoin, qui s'appuyait sur le
+# prompt RÉEL d'un job déjà à son compte : une substitution muette y passait inaperçue sur le
+# scénario « parcours complet ».
+GABARIT = ("TÉMOIN FABRIQUÉ par non_regression.sh — ce job n'existe pas et n'est jamais exécuté. "
+           "⛔ PARCOURS FERMÉ — en 1 LEÇONS. Ne produis jamais de leçon au-delà, "
+           "dans la limite de 1 leçons.")
 for cible, annonce in ((complet, n), (incomplet, n + 1)):
     d = json.load(open(racine + "/jobs_config.json", encoding="utf-8"))
+    d["jobs"] = [x for x in d["jobs"] if x["id"] != jid]
+    d["jobs"].append({"id": jid, "nom": "Témoin fabriqué (parcours clos)",
+                      "cron": "3 9 * * 2",
+                      "livrable": "livrables/lecons/" + parcours + "/",
+                      "prompt": GABARIT})
     vus = 0
     for x in d["jobs"]:
         if x["id"] == jid:

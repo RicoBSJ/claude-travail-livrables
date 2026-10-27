@@ -133,11 +133,23 @@ else:
 # ⑤ le skill, CORPS et DESCRIPTION
 p = racine + "/.claude/skills/lancer-job/SKILL.md"
 s = open(p, encoding="utf-8").read()
-court = re.sub(r"-(?:lecon|veille|pipeline|livrables)$", "", jid)
 n = len(s)
-s = re.sub(r'^- "[^"]*"[^\n]*job id "' + re.escape(jid) + r'"\n', "", s, flags=re.M)
-s = re.sub(r"^  /lancer-job \S+ +— [^\n]*\n(?=(?:  /lancer-job|```))" if False else
-           r"^  /lancer-job " + re.escape(court) + r"\b[^\n]*\n", "", s, flags=re.M)
+# 🔴 27/10/2026 — L'ALIAS EST DÉCLARÉ SUR LA LIGNE DE CORRESPONDANCE, PAS DÉRIVABLE DE L'ID.
+#    La version d'avant prenait `court = jid` moins son suffixe : pour
+#    `astrologie-karmique-lecon` elle cherchait `/lancer-job astrologie-karmique` quand la
+#    ligne d'aide dit `/lancer-job astro`. Mesuré le 27/10 : la suppression du 22/10 a laissé
+#    la ligne d'aide ET le jeton de la description, et la vérification finale ne peut pas le
+#    voir — elle n'apparie que `job id "…"`, qu'une ligne d'aide ne porte pas. Même piège
+#    attendu sur `placement-financier-lecon`, dont l'alias est `finance`.
+#    L'alias est donc LU sur la ligne, avant de la retirer, et son absence est une ERREUR.
+mc = re.search(r'^- "([^"]*)"[^\n]*job id "' + re.escape(jid) + r'"\n', s, re.M)
+if not mc:
+    sys.exit("  ⑤ ✗ aucune ligne de correspondance pour %s dans SKILL.md — ARRÊT" % jid)
+court = mc.group(1)
+s = s[:mc.start()] + s[mc.end():]
+s, k = re.subn(r"^  /lancer-job " + re.escape(court) + r"\b[^\n]*\n", "", s, flags=re.M)
+if k != 1:
+    sys.exit("  ⑤ ✗ ligne d'aide « /lancer-job %s » : %d retirée(s), 1 attendue — ARRÊT" % (court, k))
 s = re.sub(r"(description:[^\n]*)\b" + re.escape(court) + r", ", r"\1", s)
 s = re.sub(r"(description:[^\n]*), " + re.escape(court) + r"\b", r"\1", s)
 open(p, "w", encoding="utf-8").write(s)

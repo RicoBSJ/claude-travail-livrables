@@ -1,6 +1,6 @@
 ---
 name: lancer-job
-description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : imac, serafin, rbpp, finance, hypnose, astro, stoicisme, ai-act, controle
+description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : imac, serafin, rbpp, ai-act, controle
 disable-model-invocation: false
 ---
 
@@ -19,12 +19,9 @@ Identifie le job correspondant à l'argument selon cette correspondance :
 - "imac" ou "mac" ou "apple" ou "imac-m4" ou "imac-m5"               → job id "imac-veille"
 - "serafin" ou "serafin-ph" ou "veille"                              → job id "serafin-ph-veille"
 - "rbpp" ou "pipeline"                                               → job id "rbpp-pipeline"
-- "finance" ou "placement" ou "placement-financier" ou "epargne"     → job id "placement-financier-lecon"
-- "hypnose" ou "auto-hypnose" ou "autohypnose"                       → job id "hypnose-lecon"
   Le parcours Développement d'applications avec l'IA était fermé à 12 leçons, toutes livrées
   (bilan le 02/10/2026). N'exécute rien : affiche « ⛔ Le job appli-ia-lecon a été supprimé le
   04/10/2026 — parcours fermé, les 12 leçons et le projet fil rouge sont conservés. » et arrête-toi.
-- "stoicisme" ou "lecon-stoicisme" ou "philosophie"                  → job id "stoicisme-lecon"
 - "ai-act" ou "aiact" ou "ia-act" ou "reglement-ia"                  → job id "ai-act-veille"
 - "controle" ou "qualite" ou "relecture" ou "verif"                  → job id "controle-livrables"
 
@@ -34,10 +31,6 @@ Jobs disponibles :
   /lancer-job imac        — Veille marché tout-en-un : iMac M4/M5 + PC Windows (dimanche 8h03)
   /lancer-job serafin     — Veille SERAFIN-PH (mercredi 8h03)
   /lancer-job rbpp        — Pipeline RBPP HAS (lundi 8h30)
-  /lancer-job finance     — Leçon Placement financier / éducation (samedi 8h03)
-  /lancer-job hypnose     — Leçon Hypnose & auto-hypnose (mardi 9h03)
-  /lancer-job astro       — Leçon Astrologie karmique (jeudi 9h33)
-  /lancer-job stoicisme   — Leçon Stoïcisme (jeudi 8h03)
   /lancer-job ai-act      — Veille règlement IA européen (vendredi 9h03)
   /lancer-job controle    — Contrôle qualité des livrables de la semaine (dimanche 11h03)
 ```

@@ -73,9 +73,6 @@ fi
 JOBS="imac-veille|3|8|0
 rbpp-pipeline|30|8|1
 serafin-ph-veille|3|8|3
-stoicisme-lecon|3|8|4
-placement-financier-lecon|3|8|6
-hypnose-lecon|3|9|2
 controle-livrables|3|11|0
 ai-act-veille|3|9|5"
 

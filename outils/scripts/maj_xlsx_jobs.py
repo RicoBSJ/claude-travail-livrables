@@ -30,7 +30,7 @@ LECONS = RACINE / "livrables" / "lecons"
 # (« Tes 14 jobs » pour 9 réels) parce que ce script ne met à jour QU'UNE COLONNE : il
 # n'ajoute ni ne retire jamais une ligne. Il est donc incapable de corriger une
 # suppression de job, et le classeur dérive en silence à chaque fois.
-CLASSEUR = RACINE / "livrables" / "documents" / "2026-10-22_Les 8 Jobs.xlsx"
+CLASSEUR = RACINE / "livrables" / "documents" / "2026-10-27_Les 5 Jobs.xlsx"
 
 EN_TETE = "Numéro de la dernière leçon"
 SANS_OBJET = "—"          # jobs qui ne produisent pas de leçon (veilles, contrôle)

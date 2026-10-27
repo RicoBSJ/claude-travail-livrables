@@ -158,24 +158,33 @@ fi
 # ---- Liste des jobs à rattraper -----------------------------------------
 # ⚠️ CETTE LISTE EST FIGÉE DEPUIS JUILLET 2026 et ne vaut plus comme défaut : utilise
 #    `--manques` pour savoir ce qui a réellement été manqué, puis passe les ids en argument.
-# Confirmé manquant (trou dans une semaine par ailleurs complète) :
-# À confirmer via les logs (aucun push depuis le 08/07) — laissés actifs car
-# l'anti-doublon les protège s'ils ont finalement tourné :
-#   stoicisme-lecon             (jeudi 09/07)
-#   placement-financier-lecon   (samedi 11/07)
-#   entretien-motivationnel-lecon (jours intensifs 09→11/07)
-# Commente (#) les lignes que tu ne veux PAS rejouer.
+# (Trace : elle portait les créneaux de juillet 2026 de stoicisme-lecon, de
+#  placement-financier-lecon et d'entretien-motivationnel-lecon. Les trois jobs sont
+#  supprimés — les deux premiers le 27/10/2026 — et aucun n'existait plus quand la liste
+#  a été vidée. Son ancien mode d'emploi, « commente les lignes que tu ne veux pas
+#  rejouer », supposait une liste tenue à jour : c'est ce qu'elle n'a jamais été.)
+# 🔴 27/10/2026 — CETTE LISTE EST DÉSORMAIS VIDE, ET ELLE L'EST PAR MESURE. C'est le SEPTIÈME
+#    emplacement qui nomme un job, et le seul que `supprimer_job.sh` ne touche pas : il était
+#    donc PÉRIMÉ depuis le 22/10, où il nommait encore `astrologie-karmique-lecon`, supprimé.
+#    Les trois derniers parcours de leçons ont été fermés le 27/10 ; les trois ids qu'elle
+#    portait ne désignent plus aucun job, et `run_job.sh` aurait répondu « job inconnu » sur
+#    chacun. Une liste figée de jobs morts est pire qu'une liste vide : elle a l'air d'un
+#    défaut raisonnable. Le lancement sans argument REFUSE maintenant et renvoie à --manques,
+#    qui, lui, lit les créneaux prescrits dans jobs_config.json et ne peut pas se périmer.
 DEFAULT_JOBS=(
-  # revenus-passifs-lecon  ← SUPPRIMÉ le 04/10/2026 (parcours clos à 10 leçons)
-  stoicisme-lecon
-  # appli-ia-lecon  ← SUPPRIMÉ le 04/10/2026 (parcours fermé, 12 leçons livrées)
-  placement-financier-lecon
-  astrologie-karmique-lecon
+  # (vide — voir ci-dessus. N'y remets un id que pour un rattrapage ponctuel, et retire-le.)
 )
 
 # Si un id de job est passé en argument, on ne rejoue que celui-là.
 if [ "$#" -ge 1 ]; then
   JOBS=("$@")
+elif [ "${#DEFAULT_JOBS[@]}" -eq 0 ]; then
+  # ⚠️ `set -u` est actif : développer un tableau vide sort en erreur sur le bash 3.2 du
+  #    système. On refuse donc explicitement, avec le geste à faire — jamais en silence.
+  echo "⛔ Aucun job à rattraper : la liste par défaut est vide (et c'est voulu, 27/10/2026)."
+  echo "   Passe les ids en argument, ou demande d'abord l'inventaire :"
+  echo "     bash outils/scripts/rattrapage_jobs.sh --manques"
+  exit 2
 else
   JOBS=("${DEFAULT_JOBS[@]}")
 fi

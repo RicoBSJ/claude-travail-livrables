@@ -60,7 +60,11 @@ DOCS='^(livrables/lecons|sources/veille)/.*\.docx$'
 # contrôle d'orthographe placé dans le seul harnais n'aurait donc jamais tourné sur elles.
 # Mode dédié parce qu'il coûte 0,7 s là où le mode normal coûte 160 s, et qu'un ordre se
 # termine presque toujours par un push de consignations.
-CONSIGNES='^(CLAUDE\.md|outils/scripts/JOBS\.md)$'
+# 🆕 27/10/2026 — LE SKILL `lancer-job` ENTRE DANS CETTE CATÉGORIE. Il nomme chaque job à
+#    TROIS endroits (ligne de correspondance, ligne d'aide, `description:` du frontmatter)
+#    et n'appartenait à AUCUNE catégorie : un push qui ne touchait que lui ne déclenchait
+#    rien. `jobs_config.json`, l'autre moitié de l'invariant, est déjà dans SURVEILLES.
+CONSIGNES='^(CLAUDE\.md|outils/scripts/JOBS\.md|\.claude/skills/lancer-job/SKILL\.md)$'
 # (5) LE DÉSARMEMENT DE L'ENVIRONNEMENT GIT (27/10/2026). Les trois fichiers qui appellent `git`
 # sous un hook doivent porter le `unset` des huit variables AVANT leur premier appel. Deux d'entre
 # eux (ce hook, non_regression.sh) sont déjà dans SURVEILLES, donc le harnais complet les couvre ;

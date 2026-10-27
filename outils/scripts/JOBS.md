@@ -5502,3 +5502,135 @@ aucun `✗`.
 Un garde dont on ne peut prouver l'effet se protège par sa présence ; mais la présence seule
 aurait validé le défaut du jour même, parce que ce défaut n'était pas l'absence de la ligne,
 c'était son rang.
+
+---
+
+## 27/10/2026 — Trois jobs supprimés, cinq restants, et deux emplacements qui mentaient depuis le 22/10
+
+**L'ordre.** « supprime les jobs hypnose-lecon, placement-financier-lecon et stoicisme-lecon ».
+Les trois parcours sont à **20/20**, bilans livrés les **22/10** (stoïcisme), **24/10** (placement
+financier) et **27/10** (hypnose, le matin même, 2,2385 $ pour 3,00 $ = 75 %, record de sa série).
+
+### Ce qui a été mesuré avant d'écrire quoi que ce soit
+
+| Emplacement | État avant | Traité par |
+|---|---|---|
+| `jobs_config.json` | 8 jobs | `supprimer_job.sh` ① |
+| `run_job.sh`, `case BUDGET` | 30,00 $ | ② |
+| `setup_launchd.sh`, liste `JOBS` | 8 lignes | ③ |
+| `.plist` + `launchctl` | 8 / 8 | ④ |
+| `.claude/skills/lancer-job/SKILL.md` | 3 079 o, **2 traces d'`astro`** | ⑤, **corrigé ce jour** |
+| classeur de suivi | `Les 8 Jobs.xlsx` | ⑥ |
+| `rattrapage_jobs.sh`, `DEFAULT_JOBS` | **3 ids morts** | **à la main, 7ᵉ emplacement** |
+| témoin de `supprimer_job.sh` au harnais | ancré sur `hypnose-lecon` | **recâblé AVANT** |
+
+### ① Le blocage prévu : le témoin ancré sur le job qu'on allait supprimer
+
+Après les trois suppressions, les cinq jobs restants — `imac-veille`, `serafin-ph-veille`,
+`rbpp-pipeline`, `ai-act-veille`, `controle-livrables` — ne contiennent **aucun id en
+`-lecon`**. Les cinq scénarios du lot `supprimer_job.sh` auraient donc tous répondu
+« job inconnu », le harnais serait sorti en 1 et **le hook aurait refusé tous les pushs** :
+quatrième fois que « un témoin VIVANT périme tout seul » mord le dépôt, après le motif ⑩ de
+`controle_ai_act.py` (15/10), ce même lot (22/10) et une page tierce (23/10) — **la première
+fois qu'il est vu venir au lieu d'être subi.**
+
+Le job témoin est maintenant **fabriqué et injecté** dans les deux configs de test, et il
+pointe vers `dzogchen` : parcours clos, job supprimé le 15/10, **20 `.docx` figés sur le
+disque**. Son prompt est un **gabarit dont le compte annoncé est volontairement FAUX (1)** :
+les quatre formes de `FORMES` doivent toutes être réécrites pour que la vérification de bout
+en bout lise le compte voulu. C'est **plus fort que l'ancien témoin**, qui s'appuyait sur le
+prompt réel d'un job déjà à son compte — une substitution muette y passait inaperçue sur le
+scénario « parcours complet ».
+
+🧪 **Sabotage du garde-fou lui-même** (`[ "$REE" -lt "$ANN" ]` → `[ "$REE" -lt 0 ]`, sha256
+avant/après vérifié) : `✗ refus_avant_bilan : exit 0, 1 attendu`, **harnais exit 1**,
+`supprimer_job.sh` restauré au **sha256 identique** (`44d83316…`). Le témoin recâblé exerce
+donc toujours le vrai garde-fou, pas sa fabrication.
+
+### ② `supprimer_job.sh` dérivait l'alias du skill de l'ID — et le skill a trois endroits, pas un
+
+Le skill nomme chaque job **trois fois** : la ligne de correspondance
+(`- "finance" … → job id "placement-financier-lecon"`), la ligne d'aide
+(`  /lancer-job finance — …`) et le `description:` du frontmatter. L'étape ⑤ prenait
+`court = jid` moins son suffixe, donc pour `astrologie-karmique-lecon` elle cherchait
+`/lancer-job astrologie-karmique` quand la ligne dit **`/lancer-job astro`**.
+
+**Mesuré sur le dépôt** : la suppression du 22/10 a laissé la ligne d'aide **et** le jeton
+`astro,` de la description. Et la vérification finale du script a répondu
+**« ✓ ids du skill = ids de la config (8) »** — elle n'apparie que `job id "…"`, qu'une ligne
+d'aide ne porte pas. **Le skill annonçait un job supprimé, et rien dans le dépôt ne pouvait le
+dire.** Le même piège attendait `placement-financier-lecon` (alias `finance`).
+
+🟢 L'alias est désormais **lu sur la ligne de correspondance** avant son retrait ; son absence,
+ou un nombre de retraits différent de 1, **arrête le script**. Après la suppression :
+`finance` à **0 occurrence** dans le skill.
+
+### ③ `non_regression/coherence_skill.py` — 7 bornes, aucun réseau, 0,1 s
+
+Il compare les trois endroits aux ids de `jobs_config.json` et rend les écarts dans les deux
+directions. ⛔ **Il ne peut pas se périmer comme les trois témoins qui ont bloqué le dépôt** :
+l'invariant gardé ne devient faux que si le dépôt est réellement incohérent — pas de tiers,
+pas de date, pas de réseau.
+
+| Borne | Ce qu'elle garde |
+|---|---|
+| ① **ACCEPTÉE** | un skill conforme ne produit **rien** |
+| ② **ACCEPTÉE** | l'alias est celui de la **ligne**, pas le slug de l'id — `finance` n'est pas un préfixe de `placement-financier-lecon`. **C'est elle qui interdit de redériver demain.** |
+| ③ | le cas **réel** du 22/10 : correspondance retirée, aide et description laissées → 2 écarts |
+| ④ | un job de la config sans ligne de correspondance |
+| ⑤ | une correspondance vers un job absent de la config |
+| ⑥ | un alias sans ligne d'aide |
+| ⑦ | un alias absent de la description du frontmatter |
+
+📊 **Mesure dans les deux sens sur le dépôt réel** : **2 écarts avant** le nettoyage, **0 après**,
+et les deux écarts nommés sont exactement les deux traces d'`astro`.
+
+Câblé en mode **`--consignes`** (0,7 s) et dans le mode défaut, avec `ATTENDU_SK=7`. Le hook
+reçoit `.claude/skills/lancer-job/SKILL.md` dans la catégorie `CONSIGNES` : **il n'appartenait
+à aucune catégorie**, donc un push qui ne touchait que lui ne déclenchait rien — exactement le
+défaut fermé la veille pour `CLAUDE.md` et `JOBS.md`.
+
+🧪 **Deux sabotages, deux refus** : borne ⑦ retirée → auto-test seul **exit 0**, harnais
+**exit 1** sur `ATTENDU_SK` (le garde de compte n'est donc pas redondant) ; skill réel remis
+dans son état du 22/10 → **exit 1** avec les deux lignes d'écart.
+
+🔴 **Deux défauts à moi.** `RACINE` copiait les **trois** `dirname` des contrôles de
+`outils/scripts/` alors que ce script vit un cran plus bas — c'est le bug de
+`tolerance_page_morte.py` du 23/10 **reproduit à l'identique**, et il est maintenant gardé par
+une assertion sur `outils/scripts`. Et une paire de **backticks** dans un `echo` de zsh a fait
+exécuter `job` (`command not found: job`) : visible seulement en provoquant le refus, donc
+**un message d'erreur qu'on n'a jamais fait imprimer n'est pas un message vérifié**.
+
+### ④ Le septième emplacement, celui que le script ne touche pas
+
+`rattrapage_jobs.sh` portait un `DEFAULT_JOBS` **figé depuis juillet 2026** nommant
+`stoicisme-lecon`, `placement-financier-lecon` et `astrologie-karmique-lecon` — ce dernier
+supprimé cinq jours plus tôt. Lancé sans argument, il appelait `run_job.sh` sur **trois ids
+inconnus**. La liste est **vidée**, et le lancement sans argument **refuse en exit 2** en
+renvoyant à `--manques`, qui lit les créneaux prescrits dans la config et ne peut pas se
+périmer. ⚠️ **Corollaire à connaître** : `--manques` lisant la config, les créneaux d'un job
+supprimé **disparaissent de l'inventaire** — le créneau de `hypnose-lecon` du 27/10 n'y figure
+plus. C'est juste (plus rien n'est prescrit), mais cela retire toute trace rétrospective.
+
+### Vérifications finales
+
+| Mesure | Valeur |
+|---|---|
+| jobs · `.plist` · chargés | **5 · 5 · 5**, concordants |
+| plafonds cumulés | **21,00 $** (30 → 21) |
+| ids du skill = ids de la config | ✓ (5) |
+| `coherence_skill.py` sur le dépôt réel | **0 écart** |
+| `refaire_classeur.py --verifier` | exit 0 |
+| second passage de `setup_launchd.sh` | **aucun orphelin**, 5 agents |
+| créneaux libérés | **mardi 9h03 · samedi 8h03 · jeudi 8h03** |
+
+Classeur : `livrables/documents/2026-10-27_Les 5 Jobs.xlsx`, l'ancien `Les 8 Jobs.xlsx`
+archivé. ⚠️ **Deux classeurs transitoires** (`Les 7 Jobs`, `Les 6 Jobs`) ont été écrits par les
+suppressions enchaînées et **retirés des archives** : ils représentent des états qui n'ont
+jamais duré plus de quinze secondes, et les archiver aurait consigné deux états fictifs.
+
+Prompts récupérables : `git show c92286f:jobs_config.json` — **53 616** (hypnose), **62 413**
+(placement financier) et **61 476** (stoïcisme) octets, mesurés.
+
+**Douze jobs supprimés à ce jour.** Il ne reste **aucun parcours de leçons** : les cinq jobs
+vivants sont quatre veilles et un pipeline.
