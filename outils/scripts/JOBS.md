@@ -5062,9 +5062,18 @@ sont **intacts**. Rien à recharger, les 8 jobs continuent.
 
 - ⚠️ **Le fichier `.git` reste dans kDrive** — 50 octets. S'il est abîmé, le remède tient en une
   ligne : `printf 'gitdir: /Users/utilisateur/git/Claude_Travail.git\n' > .git`. Rien d'autre.
-- ⚠️ **La copie de conflit a suivi le déplacement** :
-  `~/git/Claude_Travail.git/objects/42/4fa396…_conflict_…`. Elle duplique un objet **valide**
-  (sha1 vérifié par décompression). Sa suppression **n'a pas été ordonnée**.
+- 🟢 **La copie de conflit a suivi le déplacement, puis a été SUPPRIMÉE le même jour** —
+  `~/git/Claude_Travail.git/objects/42/4fa396…_conflict_…`. La mesure d'abord, la
+  suppression ensuite : les deux fichiers étaient **identiques à l'octet** (même sha256
+  `37972142a9c4f3bb`, 43 703 o chacun) et décompressaient tous deux vers le sha1 attendu,
+  donc la copie ne portait **rien d'unique**. Sauvegardée au scratchpad avant le `rm`.
+  Après : `fsck` ne nomme **plus rien**, `git cat-file -t` rend `blob` et `-s` 102 267,
+  `HEAD` = `origin/main` = `ccd7a04`, 4 refs, harnais en mode défaut **exit 0**.
+  ⚠️ Trace cosmétique restante : l'objet vivant est en **644**, là où `git` écrit ses
+  objets lâches en **444** — c'est kDrive qui l'a réécrit en l'hydratant ; sans effet,
+  `git` ne lit pas les permissions d'un objet.
+- ⚠️ **Aucune autre copie de conflit** : 0 dans le dépôt déplacé, **0 dans l'arbre kDrive**
+  (mesuré sur tout l'arbre, pas seulement sur `.git`).
 - 📌 **La portée « tout l'arbre hors de kDrive » a été écartée par mesure, pas par confort** :
   elle coûtait 14 fichiers + 8 `.plist` + launchd rechargé, et **les livrables perdaient la
   synchro vers le poste Windows**, GitHub restant la seule copie hors machine.
