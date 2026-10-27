@@ -5202,3 +5202,90 @@ des `rels` orphelins du 25/10 : la copie n'a rien laissé passer, **elle a inven
 **Les fichiers qui portent les règles ne sont contrôlés par rien, et ce sont eux qu'on relira
 dans six mois.** Un contrôle qui ne peut pas juger le fond peut juger ce qui ne se décline pas :
 **les noms propres techniques**, avec le corpus pour seul dictionnaire.
+
+
+---
+
+## 27/10/2026 — Sortir `.git` de l'arbre a cassé l'isolation du dépôt jetable, et c'est un push qui l'a dit
+
+### Le symptôme
+
+Au push du contrôle d'orthographe, le hook a refusé : **S14, le témoin de la liste blanche de
+l'auto-push**, annonçait avoir publié `CLAUDE.md JOBS.md controle_orthographe.py hooks/pre-push
+non_regression.sh` — **la liste exacte de mon propre commit**, là où il attend huit fichiers de
+test. Et juste après, tout `git status` répondait **« fatal : cette opération doit être effectuée
+dans un arbre de travail »**.
+
+### La cause, mesurée en une commande
+
+`git push` **exporte `GIT_DIR`** à ses hooks.
+
+| Avant le 25/10 | Depuis le 25/10 |
+|---|---|
+| `.git` est un **dossier** dans l'arbre → git exporte `GIT_DIR=.git`, chemin **RELATIF** | `.git` est un **fichier de renvoi** hors de l'arbre → git exporte le chemin **ABSOLU** |
+| `cd "$D" && git init .` le résout **dans `$D`** → isolation **par accident** | `cd` sans effet : **tout `git` vise le vrai dépôt** |
+
+Mesure directe : `GIT_DIR=.git` dans un dossier jetable rend
+`/private/var/folders/…/tmp.XXXX/.git` ; `GIT_DIR=/Users/utilisateur/git/Claude_Travail.git` rend
+le vrai dépôt. **L'isolation n'a jamais été tenue par le `cd`.**
+
+### Les dégâts réels, et les deux accidents qui les ont bornés
+
+| Ce qui a écrit | Où | Effet |
+|---|---|---|
+| `git init -q --bare "$H/distant.git"` | **vrai dépôt** | `core.bare = true` → tout `git status` en échec |
+| `git config user.email/name` | **vrai dépôt** | identité `T <t@local>` par-dessus `Claude <claude@anthropic.com>` |
+| `git remote add origin "$H/distant.git"` | — | **a ÉCHOUÉ** (origin existait) → **chaîne `&&` cassée**, l'adresse du dépôt public sauvée |
+| `git reset --hard $SEMENCE` puis `git clean -qfdx` (S14) | **arbre réel visé** | **n'ont pas tourné** : `core.bare=true` faisait déjà échouer toute opération d'arbre |
+
+**Rien n'a été détruit par deux accidents, pas par conception.** Distant resté à `8cec9af`, les
+quatre fichiers non suivis en place, `fsck` sain, commit `f8a1957` intact et signé du bon auteur.
+Réparation : `core.bare` retiré, identité remise à `Claude <claude@anthropic.com>`.
+
+### Pourquoi rien ne l'avait vu
+
+- 🔴 **Le garde qui existait validait le cas qu'il devait attraper** : `[ -n "$SEMENCE" ]`, or
+  `git rev-parse HEAD` **réussit** dans le vrai dépôt. Le pire genre de garde.
+- 🔴 **Le harnais lancé À LA MAIN passe** : aucun `GIT_DIR` dans l'environnement. Le défaut
+  n'existe **qu'au moment du push** — et les pushs du **25 et du 26/10 l'ont traversé en silence**.
+- ⚠️ Le commentaire du bloc d'init promettait *« aucun accès au vrai dépôt »*. Il était **faux
+  depuis deux jours**, et c'est lui qu'on relit pour se rassurer.
+
+### Le correctif, en deux couches
+
+1. **Désarmement** : le hook **et** le runner retirent `GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE
+   GIT_OBJECT_DIRECTORY GIT_COMMON_DIR GIT_QUARANTINE_PATH GIT_ALTERNATE_OBJECT_DIRECTORIES
+   GIT_PREFIX`. Dans le hook parce qu'il lance tout le reste ; dans le runner parce qu'il est
+   aussi lancé à la main.
+2. **Refus préalable à toute écriture** : avant le premier `git init`, le runner exige que son
+   dossier jetable ne résolve vers **aucun** dépôt extérieur. Le garde porte sur la **propriété**
+   — où résout `$D` — et non sur la cause du jour, donc il attrape aussi un `$D` placé par erreur
+   dans un arbre de travail.
+
+### Validation, sur un FAUX dépôt — jamais sur le vrai
+
+| Sens | Mesuré |
+|---|---|
+| runner **non corrigé** + `GIT_DIR` | **incident reproduit** : `core.bare=true` et `user=T` **sur la cible**, S14 ✗, exit 1 |
+| runner **corrigé** + `GIT_DIR` | **15/15 témoins, 21/21 mutations**, cible **intacte**, exit 0 |
+| `unset` retiré, garde en place | le garde **mord** : exit 1, et **la cible n'est pas écrite** |
+
+Runner restauré au **sha256 identique** (`cf3b2eabf35f488f`), config du dépôt réel **inchangée**
+aux trois mesures.
+
+### Mes deux erreurs de méthode dans ce correctif
+
+- 🔴 **Mon premier sabotage n'a rien modifié** : le motif ne s'appariait pas, parce qu'un `\` en
+  fin de ligne dans une chaîne Python triple est une **continuation** — la ligne `unset` avait été
+  écrite en **une seule**. C'est la règle du 26/10, *« un sabotage qui n'a pas tourné ressemble à
+  un sabotage qui ne mord pas »*, enfreinte le lendemain.
+- 🔴 **Mon point de restauration était la version d'AVANT correctif** : le second scénario a donc
+  tourné sur le runner non corrigé. Par chance c'était la mesure que je voulais — mais **le point
+  de restauration doit être la version qu'on valide**, sinon un « restauré » remet le défaut.
+
+### La règle que cet incident paie
+
+**Une isolation obtenue par un `cd` n'est pas une isolation : `git` se laisse commander par
+l'environnement, et un hook en est plein.** Et plus généralement : **déplacer `.git` change la
+forme de `GIT_DIR`, donc le comportement de tout script qui croyait s'isoler par un changement de
+dossier.**

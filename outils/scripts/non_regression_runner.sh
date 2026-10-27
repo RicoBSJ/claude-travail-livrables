@@ -50,6 +50,23 @@ STATUT=0
 
 [ -f "$RUNNER" ] || { echo "✗ runner introuvable : $RUNNER"; exit 1; }
 
+# 🔴 DÉSARMER L'ENVIRONNEMENT GIT — 27/10/2026, et c'est une RÉGRESSION DU 25/10 QUE SEUL UN
+# PUSH POUVAIT MONTRER. `git push` exporte GIT_DIR a ses hooks. Avant le 25/10 il valait « .git »,
+# un chemin RELATIF : un « cd "$D" && git init . » le resolvait donc dans $D et l'isolation du
+# depot jetable tenait PAR ACCIDENT. Depuis que `.git` est un fichier d'une ligne pointant hors
+# de l'arbre, git exporte le chemin ABSOLU — et tout `git` du runner visait LE VRAI DEPOT, quel
+# que soit le `cd`. Mesure : `git init --bare` a mis le vrai depot en core.bare=true (« cette
+# operation doit etre effectuee dans un arbre de travail » sur tout `git status`), `git config` y
+# a ecrit l'identite de test T <t@local>, et le `git reset --hard` / `git clean -qfdx` du temoin
+# S14 ont VISE l'arbre reel. Rien n'a ete detruit par DEUX accidents — bare=true faisait deja
+# echouer les operations d'arbre, et `git remote add origin` a casse la chaine && parce qu'origin
+# existait deja. Reproduit sur un FAUX depot : runner non corrige + GIT_DIR -> core.bare=true et
+# user=T sur la cible, S14 en echec ; runner corrige -> 15/15 temoins, 21/21 mutations, cible
+# intacte. ⚠️ Le commentaire du bloc d'init promettait « aucun acces au vrai depot » : faux depuis
+# deux jours. Le harnais lance A LA MAIN passait (aucun GIT_DIR dans l'environnement) ; seul le
+# lancement DEPUIS LE HOOK cassait, c'est-a-dire exactement au moment du push.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_COMMON_DIR GIT_QUARANTINE_PATH GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_PREFIX
+
 H="$(mktemp -d -t nrrunner)"
 nettoyer() { [ "$GARDER" -eq 1 ] && echo "  (dossier conservé : $H)" || rm -rf "$H"; }
 trap nettoyer EXIT
@@ -62,9 +79,26 @@ trap nettoyer EXIT
 # Les outils du harnais vivent dans $H, le dépôt sous test dans $D. Rien ne se croise.
 D="$H/depot"
 mkdir -p "$D/outils/scripts/logs"
+# 🛡 REFUS PREALABLE A TOUTE ECRITURE. Le garde qui existait — « $SEMENCE non vide » — etait
+# satisfait PAR le vrai depot (un rev-parse HEAD y reussit), donc il validait precisement le cas
+# qu'il devait attraper : le pire genre de garde. Ici on exige, AVANT le premier `git init`, que
+# $D ne resolve vers AUCUN depot exterieur. Pose avant toute ecriture, donc un echec ne touche
+# rien. Il attrape GIT_DIR, mais aussi un $D place par erreur dans un arbre de travail ou tout
+# autre mecanisme de decouverte a venir — c'est la propriete qui compte, pas la cause du jour.
+DEHORS="$(cd "$D" && git rev-parse --absolute-git-dir 2>/dev/null)"
+case "${DEHORS:-}" in
+  ""|"$D/.git"|"$D/.git/") : ;;
+  *) echo "✗ LE DEPOT JETABLE RESOUT VERS UN DEPOT EXTERIEUR : $DEHORS"
+     echo "  Aucune ecriture n'a eu lieu. Cause la plus probable : GIT_DIR/GIT_WORK_TREE dans"
+     echo "  l'environnement (git les exporte a ses hooks). Le bloc « unset » en tete du script"
+     echo "  doit les retirer ; verifie qu'il n'a pas ete supprime."
+     exit 1 ;;
+esac
 # Un dépôt distant LOCAL et NU : le push de l'auto-commit doit réussir du premier coup,
 # sinon le runner dort 15 s puis 30 s entre ses trois tentatives (S14 coûterait 45 s).
-# Chemin de fichier, donc aucun réseau, aucune clé SSH, aucun accès au vrai dépôt.
+# Chemin de fichier, donc aucun reseau et aucune cle SSH. L'isolation vis-a-vis du vrai
+# depot n'est PAS donnee par le `cd` : elle est tenue par le `unset` en tete de script et
+# prouvee par le refus prealable ci-dessus (27/10/2026).
 ( cd "$D" && git init -q . && git config user.email t@local && git config user.name T \
   && git init -q --bare "$H/distant.git" && git remote add origin "$H/distant.git" \
   && echo x > .semence && git add -A && git commit -qm init && git push -q origin HEAD:main \

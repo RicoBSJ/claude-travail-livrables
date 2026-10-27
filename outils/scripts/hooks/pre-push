@@ -18,6 +18,14 @@
 # défectueux n'est pas publié, le log du job dit pourquoi (run_job.sh retente trois fois puis abandonne).
 # Règle de JOBS.md (12/09/2026), rendue exécutable.
 ROOT="$(git rev-parse --show-toplevel)"
+# 🔴 27/10/2026 — git exporte GIT_DIR (et parfois GIT_WORK_TREE, GIT_INDEX_FILE, GIT_QUARANTINE_PATH)
+# à ses hooks, et depuis que `.git` est un fichier d'une ligne hors de l'arbre, ce chemin est ABSOLU :
+# tout `git` lancé par un enfant du hook visait alors LE VRAI DÉPÔT quel que soit son `cd`, ce qui a
+# mis le dépôt en core.bare=true pendant un push. On désarme ici, une fois, pour tout ce que le hook
+# lance ; le runner le refait chez lui, parce qu'il est aussi lancé à la main. $ROOT est déjà résolu
+# ci-dessus, et les lectures du harnais retrouvent le dépôt par le fichier `.git` de l'arbre.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_COMMON_DIR \
+      GIT_QUARANTINE_PATH GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_PREFIX
 SURVEILLES='^(jobs_config\.json|outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push|controle_astrologie_karmique\.py|controle_psychopathologie\.py|controle_ai_act\.py|controle_edition_precedente\.py|non_regression/muter_docx\.py|chercher\.py|aspirer\.py|lire_page\.py|supprimer_job\.sh|refaire_classeur\.py|maj_xlsx_jobs\.py|controle_livrable_du_job\.py|controle_orthographe\.py))$'
 ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'
 # (2 bis) LES DEUX ÉTAPES 5 BIS SORTIES DES PROMPTS LE 08/10/2026 et leur fabricant de
