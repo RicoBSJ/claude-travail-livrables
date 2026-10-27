@@ -728,7 +728,15 @@ fi
 #    UNE SEULE raison de refus retirée (la leçon 07 reste en exit 1 sur son autre motif).
 #    ⚠️ La borne ⑤ est la seule qui sépare ce bornage d'un `"…" in page` naïf, et la ⑨ est la
 #    seule qui empêche de rendre l'exemption SILENCIEUSE — le défaut fermé le matin même.
-#    AUCUN RÉSEAU, témoins figgés en HTML inline — joué dans TOUS les modes.
+#    🆕 27/10/2026 — IL GARDE AUSSI LE DÉCOMPTE DES EXEMPTIONS ET SON ALERTE. L'angle mort est
+#    symétrique : un renommage du gabarit HAS rendrait TOUTES les pages exemptes et le motif
+#    inerte. ⛔ Mais « 100 % d'exemptions » SEUL est un état légitime — mesuré, la leçon 17 ne
+#    cite qu'une page à PDF, un Flash sécurité patient : 1 sur 1. L'alerte est donc « 100 %
+#    ET aucune étiquette lue », signature du renommage, et sur les 11 visites de page à PDF du
+#    corpus une étiquette a été lue 11 fois sur 11 → zéro fausse alerte mesurée. La borne ⑭
+#    est celle qui doit être ACCEPTÉE : sans elle, rien n'empêche de faire crier l'alerte sur
+#    un document conforme.
+#    AUCUN RÉSEAU, témoins figés en HTML inline — joué dans TOUS les modes.
 if [ -f "$ROOT/outils/scripts/non_regression/etiquette_has.py" ]; then
   echo "▶ Témoin de l'étiquette HAS — le motif (1) borné aux RBPP (aucun réseau)"
   ETQ_OUT="$CUR/etiquette_has.txt"
@@ -737,7 +745,7 @@ if [ -f "$ROOT/outils/scripts/non_regression/etiquette_has.py" ]; then
     # ⚠️ LE GARDE LIT LE DÉNOMINATEUR, c'est-à-dire le nombre de bornes JOUÉES. Avec le
     #    numérateur, retirer une borne laissait « 9/9 » : défaut mesuré le 26/10 sur mes deux
     #    propres gardes (ATTENDU_CA et ATTENDU_CB5), les deux étaient décoratifs.
-    ATTENDU_ETIQ=10
+    ATTENDU_ETIQ=17          # 10 -> 17 le 27/10/2026 : 6 bornes du décompte des exemptions, + la remontée de l'alerte
     LU_ETIQ=$(sed -n "s/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes de l'étiquette HAS.*/\1/p" "$ETQ_OUT")
     if [ "$LU_ETIQ" != "$ATTENDU_ETIQ" ]; then
       echo "  ✗ $LU_ETIQ borne(s) jouée(s), $ATTENDU_ETIQ attendue(s) — un lot amputé ne prouve rien :"
@@ -748,7 +756,8 @@ if [ -f "$ROOT/outils/scripts/non_regression/etiquette_has.py" ]; then
     grep '✗' "$ETQ_OUT" | head -9
     echo "  ✗ LE MOTIF (1) DE PSYCHOPATHOLOGIE N'EST PLUS BORNÉ AUX PAGES DE RBPP — soit il"
     echo "    refusera une leçon pour un communiqué de presse, soit il est redevenu INERTE et"
-    echo "    ne dira plus rien du tout. Les deux sens sont gardés ici."
+    echo "    ne dira plus rien du tout. Les deux sens sont gardés ici — et depuis le 27/10 le"
+    echo "    décompte des exemptions avec son alerte, dont la borne qui doit être ACCEPTÉE."
     exit 1
   fi
 fi
@@ -1387,6 +1396,12 @@ if [ "$MODE" = "--complet" ]; then
     fi
     CB_N=$((CB_N + 1))
     env -i /usr/bin/python3 "$ROOT/outils/scripts/$SC" "$DOC" > "$CUR/5bis_$MOTIF.txt" 2>&1; rc=$?
+    # ⚠️ 27/10/2026 — L'ALERTE DU CONTRÔLE EST REMONTÉE ICI, SANS QUOI PERSONNE NE LA LIT. Ce
+    #    bloc CAPTURE la sortie des 5 bis dans un fichier et n'imprime qu'un ✓/✗ ; et le job
+    #    psychopathologie est supprimé depuis le 15/10, donc aucune exécution planifiée ne lit
+    #    plus cette sortie. Une alerte que rien ne remonte est décorative — règle du 15/10.
+    #    NON BLOQUANTE : la cause serait le gabarit d'un TIERS, pas une régression du dépôt.
+    grep -h 'ALERTE ÉTIQUETTE HAS' "$CUR/5bis_$MOTIF.txt" 2>/dev/null | sed 's/^/  ⚠ /'
     if [ "$rc" != "0" ]; then
       # ⟳ TOLÉRANCE « PAGE NON LUE » (25/10/2026) — voir le bloc 0 sexies et l'en-tête du script
       #   appelé. Quatre conditions, toutes nécessaires : synthèse de refus de forme connue ·

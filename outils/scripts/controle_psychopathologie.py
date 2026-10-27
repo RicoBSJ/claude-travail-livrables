@@ -62,23 +62,66 @@ pb = []
 # ⚠️ ET L'EXEMPTION EST DITE, JAMAIS SILENCIEUSE : si le gabarit de la HAS changeait de
 # classe, toutes les pages deviendraient exemptes et le motif redeviendrait inerte — le défaut
 # même corrigé le 26/10 au matin. La ligne imprimée rend ce cas visible dans le log.
+# 🆕 27/10/2026 — LE DÉCOMPTE DES EXEMPTIONS, ET L'ALERTE QUAND ELLES PASSENT À 100 %.
+# POURQUOI : le bornage du 26/10 ouvre un angle mort symétrique de celui qu'il ferme. Si le
+# gabarit de la HAS renommait `titleLabelCaps` ou sa zone `sub-title`, AUCUNE page ne rendrait
+# plus d'étiquette, toutes seraient exemptées, et le motif (1) redeviendrait INERTE — le défaut
+# même corrigé le 26/10 au matin, par l'autre bout.
+# ⛔ ET « 100 % D'EXEMPTIONS » SEUL NE PEUT PAS ÊTRE L'ALERTE : c'est un état LÉGITIME du
+# corpus. Mesuré sur les 20 leçons et leurs 11 visites de page jcms à PDF : 8 documents ont au
+# moins une page à PDF, et la leçon 17 n'en cite qu'UNE, le Flash sécurité patient p_3381939,
+# donc 1 exemptée sur 1 — 100 %. Une alerte sur le seul taux accuserait un document conforme.
+# 🟢 LE DISCRIMINANT MESURÉ EST L'ÉTIQUETTE LUE : sur ces 11 visites, une étiquette a été lue
+# 11 fois sur 11 (9 « Recommandation de bonne pratique », 1 « Communiqué de presse », 1 « Flash
+# sécurité patient »). Un renommage de gabarit les fait TOUTES tomber à zéro. L'alerte est donc
+# « 100 % d'exemptions ET aucune étiquette lue » : zéro occurrence sur le corpus, donc zéro
+# fausse alerte mesurée.
+# ⚠️ CE QUE LA BORNE COÛTE, ET C'EST DIT : un renommage PARTIEL — une seule page devenue
+# illisible — ne déclenche pas l'alerte, il n'est visible que dans les nombres du décompte.
+# ⚠️ LES 4 PORTAILS THÉMATIQUES, SANS AUCUNE ÉTIQUETTE, NE SONT PAS CONCERNÉS : ils n'ont aucun
+# PDF, donc le motif les écarte avant d'en arriver là. Le décompte ne compte que les pages à PDF.
+# ⚠️ NON BLOQUANT. La cause serait le gabarit d'un TIERS, pas le document : un refus couperait la
+# publication d'une leçon conforme. Règle du 14/10 — un vrai manqué coûte une relecture humaine,
+# un faux refus coûte un livrable non publié.
+def bilan_etiquettes(n_pdf, n_exempt, n_etiq):
+    """Les lignes a imprimer : decompte des exemptions, puis l'alerte d'inertie. [] si rien."""
+    if not n_pdf:
+        return []
+    L = ["ÉTIQUETTES HAS : %d page(s) jcms à PDF · %d exemptée(s) · %d étiquette(s) lue(s)"
+         % (n_pdf, n_exempt, n_etiq)]
+    if n_exempt == n_pdf:
+        if n_etiq:
+            L.append("   100 %% d'exemptions, mais %d étiquette(s) LUE(S) : le gabarit de la HAS "
+                     "répond, aucune alerte (cas mesuré — la leçon 17 ne cite qu'un flash)" % n_etiq)
+        else:
+            L.append("🔴 ALERTE ÉTIQUETTE HAS — 100 % D'EXEMPTIONS ET AUCUNE ÉTIQUETTE LUE : le "
+                     "motif (1) est INERTE, plus aucun PDF n'est confronté aux ressources. Cause "
+                     "probable : `titleLabelCaps` ou la zone `sub-title` a changé de nom.")
+    return L
 ETIQ_HAS = re.compile(r'<div class="sub-title">\s*<span class="titleLabelCaps">([^<]{2,60})</span>')
 RBPP_HAS = "Recommandation de bonne pratique"
+_n_pdf = _n_exempt = _n_etiq = 0
 for u in [u for u in urls if "has-sante.fr/jcms/" in u]:
     r = subprocess.run(["curl", "-s", "-L", "--max-time", "30"] + CA + ["-A", UA, u], capture_output=True); page = r.stdout.decode("utf-8", "ignore")
     pdfs = sorted(set(re.findall(r'https?://www\.has-sante\.fr/upload/docs/application/pdf/[^"\']+\.pdf', page)))
     pdfs = [d for d in pdfs if not re.search(r"(?i)focus_on|_en\.pdf|english", d)]
     if not pdfs:
         continue
+    _n_pdf += 1
     _m = ETIQ_HAS.search(page)
     _et = _m.group(1).strip() if _m else ""
+    if _et:
+        _n_etiq += 1
     if _et != RBPP_HAS:
+        _n_exempt += 1
         print("PAGE HAS NON-RBPP, MOTIF (1) NON APPLIQUÉ :", u,
               "\n   type déclaré par la page :", _et or "⟨aucune étiquette titleLabelCaps⟩",
               "—", len(pdfs), "PDF non confronté(s) aux ressources")
         continue
     if not any(d in urls for d in pdfs):
         print("PAGE HAS DE PRÉSENTATION SANS SON DOCUMENT :", u, "\n   PDF lié(s) sur la page, absent(s) des ressources :", " ; ".join(pdfs)); pb.append("PDF HAS non lié (%s)" % u.split("/")[-1][:50])
+for _L in bilan_etiquettes(_n_pdf, _n_exempt, _n_etiq):
+    print(_L)
 # 2. UNE FRACTION PORTE SON EFFECTIF (A2 bis) — « 1/3 », « un tiers », « la moitié », « un sur cinq » dans un paragraphe qui nomme une source et ne donne aucun % : l'effectif compté est dans le paragraphe
 for i, t in enumerate(T):
     if not re.search(r"(?i)\b(HAS|ANSM|INSERM|OMS|Merck|Psycom|selon|d'après|source|étude|enquête|base)\b", t): continue

@@ -32,8 +32,15 @@ les pages deviendraient exemptes et le motif redeviendrait inerte — le défaut
 rend visible est la ligne « PAGE HAS NON-RBPP, MOTIF (1) NON APPLIQUÉ » que le contrôle
 imprime à chaque exemption : une inertie silencieuse devient une exemption énoncée.
 
+🆕 27/10/2026 — IL GARDE AUSSI LE DÉCOMPTE DES EXEMPTIONS ET SON ALERTE (bornes ⑪ à ⑮).
+L'angle mort est symétrique de celui que le bornage ferme : un renommage du gabarit HAS
+rendrait TOUTES les pages exemptes et le motif inerte. ⛔ Mais « 100 % d'exemptions » seul est
+un état LÉGITIME — mesuré, la leçon 17 ne cite qu'une page à PDF, un Flash sécurité patient,
+donc 1 sur 1. C'est la borne ⑬, et elle doit être ACCEPTÉE : sans elle, rien n'empêche de
+faire crier l'alerte sur un document conforme.
+
 Aucun réseau. Usage : python3 outils/scripts/non_regression/etiquette_has.py
-Sortie : 0 si les sept bornes tiennent, 1 sinon.
+Sortie : 0 si toutes les bornes tiennent, 1 sinon.
 """
 import os, re, sys
 
@@ -85,6 +92,18 @@ def extrait():
     return (a.group(0) if a else None), (b.group(0) if b else None)
 
 
+def extrait_bilan():
+    """Le CORPS de bilan_etiquettes(), pris DANS le contrôle. None si absent.
+
+    ⚠️ Pas une copie : la fonction est extraite puis exécutée. La borne ⑮ vérifie en plus que
+    le contrôle l'APPELLE et imprime ses lignes — une fonction juste mais jamais appelée
+    laisserait le lot vert, et le décompte n'apparaîtrait dans aucun log.
+    """
+    s = open(CTL, encoding="utf-8").read()
+    m = re.search(r"^def bilan_etiquettes\(.*?\n    return L$", s, re.S | re.M)
+    return m.group(0) if m else None
+
+
 def controler():
     ko, jouees = [], []
 
@@ -128,6 +147,63 @@ def controler():
         lu = m.group(1).strip() if m else ""
         borne(nom, (lu == rbpp) == doit_mordre,
               "étiquette lue : %s" % (("« %s »" % lu) if lu else "⟨aucune⟩"))
+
+    # ── le décompte des exemptions et son alerte (27/10/2026) ───────────────────────────
+    corps = extrait_bilan()
+    borne("⑪ bilan_etiquettes() est bien DANS le contrôle (sinon les bornes qui suivent sont vides)",
+          bool(corps), "extrait" if corps else "ABSENTE")
+    if not corps:
+        return fin()
+    gb = {}
+    exec(corps, gb)                               # le VRAI code du contrôle, pas une copie
+    bilan = gb["bilan_etiquettes"]
+
+    r = bilan(0, 0, 0)
+    borne("⑫ aucune page jcms à PDF -> AUCUNE ligne (12 des 20 leçons sont dans ce cas)",
+          r == [], repr(r))
+
+    r = bilan(11, 2, 11)
+    ok = (len(r) == 1 and "11 page(s) jcms à PDF" in r[0] and "2 exemptée(s)" in r[0]
+          and "11 étiquette(s) lue(s)" in r[0])
+    borne("⑬ le cas nominal du corpus (11 pages, 2 exemptées, 11 étiquettes) : décompte, zéro alerte",
+          ok, r[0] if r else "⟨rien⟩")
+
+    r = bilan(1, 1, 1)
+    ok = (len(r) == 2 and "aucune alerte" in r[1] and "ALERTE ÉTIQUETTE HAS" not in r[1])
+    borne("⑭ 100 % D'EXEMPTIONS MAIS L'ÉTIQUETTE EST LUE -> PAS d'alerte"
+          " (cas RÉEL de la leçon 17 : ce témoin doit être ACCEPTÉ)",
+          ok and "🔴" not in " ".join(r), " / ".join(x.strip()[:70] for x in r))
+
+    r = bilan(3, 3, 0)
+    borne("⑮ 100 % d'exemptions ET aucune étiquette lue -> ALERTE, et elle dit INERTE"
+          " (le renommage du gabarit HAS)",
+          len(r) == 2 and "ALERTE ÉTIQUETTE HAS" in r[1] and "INERTE" in r[1],
+          r[1].strip()[:90] if len(r) == 2 else repr(r))
+
+    # ⚠️ QUATRE exigences en une borne : elle NOMME celle qui manque, sinon deux sabotages
+    #    différents (l'appel retiré, le compteur mort) rendraient le même message.
+    attelage = [("l'appel", "for _L in bilan_etiquettes(_n_pdf, _n_exempt, _n_etiq):"),
+                ("l'impression", "print(_L)"),
+                ("le compteur d'exemptions", "_n_exempt += 1"),
+                ("le compteur d'étiquettes", "_n_etiq += 1")]
+    absents = [nom for nom, frag in attelage if frag not in src]
+    borne("⑯ le contrôle APPELLE le bilan et imprime ses lignes, et il compte l'exemption"
+          " (une fonction jamais appelée n'écrit dans aucun log)",
+          not absents, "manque : " + ", ".join(absents) if absents else "les quatre y sont")
+    # ⑰ UNE ALERTE QUE RIEN NE REMONTE EST DÉCORATIVE. Le bloc des 5 bis du harnais capture la
+    #    sortie des contrôles dans un fichier et n'imprime qu'un ✓/✗, et le job psychopathologie
+    #    est supprimé depuis le 15/10 : sans cette remontée, l'alerte s'écrirait dans un fichier
+    #    que personne n'ouvre. C'est le seul endroit du dépôt où ce contrôle tourne encore sur
+    #    un document réel, donc le seul où l'alerte peut être vue.
+    nr = os.path.join(RACINE, "outils", "scripts", "non_regression.sh")
+    try:
+        hs = open(nr, encoding="utf-8").read()
+    except OSError:
+        hs = ""
+    borne("⑰ le harnais REMONTE l'alerte du bloc 5 bis (sinon elle s'écrit dans un fichier"
+          " que personne n'ouvre)",
+          "ALERTE ÉTIQUETTE HAS" in hs and '5bis_$MOTIF.txt' in hs,
+          "non_regression.sh lu : %d caractères" % len(hs))
     return fin()
 
 

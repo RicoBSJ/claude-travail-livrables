@@ -4890,3 +4890,113 @@ Ma borne ⑤ — « la chaîne dans *Voir aussi* seule ne suffit pas » — éta
 ### 🔴 Mon autre erreur de la séance : un sabotage qui n'a pas tourné
 
 Le septième scénario a échappé à l'échappement — `\$C` injecté dans un `python3 -c '…'` à guillemets simples est resté **littéral**, le patch est mort en `FileNotFoundError`, **aucun fichier n'a été touché** — et le harnais, évidemment vert, a imprimé « SABOTAGE NON VU ». Rejoué à part, il mord sur les bornes ⑤ et ⑩. **Un sabotage doit prouver qu'il a modifié le fichier avant qu'on lise le verdict du harnais.**
+
+---
+
+## 27/10/2026 — Le décompte des exemptions du motif (1), et pourquoi l'alerte n'est pas le taux
+
+**Ordre** : « compte les exemptions et alerte quand elles passent à 100 % ».
+
+Le bornage de la veille (26/10, commit `be1011b`) ferme un angle mort et en ouvre un symétrique :
+si le gabarit de la HAS renommait `titleLabelCaps` ou sa zone `sub-title`, **aucune** page ne
+rendrait plus d'étiquette, toutes seraient exemptées, et le motif (1) redeviendrait **inerte** —
+le défaut même corrigé le 26/10 au matin, par l'autre bout. D'où le décompte et son alerte.
+
+### Ce que la mesure a imposé contre l'ordre littéral
+
+⛔ **« 100 % d'exemptions » SEUL ne peut pas être l'alerte.** C'est un état légitime du corpus,
+et c'est mesuré **en production** :
+
+| leçon | pages jcms à PDF | exemptées | étiquettes lues | verdict |
+|---|---|---|---|---|
+| 17 | 1 (Flash sécurité patient `p_3381939`) | **1 = 100 %** | 1 | `exit 0`, document **conforme** |
+| 07 | 2 | 1 | 2 | `exit 1`, même unique raison qu'avant |
+| 20 | 0 | 0 | 0 | **zéro ligne**, silence |
+
+Une alerte sur le seul taux aurait donc crié sur la leçon 17, qui n'a rien à se reprocher.
+
+🟢 **Le discriminant mesuré est l'étiquette lue.** Recensement sur les 20 leçons : **8 documents**
+ont au moins une page jcms à PDF, pour **11 visites** au total, et une étiquette a été lue
+**11 fois sur 11** — 9 `Recommandation de bonne pratique`, 1 `Communiqué de presse`,
+1 `Flash sécurité patient`. (La 11ᵉ page, `p_3741239/…-tdi-volet-2`, manquait au cache de la
+veille : aspirée séparément, 15 PDF, étiquette `Recommandation de bonne pratique`. Sans elle la
+borne aurait été annoncée sur 10 visites au lieu de 11.)
+
+Un renommage de gabarit fait tomber ces 11 à **zéro**. L'alerte est donc :
+
+```
+100 % d'exemptions  ET  aucune étiquette lue   →   🔴 ALERTE … le motif (1) est INERTE
+100 % d'exemptions  ET  au moins une lue       →   note, aucune alerte (cas de la leçon 17)
+```
+
+**Zéro occurrence du premier cas sur le corpus → zéro fausse alerte mesurée.**
+
+### Ce que la borne coûte, et ce qu'elle ne couvre pas
+
+- Un renommage **PARTIEL** — une seule page devenue illisible — ne déclenche pas l'alerte. Il
+  n'est visible que dans les nombres de la ligne de décompte (`K` < `N`). Dit, pas corrigé :
+  faire de `K < N` une alerte serait un pari, le corpus n'offrant aucun exemple de page à PDF
+  sans étiquette.
+- Les **4 portails thématiques**, qui n'ont aucune étiquette, ne sont pas concernés : ils n'ont
+  aucun PDF, donc le motif les écarte avant d'en arriver au décompte.
+- **NON BLOQUANT.** La cause serait le gabarit d'un **tiers**, pas le document : un refus
+  couperait la publication d'une leçon conforme (règle du 14/10 — un vrai manqué coûte une
+  relecture humaine, un faux refus coûte un livrable).
+
+### Le témoin : 10 → 16 bornes, aucun réseau
+
+Le corps de `bilan_etiquettes()` est **extrait de `controle_psychopathologie.py`** puis exécuté —
+jamais recopié.
+
+| borne | ce qu'elle garde |
+|---|---|
+| ⑪ | la fonction est bien DANS le contrôle (sinon les suivantes sont vides) |
+| ⑫ | 0 page à PDF → **aucune ligne** (12 des 20 leçons sont dans ce cas) |
+| ⑬ | le cas nominal (11, 2, 11) : décompte juste, zéro alerte |
+| ⑭ | **DOIT ÊTRE ACCEPTÉE** — 100 % + étiquette lue → **pas** d'alerte (cas réel de la leçon 17) |
+| ⑮ | 100 % + aucune étiquette → `ALERTE ÉTIQUETTE HAS`, et elle dit `INERTE` |
+| ⑯ | le contrôle **appelle** le bilan, **imprime** ses lignes, et incrémente ses **deux** compteurs |
+| ⑰ | le **harnais** remonte la ligne d'alerte du bloc 5 bis |
+
+`ATTENDU_ETIQ` passe de 10 à 16, et le garde lit le **dénominateur** (défaut du 26/10 : un
+numérateur sur dénominateur fixe laisse un lot amputé au vert).
+
+⑯ n'est pas décorative : une fonction juste mais jamais appelée, ou un `_n_etiq` jamais
+incrémenté, laisserait tout le reste du lot vert — et en production le second ferait **alerter en
+permanence**, puisque toutes les pages seraient comptées sans étiquette.
+
+### L'alerte n'était lue par personne — la 17ᵉ borne
+
+Mesuré, pas supposé : le bloc des 5 bis **capture** la sortie des contrôles dans
+`courant/5bis_<motif>.txt` et n'imprime qu'un `✓`/`✗`, et `jobs_config.json` contient
+**0 occurrence** de `controle_psychopathologie.py` (job supprimé le 15/10/2026). Le
+harnais est donc **le seul endroit du dépôt où ce contrôle tourne encore sur un document
+réel** — le témoin du duo « fraction » est la leçon 19, qui cite une page jcms à PDF.
+Sans remontée, l'alerte se serait écrite dans un fichier que personne n'ouvre : une
+alerte décorative, c'est-à-dire le défaut même que l'ordre voulait fermer.
+
+La remontée est un `grep` **non bloquant** sur la sortie capturée, vérifié dans les deux
+sens hors harnais (sortie fabriquée portant l'alerte → la ligne est imprimée ; sortie
+réelle de la leçon 17, qui est à 100 % d'exemptions avec étiquette lue → **rien**).
+La borne ⑰ garde que le harnais la porte encore.
+
+### Six sabotages, six refus
+
+| sabotage | borne qui mord |
+|---|---|
+| la branche d'alerte désactivée | ⑮ |
+| l'alerte sur le **seul taux** de 100 % (l'ordre littéral) | ⑭ |
+| une borne retirée du lot | `ATTENDU_ETIQ` |
+| l'appel au bilan retiré du contrôle | ⑯ |
+| `_n_etiq` jamais incrémenté | ⑯ |
+| la remontée de l'alerte retirée du harnais | ⑰ |
+
+Fichiers restaurés au sha256 identique à chaque fois.
+
+### La règle générale que cet ordre paie
+
+**Un ordre chiffré se mesure sur le corpus AVANT d'être câblé.** « Alerte à 100 % » était la
+bonne intention et le mauvais seuil : le taux de 100 % existait déjà, sur un document conforme,
+et la mesure a mis dix minutes. Le câbler tel quel aurait produit une alerte permanente sur la
+leçon 17 — c'est-à-dire exactement ce qu'un contrôle ne doit pas faire : crier juste assez pour
+qu'on cesse de le lire.
