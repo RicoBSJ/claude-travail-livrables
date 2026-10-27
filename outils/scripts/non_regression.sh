@@ -33,6 +33,52 @@ PY=/usr/bin/python3
 mkdir -p "$CUR"
 MODE="${1:-}"
 
+# ── ORTHOGRAPHE DES CONSIGNATIONS (27/10/2026). J'ai écrit « kDrib » pour « kDrive » dans
+#    JOBS.md, et c'est un `grep -c` qui l'a attrapé, pas ma relecture : rien ne contrôlait
+#    l'orthographe des deux fichiers sur lesquels on s'appuiera dans six mois. Le contrôle ne
+#    juge QUE les noms techniques (ils ne se déclinent pas) et prend le corpus pour
+#    dictionnaire ; ses bornes et les quatre sources de bruit mesurées sont dans son en-tête.
+#    Défini en FONCTION parce qu'il est appelé à DEUX endroits — le mode rapide ci-dessous et
+#    la position « tous les modes » plus bas — et qu'une logique copiée ne garde rien (15/10).
+bloc_orthographe () {
+  local OUT="$CUR/orthographe.txt" CORP="$CUR/orthographe_corpus.txt" ORTH_KO=0 LU
+  local ATTENDU_ORTH=12        # le lot de bornes du contrôle ; le garde lit le DÉNOMINATEUR
+  echo "▶ Orthographe des consignations — un nom technique mal écrit (aucun réseau, 0,7 s)"
+  if env -i $PY "$ROOT/outils/scripts/controle_orthographe.py" --autotest > "$OUT" 2>&1; then
+    tail -1 "$OUT"
+    LU=$(sed -n 's/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes de l.orthographe.*/\1/p' "$OUT")
+    if [ "${LU:-0}" != "$ATTENDU_ORTH" ]; then
+      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_ORTH attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_ORTH à jour en disant pourquoi."
+      ORTH_KO=1
+    fi
+  else
+    grep '✗' "$OUT" | head -6
+    echo "  ✗ LE CONTRÔLE D'ORTHOGRAPHE NE TIENT PLUS SES BORNES — soit il ne voit plus la"
+    echo "    coquille de l'incident (kDrib ~ kDrive, distance 2), soit il s'est élargi et"
+    echo "    accuse la morphologie française ou un mot mis en capitales. Les deux sens sont ici."
+    ORTH_KO=1
+  fi
+  if env -i $PY "$ROOT/outils/scripts/controle_orthographe.py" > "$CORP" 2>&1; then
+    grep 'ZONE MORTE' "$CORP" | sed 's/^/  ⚠ /'    # non bloquant, mais LU : une alerte qu'on n'imprime pas n'existe pas (26/10)
+    tail -1 "$CORP"
+  else
+    cat "$CORP"
+    echo "  ✗ UNE CONSIGNATION PORTE UN NOM TECHNIQUE MAL ÉCRIT — la ligne est donnée ci-dessus."
+    echo "    Corrige le mot, ou, si ce nom est légitime, écris-le au moins 5 fois ou explique"
+    echo "    ici pourquoi la borne doit bouger."
+    ORTH_KO=1
+  fi
+  return $ORTH_KO
+}
+
+# ── mode --consignes : ce que le hook lance quand un push ne touche QUE les consignations.
+#    Sans lui, ce push ne déclenchait AUCUN mode — mesuré le 27/10 — donc le contrôle n'aurait
+#    jamais tourné sur elles et serait resté décoratif, le défaut même corrigé la veille.
+if [ "$MODE" = "--consignes" ]; then
+  bloc_orthographe; exit $?
+fi
+
 # Effectif ATTENDU de chaque lot de témoins (23/09/2026). Les trois boucles de témoins contrôlaient ce
 # qu'elles trouvaient et annonçaient un total ÉCRIT EN DUR : « ✓ 14/14 en exit 1 » s'imprimait quel que
 # soit le nombre de fichiers réellement passés. Le 23/09, pendant un test du hook, un témoin avait quitté
@@ -761,6 +807,8 @@ if [ -f "$ROOT/outils/scripts/non_regression/etiquette_has.py" ]; then
     exit 1
   fi
 fi
+
+bloc_orthographe || exit 1
 
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then

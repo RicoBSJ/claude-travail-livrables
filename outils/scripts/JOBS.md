@@ -5084,3 +5084,121 @@ sont **intacts**. Rien à recharger, les 8 jobs continuent.
 Et plus largement : **`.git` dans un dossier de synchronisation est un danger structurel, et le
 symptôme qu'il produit imite exactement une corruption** — donc appelle exactement le mauvais
 geste.
+
+
+---
+
+## 27/10/2026 — Un contrôle d'orthographe des consignations, né d'une coquille à moi
+
+### L'incident
+
+Le 25/10, en consignant le déplacement de `.git`, j'ai écrit **`kDrib` pour `kDrive`** dans
+`JOBS.md`. Ce qui l'a attrapée est un **`grep -c "kDrib"`** passé pour vérifier autre chose —
+**pas ma relecture**, qui venait de passer sur ce paragraphe. Les deux fichiers sur lesquels tout
+le reste s'appuie dans six mois — `CLAUDE.md` et `JOBS.md`, **1,23 Mo à eux deux** — n'étaient
+relus par **rien**.
+
+### Ce que la mesure a imposé CONTRE la conception naïve
+
+| Conception essayée | Ce que la mesure a dit | Décision |
+|---|---|---|
+| Correcteur de français (dictionnaire + distance) | **746 à 3 062 fausses paires** selon le seuil | **ABANDONNÉE** |
+| « un nom de fichier cité existe-t-il sur le disque » | **48 occurrences, 48 LÉGITIMES** (témoins figés, chemins d'exemple, fichiers d'un job supprimé) | **ABANDONNÉE** : 48 refus pour zéro défaut |
+| Noms techniques seuls, corpus pour dictionnaire | **288 noms / 690 occurrences**, 0 coquille sur le corpus sain | **RETENUE** |
+
+Un nom technique **ne se décline pas** : c'est ce qui rend la morphologie française hors sujet et
+l'écart d'orthographe significatif. Et le dictionnaire n'est pas une liste à tenir : **c'est le
+corpus lui-même** — un nom écrit **≤ 2 fois** qui ressemble à un nom écrit **≥ 5 fois** est une
+coquille, parce qu'on ne tape pas vingt fois juste et deux fois faux par hasard.
+
+### Les quatre seuils, et les trois qui portent
+
+| Seuil | Valeur | Ce que la mesure a montré |
+|---|---|---|
+| Distance (Levenshtein plié) | **≤ 2** | **à ≤ 1, la coquille de l'incident n'est plus vue** (`kDrib`→`kDrive` est à 2) |
+| Préfixe plié partagé | **3** | à **2**, le corpus RÉEL rend aussitôt `IEIF~IEFP` et `IETF~IEFP` — **deux faux refus**, mesurés au sabotage |
+| Rare | **≤ 2** | — |
+| Fréquent | **≥ 5** | à **≥ 3**, le corpus se salit |
+
+⚠️ **Le seul faux positif que le corpus ait produit est épinglé par un témoin qui doit être
+ACCEPTÉ** : `iPad ~ iMac`, distance 2, écarté par le préfixe de 3. Sans lui, rien n'empêche de
+réélargir demain — convention `0:motif` de la section 5 ter, appliquée ici.
+
+### Ce qui reste hors de portée, et c'est dit
+
+- le **français ordinaire** : il n'est pas jugé du tout ;
+- un mot mis en **CAPITALES** qui existe aussi en minuscules sans trait d'union — **`RBPP`,
+  `CNSA`, `HAS` sont mesurés ABSENTS du vocabulaire**, et c'est voulu : sinon l'emphase
+  (`ABSENTS` / `ABSENT`) devient une coquille ;
+- une coquille **dans un bloc de code, une adresse, une empreinte ou un chemin** : écartés au
+  nettoyage, parce qu'un identifiant n'a pas d'orthographe ;
+- un nom **sans jumeau fréquent** : tapé de travers **une seule fois et jamais juste**, il est
+  invisible. C'est la limite structurelle d'un dictionnaire pris dans le corpus.
+
+### Le câblage, et le défaut qu'il ferme
+
+🔴 **`CLAUDE.md` et `JOBS.md` ne correspondaient à AUCUNE catégorie du hook : un push qui ne
+touchait qu'elles ne déclenchait RIEN.** Un contrôle posé dans le seul harnais n'aurait donc
+**jamais tourné sur les consignations** — exactement le défaut fermé la veille pour l'alerte
+d'étiquette, qui s'écrivait dans un fichier que personne n'ouvrait.
+
+- catégorie `CONSIGNES='^(CLAUDE\.md|outils/scripts/JOBS\.md)$'` au hook ;
+- **mode `--consignes`** au harnais : **0,7 s** contre **160 s** au mode normal, et un ordre se
+  termine presque toujours par un push de consignations ;
+- il n'est lancé **que si rien d'autre ne l'a fait** (`touche != 1`), le mode normal portant déjà
+  l'appel ;
+- la logique est **une fonction appelée deux fois**, jamais copiée (règle du 15/10) ;
+- `controle_orthographe.py` est entré dans `SURVEILLES` : le toucher rejoue ses bornes.
+
+⚠️ **Et ma première mesure de la décision ne valait rien** : `git clone .` ne copie que l'état
+**commité**, donc le clone jetable a joué l'**ancien** hook et n'a **rien imprimé**. J'ai commencé
+à lire ce silence comme une mesure. C'est « avant d'accuser un outil, relire son invocation » —
+**quatrième fois en trois jours**. Rejoué avec hook et harnais de l'arbre de travail copiés
+dedans : commit qui ne touche que `CLAUDE.md` → `--consignes`, exit 0 · commit hors catégorie →
+**aucune sortie**, exit 0, rien de ralenti.
+
+### Les quatre sabotages
+
+| Sabotage | Ce qui doit tomber | Mesuré |
+|---|---|---|
+| une borne retirée du lot | `ATTENDU_ORTH` | `✗ 9 borne(s) jouée(s), 10 attendue(s)`, exit 1 |
+| préfixe 3 → 2 | ⑧ **et le corpus réel** | `✗ ⑧ … préfixe 2` + `IEIF~IEFP`, `IETF~IEFP`, exit 1 |
+| distance 2 → 1 | ①, ②, ⑧ | `✗ ① la coquille de l'incident est prise — []`, exit 1 |
+| `kDrib` réinjecté dans le **vrai** `JOBS.md` | le sens production | `COQUILLE PROBABLE : « kDrib » (1 occurrence) ressemble à « kDrive » (19) — JOBS.md:5088`, exit 1 |
+
+Chaque sabotage **prouve qu'il a modifié le fichier** (sha256 avant/après) avant qu'on lise le
+verdict du harnais — règle du 26/10, un sabotage qui n'a pas tourné ressemble à un sabotage qui
+ne mord pas. Les deux fichiers sont restaurés au **sha256 identique** les quatre fois.
+
+### Le défaut autodestructeur, trouvé en consignant l'incident
+
+🔴 **Le corpus EST le dictionnaire, donc écrire une coquille dans une consignation l'IMMUNISE.**
+Mesuré sur le texte que je venais d'écrire : citer `kDrib` dans `CLAUDE.md` **et** dans `JOBS.md`
+l'a porté à **3 occurrences** — **au-dessus du seuil rare de 2**. Le contrôle ne le voyait plus,
+et une récidive l'aurait porté à 4, toujours invisible. **Le contrôle se désarmait lui-même, et
+c'est sa propre documentation qui le désarmait.**
+
+| Remède | Mesure |
+|---|---|
+| une coquille citée s'écrit **entre apostrophes inverses** (le nettoyage les retire) | `kDrib` passe de **3 à 0** au vocabulaire ; une récidive unique est de nouveau prise : `kDrib 1 ~ kDrive 19` |
+| un motif **ZONE MORTE non bloquant** : `RARE < n < FREQUENT` avec un jumeau fréquent | **0 entrée** sur le corpus réel — le motif est **PRÉVENTIF**, et c'est dit |
+
+### Et ma mesure d'exploration a INVENTÉ un défaut
+
+🔴 Elle annonçait **deux** entrées en zone morte, dont **« Serafin-PH » (3) à côté de
+« SERAFIN-PH » (28)**. La vraie fonction en rend **zéro** : ma boucle jetable avait **omis la
+ligne `plie(cand) == plie(w)`**, présente dans les deux motifs depuis l'origine, qui écarte une
+variante de **casse** — la clé pliant la casse, les deux graphies sont le **même mot**.
+
+⚠️ **Et la direction de l'erreur était mauvaise** : j'ai failli corriger les trois
+« Serafin-PH », qui sont la graphie **verbatim** d'un titre de section de la CNSA
+(« Réforme du financement des établissements pour personnes handicapées - Serafin-PH »). **Les
+corriger aurait falsifié trois citations.** C'est « un test qui teste une COPIE de la logique ne
+garde rien » **par l'autre bout** — troisième fois cette semaine, après la vérification jetable
+des `rels` orphelins du 25/10 : la copie n'a rien laissé passer, **elle a inventé un défaut**.
+
+### La règle que cet incident paie
+
+**Les fichiers qui portent les règles ne sont contrôlés par rien, et ce sont eux qu'on relira
+dans six mois.** Un contrôle qui ne peut pas juger le fond peut juger ce qui ne se décline pas :
+**les noms propres techniques**, avec le corpus pour seul dictionnaire.

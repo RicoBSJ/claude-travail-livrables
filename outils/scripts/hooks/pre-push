@@ -18,7 +18,7 @@
 # défectueux n'est pas publié, le log du job dit pourquoi (run_job.sh retente trois fois puis abandonne).
 # Règle de JOBS.md (12/09/2026), rendue exécutable.
 ROOT="$(git rev-parse --show-toplevel)"
-SURVEILLES='^(jobs_config\.json|outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push|controle_astrologie_karmique\.py|controle_psychopathologie\.py|controle_ai_act\.py|controle_edition_precedente\.py|non_regression/muter_docx\.py|chercher\.py|aspirer\.py|lire_page\.py|supprimer_job\.sh|refaire_classeur\.py|maj_xlsx_jobs\.py|controle_livrable_du_job\.py))$'
+SURVEILLES='^(jobs_config\.json|outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push|controle_astrologie_karmique\.py|controle_psychopathologie\.py|controle_ai_act\.py|controle_edition_precedente\.py|non_regression/muter_docx\.py|chercher\.py|aspirer\.py|lire_page\.py|supprimer_job\.sh|refaire_classeur\.py|maj_xlsx_jobs\.py|controle_livrable_du_job\.py|controle_orthographe\.py))$'
 ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'
 # (2 bis) LES DEUX ÉTAPES 5 BIS SORTIES DES PROMPTS LE 08/10/2026 et leur fabricant de
 # mutations → non_regression.sh --complet, parce que c'est LÀ que vivent leurs témoins
@@ -43,7 +43,13 @@ EDPREC='^outils/scripts/(controle_edition_precedente\.py|non_regression/temoins_
 RUNNER_RE='^outils/scripts/(run_job\.sh|non_regression_runner\.sh)$'
 [ -n "${SKIP_NR:-}" ] && exit 0
 DOCS='^(livrables/lecons|sources/veille)/.*\.docx$'
-touche=0; complet=0; runner=0; docs=()
+# (4) LES CONSIGNATIONS (27/10/2026). CLAUDE.md et JOBS.md ne correspondaient à AUCUNE
+# catégorie : un push qui ne touche qu'elles ne déclenchait rien du tout — mesuré. Un
+# contrôle d'orthographe placé dans le seul harnais n'aurait donc jamais tourné sur elles.
+# Mode dédié parce qu'il coûte 0,7 s là où le mode normal coûte 160 s, et qu'un ordre se
+# termine presque toujours par un push de consignations.
+CONSIGNES='^(CLAUDE\.md|outils/scripts/JOBS\.md)$'
+touche=0; complet=0; runner=0; consignes=0; docs=()
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue     # suppression de branche
   if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
@@ -69,6 +75,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   echo "$fichiers" | grep -Eq "$CINQBIS" && complet=1
   echo "$fichiers" | grep -Eq "$EDPREC" && complet=1
   echo "$fichiers" | grep -Eq "$RUNNER_RE" && runner=1
+  echo "$fichiers" | grep -Eq "$CONSIGNES" && consignes=1
   for d in $(echo "$fichiers" | grep -E "$DOCS"); do [ -f "$ROOT/$d" ] && docs+=("$ROOT/$d"); done
 done
 if [ "$touche" = "1" ]; then
@@ -88,6 +95,21 @@ pre-push : ✗ PUSH REFUSÉ — un verdict a changé, un témoin ne sort plus en
   Lis le diff ci-dessus. Si chaque changement est voulu et compris :
       outils/scripts/non_regression.sh --accepter   puis commite la référence et repousse.
   Pour passer outre en connaissance de cause : git push --no-verify
+MSG
+    exit 1
+  fi
+fi
+# les consignations seules : le mode normal les couvre déjà (la fonction y est appelée),
+# donc on ne lance le mode dédié que si rien d'autre ne l'a fait.
+if [ "$touche" != "1" ] && [ "$consignes" = "1" ]; then
+  echo "pre-push : les consignations sont dans ce push → non_regression.sh --consignes (0,7 s)…"
+  if "$ROOT/outils/scripts/non_regression.sh" --consignes; then
+    echo "pre-push : ✓ aucun nom technique mal écrit — push autorisé"
+  else
+    cat <<'MSG'
+pre-push : ✗ PUSH REFUSÉ — une consignation porte un nom technique mal écrit, ou le contrôle
+  d'orthographe ne tient plus ses bornes. La ligne fautive est donnée ci-dessus.
+  Passer outre : git push --no-verify
 MSG
     exit 1
   fi
