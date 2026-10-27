@@ -447,6 +447,15 @@ fi
 # rester hors de toute publication automatique.
 if [ "$EXIT" -eq 0 ]; then
   export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+  # 🛡 27/10/2026 — DÉSARMEMENT PRÉVENTIF, et il faut le dire : AUCUN témoin ne l'exerce.
+  #    Ce bloc est le SEUL `git push` du pipeline. Il s'isole par son dossier courant, et
+  #    le 27/10 a mesuré que `cd` ne suffit pas : GIT_DIR, que git exporte à ses hooks, le
+  #    court-circuite. En production run_job.sh est lancé par launchd (8 .plist) ou par
+  #    /lancer-job, jamais par un hook, donc GIT_DIR n'y est jamais — et c'est pourquoi ce
+  #    garde ne peut être prouvé par aucun scénario du runner, qui le lance DÉJÀ désarmé.
+  #    Il est posé parce qu'une COPIE de ce script tourne sous le runner et que le coût
+  #    d'une erreur ici est un push forcé sur le mauvais dépôt.
+  unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_COMMON_DIR GIT_QUARANTINE_PATH GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_PREFIX
   git add sources/veille livrables/lecons livrables/quiz livrables/infographies livrables/projets livrables/controles livrables/documents \
           ':(exclude)livrables/lecons/*.md' ':(exclude)sources/veille/*.fiche.md' 2>/dev/null
   if git diff --cached --quiet 2>/dev/null; then

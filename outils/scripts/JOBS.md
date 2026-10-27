@@ -5289,3 +5289,97 @@ aux trois mesures.
 l'environnement, et un hook en est plein.** Et plus généralement : **déplacer `.git` change la
 forme de `GIT_DIR`, donc le comportement de tout script qui croyait s'isoler par un changement de
 dossier.**
+
+
+---
+
+## 27/10/2026 — Vérification des autres scripts lancés par le hook
+
+Ordre : *« vérifie les autres scripts appelés par le hook »*, après l'incident `GIT_DIR`.
+
+### Recensement — et la différence entre citer `git` et l'appeler
+
+Le hook ne lance que **deux** scripts : `non_regression.sh` (4 modes) et
+`non_regression_runner.sh --mutations`. Un seul hook est installé (`pre-push`), donc un seul
+point d'entrée où git exporte `GIT_DIR`.
+
+Des **27 scripts** atteignables depuis le harnais, **5** portent la chaîne `git ` :
+
+| Script | Verdict |
+|---|---|
+| `controle_attributions.py` | **mention** en commentaire — 0 `subprocess`/`os.system` avec git |
+| `refaire_classeur.py` | **mention** dans un message |
+| `supprimer_job.sh` | **deux `echo`** (lignes 87 et 194) |
+| `non_regression.sh` | **2 appels réels**, `git status --porcelain`, **lecture seule, sur le vrai dépôt à dessein** |
+| `run_job.sh` | **8 occurrences**, dont le **seul `git push` du pipeline** |
+
+⚠️ **Un recensement textuel n'est pas un recensement d'appels.** Les prendre pour des appels
+aurait fait « durcir » trois fichiers qui ne font rien — et aurait gonflé le rapport de trois
+corrections fictives.
+
+### ① Défaut réel, latent, jamais exercé
+
+Le témoin de `supprimer_job.sh` photographie l'état git **avant** et **après** les appels de
+plan, et compare les deux chaînes. Les deux captures sont faites en `2>/dev/null` : **si git
+échoue, elles sont toutes deux VIDES, donc égales**, et le témoin conclut *« les appels de plan
+sont inertes »*.
+
+**Même classe que le `$SEMENCE` non vide du runner : un garde satisfait par un état cassé.**
+Reproduit sur un dépôt en `core.bare=true` — l'état exact où l'incident `GIT_DIR` a laissé
+celui-ci : `fatal : cette opération doit être effectuée dans un arbre de travail`, donc la chaîne
+vide.
+
+🟢 **Mais la mesure borne la gravité, et il faut la dire dans ce sens** : le bloc du runner — qui
+posait la pollution — tourne **ligne 1851**, c'est-à-dire **APRÈS** les photos de la **1726**.
+Donc **le témoin a été honnête pendant l'incident** ; c'est le passage **suivant** du harnais qui
+aurait menti, et il n'a pas eu lieu (la config a été réparée avant).
+
+| Sens | Mesuré |
+|---|---|
+| `GIT_DIR` vers un dépôt nu | `✗ git status n'a pas pu répondre (codes 128 puis 128)`, **exit 1** |
+| sans `GIT_DIR` | `✓ 5/5 scénarios`, **0 ✗**, **exit 0** |
+
+### ② `run_job.sh` : durcissement PRÉVENTIF, et annoncé comme tel
+
+C'est le **seul `git push`** du pipeline, et il n'avait **aucune défense propre** : il s'isolait
+par son dossier courant, ce que le 27/10 a montré insuffisant.
+
+⚠️ **Aucun témoin ne peut l'exercer, et c'est mesuré, pas supposé** : en production il est lancé
+par **launchd** (8 `.plist`) ou par `/lancer-job`, **jamais par un hook** — donc `GIT_DIR` n'y est
+jamais —, et le runner en lance une **copie** qu'il a **déjà désarmée**. Le garde est posé parce
+que le coût d'une erreur y est un **push forcé sur le mauvais dépôt**, pas parce qu'un scénario le
+réclame. Non-régression : **15/15 témoins + 21/21 mutations**.
+
+### ③ Deux défauts à MOI dans le correctif de la veille
+
+🔴 Le `unset` était posé **APRÈS** `ROOT="$(git rev-parse --show-toplevel)"`. Avec un `GIT_DIR`
+pointant **ailleurs**, `rev-parse` échoue, **`ROOT` est vide**, le hook cherche
+`/outils/scripts/non_regression.sh` — introuvable — et **refuse le push en annonçant « un verdict
+a changé »**. Le sens d'échec était bon ; **le motif affiché était faux**, et c'est ce qui coûte :
+on diagnostique le harnais au lieu de l'environnement. Et mon commentaire disait *« $ROOT est déjà
+résolu ci-dessus »* — une prémisse que le `unset` rendait justement fausse.
+
+🟢 Corrigés : le bloc remonte **avant** le calcul de `ROOT`, et un **`ROOT` vide refuse avec son
+propre message** — mesuré hors dépôt : `✗ racine du dépôt introuvable`, **exit 1**.
+
+### La preuve d'isolation ne demande aucun sabotage
+
+**Le harnais n'a pas de `unset` propre** — donc son nouveau garde (①) est le détecteur : si
+`GIT_DIR` survivait au hook, il imprimerait `codes 128`.
+
+| Mesure | Résultat |
+|---|---|
+| hook lancé avec `GIT_DIR` vers un dépôt **nu étranger** | `5/5` · `✓ push autorisé` · `15/15 + 21/21` · **exit 0** |
+| le dépôt étranger, après | **0 commit**, aucune écriture |
+| le vrai dépôt | `core.bare` absent · `user=Claude` · `HEAD` inchangé |
+
+⛔ **Et le harnais ne reçoit volontairement PAS de `unset`** : ses deux appels git **visent le vrai
+dépôt à dessein**, en lecture seule. On **désarme** là où l'isolation est requise (le runner), on
+**garde** là où une réponse est supposée (le harnais) — et un `unset` au harnais aurait **masqué
+son propre détecteur**.
+
+### La règle que cette vérification paie
+
+**Compter les occurrences d'un nom d'outil n'est pas compter ses appels** — et la direction de
+l'erreur est de corriger ce qui n'est pas cassé. Et : **un désarmement d'environnement doit
+précéder TOUT ce qui dépend de cet environnement**, le calcul de la racine du dépôt compris.

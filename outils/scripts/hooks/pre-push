@@ -17,15 +17,19 @@
 # veille ne doit pas être incohérent. C'est par là que passent les pushs des 14 jobs : un livrable
 # défectueux n'est pas publié, le log du job dit pourquoi (run_job.sh retente trois fois puis abandonne).
 # Règle de JOBS.md (12/09/2026), rendue exécutable.
-ROOT="$(git rev-parse --show-toplevel)"
 # 🔴 27/10/2026 — git exporte GIT_DIR (et parfois GIT_WORK_TREE, GIT_INDEX_FILE, GIT_QUARANTINE_PATH)
 # à ses hooks, et depuis que `.git` est un fichier d'une ligne hors de l'arbre, ce chemin est ABSOLU :
 # tout `git` lancé par un enfant du hook visait alors LE VRAI DÉPÔT quel que soit son `cd`, ce qui a
 # mis le dépôt en core.bare=true pendant un push. On désarme ici, une fois, pour tout ce que le hook
-# lance ; le runner le refait chez lui, parce qu'il est aussi lancé à la main. $ROOT est déjà résolu
-# ci-dessus, et les lectures du harnais retrouvent le dépôt par le fichier `.git` de l'arbre.
+# lance ; le runner le refait chez lui, parce qu'il est aussi lancé à la main. ⚠️ ET CE BLOC DOIT PRÉCÉDER LE CALCUL DE $ROOT : mesuré le 27/10, placé
+# après, un GIT_DIR pointant AILLEURS faisait échouer `rev-parse --show-toplevel`, donc ROOT
+# vide, donc `/outils/scripts/non_regression.sh` introuvable — et le hook refusait le push
+# en annonçant « un verdict a changé », un motif FAUX. Désarmé d'abord, ROOT se déduit du
+# fichier `.git` de l'arbre, c'est-à-dire de la découverte normale.
 unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_COMMON_DIR \
       GIT_QUARANTINE_PATH GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_PREFIX
+ROOT="$(git rev-parse --show-toplevel)"
+[ -n "$ROOT" ] || { echo "pre-push : ✗ racine du dépôt introuvable — git rev-parse --show-toplevel a échoué."; echo "  Rien n'a été vérifié, le push est refusé. Vérifie le fichier .git de l'arbre de travail."; exit 1; }
 SURVEILLES='^(jobs_config\.json|outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push|controle_astrologie_karmique\.py|controle_psychopathologie\.py|controle_ai_act\.py|controle_edition_precedente\.py|non_regression/muter_docx\.py|chercher\.py|aspirer\.py|lire_page\.py|supprimer_job\.sh|refaire_classeur\.py|maj_xlsx_jobs\.py|controle_livrable_du_job\.py|controle_orthographe\.py))$'
 ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'
 # (2 bis) LES DEUX ÉTAPES 5 BIS SORTIES DES PROMPTS LE 08/10/2026 et leur fabricant de

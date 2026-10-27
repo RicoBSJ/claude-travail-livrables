@@ -1724,7 +1724,7 @@ if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/supprimer_job.sh" ]; th
   #    Ce qu'il faut vérifier, c'est que les appels de plan ne changent RIEN : on photographie
   #    l'état avant, on le rephotographie après, et on compare les deux.
   SJ_AV=$(cd "$ROOT" && git status --porcelain jobs_config.json outils/scripts/run_job.sh \
-          outils/scripts/setup_launchd.sh .claude/skills/lancer-job/SKILL.md 2>/dev/null)
+          outils/scripts/setup_launchd.sh .claude/skills/lancer-job/SKILL.md 2>/dev/null); SJ_AVE=$?
   SJ_JOBT="hypnose-lecon"
   SJ_CFG="$CUR/cfg_parcours_complet.json"
   SJ_CFGI="$CUR/cfg_parcours_incomplet.json"
@@ -1796,12 +1796,26 @@ PYSJ
   # ⚠️ ET LA VÉRIFICATION QUI COMPTE AUTANT QUE LES CINQ : aucun de ces appels ne doit avoir
   #    touché quoi que ce soit. Un garde-fou qui refuse APRÈS avoir écrit ne garde rien.
   SJ_AP=$(cd "$ROOT" && git status --porcelain jobs_config.json outils/scripts/run_job.sh \
-          outils/scripts/setup_launchd.sh .claude/skills/lancer-job/SKILL.md 2>/dev/null)
+          outils/scripts/setup_launchd.sh .claude/skills/lancer-job/SKILL.md 2>/dev/null); SJ_APE=$?
   SJ_SALE=0
   [ "$SJ_AV" != "$SJ_AP" ] && SJ_SALE=1
   SJ_PLIST=$(ls "$HOME/Library/LaunchAgents"/com.claudetravail.*.plist 2>/dev/null | wc -l | tr -d ' ')
   SJ_JOBS=$(env -i $PY -c "import json;print(len(json.load(open('$ROOT/jobs_config.json'))['jobs']))")
-  if [ "$SJ_SALE" != "0" ]; then
+  # 🔴 27/10/2026 — UN `git status` QUI ÉCHOUE NE VAUT PAS « RIEN N'A CHANGÉ ». Les deux photos
+  #    sont prises avec 2>/dev/null : si git refuse de répondre, elles sont TOUTES DEUX VIDES,
+  #    donc ÉGALES, et le témoin concluait « les appels de plan sont inertes ». Même classe que
+  #    le `$SEMENCE` non vide du runner : un garde satisfait par un état cassé. Reproduit sur un
+  #    dépôt en `core.bare=true` — l'état exact où l'incident GIT_DIR a laissé celui-ci — qui rend
+  #    « fatal : cette opération doit être effectuée dans un arbre de travail », donc la chaîne
+  #    vide. ⚠️ LATENT, PAS EXERCÉ : le bloc du runner tourne ligne 1851, APRÈS ces photos, donc
+  #    le témoin a été honnête pendant l'incident — c'est le passage SUIVANT qui aurait menti.
+  #    On lit donc le CODE DE SORTIE, pas seulement la différence des deux sorties.
+  if [ "$SJ_AVE" != "0" ] || [ "$SJ_APE" != "0" ]; then
+    echo "  ✗ git status n'a pas pu répondre (codes $SJ_AVE puis $SJ_APE) — on ne sait donc PAS si"
+    echo "    les appels de plan ont touché quelque chose. Vérifie l'état du dépôt : core.bare,"
+    echo "    et le fichier .git de l'arbre de travail."
+    SJ_KO=1
+  elif [ "$SJ_SALE" != "0" ]; then
     echo "  ✗ les appels de plan ont CHANGÉ l'état d'un fichier suivi — ils doivent être inertes"
     echo "    avant : ${SJ_AV:-(propre)}"
     echo "    après : ${SJ_AP:-(propre)}"
