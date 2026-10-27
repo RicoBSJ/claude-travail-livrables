@@ -5000,3 +5000,78 @@ bonne intention et le mauvais seuil : le taux de 100 % existait déjà, sur un d
 et la mesure a mis dix minutes. Le câbler tel quel aurait produit une alerte permanente sur la
 leçon 17 — c'est-à-dire exactement ce qu'un contrôle ne doit pas faire : crier juste assez pour
 qu'on cesse de le lire.
+
+---
+
+## 27/10/2026 — Le dépôt git sort de kDrive, l'arbre de travail y reste
+
+**Ordre** : « sors le dépôt du dossier kDrive ».
+
+### L'incident qui le motive
+
+Le 27/10 à **07:00:38**, kDrive a touché `.git/objects` de deux façons :
+
+1. **Dématérialisation d'un objet.** `git` rendait *« inflate: data stream error (unknown
+   compression method) »* et `fsck` *« objet corrompu ou manquant »* pour
+   `424fa396…` — l'objet de `HEAD:outils/scripts/controle_attributions.py`. `git diff` échouait
+   sur ce chemin. ⚠️ **Ce n'était PAS une corruption** : mesuré avant tout geste, le fichier se
+   décompresse parfaitement en `zlib` et rend **le sha1 attendu**. Une simple lecture a suffi à
+   l'hydrater, après quoi `git cat-file -t` rend `blob`. **Le remède évident — un
+   `git hash-object -w` « réparateur » — aurait été le remède d'un défaut inexistant.**
+2. **Dépôt d'une copie de conflit DANS la base d'objets** :
+   `4fa396…_conflict_20261027_070038_CnzJnPUYv3`, que `fsck` nomme comme « mauvais fichier de
+   sha1 ». Inerte, mais c'est un dossier de synchronisation qui écrit dans une base d'objets.
+
+Au passage, le `M` du `git status` sur ce même fichier était un **bit `+x` retiré** par kDrive
+(index `100755`, disque `100644`, **diff à 0 ligne**), rétabli par un `chmod +x` ; sans effet
+pratique, tous les appels passant par l'interpréteur.
+
+### Le geste, et pourquoi il ne coûte rien
+
+```bash
+git init --separate-git-dir /Users/utilisateur/git/Claude_Travail.git
+```
+
+`.git` n'est plus un dossier mais un **fichier de 50 octets** : `gitdir: /Users/utilisateur/git/Claude_Travail.git`.
+
+**Mesuré AVANT le geste**, parce que c'est ce qui décidait de la portée :
+
+| vérification | résultat |
+|---|---|
+| un script référence-t-il `.git/`, `--git-dir` ou `GIT_DIR` ? | **aucun** |
+| le hook calcule sa racine comment ? | `git rev-parse --show-toplevel` → suit l'arbre |
+| même volume ? | oui (`/dev/disk2s1`) → renommage, pas copie |
+| opération git en vol ? | aucune (`.lock`, `rebase-*`, `MERGE_HEAD` absents) |
+| sauvegarde | `.git` copié (45 Mo) dans le scratchpad avant le geste |
+
+**Mesuré APRÈS** : `git-dir` = le nouveau chemin · `worktree` toujours
+`/Users/utilisateur/kDrive/Claude_Travail` (inféré du fichier de renvoi, `core.worktree` reste
+vide) · `HEAD` et `origin/main` = `d122090` · **4 refs** · `core.hooksPath` =
+`outils/scripts/hooks` · remote inchangé · `git status` rend **exactement** les 5 éléments non
+publiés préexistants · kDrive passe de **336 à 291 Mo** · `fsck` propre, à la seule copie de
+conflit près.
+
+🟢 **Aucun chemin n'a changé** : les **14 fichiers vivants** qui portent le chemin absolu
+(`jobs_config.json` ×8, `run_job.sh`, `setup_launchd.sh`, `rattrapage_jobs.sh`,
+`non_regression.sh:28`, `controle_attributions.py`, `controle_decompte.py`, les 2 skills,
+`settings.json`, `settings.local.json`, le hook de prompts, `.env.example`), les **8 `.plist`**
+de launchd, et le dossier de mémoire Claude Code `-Users-utilisateur-kDrive-Claude-Travail`
+sont **intacts**. Rien à recharger, les 8 jobs continuent.
+
+### Ce qui reste, et ce qui n'a pas été fait
+
+- ⚠️ **Le fichier `.git` reste dans kDrive** — 50 octets. S'il est abîmé, le remède tient en une
+  ligne : `printf 'gitdir: /Users/utilisateur/git/Claude_Travail.git\n' > .git`. Rien d'autre.
+- ⚠️ **La copie de conflit a suivi le déplacement** :
+  `~/git/Claude_Travail.git/objects/42/4fa396…_conflict_…`. Elle duplique un objet **valide**
+  (sha1 vérifié par décompression). Sa suppression **n'a pas été ordonnée**.
+- 📌 **La portée « tout l'arbre hors de kDrive » a été écartée par mesure, pas par confort** :
+  elle coûtait 14 fichiers + 8 `.plist` + launchd rechargé, et **les livrables perdaient la
+  synchro vers le poste Windows**, GitHub restant la seule copie hors machine.
+
+### La règle que cet incident paie
+
+**Une erreur de décompression n'est pas une corruption : lire le fichier avant de le réparer.**
+Et plus largement : **`.git` dans un dossier de synchronisation est un danger structurel, et le
+symptôme qu'il produit imite exactement une corruption** — donc appelle exactement le mauvais
+geste.

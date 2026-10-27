@@ -16,8 +16,16 @@ Les thématiques récurrentes incluent :
 
 ## Structure du projet
 
+> 🟢 **27/10/2026 — LE DÉPÔT GIT EST SORTI DE kDrive, L'ARBRE DE TRAVAIL Y RESTE.**
+> `.git` n'est plus un dossier mais un **fichier de renvoi** d'une ligne : `gitdir: /Users/utilisateur/git/Claude_Travail.git`. Déplacé par le chemin supporté, `git init --separate-git-dir`, qui déplace le dossier et écrit le renvoi lui-même.
+> **Pourquoi** : kDrive a, le 27/10 à 07:00:38, **dématérialisé un objet de `.git/objects`** — `git` répondait *« inflate: data stream error »* et `fsck` *« objet corrompu ou manquant »*, alors que le fichier se décompressait parfaitement en `zlib` et rendait **le sha1 attendu** — et **déposé une copie de conflit à l'intérieur de `.git/objects/`**. Un dossier de synchronisation n'a pas à écrire dans une base d'objets.
+> 🟢 **AUCUN CHEMIN N'A CHANGÉ, et c'est le point** : l'arbre reste `/Users/utilisateur/kDrive/Claude_Travail`, donc **les 14 fichiers vivants qui portent le chemin absolu, les 8 `.plist` de launchd, les deux skills, `non_regression.sh:28` et le dossier de mémoire Claude Code sont INTACTS** — rien à réécrire, rien à recharger. Mesuré avant le geste : **aucun script du dépôt ne référence `.git/` en dur, ni `--git-dir`, ni `GIT_DIR`**, et le hook calcule sa racine par `git rev-parse --show-toplevel`. Vérifié après : `HEAD`, `origin/main`, les **4** refs, `core.hooksPath` et le remote inchangés ; `git status` rend exactement les 5 éléments non publiés préexistants ; kDrive passe de **336 à 291 Mo**.
+> ⚠️ **CE QUI RESTE DANS kDrive, ET LE REMÈDE EN UNE LIGNE** : le fichier `.git` de 50 octets. Si kDrive l'abîme, `printf 'gitdir: /Users/utilisateur/git/Claude_Travail.git\n' > .git` le rétablit — rien d'autre n'est à refaire. ⚠️ Et **la copie de conflit a suivi le déplacement** : `~/git/Claude_Travail.git/objects/42/4fa396…_conflict_20261027_070038_…`, inerte, dupliquant un objet valide (sha1 vérifié), que `fsck` nomme encore. Sa suppression n'a **pas** été ordonnée.
+> 📌 **Non fait, et c'est une décision du propriétaire** : les livrables restent synchronisés sur kDrive, ce qui était l'intention — la portée « tout l'arbre hors de kDrive » coûtait 14 fichiers + 8 `.plist` + launchd rechargé, et **les livrables perdaient la synchro vers le poste Windows**.
+
 ```
 Claude_Travail/
+├── .git                    ← FICHIER de renvoi → ~/git/Claude_Travail.git (hors kDrive, 27/10/2026)
 ├── CLAUDE.md               ← ce fichier (instructions projet, auto-chargé)
 ├── jobs_config.json        ← configuration des jobs planifiés (source de vérité)
 ├── .gitignore
