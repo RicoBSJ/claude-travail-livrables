@@ -61,7 +61,13 @@ DOCS='^(livrables/lecons|sources/veille)/.*\.docx$'
 # Mode dédié parce qu'il coûte 0,7 s là où le mode normal coûte 160 s, et qu'un ordre se
 # termine presque toujours par un push de consignations.
 CONSIGNES='^(CLAUDE\.md|outils/scripts/JOBS\.md)$'
-touche=0; complet=0; runner=0; consignes=0; docs=()
+# (5) LE DÉSARMEMENT DE L'ENVIRONNEMENT GIT (27/10/2026). Les trois fichiers qui appellent `git`
+# sous un hook doivent porter le `unset` des huit variables AVANT leur premier appel. Deux d'entre
+# eux (ce hook, non_regression.sh) sont déjà dans SURVEILLES, donc le harnais complet les couvre ;
+# run_job.sh et le runner, eux, ne déclenchent QUE les mutations du runner — qui tournent sans
+# GIT_DIR et ne peuvent donc rien voir. Mode dédié à 0,1 s, même raison que --consignes.
+DESARMEMENT='^outils/scripts/(run_job\.sh|non_regression_runner\.sh|hooks/pre-push)$'
+touche=0; complet=0; runner=0; consignes=0; desarm=0; docs=()
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue     # suppression de branche
   if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
@@ -88,6 +94,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   echo "$fichiers" | grep -Eq "$EDPREC" && complet=1
   echo "$fichiers" | grep -Eq "$RUNNER_RE" && runner=1
   echo "$fichiers" | grep -Eq "$CONSIGNES" && consignes=1
+  echo "$fichiers" | grep -Eq "$DESARMEMENT" && desarm=1
   for d in $(echo "$fichiers" | grep -E "$DOCS"); do [ -f "$ROOT/$d" ] && docs+=("$ROOT/$d"); done
 done
 if [ "$touche" = "1" ]; then
@@ -122,6 +129,23 @@ if [ "$touche" != "1" ] && [ "$consignes" = "1" ]; then
 pre-push : ✗ PUSH REFUSÉ — une consignation porte un nom technique mal écrit, ou le contrôle
   d'orthographe ne tient plus ses bornes. La ligne fautive est donnée ci-dessus.
   Passer outre : git push --no-verify
+MSG
+    exit 1
+  fi
+fi
+# le désarmement git : si le harnais complet tourne déjà (touche=1), son bloc « tous les modes »
+# l'a vérifié — on ne le rejoue pas. Sinon, 0,1 s pour la seule chose qu'aucun témoin ne peut
+# exercer : la ligne qui empêche un `git` du dépôt de viser le vrai dépôt depuis un hook.
+if [ "$touche" != "1" ] && [ "$desarm" = "1" ]; then
+  echo "pre-push : un script qui appelle git sous un hook est dans ce push → non_regression.sh --desarmement (0,1 s)…"
+  if "$ROOT/outils/scripts/non_regression.sh" --desarmement; then
+    echo "pre-push : ✓ les trois désarment avant leur premier git — push autorisé"
+  else
+    cat <<'MSG'
+pre-push : ✗ PUSH REFUSÉ — un script qui appelle git sous un hook ne désarme plus
+  l'environnement, ou le fait APRÈS son premier appel à git. Le 27/10, ce défaut a fait
+  résoudre le dépôt jetable du runner vers LE VRAI DÉPÔT, passé en core.bare=true pendant
+  un push. Le détail est ci-dessus.  Passer outre : git push --no-verify
 MSG
     exit 1
   fi

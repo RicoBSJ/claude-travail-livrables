@@ -79,6 +79,49 @@ if [ "$MODE" = "--consignes" ]; then
   bloc_orthographe; exit $?
 fi
 
+# ── DÉSARMEMENT DE L'ENVIRONNEMENT GIT (27/10/2026). `git push` exporte GIT_DIR à ses hooks, et
+#    depuis que `.git` est un fichier d'une ligne hors de l'arbre ce chemin est ABSOLU : un `cd`
+#    n'isole plus rien. Trois fichiers du dépôt appellent `git` sous un hook — run_job.sh,
+#    non_regression_runner.sh et le hook lui-même — et portent depuis un `unset` des huit variables.
+# 🔴 POURQUOI UNE BORNE DE PRÉSENCE, ET NON UN TÉMOIN D'EFFET : aucun témoin du dépôt ne peut
+#    exercer un désarmement dans le sens conforme. MESURÉ, pas raisonné — aucun script du dépôt ne
+#    POSE GIT_DIR (le `GIT_SSH_COMMAND` excepté), donc le harnais lance toujours ses témoins dans
+#    un environnement déjà propre, où retirer les trois `unset` ne change RIEN. Seul le lancement
+#    DEPUIS LE HOOK les exerce, et ce lancement n'est pas un témoin. On ne peut pas prouver l'effet,
+#    on exige donc la ligne — et surtout qu'elle soit PREMIÈRE : le 27/10 le `unset` du hook était
+#    posé APRÈS `ROOT="$(git rev-parse …)"`, et le hook refusait le push en annonçant « un verdict
+#    a changé », motif FAUX. Une borne de présence seule aurait déclaré ce fichier conforme.
+#    Même type de garde que le ② de l'assertion de tableau (18/10) : exiger le littéral.
+bloc_desarmement () {
+  local OUT="$CUR/desarmement_git.txt" DES_KO=0 LU
+  local ATTENDU_DES=13         # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  echo "▶ Désarmement de l'environnement git — la ligne est-elle là, et PREMIÈRE ? (aucun réseau, 0,1 s)"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/desarmement_git.py" > "$OUT" 2>&1; then
+    tail -1 "$OUT"
+    LU=$(sed -n 's/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes du désarmement.*/\1/p' "$OUT")
+    if [ "${LU:-0}" != "$ATTENDU_DES" ]; then
+      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_DES attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_DES à jour en disant pourquoi."
+      DES_KO=1
+    fi
+  else
+    grep '✗' "$OUT" | head -6
+    echo "  ✗ UN DES TROIS SCRIPTS NE DÉSARME PLUS L'ENVIRONNEMENT GIT, OU LE FAIT TROP TARD."
+    echo "    Conséquence mesurée le 27/10 : le dépôt jetable du runner a résolu vers LE VRAI"
+    echo "    DÉPÔT, qui est passé en core.bare=true pendant un push. Rétablis le `unset` des"
+    echo "    huit variables AVANT le premier appel à git, ou dis ici pourquoi la borne bouge."
+    DES_KO=1
+  fi
+  return $DES_KO
+}
+
+# ── mode --desarmement : ce que le hook lance quand un push touche run_job.sh ou le runner,
+#    qui ne sont PAS dans SURVEILLES et ne déclenchent donc que les mutations du runner —
+#    lesquelles tournent sans GIT_DIR, et ne voient rien. Même raison que --consignes la veille.
+if [ "$MODE" = "--desarmement" ]; then
+  bloc_desarmement; exit $?
+fi
+
 # Effectif ATTENDU de chaque lot de témoins (23/09/2026). Les trois boucles de témoins contrôlaient ce
 # qu'elles trouvaient et annonçaient un total ÉCRIT EN DUR : « ✓ 14/14 en exit 1 » s'imprimait quel que
 # soit le nombre de fichiers réellement passés. Le 23/09, pendant un test du hook, un témoin avait quitté
@@ -809,6 +852,7 @@ if [ -f "$ROOT/outils/scripts/non_regression/etiquette_has.py" ]; then
 fi
 
 bloc_orthographe || exit 1
+bloc_desarmement || exit 1
 
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then

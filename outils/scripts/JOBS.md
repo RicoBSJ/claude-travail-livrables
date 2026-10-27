@@ -5383,3 +5383,122 @@ son propre détecteur**.
 **Compter les occurrences d'un nom d'outil n'est pas compter ses appels** — et la direction de
 l'erreur est de corriger ce qui n'est pas cassé. Et : **un désarmement d'environnement doit
 précéder TOUT ce qui dépend de cet environnement**, le calcul de la racine du dépôt compris.
+
+---
+
+## 27/10/2026 — La borne qui exige la ligne : `non_regression/desarmement_git.py`
+
+Dette annoncée la veille en avocat du diable (« le durcissement de `run_job.sh` est invérifiable
+par construction, quelqu'un pourra le retirer sans qu'aucun témoin ne crie »), fermée le jour même.
+
+### Pourquoi une borne de PRÉSENCE, et non un témoin d'effet
+
+La raison est **mesurée** : `grep "GIT_DIR=\|export GIT_" non_regression.sh non_regression_runner.sh`
+rend **zéro** (le seul `export GIT_*` du dépôt est `GIT_SSH_COMMAND`, qui n'a rien à voir).
+**Aucun script du dépôt ne POSE `GIT_DIR`** — le harnais lance donc toujours ses témoins dans un
+environnement déjà propre, où **retirer les trois `unset` ne change rien**. Seul le lancement
+**depuis le hook** les exerce, et ce lancement n'est pas un témoin.
+
+Conséquence : les **trois** désarmements sont dans ce cas, pas seulement celui de `run_job.sh`.
+C'est ce qui justifie d'étendre la borne aux trois fichiers — même propriété, même aveuglement.
+
+On ne peut pas prouver l'effet : on exige le **littéral**, du même type que le garde ② de
+l'assertion de tableau (18/10).
+
+### L'ordre est la moitié de la règle
+
+Une borne de présence **seule** aurait déclaré **conforme** le hook du 27/10, dont le `unset`
+était posé **après** `ROOT="$(git rev-parse --show-toplevel)"` — et qui refusait le push en
+annonçant « un verdict a changé », motif **faux**. D'où la borne ③ : le `unset` **précède le
+premier appel à `git`** du fichier.
+
+Les commentaires sont **neutralisés** avant toute recherche (remplacés par des blancs **de même
+longueur**, donc les positions rendues restent celles du fichier). Ce n'est pas une précaution :
+les trois en-têtes **parlent** de git — mesuré, 7 occurrences avant le `unset` du runner, 3 avant
+celui du hook, toutes en commentaire. La borne ⑬, qui doit être **ACCEPTÉE**, l'épingle.
+
+### 🔴 Ma première regex a été prise par sa propre borne ⑦
+
+Écrite `^[ \t]*unset[ \t][^\n]*(?:\\\n[^\n]*)*`, elle s'arrêtait à la fin de la **première**
+ligne : **un groupe qui peut matcher ZÉRO fois ne force aucun retour arrière**, donc le `[^\n]*`
+gardait le `\` final et la continuation n'était jamais lue. Mesure : **5 variables sur 8** dans
+le hook RÉEL, dont le `unset` est coupé par une continuation — le témoin déclarait **incomplet**
+le fichier conforme du dépôt. Forme juste : `(?:[^\n\\]|\\\n)*`.
+
+C'est la **borne qui doit être ACCEPTÉE** qui l'a dit, pas la relecture. Sans elle, j'aurais
+« corrigé » le hook pour satisfaire un témoin fautif.
+
+### ⛔ `non_regression.sh` n'est pas dans la liste, et c'est voulu
+
+Ses deux appels à git — le `git status` du témoin de `supprimer_job.sh`, le `git diff` des
+documents — **visent le vrai dépôt à dessein**. Un `unset` posé là y aurait **masqué son propre
+détecteur** : c'est lui qui a prouvé le 26/10 que le hook désarme (sans `GIT_DIR` : `5/5` ;
+avec : « git status n'a pas pu répondre (codes 128 puis 128) »).
+**On désarme là où l'isolation est requise, on garde là où une réponse est attendue.**
+
+### Le câblage est mesuré, pas supposé
+
+| Fichier | `SURVEILLES` | `DESARMEMENT` |
+|---|---|---|
+| `outils/scripts/run_job.sh` | **non** | oui |
+| `outils/scripts/non_regression_runner.sh` | **non** | oui |
+| `outils/scripts/hooks/pre-push` | oui | oui |
+| `outils/scripts/non_regression.sh` | oui | non (hors liste, voir ci-dessus) |
+
+Les deux premiers ne déclenchaient **que** les mutations du runner, qui tournent **sans** `GIT_DIR`
+et ne peuvent donc rien voir : d'où la catégorie `DESARMEMENT` et le mode `--desarmement` (0,1 s),
+**sautés quand `touche=1`** puisque le bloc « tous les modes » du harnais les a déjà joués.
+Fonction définie **une fois** pour les deux appels — une logique copiée ne garde rien (15/10).
+
+### Les 13 bornes
+
+| | |
+|---|---|
+| ① | `RACINE` est rendue — quatre `dirname`, piège du 23/10 ; sans elle tout serait vert sur du vide |
+| ② | les trois portent un `unset` nommant les **huit** variables, et le refus les **nomme** |
+| ③ | le `unset` **précède** le premier `git` hors commentaire (offsets imprimés) |
+| ④ | chacun appelle **effectivement** `git` hors commentaire — sinon ③ serait vrai sur du vide |
+| ⑤ | aucun ne **réarme** une des huit après le désarmement |
+| ⑥ | **ACCEPTÉE** — les trois conformes → silence |
+| ⑦ | **ACCEPTÉE** — `unset` coupé par une continuation `\` (la forme du hook réel) |
+| ⑬ | **ACCEPTÉE** — un `git` en **commentaire** avant le désarmement ne refuse pas |
+| ⑧ | `unset` retiré → refusé |
+| ⑨ | `unset` présent mais **après** le premier `git` → refusé (mon défaut du 27/10) |
+| ⑩ | une variable retirée de la liste → refusé, en la nommant |
+| ⑪ | plus aucun `git` hors commentaire → refusé |
+| ⑫ | fichier **absent** → refusé (le `✓` sur un fichier non lu, défaut du 26/10) |
+
+Les cas ⑥ à ⑬ exercent le **vrai** `verifier()` sur une arborescence **fabriquée en `tempfile`** —
+rien de vivant dans le verdict, leçon du 22/10 où un témoin ancré sur l'avancement réel d'un
+parcours a bloqué tous les pushs du dépôt.
+
+### 🧪 Quatre sabotages, quatre refus
+
+| Sabotage | Ce que le harnais a dit |
+|---|---|
+| `unset` retiré de `run_job.sh` | ② `run_job.sh : GIT_DIR, …` (les 8) · exit **1** |
+| `unset` déplacé **après** le `git add` | ③ `désarmement posé APRÈS le premier git (offsets … > …)` · exit **1** |
+| `GIT_PREFIX` retiré dans le runner | ② `non_regression_runner.sh : GIT_PREFIX` · exit **1** |
+| une borne retirée du lot | `12 borne(s) jouée(s), 13 attendue(s)` — le **dénominateur** est lu · exit **1** |
+
+Chaque sabotage **prouve d'abord qu'il a modifié le fichier** (sha256 avant → après, leçon du
+26/10 : un sabotage qui n'a pas tourné ressemble à un sabotage qui ne mord pas). Les trois
+fichiers sont restaurés au **sha256 identique** à chaque fois ; `git status` vide après coup.
+
+Non-régression : `--desarmement` → `13/13`, exit 0 · mode défaut complet → **exit 0**, bloc joué,
+aucun `✗`.
+
+### Ce que la borne ne peut pas voir, et qui est dit
+
+- elle est **textuelle** : un `unset` placé dans un `if` qui ne se déclenche jamais, ou un `git`
+  bâti dans une variable (`G=git; $G push`), y échapperaient ;
+- elle exige **cette** forme : un `env -u GIT_DIR …` équivalent serait **refusé**. Coût assumé,
+  une forme unique est ce qui rend la borne lisible ;
+- elle ne prouve pas que le désarmement **serve** — seulement qu'il est là et qu'il est premier.
+
+### La règle que cette borne paie
+
+**Quand aucun témoin ne peut exercer un garde, exiger le littéral — et exiger sa POSITION.**
+Un garde dont on ne peut prouver l'effet se protège par sa présence ; mais la présence seule
+aurait validé le défaut du jour même, parce que ce défaut n'était pas l'absence de la ligne,
+c'était son rang.
