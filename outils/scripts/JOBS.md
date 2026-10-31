@@ -5987,3 +5987,19 @@ refus du gate arrive quand le créneau est déjà consommé. 📌 **Piste borné
 - ⚠️ **le portage n'a jamais tourné dans un vrai créneau** : il sera exercé pour la première fois le
   **dimanche 01/11 à 8h03** par `imac-veille`. Les mesures ci-dessus sont des mesures de coût
   **unitaire**, pas l'observation d'un run complet.
+
+### Rectification du même jour — la borne « seul `--complet` casse le push » est FAUSSE
+
+Le push du portage touchait `run_job.sh` et `non_regression.sh`, donc le hook a joué **les témoins
+ET les mutations du runner** (15/15 + 21/21) — **pas** `--complet`. Il a imprimé
+`✓ témoins du runner inchangés — push autorisé`, et **rien n'a été publié** : `origin/main` resté à
+`779cee9`, `git status -sb` à « devant 1 », **vérifié par `git ls-remote`** et non par le ref local.
+
+**Ce n'est donc pas `--complet` qui est en cause, c'est la DURÉE du hook**, quelle qu'en soit la
+cause. 🟢 Et le remède a été plus simple que celui du 26/10 : un **`git push` relancé tel quel** a
+abouti (`779cee9..df175b3`), **sans `SKIP_NR=1`**.
+
+⚠️ **Et j'ai lu « EXIT=0 » sur le push échoué** : mon `git push | tail -6` rendait le code de `tail`
+— la règle du 15/10 (*un garde qui ne fait pas sortir en 1 est décoratif*) enfreinte par moi, dans la
+commande même qui publiait le travail. **C'est la comparaison local/distant qui l'a dit, pas le code
+de sortie que je croyais lire.** Après un push : comparer `git rev-parse HEAD` à `git ls-remote`.
