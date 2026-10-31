@@ -5634,3 +5634,123 @@ Prompts récupérables : `git show c92286f:jobs_config.json` — **53 616** (hyp
 
 **Douze jobs supprimés à ce jour.** Il ne reste **aucun parcours de leçons** : les cinq jobs
 vivants sont quatre veilles et un pipeline.
+
+---
+
+## 31/10/2026 — Veille ai-act du 30/10 corrigée : trois noms propres faux dans une source qui les écrivait justes, et cinq passes sur dix qui n'avaient rien à regarder
+
+**Tous les contrôles du run étaient verts** — décompte `COHÉRENT`, passe A `0 bloquant`, étape 5 bis
+les onze motifs `OK`, intégrité XML conforme — et **trois noms propres étaient faux**. Le défaut n'est
+pas dans la source : c'est une faute de **transcription** d'une source exacte.
+
+### Les six corrections
+
+| # | Ce que la note écrivait | Ce que la source écrit | Mesure |
+|---|---|---|---|
+| ① | « dont **Lara Comi**, **Leonardo Benifei**, Kim van Sparrentak et Sergey Lagodinsky » | « Socialists and Greens (among them **Alex Agius Saliba**, **Brando Benifei**, Kim van Sparrentak and Sergey Lagodinsky) » | « Lara Comi » **0 occurrence sur les 7 pages lisibles** ; « Alex Agius Saliba » et « Brando Benifei » **①** |
+| ② | « …institutions européennes, **avec un réseau de correspondants AI Act désormais actif** » | — | « correspondent » **0 occurrence** sur la newsletter **ET** sur la page EDPS |
+| ③ | « **consacre un épisode de podcast** et un article aux obligations de transparence » | « find out why cyberattacks so often start with us in our latest **podcast episode**, and hear how the AI Act's transparency obligations… » | le podcast porte sur le **facteur humain en cybersécurité** ; NicFab l'intitule « Cybersecurity and the human factor » |
+| ④ | « Le Bureau de l'IA a envoyé ses premières demandes formelles d'informations à des fournisseurs de GPAI (dont OpenAI et **Anthropic**, annoncé le **14 octobre 2026**) » | — | « Anthropic » **0** sur les 7 pages **et 0** dans les éditions des 16, 17 et 24/10 ; le seul « 14 October » de la newsletter est le **European AI Innovation Month** |
+| ⑤ | « EDPS — Page AI Act (HTTP 403 au test direct ; **contenu confirmé par la newsletter NicFab**) » | la page **EDPS** écrit « EDPS Newsletter 123 out now … the AI Act's transparency obligations are being put into practice across the EU institutions » | la section EDPS de la newsletter traite du **facteur humain** et d'**ARETE**, pas de transparence |
+| ⑥ | la Gazzetta Ufficiale donnée comme source officielle du décret, sans réserve | — | **697 caractères utiles** pour 11 296 octets bruts : un bandeau de navigation |
+
+⚠️ **Le statut `⛔ 403` de l'EDPS est CONSERVÉ**, parce qu'il dit ce que le run a mesuré ; seule la
+phrase de confirmation est corrigée. Les décomptes de sources et la ligne 🔗 ne bougent donc pas, et
+le contrôle de décompte reste `COHÉRENT`.
+
+### 🔴 La source primaire déclarée inaccessible était LISIBLE par le dépôt lui-même
+
+Mesuré **la même minute**, sur la même adresse :
+
+| Outil | Verdict |
+|---|---|
+| la commande que le prompt **prescrit** (`curl -L --max-time 20 --cacert "$CA" -A "Mozilla/5.0"`) | **HTTP 403 · 118 octets** |
+| **`aspirer.py`** | **HTTP 200 · 54 430 octets bruts · 7 428 caractères utiles** |
+
+Et c'est cette page qui porte le fait marquant n° 3 **au littéral**. C'est le défaut du 20/10 par un
+bout neuf : là, un `000` faisait écarter une source valide ; ici c'est un **403 rendu par la seule
+commande prescrite**, quand l'autre outil du même prompt passe. 📌 **Piste bornée, non faite** :
+faire prescrire aux prompts que tout `403`/`000` de la commande de test soit **rejoué par `aspirer.py`
+avant d'écrire ⛔**. `edps.europa.eu` et `consilium.europa.eu` sont les deux hôtes connus de ce cas.
+
+### 🔴 Pourquoi aucun contrôle ne pouvait voir ① — et ce n'est pas une faille, c'est une surface
+
+`controle_attributions.py` annonce **CINQ passes INERTES sur dix** : `B` (0 citation anglaise de six
+mots ou plus), `B-FR` (0 citation française), `C`, `C2` et **`D` (0 valeur chiffrée en contexte
+d'attribution)**. Sa seule sortie est un `B-NOM` **« À RELIRE » non bloquant**. Le dépôt vérifie des
+**citations** et des **chiffres attribués** ; **aucun motif ne confronte un nom propre à la page
+censée le porter**. Une veille écrite entièrement au style indirect, chaque fait suivi d'une simple
+ligne « Source : <lien> », **désarme presque tout l'appareil** — et le script le dit lui-même :
+*« Une passe inerte n'est PAS une passe réussie : elle n'a rien cherché. »*
+
+⚠️ **Et c'est une récidive que le journal de l'édition précédente avait déjà nommée.** Motif ① du
+24/10 : *« Organisateur inexistant […] **Aucun contrôle du dépôt ne pouvait voir** »*, pour « Poitiers
+Métropole ». Cinq jours plus tard, trois noms faux. `controle_edition_precedente` rend
+`OK — aucun rejeu` : **juste au jeton, aveugle à la classe.** 🟢 À l'inverse la correction ④ du 24/10
+a **tenu** : la distinction entre le règlement 2026/1744 et l'« Omnibus numérique » du Conseil est
+juste cette semaine. **Une correction de FAIT se transmet, une correction de MÉTHODE non.**
+
+### 🔴 Et ma première version de la correction a fait REFUSER la note par le contrôle qu'elle devait satisfaire
+
+J'avais écrit « ne rend que **697 caractères utiles** pour 11 296 octets bruts » **dans le marqueur**
+de la Gazzetta — posé dans un paragraphe qui porte **DEUX liens**, NicFab puis la Gazzetta. Le motif ⑩
+de l'étape 5 bis apparie une taille annoncée au **premier** lien du paragraphe : il a lu « 697 » comme
+la taille annoncée de la newsletter, qui en mesure **67 318**, et rendu
+**`NOTE REFUSÉE — taille 697 vs 67318`, exit 1**. Le contrôle avait raison.
+
+🟢 **Règle à ne pas réapprendre : un CHIFFRE DE TAILLE DE PAGE posé dans un paragraphe qui porte un
+lien devient une taille annoncée — marqueur ou pas.** C'est la leçon ㊲ (« l'instrumentation d'un
+document n'est pas son contenu ») prise par l'autre bout : cette fois c'est **moi** qui ai introduit
+l'instrumentation. Les mesures vont au **journal**, dont les paragraphes ne portent aucun lien ; le
+marqueur ne dit plus que « sous le plancher de lisibilité du dépôt ».
+
+⚠️ **Et c'est la sauvegarde qui a permis d'en sortir proprement** : fichier **restauré au sha256
+identique** (`31714668e90d6a7b…`), `git status` vide, puis **repatché en entier depuis la source
+intacte** — jamais rattrapé par-dessus. Règle du 25/10 : *« une correction partielle est pire qu'un
+échec »*.
+
+### 🟡 Anomalie de mesure du run : 3,2958 $ en DEUX tours
+
+| Créneau | Tours | `out` | `cache-read` | Coût |
+|---|---|---|---|---|
+| 02/10 | 27 | 25 424 | 1 507 850 | 3,1205 $ (104 %) |
+| 09/10 | 31 | 34 980 | 1 389 656 | 2,0626 $ (69 %) |
+| 16/10 | 34 | 72 205 | 1 986 128 | 3,2339 $ (108 %) |
+| 23/10 | — | — | — | run **interrompu**, aucune ligne de mesure |
+| 24/10 (rattrapage) | 90 | 43 093 | 5 615 780 | 3,0604 $ (61 %) |
+| **30/10** | **2** | **2 624** | **99 766** | **3,2958 $ (66 %)** |
+
+Un livrable de 16 Ko, 24 liens, 11 URL testées et trois contrôles ne se fait pas en deux tours et
+2 624 jetons de sortie. La mécanique l'explique : `run_job.sh` lit `num_turns` et `usage` dans la
+sortie JSON, qui décrivent le **fil principal**, tandis que `total_cost_usd` est le coût de **toute la
+session** — travail délégué compris.
+
+🔴 **Conséquence sur un garde-fou : `TOURS_MINI=7` compare un nombre qui ne mesure plus le travail.**
+Il existe pour refuser un « faux succès » (*« un `exit 0` obtenu en moins de 7 tours après un échec
+n'est pas publié »*), et ce run est à **2**. Il a publié parce que le garde est conditionné à
+`ECHEC_ANTERIEUR=1` et qu'aucun `.echec_` n'existait le 30/10. **Le défaut est LATENT, pas subi** —
+mais si une tentative avait échoué d'abord, **ce livrable correct et contrôlé aurait été refusé en
+`exit 7`**. 📌 Piste bornée, non faite : lire aussi la **taille du livrable produit** ou le nombre de
+fichiers écrits, qui ne dépendent pas de l'endroit où le travail a eu lieu.
+
+### Vérifications finales après correction
+
+| Contrôle | Verdict |
+|---|---|
+| passe A | **exit 0**, 0 bloquant · 6 marqueurs, 18 citations écartées |
+| décompte | **exit 0**, `COHÉRENT` (4 ✅ · 5 ⚠ · 2 ⛔ · 11 tentées) |
+| édition précédente | **exit 0**, aucun rejeu |
+| étape 5 bis (11 motifs) | **exit 0**, `OK` |
+| ㊳ livrable du job | **exit 0**, `Accepté` · 🔗 11 testés · 9 retenus · 2 écartés (403×2) |
+| intégrité | XML conforme · **24 liens inchangés** · 100 → **110 ¶** · marge 57 → **67** |
+| marqueurs | **6** · **0** suivi de texte dans son ¶ · **0** dans un hyperlien |
+
+### Ce que cette relecture ne corrige pas
+
+Les deux textes EUR-Lex rendent **0 octet en HTTP 202** et le communiqué du Conseil **403** : rien de
+ce que la note dit du règlement **2026/1744** n'est vérifié à sa source — réserve déjà portée par le
+journal du 24/10. Le **contenu du décret italien** (sanctions, bac à sable) vient de la newsletter et
+de son blog, jamais du texte. Les deux incidents (**OpenAI GPT-6**, **Cairn**) n'ont que cette
+newsletter pour source. Et l'inventaire « **11 tentées** » recouvre **deux ensembles différents** : la
+Gazzetta est liée dans le corps sans figurer aux sources du jour, le communiqué du Conseil y figure
+sans être lié — les deux comptes font 11 par coïncidence.
