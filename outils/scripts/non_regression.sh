@@ -40,6 +40,56 @@ MODE="${1:-}"
 #    dictionnaire ; ses bornes et les quatre sources de bruit mesurées sont dans son en-tête.
 #    Défini en FONCTION parce qu'il est appelé à DEUX endroits — le mode rapide ci-dessous et
 #    la position « tous les modes » plus bas — et qu'une logique copiée ne garde rien (15/10).
+# ── Témoin du contrôle des noms propres (31/10/2026). Né de l'incident de la veille ai-act du
+#    30/10 : TOUS les contrôles étaient verts et TROIS noms propres étaient faux — « Lara Comi »
+#    (0 occurrence sur les sept pages lisibles) et « Leonardo » pour « Brando » Benifei, dans une
+#    source qui les écrivait justes. AUCUN motif du dépôt ne confronte un nom propre à sa page :
+#    B et B-FR n'apparient que ce qui est ENTRE GUILLEMETS, B-NOM ne juge que la cohérence interne,
+#    D ne cherche que des CHIFFRES. Le contrôle extrait les noms, les borne, et interroge les pages
+#    que le document lui-même liste.
+#    ⛔ C'EST L'AUTO-TEST QUI EST CÂBLÉ, PAS LE VERDICT, et la raison est mesurée : le verdict
+#    aspire les pages du document, donc il met du RÉSEAU dans un gate qui porte des pushs — et le
+#    26/10 a montré qu'un gate long tue la connexion SSH du push (SIGPIPE 141, rien de publié).
+#    Un nom absent d'une page tierce n'est pas une régression du dépôt : même raison que
+#    `balayer_adresses.py` et que `--manques`, qui ne sont pas câblés non plus. Le verdict se
+#    lance à la main : `controle_noms_propres.py <document.docx>…`
+#    Défini en FONCTION parce qu'il est appelé à DEUX endroits, et qu'une logique copiée ne
+#    garde rien (15/10).
+bloc_noms_propres () {
+  local OUT="$CUR/noms_propres.txt" NP_KO=0 LU
+  local ATTENDU_NP=18        # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  echo "▶ Noms propres — un nom attribué à une page qui ne l'écrit pas (aucun réseau, 0,2 s)"
+  if env -i $PY "$ROOT/outils/scripts/controle_noms_propres.py" --autotest > "$OUT" 2>&1; then
+    tail -1 "$OUT"
+    LU=$(sed -n 's/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes du contrôle des noms propres.*/\1/p' "$OUT")
+    if [ "${LU:-0}" != "$ATTENDU_NP" ]; then
+      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_NP attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_NP à jour en disant pourquoi."
+      NP_KO=1
+    fi
+    # EXIGENCE DE LIGNE : le motif est NON BLOQUANT, donc un code de sortie seul ne garde rien
+    # (règle du dépôt). Les deux lignes exigées sont les deux SENS — celle qui signale et celle
+    # qui doit être ACCEPTÉE —, jouées de bout en bout sur un .docx fabriqué.
+    for L in "l'incident du 30/10 est vu" \
+             "« Kim van Sparrentak » est RETENU" \
+             "verdict()\` de bout en bout : la ligne « NOM NON RETROUVÉ » est IMPRIMÉE" \
+             "page qui PORTE le nom : aucune ligne de signalement"; do
+      if ! grep -qF "$L" "$OUT"; then
+        echo "  ✗ borne absente du lot : $L"
+        NP_KO=1
+      fi
+    done
+  else
+    grep '✗' "$OUT" | head -8
+    echo "  ✗ LE CONTRÔLE DES NOMS PROPRES NE TIENT PLUS SES BORNES — soit il ne voit plus"
+    echo "    l'incident du 30/10 (« Lara Comi » absente des sept pages lues), soit il s'est"
+    echo "    élargi et accuse du vocabulaire d'intitulé, une cellule de tableau recollée par"
+    echo "    l'aplatissement de `extract_docx.py`, ou l'instrumentation de la note (㊲)."
+    NP_KO=1
+  fi
+  return $NP_KO
+}
+
 bloc_orthographe () {
   local OUT="$CUR/orthographe.txt" CORP="$CUR/orthographe_corpus.txt" ORTH_KO=0 LU
   local ATTENDU_ORTH=12        # le lot de bornes du contrôle ; le garde lit le DÉNOMINATEUR
@@ -111,6 +161,7 @@ bloc_coherence_skill () {
 #    jamais tourné sur elles et serait resté décoratif, le défaut même corrigé la veille.
 if [ "$MODE" = "--consignes" ]; then
   bloc_orthographe || CO_KO=1
+  bloc_noms_propres || CO_KO=1
   bloc_coherence_skill || CO_KO=1
   exit ${CO_KO:-0}
 fi
@@ -888,6 +939,7 @@ if [ -f "$ROOT/outils/scripts/non_regression/etiquette_has.py" ]; then
 fi
 
 bloc_orthographe || exit 1
+bloc_noms_propres || exit 1
 bloc_desarmement || exit 1
 bloc_coherence_skill || exit 1
 

@@ -5754,3 +5754,126 @@ de son blog, jamais du texte. Les deux incidents (**OpenAI GPT-6**, **Cairn**) n
 newsletter pour source. Et l'inventaire « **11 tentées** » recouvre **deux ensembles différents** : la
 Gazzetta est liée dans le corps sans figurer aux sources du jour, le communiqué du Conseil y figure
 sans être lié — les deux comptes font 11 par coïncidence.
+
+## 31/10/2026 — `controle_noms_propres.py` : le contrôle qui manquait, et ses deux défauts de mécanique mesurés avant ses seuils
+
+Ordre : « ajoute un contrôle des noms propres ». Il vient de l'incident de la veille du 30/10
+(section précédente) : **tous les contrôles verts, trois noms propres faux**.
+
+### Pourquoi aucun contrôle ne pouvait le voir — c'est structurel
+
+| Passe | Ce qu'elle apparie | Pourquoi un nom propre lui échappe |
+|---|---|---|
+| B, B-FR | ce qui est **entre guillemets** | un nom posé en style indirect n'est pas une citation |
+| B-NOM | la **cohérence interne** du document | un nom faux de bout en bout y est cohérent |
+| D | des **chiffres** | un nom n'est pas un nombre |
+| A, A2–A6 | des **adresses** | la page est listée, c'est le nom qui est faux |
+
+Mesuré sur la note du 30/10 : **cinq passes sur dix étaient INERTES**, le document ne citant rien
+et n'attribuant aucun chiffre.
+
+### Les deux défauts qui portaient le motif ne sont pas des seuils
+
+| # | Défaut | Symptôme mesuré |
+|---|---|---|
+| ① | `\s*` autorise **zéro** espace entre deux jetons | un mot tout en capitales se coupe en deux : **« ORANGE » = « ORA » + « NGE »** → le niveau d'alerte d'une veille devient un nom absent de toutes les pages, c'est-à-dire un **faux refus** |
+| ② | `extract_docx.py` joint **chaque `<w:t>`** par un saut de ligne — sa sortie n'a **pas de paragraphes**, elle a des **runs** | un `\s+` qui franchit le saut recolle deux cellules : « Marchand Écart », « Los Angeles Calendrier », « WebSearch Lenovo IdeaCentre AIO » |
+
+② est l'**ambiguïté d'aplatissement** déjà consignée en en-tête de `controle_decompte.py`, qui lui
+coûte huit faux positifs. **Troisième contrôle du dépôt qu'elle touche.** Le séparateur est donc
+`[   ]+` — espaces de la **même ligne**, jamais `\n`.
+
+**Coût du resserrement, mesuré sur les 299 documents** : 8,6 → 7,1 noms retenus par document,
+**448 clés perdues**, et les 448 sont du bruit de cellules recollées (« Acteur Rôle »,
+« Activité Type Durée », « ARS Déclinaison ») — **zéro nom de personne ou d'organisme**.
+⚠️ Prix assumé : un nom coupé en deux runs par la typographie est **hors de portée**.
+
+### Les neuf bornes
+
+| # | Borne | Fondement |
+|---|---|---|
+| ① | ≥ 2 jetons | les trois noms des incidents en ont exactement deux |
+| ② | ≥ 3 lettres par jeton | écarte « M. Dupont », initiales, particules isolées |
+| ③ | vocabulaire **lu sur le corpus** | jamais écrit en dur |
+| ④ | un jeton écrit **aussi en minuscules** n'est pas un nom | mécanique de `controle_orthographe.py` (27/10) appliquée à la **casse** |
+| ⑤ | séparateur de la **même ligne** | les deux défauts ci-dessus |
+| ⑥ | plancher **3 000 caractères** = page **non lue** | plancher du dépôt |
+| ⑦ | le nom de la **série**, lu sur le chemin | « Veille SERAFIN-PH » n'attribue rien |
+| ⑧ | **instrumentation** écartée (`http`, `url`, `websearch`, `webfetch`, `curl`) | c'est ㊲ (16/10) appliqué aux noms |
+| ⑨ | plusieurs mots **tout en capitales** = intitulé | 74 occurrences / 54 formes sur le corpus |
+
+Deux bornes ont une histoire qu'il faut garder :
+
+- **⑧ est volontairement courte, et la mesure dit pourquoi** : `mozilla` en faisait partie (l'en-tête
+  `-A "Mozilla/5.0"` prescrit par les neuf prompts) et l'exclure perdait **« Mozilla Developer
+  Network »**, qui est un nom légitime. On n'écarte que des jetons qui n'appartiennent à **aucun**
+  nom propre.
+- **④ a demandé de décomposer les DEUX côtés** : sans cela « d'alerte » entre au lexique comme
+  **« dalerte »**, « alerte » n'y figure **jamais**, et « ALERTE CRITIQUE » survivait. *Une borne qui
+  compare deux découpages différents ne compare rien.* Et les **particules sont exemptées** : « van »
+  existe en minuscules, donc **« Kim van Sparrentak »**, personne réelle présente sur la page, était
+  écartée — c'est la borne **qui doit être ACCEPTÉE**.
+
+### Le plancher n'est pas un ornement : sans lui le contrôle accusait une députée
+
+Le mur anti-automate de `handicap.gouv.fr` rend **HTTP 200 · 93 caractères** (mesuré le 28/10 **et**
+le 31/10). Une page muette rend **indiscernables une mention absente et une mention non lue** —
+direction d'erreur la plus coûteuse. Le verdict **imprime le décompte des pages non lues et les
+nomme**, règle de ㉜ : un décompte d'absences sans le décompte des pages lues ne veut rien dire.
+
+### Mesure dans les deux sens
+
+| Document | Interrogés | Écartés | Pages non lues | **Absents** |
+|---|---|---|---|---|
+| ai-act 30/10 **AVANT** correction | 5 | 7 | 4/11 | **2 — « Lara Comi », « Leonardo Benifei »** |
+| ai-act 30/10 **APRÈS** correction | 5 | 7 | 4/11 | **0** |
+| ai-act 24/10 | 2 | 10 | 4/12 | 0 |
+| imac 25/10 | 4 | 19 | 0/10 | 0 |
+| serafin 28/10 | 3 | 5 | **2/4** | 3, et le verdict dit que la moitié des pages n'a pas été lue |
+
+Les deux noms de l'incident sont vus **avant** la correction et **plus rien après** : c'est la
+mesure la plus forte qu'on puisse demander à un motif neuf.
+
+### Câblage — et ce qui n'est délibérément PAS câblé
+
+⛔ **C'est l'auto-test qui est au harnais, pas le verdict.** Le verdict aspire les pages du document,
+donc il mettrait du **réseau** dans un gate qui porte des pushs — et le 26/10 a montré qu'un gate
+long **tue la connexion SSH du push** (SIGPIPE 141, rien de publié). Un nom absent d'une page tierce
+n'est pas une régression du dépôt : même raison que `balayer_adresses.py` et que `--manques`.
+Le verdict se lance à la main : `controle_noms_propres.py <document.docx>…`
+
+⛔ **NON BLOQUANT** : un nom faux ne se distingue d'une page non lue que par la lecture, et en
+production un faux refus coûte un livrable non publié (règle du 14/10).
+
+🧪 **18 bornes, aucun réseau, aucun tiers, 0,2 s**, dont **quatre qui doivent être ACCEPTÉES** et
+**deux qui jouent le VRAI `verdict()` de bout en bout** sur un `.docx` **fabriqué en `tempfile`** et
+une page fabriquée au cache (adresse en `.invalid`, qui ne résout jamais **par norme**) — rien de
+vivant dans le verdict, leçon du 22/10. Le motif étant non bloquant, le harnais porte **quatre
+exigences de ligne** en plus du code de sortie, et `ATTENDU_NP=18` lit le **dénominateur**.
+`controle_noms_propres.py` entre dans `SURVEILLES` du hook.
+
+**Quatre sabotages, quatre refus**, fichier restauré au **sha256 identique** (`11d5ca791c273813`)
+à chaque fois :
+
+| Sabotage | Ce qui mord | Exit |
+|---|---|---|
+| une borne retirée du lot | `17/17` lu contre `ATTENDU_NP=18` | 1 |
+| séparateur réélargi en `\s*` | « ORANGE » redevient un nom | 1 |
+| exemption des particules retirée | la borne **ACCEPTÉE** de « Kim van Sparrentak » | 1 |
+| exemption des marqueurs retirée | un nom **corrigé** rouvrait le motif qu'on venait de fermer | 1 |
+
+🔴 **Et deux de mes quatre sabotages n'avaient pas tourné au premier jet** — motif non apparié par
+faute d'échappement (mon propre texte portait de vrais caractères insécables au lieu des
+échappements ` `). C'est le piège du 26/10 : **un sabotage qui n'a pas tourné ressemble à un
+sabotage qui ne mord pas**, et c'est le `assert x != av` qui l'a dit, pas la relecture.
+
+### Ce qui reste hors de portée, et c'est dit
+
+- un nom coupé en **deux runs** par la typographie ;
+- un nom glué à un titre **sur la même ligne** (« Discussion PLFSS », « Media Social ») — irréductible
+  sans structure de paragraphe ;
+- un nom **juste** attribué à une page **non lue** : le contrôle le signale, il ne peut pas trancher ;
+- 📌 **piste bornée, non faite** : faire émettre à `extract_docx.py` une marque de fin de `<w:p>` /
+  `<w:tr>` — elle fermerait d'un coup cette classe **ici** et les huit faux positifs de
+  `controle_decompte.py`. C'est la même piste depuis le 23/10, et elle vaut maintenant pour deux
+  contrôles.
