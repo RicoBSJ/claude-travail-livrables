@@ -5877,3 +5877,113 @@ sabotage qui ne mord pas**, et c'est le `assert x != av` qui l'a dit, pas la rel
   `<w:tr>` — elle fermerait d'un coup cette classe **ici** et les huit faux positifs de
   `controle_decompte.py`. C'est la même piste depuis le 23/10, et elle vaut maintenant pour deux
   contrôles.
+
+## 31/10/2026 — Le contrôle des noms propres porté aux cinq prompts, et le plafond de serafin suit dans le même geste
+
+Ordre : « porte-le aux cinq prompts ». Le contrôle écrit le matin même ne tournait **sur aucun
+livrable en production** : son auto-test est au harnais, mais le verdict ne se lançait qu'à la main
+— exactement le trou fermé le 27/10 pour l'alerte d'étiquette (*une alerte que personne ne lit
+n'existe pas*). C'était la ligne d'avocat du diable du rapport précédent.
+
+### Ce que les cinq prompts portent
+
+Un bloc **identique**, inséré après un paragraphe **identique à l'octet dans les cinq** et unique
+dans chacun (celui qui finit par *« `controle_livrable_du_job.py` relève cette ligne dans le log du
+run et signale tout 000. »*) :
+
+1. l'appel `outils/scripts/controle_noms_propres.py <chemin du .docx>`, **avant publication** ;
+2. le **pourquoi** — l'incident du 30/10 et la raison structurelle (B et B-FR n'apparient que ce qui
+   est entre guillemets, B-NOM ne juge que la cohérence interne, D ne cherche que des chiffres) ;
+3. un **ordre en trois temps** : ⛔ non bloquant, une ligne `NOM NON RETROUVÉ` n'est pas un refus ·
+   🔴 pour **chaque** nom, `chercher.py` puis `WebSearch`, et **corriger le nom ou retirer
+   l'attribution** · ⚠️ lire le décompte des **pages non lues**, car une page sous le plancher de
+   3 000 caractères rend indiscernables une mention absente et une mention non lue ;
+4. la ligne de récapitulatif `👤 Noms propres : N interrogés · M non retrouvés · P page(s) non
+   lue(s)`, **seule trace que le log gardera**, sur le modèle de la ligne `🔗 Liens` du 20/10.
+
+| Prompt | Avant | Après | Δ |
+|---|---|---|---|
+| imac-veille | 45 038 | 47 507 | +2 469 |
+| serafin-ph-veille | 32 844 | 35 313 | +2 469 |
+| rbpp-pipeline | 56 313 | 58 782 | +2 469 |
+| controle-livrables | 33 070 | 35 539 | +2 469 |
+| ai-act-veille | 51 491 | 53 960 | +2 469 |
+| **total** | | | **+12 345** |
+
+### Le garde du portage s'écrit par SOUSTRACTION, pas par inclusion
+
+Règle du 26/10. Retirer **exactement** le bloc inséré rend le prompt d'avant **à l'octet** dans les
+cinq cas ; aucun autre champ, aucune clé, aucun ordre de job modifié ; et le fichier **n'a pas été
+reformaté** — `git diff --numstat` rend **5 lignes ajoutées, 5 retirées**, chaque prompt étant une
+seule longue ligne JSON. ⚠️ **Mon premier garde ne valait rien** : il contenait un `or True` et une
+assertion sans effet, et il annonçait « RIEN d'autre n'a changé : True » sans rien vérifier.
+
+### Le garde au harnais — prédicat structurel, quatre exigences
+
+⛔ **Le prédicat est « les prompts qui testent des URL », lu sur la config — jamais un `5/5` en dur.**
+Un compte figé périme à la première suppression de job, ce qui a bloqué **tous** les pushs du dépôt
+les 15, 22 et 23/10. Aujourd'hui : 5 sur 5.
+
+| # | Exigence | Pourquoi elle n'est pas redondante |
+|---|---|---|
+| ① | l'**appel** | sans lui le contrôle ne tourne pas |
+| ② | la **ligne du récapitulatif** au littéral | sans elle le log ne garde **aucune** trace du verdict — le trou même que le décompte des liens a comblé le 20/10 |
+| ③ | la **borne des pages non lues** au littéral | sans elle le prompt ferait réécrire un nom **JUSTE** sur la foi d'une page que personne n'a pu lire |
+| ④ | le script prescrit doit **exister** | le défaut de `rattrapage_jobs.sh` du 27/10, qui nommait trois jobs supprimés |
+
+**Quatre sabotages, quatre refus**, chacun nommant **son** exigence et sortant en 1, `jobs_config.json`
+restauré au **sha256 identique** (`4e0b7ce539a30fad`) à chaque fois, et le contrôle au sien
+(`11d5ca791c273813`). La commande prescrite a été **rejouée verbatim depuis le prompt** de
+`serafin-ph-veille` : elle rend ses trois noms non retrouvés, ses deux pages non lues nommées, et
+exit 0.
+
+### Le plafond suit dans le même geste — et le calcul le dit, pas la prudence
+
+`serafin-ph-veille` : **3,00 → 4,00 $**. Mesure du créneau du 28/10 : **2,6916 $ pour 3,00 $, soit
+90 %**, 30 tours, 440 122 ms, out 20 441, **cache-read 2 978 967**, cache-write 109 580.
+
+| Terme | Calcul | Effet |
+|---|---|---|
+| contexte par tour | 2 978 967 / 30 | **99 300 jetons** |
+| le bloc ajouté | 2 469 o ≈ 617 jetons × 30 tours | **+0,6 %** |
+| **un tour de plus** | 99 300 / 2 978 967 | **~3,3 %** |
+
+Le bloc prescrit **au moins un** tour de plus (lancer le contrôle, lire sa sortie), davantage s'il
+faut trancher un nom (`chercher.py`, `WebSearch`, correction du `.docx`). Sur un run déjà à 90 %,
+1 à 3 tours de plus donnent **93 à 99 %**. ⚠️ **Et le 90 % du 28/10 ne vient pas de la taille du
+prompt** : il vient du cache-read **multiplié par 2,98 à prompt et durée identiques** — le portage ne
+fait que retirer la marge qui restait.
+
+⛔ **Les quatre autres n'en ont pas besoin, et c'est mesuré** : imac **75 %** de 4 $,
+controle-livrables **69 %** de 4 $, ai-act **66 %** de 5 $, rbpp **42 %** — et son 93 % du 19/10
+valait 3,7351 $, soit **75 %** du plafond de 5 $ qu'il a depuis. Cumul **21,00 → 22,00 $**, mesuré
+sur `run_job.sh` (5 jobs · 22,00 $) et `BUDGET=4.00` vérifié **en exécutant le vrai bloc `case`**.
+**Pour annuler : remettre `3.00` dans `run_job.sh`, rien d'autre.**
+
+### 🔴 Et le portage a révélé un trou qui n'a rien à voir avec lui
+
+**`serafin-ph-veille` n'appelle NI `controle_attributions.py` NI `controle_decompte.py`** — **0
+occurrence de « attributions » dans son prompt**, mesuré. Les quatre autres les appellent 1 à 5 fois.
+
+| Prompt | Contrôles `.py` qu'il appelle réellement |
+|---|---|
+| imac-veille | aspirer, controle_attributions, controle_decompte, controle_livrable_du_job, lire_page |
+| **serafin-ph-veille** | aspirer, **controle_livrable_du_job**, extract_docx, lire_page |
+| rbpp-pipeline | aspirer, chercher, controle_attributions, controle_decompte, controle_livrable_du_job, extract_docx, lire_page |
+| controle-livrables | aspirer, controle_attributions, controle_decompte, controle_livrable_du_job, extract_docx, lire_page |
+| ai-act-veille | aspirer, controle_ai_act, controle_attributions, controle_decompte, controle_livrable_du_job, lire_page |
+
+⚠️ **Portée bornée, et il faut le dire** : le gate `--docs` du hook passe `controle_attributions.py`
+et `controle_decompte.py` sur **tout** `.docx` de `sources/veille/`, serafin compris — donc **rien ne
+se publie sans eux**. Ce que le job perd est de pouvoir **se corriger lui-même** avant d'écrire : un
+refus du gate arrive quand le créneau est déjà consommé. 📌 **Piste bornée, non faite, non ordonnée.**
+
+### Ce qui reste hors de portée
+
+- le contrôle **ne tourne toujours pas** sur les 294 documents déjà publiés — seul
+  `controle_noms_propres.py <doc>` à la main les atteint ;
+- un nom **juste** attribué à une page **non lue** reste indécidable, et le prompt ordonne de le
+  **dire** plutôt que de corriger ;
+- ⚠️ **le portage n'a jamais tourné dans un vrai créneau** : il sera exercé pour la première fois le
+  **dimanche 01/11 à 8h03** par `imac-veille`. Les mesures ci-dessus sont des mesures de coût
+  **unitaire**, pas l'observation d'un run complet.

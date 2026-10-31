@@ -600,6 +600,43 @@ if sans:
     print("    trace d'un lien jeté sur un 000 — le livrable n'en garde aucune.")
     sys.exit(1)
 print("  ✓ les %d prompt(s) qui testent des URL prescrivent le décompte des écartées" % len(teste))
+# 👤 31/10/2026 — ET TOUT PROMPT QUI TESTE DES URL DOIT PRESCRIRE LE CONTRÔLE DES NOMS PROPRES.
+#    Né de la veille ai-act du 30/10 : tous les contrôles verts, trois noms propres faux, et aucune
+#    passe du dépôt capable de le voir (B et B-FR n'apparient que ce qui est entre guillemets, B-NOM
+#    ne juge que la cohérence interne, D ne cherche que des chiffres).
+#    ⛔ LE PRÉDICAT EST STRUCTUREL, PAS UN COMPTE : « les prompts qui testent des URL », lu sur la
+#    config — un « 5/5 » écrit en dur périmerait à la première suppression de job, ce qui a bloqué
+#    TOUS les pushs du dépôt les 15, 22 et 23/10. Aujourd'hui : 5 prompts sur 5.
+#    TROIS exigences, et aucune n'est redondante — c'est le sabotage qui le dit, pas la relecture :
+#    ① l'APPEL, sans quoi le contrôle ne tourne pas ;
+#    ② la LIGNE DU RÉCAPITULATIF au littéral, sans quoi le log ne garde AUCUNE trace du verdict —
+#       le même trou que le décompte des liens comblait le 20/10 ;
+#    ③ la BORNE DES PAGES NON LUES au littéral, sans quoi le prompt ferait corriger un nom à
+#       l'aveugle sur une page que personne n'a pu lire — c'est la direction d'erreur la plus
+#       coûteuse (un faux refus, ou pire : un nom JUSTE réécrit en faux).
+EXIG = [("l'appel du contrôle",            "controle_noms_propres.py"),
+        ("la ligne du récapitulatif",      "👤 Noms propres : N interrogés"),
+        ("la borne des pages non lues",    "PAGES NON LUES")]
+for lib, litt in EXIG:
+    sans_np = [j["id"] for j in d["jobs"]
+               if '-w "%{http_code}"' in j["prompt"] and litt not in j["prompt"]]
+    if sans_np:
+        print("  x ce(s) prompt(s) testent des URL sans porter %s (« %s ») :" % (lib, litt))
+        print("    " + ", ".join(sorted(sans_np)))
+        print("    le 30/10/2026 une veille est sortie avec TOUS les contrôles verts et trois noms")
+        print("    propres faux : « Lara Comi », 0 occurrence sur les sept pages lisibles.")
+        sys.exit(1)
+# ④ et le script prescrit doit EXISTER — un prompt qui appelle un fichier absent est le défaut
+#    de rattrapage_jobs.sh du 27/10, qui nommait trois jobs supprimés cinq jours plus tôt.
+import os
+CTRL = os.path.join(os.path.dirname(os.path.abspath(sys.argv[1])), "outils", "scripts",
+                    "controle_noms_propres.py")
+if not os.path.isfile(CTRL):
+    print("  x les prompts prescrivent controle_noms_propres.py, qui N'EXISTE PAS : %s" % CTRL)
+    sys.exit(1)
+print("  ✓ les %d prompt(s) qui testent des URL portent le contrôle des noms propres, sa ligne de"
+      % len(teste))
+print("    récapitulatif et la borne des pages non lues — et le script existe")
 PYASP
   rc=$?
   cat "$ASP_OUT"
