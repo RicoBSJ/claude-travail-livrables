@@ -361,15 +361,29 @@ print("\n② FORMULATIONS QUE LA FICHE DE L'ÉDITION PRÉCÉDENTE DONNE POUR FAU
 n_marq_p = len(MARQUEUR.findall(" ".join(P_PREC)))
 if not FICHE:
     print("   fiche absente — motif INERTE, et ce n'est PAS une réussite")
-elif n_marq_p:
-    # N-1 PORTE des marqueurs : ses défauts ont été traités, et sa fiche cite alors les deux
-    # versions — la fautive ET la corrigée. Une suite de mots commune aux deux ne prouve rien.
-    # Mesuré le 12/10/2026 : sur la veille iMac du 04/10 (7 marqueurs), ce motif accusait
-    # « Mac mini M6 : 1 049 € depuis le 22/09/2026 », qui est le DÉBUT de la formulation corrigée.
-    # C'est la passe ① qui répond pour une édition corrigée : elle part du journal, pas de la fiche.
-    print("   édition précédente CORRIGÉE (%d marqueur(s)) — motif ② hors sujet : ses défauts sont"
-          " tracés dans son journal, et c'est ① qui les suit. INERTE ici." % n_marq_p)
 else:
+    # N-1 PORTE des marqueurs : ses défauts CITÉS sont traités, et sa fiche cite alors les deux
+    # versions — la fautive ET la corrigée. Une suite de mots commune aux deux ne prouve rien.
+    # C'est la passe ① qui répond pour ces défauts : elle part du journal, pas de la fiche.
+    #
+    # ⚠️ ET LA MESURE DU 12/10/2026 QUI AVAIT RENDU CE MOTIF TOTALEMENT INERTE ÉTAIT FAUSSE.
+    # Elle disait : « sur la veille iMac du 04/10 (7 marqueurs), ce motif accusait "Mac mini M6 :
+    # 1 049 € depuis le 22/09/2026", qui est le DÉBUT de la formulation corrigée ». Remesuré le
+    # 01/11/2026 : cette formulation vit dans un paragraphe du 04/10 SANS MARQUEUR, avec sa propre
+    # réserve (« ce tarif est repris du cadrage du job et n'a été relu sur aucune page »). Elle
+    # n'est donc PAS la version corrigée : c'est le libellé fautif, resté tel quel, et l'édition
+    # du 11/10 le reprend en bâtissant dessus (« → hausse de +100 € sur le tarif courant »).
+    # Le motif avait raison ; c'est le diagnostic qui l'a fait taire.
+    #
+    # 🔴 MAIS ÊTRE INERTE SUR TOUTE ÉDITION CORRIGÉE ÉTAIT UN TROU, mesuré le 01/11/2026 : une
+    # correction par OMISSION ne cite rien, donc ① n'a AUCUN jeton à suivre, et ② se taisait en
+    # supposant qu'il le faisait. Le fondeur « TSMC » a traversé ainsi le maillon 18/10 → 25/10 de
+    # la série imac : présent le 04/10 (corrigé), rejoué le 11/10, ABSENT du 18/10 après une
+    # correction qui ne l'a pas cité, rejoué le 25/10 — verdict « aucune correction rejouée ».
+    # BORNE : pour une édition corrigée, on ne retient que les formulations de la fiche dont AUCUN
+    # jeton distinctif n'est déjà candidat de ①. `cands` EST l'ensemble que ① suit — on lit son
+    # ensemble, on ne recopie pas sa logique (règle du 15/10 : un test qui teste une COPIE ne
+    # garde rien). Les autres sont dites COUVERTES PAR ①, et comptées.
     txt = nfc(open(FICHE, encoding="utf-8").read())
     fautives, n_cit = [], 0
     for m in re.finditer(r"«\s*(.+?)\s*»", txt, re.S):
@@ -378,17 +392,26 @@ else:
         n_cit += 1
         fen = txt[max(0, m.start()-220): m.end()+220]
         if FAUTE.search(fen): fautives.append(c)
-    trouves, ecartees = [], 0
+    trouves, ecartees, couverts, vues = [], 0, 0, set()
     for c in fautives:
+        if n_marq_p and (jetons(c) & cands):
+            couverts += 1; continue
         for s in suites(c, MOTS_MINI):
             if not s or (" %s " % s) not in cle_c: continue
             # la formulation doit encore vivre dans un paragraphe NON CORRIGÉ de N-1 : sinon la
             # fiche dénonçait une formulation déjà traitée, et ce qui revient est la version corrigée
             if (" %s " % s) not in nu_p: ecartees += 1; continue
-            trouves.append((c, s)); break
+            # deux citations de la fiche peuvent rendre la MÊME suite de MOTS_MINI mots : c'est un
+            # seul retour, pas deux. Mesuré le 01/11/2026 sur la paire « Règlement (UE) 2026/1744
+            # du 8 juillet 2026 » / « RÈGLEMENT (UE) 2026/1744 … du 8 juillet 2026 » de la veille
+            # ai-act du 18/09, qui produisait deux signalements pour une seule suite.
+            if s in vues: break
+            vues.add(s); trouves.append((c, s)); break
     print("   %d citation(s) de %d mots ou plus dans la fiche · %d voisine(s) d'un mot de faute"
-          " · %d écartée(s) : la formulation avait été corrigée dans N-1"
-          % (n_cit, MOTS_MINI, len(fautives), ecartees))
+          " · %d écartée(s) : la formulation avait été corrigée dans N-1%s"
+          % (n_cit, MOTS_MINI, len(fautives), ecartees,
+             (" · %d couverte(s) par ① : N-1 est CORRIGÉE (%d marqueur(s)) et son journal les cite"
+              % (couverts, n_marq_p)) if n_marq_p else ""))
     if trouves:
         for c, s in trouves:
             print("   A RELIRE la fiche de N-1 donne pour fautif « %s »" % c[:150])

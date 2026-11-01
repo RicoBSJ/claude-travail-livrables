@@ -45,7 +45,7 @@ CINQBIS='^outils/scripts/(controle_astrologie_karmique\.py|controle_psychopathol
 # section 5 quater, donc en --complet : le toucher force le mode complet, sans quoi ses témoins ne
 # seraient jamais joués et une retouche passerait sans preuve. Le contrôle lui-même ne coûte rien
 # (0,3 s, aucun appel réseau) et tourne aussi en --docs sur chaque veille poussée.
-EDPREC='^outils/scripts/(controle_edition_precedente\.py|non_regression/temoins_edition_precedente/.*)$'
+EDPREC='^outils/scripts/(controle_edition_precedente\.py|non_regression/omission_axe2\.py|non_regression/temoins_edition_precedente/.*)$'
 # (3) LE RUNNER modifié → non_regression_runner.sh --mutations (auto-tests du juge, 14 scénarios de décision, PUIS dix-huit
 #     mutations du runner qui vérifient que ces témoins tombent quand on le casse exprès, ≈ 30 s,
 # sans réseau). run_job.sh décide ce qui est retenté et ce qui est publié pour les 14 jobs ;

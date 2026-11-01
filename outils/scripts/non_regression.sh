@@ -122,6 +122,38 @@ bloc_orthographe () {
   return $ORTH_KO
 }
 
+bloc_omission_axe2 () {
+  # L'axe ② de controle_edition_precedente.py était TOTALEMENT INERTE dès que N-1 portait un
+  # marqueur : muet sur 27 des 300 documents, mesuré le 01/11/2026. Le témoin est FABRIQUÉ en
+  # tempfile — rien du dépôt dans son verdict (leçon du 22/10) — et porte deux bornes qui doivent
+  # être ACCEPTÉES : la formulation citée au journal reste couverte par ①, et celle qui est
+  # ABSENTE de N-1 reste écartée, ce qui est le trou que le correctif ne ferme PAS.
+  local OUT="$CUR/omission_axe2.txt" OM_KO=0 LU
+  local ATTENDU_OM=12         # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  echo "▶ Axe ② : une formulation non citée au journal d'un N-1 corrigé (aucun réseau, 0,5 s)"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/omission_axe2.py" > "$OUT" 2>&1; then
+    tail -2 "$OUT"
+    LU=$(sed -n "s/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes de l'omission à l'axe ②.*/\1/p" "$OUT")
+    if [ "${LU:-0}" != "$ATTENDU_OM" ]; then
+      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_OM attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_OM à jour en disant pourquoi."
+      OM_KO=1
+    fi
+    # exigence de LIGNE : le motif est non bloquant, un exit 0 ne prouve pas qu'il a parlé
+    if ! grep -q "② sur N-1 CORRIGÉE : 1 signalement · 1 couverte par ① · absente de N-1 NON signalée" "$OUT"; then
+      echo "  ✗ la ligne de résumé de l'axe ② n'est pas imprimée — le témoin peut être vert sans rien dire."
+      OM_KO=1
+    fi
+  else
+    grep '✗' "$OUT" | head -6
+    echo "  ✗ les bornes de omission_axe2.py ne passent plus."
+    echo "    Mesuré le 01/11 : dés-inerter l'axe ② ajoute 9 signalements sur 6 des 300 documents,"
+    echo "    0 régression, et c'est lui qui voit le conteneur du rejeu « TSMC » du 25/10."
+    OM_KO=1
+  fi
+  return $OM_KO
+}
+
 bloc_coherence_skill () {
   local OUT="$CUR/coherence_skill.txt" SK_KO=0 LU
   local ATTENDU_SK=7           # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
@@ -977,6 +1009,7 @@ fi
 
 bloc_orthographe || exit 1
 bloc_noms_propres || exit 1
+bloc_omission_axe2 || exit 1
 bloc_desarmement || exit 1
 bloc_coherence_skill || exit 1
 
