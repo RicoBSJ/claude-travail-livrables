@@ -6096,3 +6096,60 @@ de sortie que je croyais lire.** Après un push : comparer `git rev-parse HEAD` 
 ⛔ **ET CETTE RÈGLE N'A PAS DE TÉMOIN, PARCE QU'ELLE N'A PAS D'OBJET DANS LE DÉPÔT — MESURÉ, PAS SUPPOSÉ.** Recensement des scripts qui lisent `<w:t>` : **8**, et tous dés-échappent ou passent par un parseur XML — `extract_docx.py` rend **0 occurrence** de `&apos;` sur un document qui en porte, donc ses appelants (dont `controle_noms_propres.py`, qui n'a aucun `unescape`) voient du **décodé cohérent**. Aucun garde du dépôt ne mélange les deux espaces. La règle vaut pour les **scripts de correction jetables**, et un garde posé dans le dépôt **sans appelant** n'écrirait dans aucun log (règle du 27/10 : une alerte que personne ne lit n'existe pas). Elle est donc consignée en **règle de méthode** dans `CLAUDE.md`, section Outillage, avec cette mesure.
 
 ⚠️ **ET UNE ERREUR À MOI EN CONSIGNANT CES RÈGLES, DE LA MÊME FAMILLE.** Ma première édition de `CLAUDE.md` a **remplacé le texte d'ancre au lieu de le conserver** : la phrase *« un vrai rejeu dont la citation n'a qu'un seul mot distinctif sort en avertissement »* a disparu. C'est le garde par soustraction — comparer les mots d'avant et d'après — qui l'a dit, en nommant **`**avertissement**`** comme seul mot perdu. Fichier **restauré depuis la sauvegarde** et édit refait en entier, l'ancre étant cette fois **préfixe** du texte inséré (règle du 25/10 : une correction partielle est pire qu'un échec). Après refonte : **aucun mot perdu**.
+
+---
+
+## 01/11/2026 (2) — LE GABARIT DE LA CONVENTION D'HÉRITAGE EST BORNÉ, ET LA MESURE A DÉMENTI TROIS DE MES PROPRES AFFIRMATIONS
+
+**Ordre reçu** : « borne les trois faux de la convention d'héritage ».
+
+🔴 **① L'ORDRE PORTAIT MON ERREUR : IL N'Y EN AVAIT PAS TROIS.** Ma ligne d'avocat du diable du matin disait *« trois des cinq viennent d'une même cause structurelle »* ; la consignation de `CLAUDE.md`, écrite dix minutes plus tôt, disait **deux**. Mesuré sur les 19 signalements : **deux**, et les deux dans le même document (`has-actualite 19/10`) — `« d'après l'édition du JJ/MM/AAAA de cette veille »` et `« d'après l'édition du JJ/MM/AAAA »`. **Un balayage des 19 par `grep JJ/MM/AAAA` rend 2, et il coûtait une commande.**
+
+🔴 **② ET LE VRAI DÉFAUT N'ÉTAIT PAS LE GABARIT : L'AXE ② N'ÉTAIT PAS DÉTERMINISTE, ET C'EST MOI QUI L'AVAIS RENDU TEL LE MATIN MÊME.** `suites()` rend un **`set`** ; le hachage des chaînes de Python est **randomisé par processus**. L'ordre d'itération changeait donc à chaque passage, et avec lui ① la suite **imprimée**, ② les **décomptes** (la boucle `break` au premier vrai appariement — les suivantes ne sont plus comptées) et ③ **LE VERDICT**, parce que la **déduplication que j'ai poussée ce matin** (`if s in vues: break`) retient la **première** suite trouvée.
+
+| mesure | résultat |
+|---|---|
+| `ai-act 18/09`, 8 passages | **1 signalement 4 fois, 2 les 4 autres** |
+| `has-actualite 19/10`, 6 passages | **4 suites imprimées différentes** |
+| état d'AVANT (axe ② inerte), 2 balayages | **10 et 10** — stable, parce qu'il n'avait pas de déduplication |
+| état publié `6151196`, mon rapport | **« 19 »** — donc **un tirage, pas une mesure** |
+
+🟢 **Corrigé par `sorted(suites(…))`**, et la preuve est un **balayage reproductible À L'OCTET sur les 300 documents**, vérifié deux fois dans chaque état. ⚠️ **Et le tri ne fait pas que stabiliser : il change un verdict** — la déduplication retient désormais la suite **alphabétiquement première**, ce qui collapse la paire de gabarits, d'où **18 et non 19**. ⚠️ **Résidu dit** : la déduplication reste « première suite d'un ordre stable » et non « intersection d'ensembles » — deux citations qui ne se recouvrent que sur une suite **non première** signalent encore toutes les deux. Changer cela déplacerait aussi `ecartees` et `gabarits`, donc ce n'est pas fait.
+
+🆕 **③ LE BORNAGE DU GABARIT — UN ET DONT LES DEUX BRANCHES SONT MESURÉES NÉCESSAIRES.** `« d'après l'édition du JJ/MM/AAAA … »` n'énonce **rien** : c'est un marqueur de place, donc une veille qui le **cite** au lieu de l'**employer** ne peut rejouer aucun défaut. La règle : **① la CITATION porte le gabarit entier ET ② la SUITE reprise partage un mot avec lui.**
+
+- 🔴 **La branche ① est mesurée, et PAS pour la raison que j'avais écrite dans le code.** J'avais justifié : *« sinon un `mm` (millimètres) exempterait du vrai »*. Mesure : **zéro occurrence numérique de millimètre** dans les 300 documents. Le vrai motif est que le jeton **plié** `mm` existe **15 fois dans 9 documents, dont 12 dans 6 leçons `appli-ia`**, où il vient de **`YYYY-MM-DD` replié en `yyyy mm dd`**. Commentaire corrigé, et c'est la borne ⑲ qui le garde.
+- La branche ② est mesurée de même : sur `« d'après l'édition du JJ/MM/AAAA de cette veille »`, **6 suites recourent dans N et 2 NE portent PAS le gabarit entier** (`« d apres l edition du jj »`). Tester le gabarit sur la **suite seule** laissait donc le signalement vivre ; tester sur la **citation seule** exempterait une longue citation portant **à la fois** le gabarit et une vraie affirmation.
+- Le gabarit plié est calculé **par `cle()`**, jamais écrit à la main — règle du 15/10, gardée par la borne ⑰.
+
+📊 **QUATRE ÉTATS COMPARÉS, SÉQUENTIELS, AUCUN RÉSEAU, CHACUN BALAYÉ DEUX FOIS.**
+
+| état | signalements | reproductible |
+|---|---|---|
+| A — axe ② inerte sur N-1 corrigé (avant ce matin) | **10** | oui (pas de déduplication) |
+| publié `6151196` — dés-inerté + déduplication | **18 ou 19** | ⛔ **NON** |
+| B — publié + `sorted()` | **18** | ✅ à l'octet |
+| C — B + bornage du gabarit **(retenu)** | **17** | ✅ à l'octet |
+
+**A → C : +7 signalements sur 6 documents, diff fait d'AJOUTS SEULS — 0 ligne retirée, 0 régression, 0 inerte restant.** **B → C : une seule suppression**, exactement le gabarit, un seul document, une seule ligne de décompte modifiée. **Précision : 4 vrais ou plausibles contre 3 faux**, contre 4 contre 5 ce matin — les quatre vrais (conteneur du rejeu TSMC, rejeu du tarif Mac mini, deux citations d'imac 20/09) sont **tous** conservés.
+
+🟢 **ET L'EXEMPTION FAIT PLUS QUE RETIRER UN FAUX POSITIF, CE QUE JE N'AVAIS PAS PRÉVU.** Le sabotage S2 (test du gabarit retiré) fait tomber **⑯**, pas seulement ⑬ et ⑭ : **un gabarit non exempté MASQUE une vraie formulation par la déduplication** — il enregistre la suite le premier, et la vraie citation est écartée en doublon. ⚠️ Sur le corpus d'aujourd'hui cela n'arrive pas (le diff B → C est une suppression unique) : **le mécanisme est mesuré sur le témoin, pas en production**, et il faut le dire.
+
+⛔ **PORTÉE TENUE À `JJ/MM/AAAA`, ET C'EST UN REFUS D'ÉLARGIR.** `YYYY-MM-DD` existe dans **6 leçons** mais produit **0 signalement** aujourd'hui : l'y étendre serait une **exemption non mesurée**, et une exemption qui silence est la direction d'erreur coûteuse (règle du 14/10 par l'autre bout). `JJ/MM` seul, `AAAA` seul, `NN`, `JJ` seul : **0 occurrence** sur les 300 documents et 118 fiches — `MM/AAAA` n'est pas une forme, c'est un **sous-appariement** de `JJ/MM/AAAA`. ⚠️ Et `[...]` a été **écarté du motif sur mesure** : il apparierait la **restitution éditoriale `[a]`** (règle du 25/10), **46 occurrences dans 20 documents**.
+
+🧪 **TÉMOIN : 12 → 19 BORNES**, aucun réseau, **2,9 s** (0,5 → 2,9 s : ce sont les huit graines de hachage de ⑱, et c'est le prix d'une preuve qui ne tient pas à la chance), arborescence **FABRIQUÉE en `tempfile`**, un **second arbre isolé** pour ne pas déplacer les verdicts des bornes ①–⑫. **Cinq bornes doivent être ACCEPTÉES** (②, ③, ⑮ une vraie date de même forme reste signalée, ⑯ gabarit + vraie affirmation, ⑲ `mm` sans gabarit) et **deux exigences de ligne** au harnais, le motif étant non bloquant. `ATTENDU_OM` **12 → 19**, lu sur le **dénominateur**.
+
+🧪 **SIX SABOTAGES, SIX REFUS** (onze au total sur la journée), chacun nommant **sa** borne, chacun prouvant d'abord qu'il a modifié le fichier (sha256 avant → après, leçon du 26/10), les deux fichiers restaurés au **sha256 identique** à chaque fois :
+
+| sabotage | borne qui mord | harnais |
+|---|---|---|
+| lot amputé (⑲ retirée) | `18 borne(s) jouée(s), 19 attendue(s)` | exit 1 |
+| test du gabarit retiré | ⑬ ⑭ **et ⑯** | exit 1 |
+| exemption de la CITATION entière | ⑯ | exit 1 |
+| condition ① du ET retirée | ⑲ | exit 1 |
+| `sorted()` retiré | ⑱ — **8 sorties distinctes sur 8** | exit 1 |
+| gabarit plié écrit à la main | ⑰ | exit 1 |
+
+⚠️ **Et une anicroche de méthode, sans conséquence** : mon premier patch du gabarit a été écrit contre l'état d'avant le tri, donc son ancre ne s'appariait plus — **l'assertion a mordu AVANT toute écriture**, le fichier n'a pas été touché, et c'est le bon sens d'échec.
+
+📌 **Non fait, non ordonné, et mesuré** : `controle_attributions.py` porte **le même faux positif depuis le 12/10** — la fiche de `has-actualite 12/10` le nomme déjà *« faux positif inoffensif »*. Le portage y serait à mesurer à part, sur son propre corpus.

@@ -128,8 +128,12 @@ bloc_omission_axe2 () {
   # tempfile — rien du dépôt dans son verdict (leçon du 22/10) — et porte deux bornes qui doivent
   # être ACCEPTÉES : la formulation citée au journal reste couverte par ①, et celle qui est
   # ABSENTE de N-1 reste écartée, ce qui est le trou que le correctif ne ferme PAS.
+  # 🆕 01/11/2026 — il garde aussi le GABARIT de la convention d'héritage (« d'après l'édition du
+  # JJ/MM/AAAA de cette veille »), qui n'énonce rien et ne peut donc rejouer aucun défaut, et le
+  # DÉTERMINISME de l'axe ② : suites() rend un set, et sans tri le verdict lui-même variait d'un
+  # passage à l'autre (ai-act du 18/09 : 1 signalement 4 fois sur 8, 2 les 4 autres).
   local OUT="$CUR/omission_axe2.txt" OM_KO=0 LU
-  local ATTENDU_OM=12         # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  local ATTENDU_OM=19         # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
   echo "▶ Axe ② : une formulation non citée au journal d'un N-1 corrigé (aucun réseau, 0,5 s)"
   if env -i $PY "$ROOT/outils/scripts/non_regression/omission_axe2.py" > "$OUT" 2>&1; then
     tail -2 "$OUT"
@@ -142,6 +146,10 @@ bloc_omission_axe2 () {
     # exigence de LIGNE : le motif est non bloquant, un exit 0 ne prouve pas qu'il a parlé
     if ! grep -q "② sur N-1 CORRIGÉE : 1 signalement · 1 couverte par ① · absente de N-1 NON signalée" "$OUT"; then
       echo "  ✗ la ligne de résumé de l'axe ② n'est pas imprimée — le témoin peut être vert sans rien dire."
+      OM_KO=1
+    fi
+    if ! grep -q "② GABARIT « JJ/MM/AAAA » : cité NON signalé · vraie date signalée · mixte signalé · YYYY-MM-DD signalé · 8 graines, 1 verdict" "$OUT"; then
+      echo "  ✗ la ligne du GABARIT n'est pas imprimée — l'exemption et le tri peuvent être verts sans rien dire."
       OM_KO=1
     fi
   else

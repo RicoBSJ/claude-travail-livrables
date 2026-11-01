@@ -74,13 +74,66 @@ def arbre(d, avec_marqueur=True):
     open(os.path.join(d, "2026-01-08_veille_temoin.fiche.md"), "w", encoding="utf-8").write(fiche)
     return os.path.join(d, "2026-01-15_veille_temoin.docx")
 
+def arbre_gabarit(d):
+    """Un second arbre, isolé du premier pour ne pas déplacer les verdicts des bornes ①–⑫.
+    Trois formulations, et les trois sont nécessaires :
+      G1  le GABARIT seul                → ne doit PAS être signalé
+      G2  une VRAIE date, même forme     → doit RESTER signalé (sans quoi on exempterait les dates)
+      G3  gabarit ET vraie affirmation   → doit RESTER signalé sur la vraie (sans quoi on
+                                           exempterait la citation entière au lieu de la suite)
+      G4  « mm » SANS le gabarit         → doit RESTER signalé (sans quoi la condition ① du ET
+                                           serait décorative : c'est « YYYY-MM-DD » replié)
+    """
+    G1 = "d'après l'édition du JJ/MM/AAAA de cette veille"
+    G2 = "le tarif Zorglub est passé à 1 049 € le 22/09/2026 selon le marchand"
+    G3 = ("d'après l'édition du JJ/MM/AAAA, la cadence Qwerty atteint huit gigahertz "
+          "en charge soutenue")
+    # G4 porte le jeton plié « mm » SANS porter le gabarit : c'est « YYYY-MM-DD » replié en
+    # « yyyy mm dd ». Mesuré le 01/11/2026 : 12 des 15 occurrences de « mm » du corpus sont de
+    # cette nature, dans 6 leçons appli-ia. Toutes ses fenêtres de 6 mots contiennent « mm », donc
+    # retirer la condition ① du ET l'exempte en entier — et la borne ⑲ le dit.
+    G4 = "l'horodatage au format YYYY-MM-DD est obligatoire"
+    prec = [
+        "Veille témoin du 8 janvier 2026",
+        "La puce Qwerty est gravée en 2 nm chez Fonderie Bidule. " + MARQ,
+        "Convention de datation : " + G1 + ".",
+        "Tarif : " + G2 + ".",
+        "Cadence : " + G3 + ".",
+        "Horodatage : " + G4 + ".",
+        "📝 Journal des corrections — 8 janvier 2026",
+        "① Fiche technique — « gravée en 2 nm chez Fonderie Bidule » : absente des pages citées.",
+    ]
+    cour = [
+        "Veille témoin du 15 janvier 2026",
+        "Convention de datation : " + G1 + ".",
+        "Tarif : " + G2 + ".",
+        "Cadence : la cadence Qwerty atteint huit gigahertz en charge soutenue.",
+        "Horodatage : " + G4 + ".",
+    ]
+    docx(os.path.join(d, "2026-01-08_veille_gab.docx"), prec)
+    docx(os.path.join(d, "2026-01-15_veille_gab.docx"), cour)
+    fiche = ("# fiche témoin gabarit\n\n"
+             "- Gabarit cité, pas employé : « %s » — c'est un marqueur de place, il est **faux** de\n"
+             "  le lire comme une citation.\n"
+             "- Le tarif est **faux** : « %s » ne figure sur aucune page.\n"
+             "- La cadence est **fausse** : « %s » ne figure sur aucune page.\n"
+             "- L'horodatage est **inexact** : « %s » ne figure sur aucune page.\n"
+             % (G1, G2, G3, G4))
+    open(os.path.join(d, "2026-01-08_veille_gab.fiche.md"), "w", encoding="utf-8").write(fiche)
+    return os.path.join(d, "2026-01-15_veille_gab.docx")
+
 def axe2(sortie):
     bloc = re.search(r"^② .*?(?=^③ )", sortie, re.S | re.M)
     return bloc.group(0) if bloc else ""
 
-def lance(cible):
-    r = subprocess.run([sys.executable, CTRL, cible], capture_output=True, text=True,
-                       env={"PATH": "/usr/bin:/bin", "LC_ALL": "fr_FR.UTF-8"})
+def lance(cible, graine=None):
+    """graine = PYTHONHASHSEED. Le hachage des chaînes est randomisé PAR PROCESSUS, donc l'ordre
+    d'itération d'un `set` change d'un passage à l'autre : imposer des graines DIFFÉRENTES est la
+    seule façon de prouver que le contrôle ne dépend plus de cet ordre, sans compter sur la
+    chance (règle du 26/10 : une borne qui ne peut pas échouer n'est pas une borne)."""
+    env = {"PATH": "/usr/bin:/bin", "LC_ALL": "fr_FR.UTF-8"}
+    if graine is not None: env["PYTHONHASHSEED"] = str(graine)
+    r = subprocess.run([sys.executable, CTRL, cible], capture_output=True, text=True, env=env)
     return r.stdout + r.stderr
 
 def autotest():
@@ -137,6 +190,32 @@ def autotest():
               "ÉTAIT FAUSSE" in src and "SANS MARQUEUR" in src)
         borne("⑫ le bornage lit l'ensemble que ① suit, il ne le recopie pas",
               "jetons(c) & cands" in src)
+
+        # ── LE GABARIT DE LA CONVENTION D'HÉRITAGE (01/11/2026)
+        shutil.rmtree(d); d = tempfile.mkdtemp(prefix="omission_axe2_")
+        cible = arbre_gabarit(d)
+        g = axe2(lance(cible))
+        apres = g.split("A RELIRE")
+        borne("⑬ le GABARIT seul n'est PAS signalé",
+              not any("JJ/MM/AAAA de cette veille" in t.split("non bloquant")[0]
+                      for t in apres[1:]), "— bloc : %r" % g[:260])
+        borne("⑭ la ligne de décompte DIT le gabarit (exigence de ligne : motif non bloquant)",
+              re.search(r"\d+ suite\(s\) de GABARIT « JJ/MM/AAAA »", g) is not None,
+              "— bloc : %r" % g[:260])
+        borne("⑮ une VRAIE date de même forme reste signalée (doit être ACCEPTÉE)",
+              any("22/09/2026" in t for t in apres[1:]), "— bloc : %r" % g[:260])
+        borne("⑯ gabarit ET vraie affirmation : la vraie reste signalée (doit être ACCEPTÉE)",
+              any("cadence Qwerty" in t for t in apres[1:]), "— bloc : %r" % g[:260])
+        borne("⑰ le gabarit plié est calculé PAR cle(), jamais écrit à la main",
+              "cle(GABARIT_LITTERAL)" in src and "jj mm aaaa" not in src)
+        # ⑱ le DÉTERMINISME, et il ne se prouve pas par la chance : huit graines de hachage
+        #    différentes doivent rendre le même bloc à l'octet. Sans `sorted()`, la veille ai-act
+        #    du 18/09 rendait 1 signalement 4 fois sur 8 et 2 les 4 autres (mesuré le 01/11/2026).
+        borne("⑲ « mm » sans le gabarit reste signalé (doit être ACCEPTÉE)",
+              any("YYYY-MM-DD" in t for t in apres[1:]), "— bloc : %r" % g[:260])
+        blocs = {axe2(lance(cible, graine=k)) for k in range(8)}
+        borne("⑱ huit graines de hachage, un seul verdict : l'ordre des suites est TRIÉ",
+              len(blocs) == 1, "— %d sorties distinctes sur 8" % len(blocs))
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
@@ -144,6 +223,8 @@ def autotest():
     # sortie seul ne prouve pas qu'il a dit quelque chose (règle du dépôt).
     if not ko:
         print("  ② sur N-1 CORRIGÉE : 1 signalement · 1 couverte par ① · absente de N-1 NON signalée")
+        print("  ② GABARIT « JJ/MM/AAAA » : cité NON signalé · vraie date signalée · mixte signalé"
+              " · YYYY-MM-DD signalé · 8 graines, 1 verdict")
     print("  %d/%d bornes de l'omission à l'axe ②" % (len(jouees) - len(ko), len(jouees)))
     return 1 if ko else 0
 

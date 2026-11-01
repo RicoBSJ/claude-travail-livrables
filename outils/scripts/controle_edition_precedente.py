@@ -41,6 +41,8 @@ n'est PAS une réussite).
 import sys, os, re, html, zipfile, unicodedata, glob
 
 MOTS_MINI = 6          # ② recouvrement minimal, en mots consécutifs
+GABARIT_LITTERAL = "JJ/MM/AAAA"   # ② le gabarit de date de la convention d'héritage : un
+                                  # MARQUEUR DE PLACE, jamais une date, donc jamais une assertion
 MOTS_ABSENCE = 8       # ③ longueur minimale d'une phrase d'absence recopiée
 JETON_MINI = 3         # ① longueur minimale d'un jeton
 
@@ -392,12 +394,41 @@ else:
         n_cit += 1
         fen = txt[max(0, m.start()-220): m.end()+220]
         if FAUTE.search(fen): fautives.append(c)
-    trouves, ecartees, couverts, vues = [], 0, 0, set()
+    # Le gabarit de la convention d'héritage — « d'après l'édition du JJ/MM/AAAA de cette veille » —
+    # n'énonce RIEN : c'est un marqueur de place. Une veille qui le CITE (pour dire comment on date
+    # un héritage) au lieu de l'EMPLOYER n'affirme aucun fait, donc elle ne peut pas rejouer un
+    # défaut. Mesuré le 01/11/2026 : la fiche du 12/10 nommait déjà ce gabarit « faux positif
+    # inoffensif » — pour controle_attributions.py, pas pour ②.
+    # BORNE EN ET, et les deux conditions sont mesurées NÉCESSAIRES :
+    #   ① la CITATION porte le gabarit entier. MESURÉ, et pas pour la raison qu'on croit : le jeton
+    #      plié « mm » existe 15 fois dans 9 documents, dont 12 dans 6 leçons appli-ia où il ne
+    #      vient PAS d'un gabarit de date mais de « YYYY-MM-DD » replié en « yyyy mm dd ». Sans
+    #      cette condition, une suite tirée d'un format d'horodatage serait exemptée. (Les
+    #      millimètres, eux, n'existent nulle part dans le corpus : zéro occurrence numérique.)
+    #   ② la SUITE reprise partage un mot avec lui — sans quoi une longue citation portant à la fois
+    #      le gabarit ET une vraie affirmation serait exemptée en entier.
+    # Mesuré : sur « d'après l'édition du JJ/MM/AAAA de cette veille », 6 suites recourent dans N et
+    # 2 d'entre elles NE portent PAS le gabarit entier (« d apres l edition du jj ») — tester le
+    # gabarit sur la suite seule laissait donc le signalement vivre. Toutes partagent un mot.
+    # Le gabarit plié est calculé PAR cle(), jamais écrit à la main (règle du 15/10).
+    GABARIT = cle(GABARIT_LITTERAL)
+    MOTS_GABARIT = set(GABARIT.split())
+    trouves, ecartees, couverts, gabarits, vues = [], 0, 0, 0, set()
     for c in fautives:
         if n_marq_p and (jetons(c) & cands):
             couverts += 1; continue
-        for s in suites(c, MOTS_MINI):
+        cite_gabarit = (" %s " % GABARIT) in (" " + " ".join(cle(c).split()) + " ")
+        # 🔴 sorted() N'EST PAS UN ORNEMENT : suites() rend un SET, et le hachage des chaînes de
+        # Python est randomisé par processus. Sans tri, l'ordre d'itération change à chaque
+        # passage — donc la suite IMPRIMÉE, les décomptes (la boucle `break` au premier vrai
+        # appariement, les suivantes ne sont plus comptées) ET LE VERDICT lui-même, puisque la
+        # déduplication `vues` retient la PREMIÈRE suite trouvée. Mesuré le 01/11/2026 : la veille
+        # ai-act du 18/09 rendait 1 signalement 4 fois sur 8 et 2 les 4 autres, et la veille
+        # has-actualite du 19/10 imprimait 4 suites différentes en 6 passages.
+        for s in sorted(suites(c, MOTS_MINI)):
             if not s or (" %s " % s) not in cle_c: continue
+            if cite_gabarit and (set(s.split()) & MOTS_GABARIT):
+                gabarits += 1; continue
             # la formulation doit encore vivre dans un paragraphe NON CORRIGÉ de N-1 : sinon la
             # fiche dénonçait une formulation déjà traitée, et ce qui revient est la version corrigée
             if (" %s " % s) not in nu_p: ecartees += 1; continue
@@ -408,8 +439,10 @@ else:
             if s in vues: break
             vues.add(s); trouves.append((c, s)); break
     print("   %d citation(s) de %d mots ou plus dans la fiche · %d voisine(s) d'un mot de faute"
-          " · %d écartée(s) : la formulation avait été corrigée dans N-1%s"
+          " · %d écartée(s) : la formulation avait été corrigée dans N-1%s%s"
           % (n_cit, MOTS_MINI, len(fautives), ecartees,
+             (" · %d suite(s) de GABARIT « %s » : la citation le cite au lieu de l'employer,"
+              " elle n'affirme rien" % (gabarits, GABARIT_LITTERAL)) if gabarits else "",
              (" · %d couverte(s) par ① : N-1 est CORRIGÉE (%d marqueur(s)) et son journal les cite"
               % (couverts, n_marq_p)) if n_marq_p else ""))
     if trouves:
