@@ -1015,6 +1015,45 @@ if [ -f "$ROOT/outils/scripts/non_regression/etiquette_has.py" ]; then
   fi
 fi
 
+# 🆕 03/11/2026 — B-FR LIT LE CORPS *ET* LE 📝 JOURNAL DES CORRECTIONS, ET SEULEMENT CE QUE
+#    LE JOURNAL AFFIRME D'UNE PAGE. L'incident : le journal de la veille has-actualite du
+#    02/11 citait « entre décembre 2026 et début de l'année 2028 » avec l'apostrophe DROITE là
+#    où la page archivée porte la typographique — ① LITTÉRAL contre ④ ABSENT —, et AUCUN
+#    contrôle ne pouvait le voir : 3 spans entre guillemets dans le corps, 11 dans les
+#    journaux, B-FR en examinait 2. La reprise NAÏVE du journal ferait entrer 1 006 citations
+#    neuves dans 161 documents, dont 183 capables de BLOQUER : ce sont les formulations
+#    d'origine que le journal conserve par doctrine. Le discriminant mesuré est le TEMPS du
+#    verbe — le présent dit ce que la PAGE porte, l'imparfait ce que le DOCUMENT portait.
+#    ⛔ Et ces citations ne sont JAMAIS bloquantes : un balayage rétrospectif ne valide pas un
+#    motif bloquant (règle du 14/10), et le journal est l'endroit où vivent les libellés
+#    fautifs. Mesure sur les 22 documents affectés, relancés un par un avec le réseau :
+#    0 bloquant changé, 0 compteur du corps changé, 0 ligne perdue.
+#    Le bloc PORTE_JRN … porte_jrn est EXTRAIT du contrôle, pas recopié. AUCUN RÉSEAU.
+if [ -f "$ROOT/outils/scripts/non_regression/bfr_journal.py" ]; then
+  echo "▶ B-FR sur le journal — ce que le journal AFFIRME d'une page (aucun réseau, 0,1 s)"
+  BFJ_OUT="$CUR/bfr_journal.txt"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/bfr_journal.py" > "$BFJ_OUT" 2>&1; then
+    tail -1 "$BFJ_OUT"
+    # ⚠️ LE GARDE LIT LE DÉNOMINATEUR (bornes JOUÉES) : avec le numérateur, un lot amputé
+    #    laisse « N/N » et le garde est décoratif — défaut mesuré le 26/10.
+    ATTENDU_BFJ=19
+    LU_BFJ=$(sed -n "s/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes du journal en B-FR.*/\1/p" "$BFJ_OUT")
+    if [ "$LU_BFJ" != "$ATTENDU_BFJ" ]; then
+      echo "  ✗ ${LU_BFJ:-0} borne(s) jouée(s), $ATTENDU_BFJ attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_BFJ à jour en disant pourquoi."
+      exit 1
+    fi
+  else
+    grep '✗' "$BFJ_OUT" | head -9
+    echo "  ✗ B-FR NE LIT PLUS LE JOURNAL COMME ELLE LE DOIT. Soit elle ne le lit plus du tout"
+    echo "    — et un littéral fautif y redevient invisible, l'incident du 03/11 —, soit elle y"
+    echo "    lit TOUT, et les formulations d'origine que le journal conserve par doctrine"
+    echo "    deviennent des attributions : 1 006 citations neuves, 183 capables de bloquer."
+    echo "    Les deux sens sont gardés ici, dont six bornes qui doivent être ACCEPTÉES."
+    exit 1
+  fi
+fi
+
 bloc_orthographe || exit 1
 bloc_noms_propres || exit 1
 bloc_omission_axe2 || exit 1

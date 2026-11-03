@@ -6234,3 +6234,59 @@ de sortie que je croyais lire.** Après un push : comparer `git rev-parse HEAD` 
 🔴 **ET MON ASSERTION DE GARDE ÉTAIT FAUSSE AU PREMIER JET.** J'exigeais `x.count("GT constitué") == 3` et le patch a **refusé à 4** : j'avais oublié que ma propre entrée de journal **cite la phrase pour la dénoncer**. Le garde a mordu **avant toute écriture**, rien n'a été touché, et la bonne invariante n'est pas un compte global mais **« le corps, marqueurs retirés, avant le journal, ne porte plus la phrase »**. **Dans un document dont le journal conserve le libellé d'origine, un compte global ne peut qu'être faux** — et un compte juste par hasard aurait laissé passer une rectification incomplète.
 
 📌 **NON FAIT, NON ORDONNÉ** : reprendre dans le corps le **calendrier de travail** de l'archive (sept séances jusqu'au début 2028) ; repointer la ligne sur l'**archive du 10/10** plutôt que sur la page murée — l'instantané précède de 16 jours l'édition que la ligne cite, et l'ordre nommait la page vive ; porter la règle « une citation qui mêle un nombre et une apostrophe ne se prouve qu'au littéral » dans la section **Normalisation** de `CLAUDE.md`, ce qui relève d'un ordre `apprends cette règle` ; faire dire `MUR ?` à `balayer_adresses.py` sur un titre `« Identification »`, borné sur **14 pages** et non sur les 300 ; porter le bornage du gabarit d'héritage à `controle_attributions.py`, **cinquième** récurrence.
+
+---
+
+## 03/11/2026 — B-FR lit désormais le corps ET le 📝 Journal des corrections
+
+**L'ordre** : « fais lire le corps ET le journal à B-FR », au lendemain immédiat d'un incident où ma propre consignation citait une page avec la mauvaise apostrophe et où **aucun contrôle du dépôt ne pouvait le voir**.
+
+### Le trou était structurel, pas accidentel
+
+`controle_attributions.py` tronque `corps` au premier « Journal des corrections » (lignes 96-99) **pour toutes les passes**, depuis l'origine. Un libellé fautif *affirmé au présent dans le journal* — « la page annonce … » — n'était donc confronté à **aucune page**. Mesure sur la veille HAS du 02/11 : **3** spans cités dans le corps, **11** dans ses journaux, **2** examinés par B-FR.
+
+### L'élargissement naïf est inacceptable, et c'est mesuré
+
+Reprendre le journal en entier dans la collecte : **+1 006 citations dans 161 documents, dont 183 capables de BLOQUER**. La cause n'est pas un défaut du contrôle mais la doctrine du dépôt : le journal **conserve** les formulations d'origine, c'est-à-dire exactement celles que la correction a dénoncées. Les reprendre, c'est accuser le document d'avoir dit ce qu'il a corrigé.
+
+### Trois bornes
+
+| # | Borne | Pourquoi |
+|---|---|---|
+| ① | Seule la **collecte** voit le journal (`CIT_SRC = corps + journal`) ; `corps` reste coupé | A, A2–A6, B, B-NOM, C, C2, D, ㉜ ㉚ ㉞ ㉟ ㊱ ㊲ ㊴ ne voient **rien** de neuf. La branche **anglaise** sort avant son premier filtre, sinon la passe B chercherait des messages d'erreur conservés au journal |
+| ② | Un **verbe de portage au PRÉSENT** (`porte · écrit · dit · annonce · indique · mentionne · affiche · donne · rend`), sans négation, porteur ≠ le document, objet non annoncé comme exemple / mention / libellé / formulation / intitulé | **Le temps du verbe EST le discriminant** : l'imparfait est le temps de la conservation (« la note écrivait … »), le présent celui du portage (« la page annonce … »). L'opposition recouvre exactement « page-porte » contre « document-a-porté » |
+| ③ | Une citation du journal **ne peut JAMAIS bloquer** | `JOURNAL OK` / `JOURNAL NON VERIFIABLE` / `JOURNAL A RELIRE`, et la branche sort par `continue` sans toucher `ko_b`. Règle du 14/10 : un balayage rétrospectif ne valide pas un motif bloquant |
+
+### Mesures
+
+- Recensement **hors réseau** sur les **327 documents**, source réelle du contrôle exécutée par tranches, aucune logique recopiée : **+30 citations dans 22 documents, 19 capables de bloquer, 0 perdue**.
+- Les **22 documents affectés** rejoués **un par un, avec le réseau**, contrôle intact puis corrigé (règle du 12/10 : jamais en parallèle) : **0 bloquant changé, 0 compteur du corps changé, 0 ligne perdue**. Journal : **17 OK · 0 NON VERIFIABLE · 9 A RELIRE | 30 retenues · 326 spans écartés** faute d'affirmation de portage.
+- Trois **fausses accusations** trouvées à la relecture et retirées par mesure : sept porteurs côté document ajoutés à `SELF_JRN` (−4), puis une borne d'objet sur `contre-exemple|exemple|mention|libellé|formulation|intitulé` (−2). **Une résiduelle dite et laissée** : « M. X présente une fuite des idées » (psychopathologie n°04), dont le porteur « le second exercice » tombe hors de la fenêtre de 90 caractères — non bloquant, donc le coût est du bruit.
+
+### Le témoin
+
+`outils/scripts/non_regression/bfr_journal.py` — **19 bornes, aucun réseau, 0,1 s**, le bloc `PORTE_JRN … porte_jrn` **extrait du contrôle** et exécuté, jamais recopié (règle du 15/10). **Six bornes doivent être ACCEPTÉES** : imparfait, porteur-document, négation, objet-exemple, « titre » substantif. La borne **⑲** exige que `porte_jrn` soit **APPELÉE** et que l'appel **précède** l'aiguillage FR/anglais — sans elle, la fonction pouvait être parfaite et le contrôle reprendre le journal en entier, lot vert (leçon du 27/10, l'alerte d'étiquette). `ATTENDU_BFJ=19` au harnais lit le **dénominateur** (défaut du 26/10).
+
+### Sept sabotages, sept refus
+
+| Sabotage | Borne qui mord | Harnais |
+|---|---|---|
+| Borne ⑯ retirée du lot | `18 borne(s) jouée(s), 19 attendue(s)` | exit 1 |
+| `CIT_SRC = corps` (journal hors collecte) | ⑬ `concat False` | exit 1 |
+| `porte_jrn` jamais appelée | ⑲ `appel @-1` | exit 1 |
+| Imparfait admis dans `PORTE_JRN` | ⑦ ACCEPTÉE → `rend True, False attendu` | exit 1 |
+| Branche journal supprimée (citations bloquantes) | ⑮ `branche de 0 caractères` | exit 1 |
+| Sortie anglaise déplacée après `SQL.match` | ⑭ `sortie @-1` | exit 1 |
+| `cits_jrn -= cits_corps` retiré | ⑯ | exit 1 |
+
+Chaque sabotage **prouve d'abord qu'il a modifié le fichier** (sha256 avant → après), et les deux fichiers sont restaurés au **sha256 identique** à chaque fois — `a35ae53d…` pour le contrôle, `0eea9110…` pour le témoin.
+
+🔴 **Et deux de mes sept sabotages n'ont rien prouvé au premier jet, pour une cause qui n'est pas dans le code.** Mon essai à vide du pilote était tuyauté dans `head -5` : **SIGPIPE a tué le pilote en plein S2**, et le sabotage est **resté en place** sur le contrôle. Le S1 suivant a donc mordu sur la **mauvaise borne** (⑬ au lieu d'`ATTENDU_BFJ`), et S2 n'a pas pu s'appliquer — son assertion refusait, à juste titre, un motif déjà substitué. **Un sabotage non restauré rend illisible le verdict du suivant.** Rejoués seuls depuis l'état propre, les trois concernés nomment chacun sa borne. **Ne jamais tuyauter dans `head` un pilote qui restaure des fichiers.**
+
+### Le harnais
+
+Mode défaut : **exit 0, 0 `✗`, 2 min 46 s**. Gate `--docs` sur les éditions HAS du 02/11 et du 26/10 : **2 × `0 bloquant(s)`, décompte exit 0, relecture d'édition exit 0**.
+
+### Une règle de normalisation, payée par mon erreur du matin
+
+Une citation qui mêle **un nombre et une apostrophe** ne se prouve qu'au **degré ①**. Le degré ② de `chercher.py` est **interdit dès que la requête contient un chiffre** — borne **voulue** du 15/10, sans quoi « 1 338 » s'apparierait à « 1,338 ». Conséquence jamais nommée : toute déviation de ponctuation sort alors en **④**, indiscernable d'une vraie absence. J'avais consigné « entre décembre 2026 et début de l'année 2028 » avec l'apostrophe **droite** là où la page écrit la **typographique** : `U+2019` → ① LITTÉRAL, `U+0027` → ④ ABSENT. **Cinquième récurrence de « mon ④ venait de ma requête », et la première dont la cause est une borne délibérée et non une négligence : il n'y a rien à corriger dans `chercher.py`.** Le remède est de taper la citation au **copier-coller de la page aspirée**.

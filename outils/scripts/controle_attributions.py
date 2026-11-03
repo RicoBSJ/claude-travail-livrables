@@ -94,7 +94,9 @@ if "=== TEXTE COMPLET" not in t:
 sep = t.index("=== TEXTE COMPLET")
 entete, corps = t[:sep], t[sep:]
 # le journal des corrections cite VOLONTAIREMENT les formulations d'origine : on l'exclut
+# des passes qui lisent « corps ». ⚠️ SAUF B-FR DEPUIS LE 03/11/2026 — voir CIT_SRC.
 jrn = corps.find("Journal des corrections")
+journal = corps[jrn:] if jrn != -1 else ""
 if jrn != -1:
     corps = corps[:jrn]
 def urls_de(z, fin=r"\s"):
@@ -155,11 +157,17 @@ urls = sorted(set(urls) | set(urls_texte))
 #    (« TypeError [ERR_UNKNOWN_FILE_EXTENSION] » vit a l'interieur d'un marqueur).
 MARQUEUR = re.compile(r"\[(?:Corrigé|Corrige|Précisé|Precise|Ajouté|Ajoute|Note du|Vérifié|Verifie)\b"
                       r"[^\[\]]*(?:\[[^\]]*\][^\[\]]*)*\]", re.S)
-SPANS = [m.span() for m in MARQUEUR.finditer(corps)]
-def dans_marqueur(i):
+def spans_de(z):
+    """les spans des marqueurs de z. UNE seule logique, deux entrees : le corps (A..D) et
+    le corps + journal (B-FR, 03/11/2026). Sur le prefixe commun les deux jeux sont
+    identiques — meme regex, meme texte — donc A, A2, A3, A4, B-NOM, C2 et D ne bougent pas."""
+    return [m.span() for m in MARQUEUR.finditer(z)]
+SPANS = spans_de(corps)
+def dans_marqueur(i, spans=None):
     """i tombe-t-il dans un marqueur de correction ? (la trace n'est pas une attribution)"""
-    return any(a <= i < b for a, b in SPANS)
+    return any(a <= i < b for a, b in (SPANS if spans is None else spans))
 ecartes_marqueur = 0
+ecartes_jrn = 0          # (03/11/2026) spans du journal qui n'AFFIRMENT rien sur une page
 corps_hm = corps
 for a_, b_ in SPANS:
     corps_hm = corps_hm[:a_] + " " * (b_ - a_) + corps_hm[b_:]
@@ -832,9 +840,65 @@ def source_nommee_fr(avant, apres):
 #    des marqueurs et bornes 9-700 caracteres sont herites tels quels par la suite commune.
 _CIT = re.compile(r"(?:«|(?<![\wÀ-ÿ])\")\s*([^»\"]{9,700}?)\s*(?:»|\"(?![\wÀ-ÿ]))")   # 700 : une citation hagiographique tient sur 500 caracteres (㉗)
 _COURBE = re.compile(r"\u201c\s*([^\u201c\u201d]{9,700}?)\s*\u201d")
-_pris = list(_CIT.finditer(corps))
+# 🔴 (03/11/2026) B-FR LIT LE CORPS *ET* LE 📝 JOURNAL DES CORRECTIONS.
+#    L'INCIDENT : le journal de la veille has-actualite du 02/11 citait « entre décembre
+#    2026 et début de l'année 2028 » avec l'apostrophe DROITE là où la page archivée porte
+#    l'apostrophe typographique — ① LITTÉRAL contre ④ ABSENT. Mesure du jour sur ce
+#    document : 3 spans entre guillemets dans le corps, 11 dans les journaux, B-FR en
+#    examinait 2. Le journal etait donc A LA FOIS le seul endroit sur pour poser un
+#    littéral ET le seul endroit ou un littéral FAUTIF est invisible.
+#    ⚠️ BORNE 1 — SEULE LA COLLECTE VOIT LE JOURNAL. « corps » ne bouge pas : A, A2, A3,
+#    A4, A5, A6, B-NOM, C, C2 et D sont inchangés, et la passe B (anglais) non plus — un
+#    candidat qui commence dans le journal est ecarte de sa branche.
+#    ⚠️ BORNE 2 — UN VERBE DE PORTAGE AU PRESENT, et c'est MESURE, pas choisi : la reprise
+#    naive du journal fait entrer 1 006 citations neuves dans 161 documents, dont 183
+#    capables de BLOQUER — ce sont les formulations d'origine que le journal conserve par
+#    doctrine. Avec la borne : 49 neuves, 24 a source nommee. Le present separe ce que la
+#    PAGE porte (« la page AMF écrit « … » ») de ce que le DOCUMENT portait (« cette
+#    rubrique portait « … » », « la note écrivait « … » ») — l'imparfait est le temps de
+#    la conservation. Negation ecartee (« la page ne dit pas « … » » est deja un constat
+#    d'absence), sujet = le document ecarte, et « titre » retire de la liste : c'est un NOM
+#    dans « Le titre et la date sont exacts — « … » » (faux positif mesure, psychopathologie n°14).
+#    ⚠️ BORNE 3 — NON BLOQUANTES. Un balayage retrospectif ne valide pas un motif bloquant
+#    (regle du 14/10) et le journal est, par construction, l'endroit ou vivent les libelles
+#    fautifs : une citation du journal est verifiee et RAPPORTEE, jamais refusee.
+PORTE_JRN = re.compile(r"(?i)\b(?:porte|portent|écrit|écrivent|dit|disent|annonce|annoncent|"
+                       r"indique|indiquent|mentionne|mentionnent|affiche|affichent|donne|donnent|"
+                       r"rend|rendent)\b"
+                       # une ENUMERATION : « la page porte « A », « B » et « C » ». Sans cela
+                       # seule A etait retenue — mesure du 03/11/2026 sur la veille
+                       # has-actualite du 02/11, dont le journal enumere DEUX litteraux.
+                       r"(?:[^.«»]{0,70}|[^.«»]{0,40}(?:«[^«»]{0,700}»[^.«»]{0,14}){1,5})$")
+NEG_JRN = re.compile(r"(?i)\bn[e’']\s*\w+[^.«»]{0,40}\b(?:pas|plus|ni|jamais|aucune?)\b")
+SELF_JRN = re.compile(r"(?i)\b(?:la note|cette note|la leçon|la ligne|la rubrique|la section|"
+                      r"le document|le corps|le journal|la fiche|désormais|maintenant|"
+                      # 🔴 MESURÉ, pas devine : ces sept porteurs sont ceux que le corpus
+                      #    oppose a une page — le paragraphe de la lecon, ses syntheses, un
+                      #    log de job, la sortie d'une commande, une vignette clinique. Sans
+                      #    eux, 7 des 16 lignes « JOURNAL A RELIRE » accusaient un document
+                      #    qui disait vrai (balayage des 26 documents affectes, 03/11/2026).
+                      r"le paragraphe|la synthèse|les synthèses|le log|la commande|"
+                      r"la vignette|l'exercice)\b")
+def porte_jrn(g):
+    """le journal AFFIRME-t-il, au present, qu'une page porte ce qui suit ?"""
+    f = re.sub(r"\s+", " ", g)[-130:]
+    mo = PORTE_JRN.search(f)
+    if not mo: return False
+    # 🔴 un verbe de portage dont l'OBJET est annonce comme un EXEMPLE ou une MENTION
+    #    n'affirme rien d'une page : « donne le bon contre-exemple — « … » », « portent
+    #    spontanement la mention « … » ». Mesure du 03/11/2026 : ces deux formes sont les
+    #    3 dernieres lignes « A RELIRE » qui accusaient un document disant vrai, et aucune
+    #    des 17 lignes « JOURNAL OK » n'en porte.
+    if re.search(r"(?i)\b(?:contre-exemples?|exemples?|mentions?|libell[ée]s?|formulations?|"
+                 r"intitul[ée]s?)\b", f[mo.start():]): return False
+    return not NEG_JRN.search(f[max(0, mo.start() - 40):]) and not SELF_JRN.search(f[-90:])
+CIT_SRC = corps + journal
+SPANS_CIT = spans_de(CIT_SRC)
+_DEB_JRN = len(corps)
+cits_jrn, cits_corps = set(), set()
+_pris = list(_CIT.finditer(CIT_SRC))
 _zones = [(mm.start(), mm.end()) for mm in _pris]
-_courbes = [mm for mm in _COURBE.finditer(corps)
+_courbes = [mm for mm in _COURBE.finditer(CIT_SRC)
             if not any(a_c <= mm.start() < b_c for a_c, b_c in _zones)]
 cits_courbes = len(_courbes)
 for m in sorted(_pris + _courbes, key=lambda mm: mm.start()):
@@ -843,9 +907,12 @@ for m in sorted(_pris + _courbes, key=lambda mm: mm.start()):
     if not re.search(r"[A-Za-zÀ-ÿ]", c):       continue
     # une citation entre crochets de correction (« [Corrigé le … : la première version citait « … »] ») cite
     # l'erreur, elle ne l'affirme pas : exemptee dans les deux langues (17/09/2026 — astrologie n°07)
-    av_ = corps[max(0, m.start() - 300):m.start()]
-    if dans_marqueur(m.start()):
+    av_ = CIT_SRC[max(0, m.start() - 300):m.start()]
+    if dans_marqueur(m.start(), SPANS_CIT):
         ecartes_marqueur += 1
+        continue
+    if m.start() >= _DEB_JRN and not porte_jrn(CIT_SRC[max(0, m.start() - 200):m.start()]):
+        ecartes_jrn += 1
         continue
     if FR.search(c) or not OUTILS.search(c):
         # ㉖ citation FRANCAISE — un mot-outil francais, ou aucun mot-outil anglais (« contradictoires », un seul
@@ -853,7 +920,7 @@ for m in sorted(_pris + _courbes, key=lambda mm: mm.start()):
         #    hors crochets de correction, avec sa source nommee
         lettres = len(re.findall(r"[A-Za-zÀ-ÿ]", c))
         if lettres >= 9:
-            nommes_ = source_nommee_fr(corps[max(0, m.start() - 160):m.start()], corps[m.end():m.end() + 200])
+            nommes_ = source_nommee_fr(CIT_SRC[max(0, m.start() - 160):m.start()], CIT_SRC[m.end():m.end() + 200])
             # la parole d'une vignette (« il répète « j'en peux plus » »), la question que la lecon propose de se
             # poser, la formulation qu'elle discute : ce sont ses propres mots, pas une citation — sans source
             # nommee, on ne les cherche pas
@@ -861,6 +928,7 @@ for m in sorted(_pris + _courbes, key=lambda mm: mm.start()):
                                r"écrit|note[sz]?|intitul\w*|appel\w*|terme|mot|expression)\b[^«»\n]{0,40}$", av_[-80:], re.I)
             if nommes_ or not parole:
                 cits_fr[c] = cits_fr.get(c, set()) | nommes_
+                (cits_jrn if m.start() >= _DEB_JRN else cits_corps).add(c)
         continue
     # ㉛ (27/09/2026) UNE REQUETE SQL N'EST PAS UNE CITATION ANGLAISE. Les mots-cles de SQL
     #    sont des mots anglais : « SELECT COUNT(*) as n FROM livrables WHERE slug LIKE @m » passe
@@ -871,6 +939,7 @@ for m in sorted(_pris + _courbes, key=lambda mm: mm.start()):
     #    en mode --docs, sans reseau, et la passe B ne s'exerce que dans le mode complet.
     #    Signature : un VERBE SQL en tete de requete, suivi d'un mot-cle de structure. C'est plus
     #    strict qu'une simple presence de mot-cle — « select » seul est un mot anglais courant.
+    if m.start() >= _DEB_JRN:                   continue      # le journal n'entre que dans B-FR (03/11/2026)
     if SQL.match(c.strip()):                    continue
     if len(c.split()) < 6:                      continue      # anglais : six mots ou plus (㉔)
     if not c[:1].isalpha():                     continue      # (un titre francais peut commencer par un chiffre : « 6e cycle… » — B-FR l'a deja pris)
@@ -884,8 +953,8 @@ for m in sorted(_pris + _courbes, key=lambda mm: mm.start()):
     c = re.split(r"\s+[\u2014-]\s+(?=[A-Z\u00c0-\u00dd][^.]{2,60}$)", c)[0].strip()
     if len(c.split()) >= 6:
         cits.add(c)
-        attrib[c] = attrib.get(c, set()) | source_nommee(corps[max(0, m.start() - 140):m.start()], corps[m.end():m.end() + 200])
-        av_c = corps[max(0, m.start() - 140):m.start()]
+        attrib[c] = attrib.get(c, set()) | source_nommee(CIT_SRC[max(0, m.start() - 140):m.start()], CIT_SRC[m.end():m.end() + 200])
+        av_c = CIT_SRC[max(0, m.start() - 140):m.start()]
         dit_par[c] = dit_par.get(c, False) or bool(
             re.search(r"cit[ée]e?s?\s+(?:par|dans)|rapport[ée]e?s?\s+par|\bselon\b|d[’']apr[eè]s|\bsays?\b|\bsaid\b|\bdit\b|d[ée]clar|affirm", av_c, re.I)
             and not re.search(r"titre|headline|intitul", av_c[-60:], re.I))
@@ -1000,9 +1069,9 @@ for _d in doms_res | {sans_www(d_) for d_ in re.findall(r"[\w.-]+\.(?:com|org|ne
         if len(_p) >= 4 and _p not in ("http", "https", "www"): STEMS_.add(cle_texte(_p))
 def source_hors_page(c):
     """(auteur, titre, declaree) si la citation est pretee a une source nommee SANS page listee."""
-    i = corps.find(c)
+    i = CIT_SRC.find(c)
     if i < 0: return None
-    apres = corps[i + len(c):i + len(c) + 240]
+    apres = CIT_SRC[i + len(c):i + len(c) + 240]
     if re.search(r"[\w.-]+\.(?:com|org|net|fr|eu|lu|gov|edu|uk|be|ch|ca|io|se)\b", apres[:140], re.I):
         return None                                  # un domaine est nomme : c'est ㉖ qui tranche
     mo = OUVRAGE_.search(apres)
@@ -1011,14 +1080,32 @@ def source_hors_page(c):
     if len(tit.split()) < 2: return None
     blob = cle_texte(aut + tit)
     if any(st in blob for st in STEMS_): return None  # le « titre » designe un site LISTE : ㉖ aussi
-    ctx = corps[max(0, i - 220):i + len(c) + 280]
+    ctx = CIT_SRC[max(0, i - 220):i + len(c) + 280]
     return (aut, tit, bool(DECLARE_.search(ctx)))
 print("\nB-FR. CITATIONS FRANCAISES ENTRE GUILLEMETS (9 lettres ou plus ; sans source nommee, 4 mots ou plus) : %d" % len(cits_fr))
 if os.environ.get("DEBUG"):
     for c in sorted(cits_fr): print("   [debug] %r -> nommes %s" % (c[:60], sorted(cits_fr[c])))
+cits_jrn -= cits_corps        # un libelle present dans le CORPS reste juge comme tel
+a_relire_jrn = 0
 for c in sorted(cits_fr):
     nommes = cits_fr[c]
     trouvees = ou_trouve_toutes(c)
+    if c in cits_jrn:
+        # (03/11/2026) citation du 📝 JOURNAL : verifiee, NON BLOQUANTE (borne 3 ci-dessus)
+        if not nommes and len(c.split()) < 4:
+            continue                 # meme seuil que dans le corps : un terme n'est pas une citation
+        attendues_j = sum((pages_de(d) for d in nommes), [])
+        chez_j = [t_ for t_ in trouvees if t_ in attendues_j] if nommes else trouvees
+        if chez_j:
+            print("   JOURNAL OK %s\n             -> %s — le journal dit vrai sur ce que porte cette page" % (c[:76], chez_j[0]))
+        elif nommes and any(a_ in non_lues or a_ in non_textuels or len(textes.get(a_, "")) < 500 for a_ in attendues_j):
+            print("   JOURNAL NON VERIFIABLE %s\n             -> prêtée à %s : page non lue, façade ou PDF — à vérifier à la main" % (c[:76], "/".join(sorted(nommes))))
+        else:
+            a_relire_jrn += 1
+            print("   JOURNAL A RELIRE %s\n             -> le journal affirme qu'une page la porte%s, et aucune page lue ne la porte :"
+                  "\n                graphie du littéral, ou mesure fausse — NON BLOQUANT (03/11/2026)"
+                  % (c[:76], (" (" + "/".join(sorted(nommes)) + ")") if nommes else ""))
+        continue
     if not nommes:
         hp = source_hors_page(c)
         if hp and not trouvees:
@@ -1428,6 +1515,7 @@ for n in sorted(chiffres, key=lambda s: (len(s), s)):
 inertes = []
 if not cits:    inertes.append("B (aucune citation anglaise de 6 mots ou plus)")
 if not cits_fr: inertes.append("B-FR (aucune citation française de 9 lettres ou plus)")
+if journal and not cits_jrn: inertes.append("B-FR sur le JOURNAL (aucune affirmation de portage au présent)")
 if not phrases_nom: inertes.append("B-NOM (aucune affirmation prêtée à un nom sans guillemets)")
 if not vers:    inertes.append("C (aucun numero de version)")
 if not vus:     inertes.append("C2 (aucune version pres d'un domaine cite)")
@@ -1443,12 +1531,15 @@ if non_lues:
     print(">>> PAGES NON LUES (0 octet) : %d — %s" % (len(non_lues), "; ".join(non_lues)))
     print(">>> Rien n'a pu etre verifie sur elles : relance plus tard, ou verifie a la main.")
 pb = len(orphelines) + len(sites_non_listes) + len(sans_adresse) + len(mal_formes) + len(src_sans_adresse) + len(sans_cible) + len(liens_morts) + ko_b + ko_nom + ko_c2
-print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + A6 + B + B-FR + B-NOM + C2)%s%s%s%s%s"
+print("\nVERDICT : %d probleme(s) bloquant(s) (A + A2 + A3 + A4 + A5 + A6 + B + B-FR + B-NOM + C2)%s%s%s%s%s%s"
       % (pb, " — et %d verification(s) IMPOSSIBLE(S), pages non lues ou PDF" % non_verif if non_verif else "",
          " — et %d citation(s) francaise(s) A RELIRE (non bloquant)" % a_relire_fr if a_relire_fr else "",
          " — et %d attribution(s) sans guillemets A RELIRE (non bloquant)" % a_relire_nom if a_relire_nom else "",
          " — et %d citation(s) reprise(s) nue(s) A RELIRE (㉚, non bloquant)" % a_relire_b if a_relire_b else "",
-         " — et %d citation(s) prêtée(s) à une SOURCE NOMMÉE SANS PAGE, non déclarée(s) (㉜, non bloquant)" % hors_page if hors_page else ""))
+         " — et %d citation(s) prêtée(s) à une SOURCE NOMMÉE SANS PAGE, non déclarée(s) (㉜, non bloquant)" % hors_page if hors_page else "",
+         " — et %d citation(s) du JOURNAL A RELIRE (non bloquant)" % a_relire_jrn if a_relire_jrn else ""))
+print("          B-FR a lu le corps ET le journal : %d citation(s) du journal retenue(s), %d span(s) du journal écarté(s) faute d'affirmation de portage"
+      % (len(cits_jrn), ecartes_jrn))
 print("          %d valeur(s) chiffree(s) a relire en D — a la main, D n'est pas bloquant"
       % ko_d)
 sys.exit(1 if pb else (3 if non_verif else 0))
