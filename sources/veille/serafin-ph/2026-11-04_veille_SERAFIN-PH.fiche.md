@@ -1,0 +1,96 @@
+---
+type: fiche-document
+source: 2026-11-04_veille_SERAFIN-PH.docx
+date_creation: 2026-11-04
+date_veille: 2026-11-04
+veille: serafin-ph
+statut: veille-active
+tags:
+  - veille/serafin-ph
+  - registre/pro
+  - concept/plfss-2027
+  - concept/recueil-ph-2026
+  - concept/convergence-tarifaire
+  - concept/semaine-creuse
+  - source/handicap-gouv
+  - source/cnsa
+  - source/fhf
+  - source/atih
+  - source/uniopss
+  - theme/document-non-publie-le-gate-a-refuse
+  - theme/mur-javascript-marque-source-lue
+  - theme/troisieme-semaine-sur-la-meme-page-muree
+  - theme/projection-promue-en-statut-en-cours
+  - theme/convergence-sans-source-dont-le-millesime-derive
+  - theme/fait-juste-attribue-a-la-mauvaise-page
+  - theme/le-job-ne-passe-pas-la-passe-qui-le-refuse
+  - theme/plafond-releve-puis-absorbe-en-une-semaine
+---
+
+# 2026-11-04_veille_SERAFIN-PH
+
+Document source : [[2026-11-04_veille_SERAFIN-PH.docx]]
+
+## Résumé
+
+**Ce document n'est pas publié, et c'est le dépôt qui l'a voulu : le hook a refusé le push trois fois de suite, pour un bloquant exact.** `cf73a4b` est en avance d'un commit sur `origin/main`, resté à `3cab550`. Le motif est en **passe A4** — `INTERDIT Source primaire : CNSA, publié le 16/10/2026 (hors fenêtre)` : la ligne nomme une autorité sans porter d'adresse, ni sur elle-même, ni sur les deux suivantes ; le lien existe **six paragraphes plus bas**. La ligne jumelle, `Source secondaire : e-solidarites.fr, publié le 9/10/2026 (hors fenêtre)`, n'est **pas** signalée — elle porte un nom de domaine. **Le correctif tient en un mot sur une ligne, et le reste des passes est propre** : A2, A3, A5, A6 à zéro, B, B-FR, B-NOM, C, C2 et D **inertes** (aucune citation entre guillemets dans tout le document), décompte `COHÉRENT` (✅ 6 · ⛔ 1 · annoncé 6/7), relecture d'édition `exit 0`, intégrité rejouée sous `env -i` : **148 ¶ · 140 porteurs · 16 liens · 4 tableaux** pour un plancher de 3.
+
+**Le défaut central n'est pas le bloquant : c'est que la source la plus citée du document est un mur JavaScript, qu'elle est marquée `✅ Source primaire lue`, et que c'est la troisième semaine consécutive.** `handicap.gouv.fr` rend **93 caractères utiles**, qui sont *intégralement* : *« Please enable JavaScript to view the page content. Your support ID is: 2042403062112175885. »* Le document lui attribue **six énoncés** — mise en œuvre au 1er janvier 2027 pour l'enfance, collecte lancée le 30 mars 2026, mobilisation jusqu'à l'automne, simulations individualisées, transport dans la dotation globale, présidence du 14e comité — et écrit dans son tableau de sources *« Source primaire lue (rendu JS, 93 car. utiles) »*. 🔴 **Le dépôt se contredit lui-même sur cette page, et c'est le contrôle qui a raison** : `controle_noms_propres.py` la compte **NON LUE** (`2/7 page(s) NON LUE(s)`) au moment même où le document la déclare lue. ⚠️ **Et ce n'est ni une découverte ni une rechute isolée** : la fiche du **21/10** portait déjà les 93 caractères et écrivait qu'elle *« ne peut plus servir de fond documentaire sans être rouverte autrement »* ; celle du **28/10** l'a remesurée et a nommé la voie de lecture. Deux fiches, deux semaines, et la page est recitée telle quelle.
+
+**La substance, elle, tient — et c'est encore l'archive qui l'établit, pas le document.** L'instantané Wayback du **18/05/2026** est toujours le dernier du catalogue (vérifié ce jour : `20260327 · 20260416 · 20260517 · 20260518`, rien après) et rend **5 761 caractères utiles**, au chiffre près ce que la fiche du 28/10 avait mesuré. Les quatre points attribués au comité s'y vérifient : **« Camille Galliard-Minier » ①**, **« 30 mars 2026 » ①**, **« automne 2026 » ①** et **« fiabiliser » ①** dans la phrase exacte du document, **« transport » ①** et **« dotation globale » ①** dans *« intégrer notamment la question du financement des transports dans la dotation globale »*. ⚠️ **Deux précisions sont ajoutées par la note et ne sont sur aucune page** : le *« dès 2027 »* du transport, et le *« individualisées »* des simulations — l'archive écrit *« une simulation des effets de la réforme sur son financement »*. **Le document dit vrai sur une page qu'il ne cite pas, et cite une page qui ne dit rien.**
+
+**Une projection est promue en statut d'avancement, et deux fois plutôt qu'une — le même défaut que la veille HAS avant-hier.** ① Le tableau de bord porte *« Recueil de données PH 2026 — ✅ **Terminé** — 2 phases réalisées »* et l'agenda *« [x] FAIT — Mai 2026 : phase 2 »*, en créditant la page CNSA du **17/12/2025**. Or cette page est écrite **entièrement au futur** — *« se déroulera »*, *« fera l'objet »*, *« seront transmises »* — et **sous condition** : *« Sous réserve de validation par les autorités administratives compétentes (CNIL notamment) »*. 🔴 **Et la seule page lue qui couvre réellement mai 2026 dit autre chose** : la FHF (30/03/2026) écrit *« A partir du 27 avril et jusqu'au 24 mai s'ouvrira la phase de qualification par les ARS »* — mai 2026 y est la **fenêtre de qualification ARS**, pas une phase 2 sur les indicateurs de modulation. ② Le même tableau donne *« Simulations individualisées transmises aux ESMS — 🟡 En cours de transmission (automne 2026) »* quand l'archive place l'automne sur la **fiabilisation** et la transmission **après** : *« mobilisés jusqu'à l'automne 2026 pour fiabiliser les données, condition indispensable aux simulations qui seront ensuite transmises »*. **La note avance l'étape d'un cran.**
+
+**La convergence sur 8 ans n'est portée par aucune des six pages lisibles, et son millésime de fin a dérivé d'un an sans que rien ne bouge autour.** `2027–2034`, `2027-2034`, `8 ans`, `huit ans` : **0 occurrence** sur les cinq sources vivantes **et** sur l'archive. La page ATIH porte bien *« construire la trajectoire de convergence tarifaire »* — **sans durée et sans intervalle**. Mesure sur la série : le 21/10 écrivait **2027–2035**, le 28/10 ne donnait plus d'intervalle, le 04/11 écrit **2027–2034**. ⚠️ **La fiche du 28/10 avait déjà écrit que « la convergence sur 8 ans et SIDOBA ne sont portés par aucune source listée »** ; une semaine plus tard l'affirmation est toujours là, dans une rubrique *« Points de vigilance pour les directions d'ESSMS »*, et son millésime a changé. **C'est le seul chiffre de la note qu'un directeur pourrait reprendre tel quel et qu'aucune page ne soutient.**
+
+**Deux attributions sont fausses alors que les faits sont justes, et la distinction compte parce que c'est l'attribution qui se vérifie.** ① Le tableau des acteurs écrit que le Conseil de la CNSA *« a rendu un **avis défavorable sur le volet SERAFIN-PH** du PLFSS 2027 »* : **« volet » compte 0 occurrence** sur la page CNSA, et le vote qu'elle publie porte sur le PLFSS **entier** — *« Contre : 41 voix – Abstention : 1 voix – Ne prennent pas part au vote : 36 voix »*. Ce que la page dit du volet SERAFIN-PH est plus étroit : *« Il regrette également le report d'un an du financement de la réforme SERAFIN-PH »* ①. ② Le tableau de bord porte *« 🔴 NON inscrit — report signalé par le Conseil CNSA (16/10/2026) »* : `ne figurent` et `inscri` comptent **0 occurrence** sur la page CNSA. C'est la page **e-solidarites** qui l'écrit, au littéral — *« les 90 millions d'euros promis ne figurent pas dans le PLFSS 2027 et sont renvoyés hypothétiquement à 2028 »* ①. **Le fait est exact et la source citée ne le porte pas.**
+
+**Ce que la note perd est le cadre qui rend les 90 M€ intelligibles.** La page e-solidarites écrit *« une enveloppe de **360 millions sur quatre ans**, à hauteur de 90 millions d'euros dès 2027 »* ① : les 90 M€ sont la **première annuité d'un engagement de 360 M€** pris lors des débats du PLFSS 2026. Le document ne porte ni les 360 M€ ni les quatre ans — un directeur qui le lit ne peut pas savoir si le report d'un an coûte 90 M€ ou l'engagement entier. ⚠️ Et *« l'Uniopss + 12 organisations »* affirme que l'Uniopss est l'une des treize, ce que la page ne tranche pas : elle écrit *« À l'initiative de l'Uniopss, 13 associations et fédérations nationales »*. 📐 **Enfin, un chiffre faux et vérifiable en une ligne** : *« J-57 avant le 1er janvier 2027 »* — du 04/11/2026 au 01/01/2027 il y a **58 jours**.
+
+**Le trou consigné le 31/10 a mordu pour la première fois en production, et il explique pourquoi le créneau est perdu.** Mesuré sur le prompt (35 313 octets) : `serafin-ph-veille` prescrit **0** appel à `controle_attributions.py` et **0** à `controle_decompte.py`. Le job ne pouvait donc **pas voir son propre bloquant A4 avant d'écrire** ; c'est le gate `--docs` du hook qui l'a vu, au moment du push — quand le créneau était déjà consommé à **3,78 $**. ⚠️ **Et le plancher de 3 000 caractères est bien prescrit dans ce prompt, deux fois — mais seulement pour le verdict des noms propres** (*« ne corrige pas à l'aveugle »*), que le job a d'ailleurs correctement appliqué. **Rien n'y interdit de marquer `✅ lue` une page sous le plancher dans le tableau des sources** : la borne protège un endroit et pas l'autre, et c'est exactement l'endroit où elle a manqué.
+
+**Le relèvement du plafond du 31/10 est absorbé en une semaine, et la trajectoire s'aggrave au lieu de se détendre.** Mesure fichier par fichier sur les cinq créneaux : **27 · 39 · 37 · 90 · 95 %**, soit 0,82 → 1,16 → 1,11 → 2,69 → **3,7815 $**. Le plafond est passé de 3 à 4 $ le 31/10 ; il reste **0,22 $ de marge**. Ce qui a changé par rapport à N-1 : **67 tours contre 30**, **816 519 ms contre 440 122**, `cache-read` **6 114 842 contre 2 978 967 (×2,05)**, `out` 43 201 contre 20 441 — pour une note de taille comparable. ⚠️ **L'attribution de ces 37 tours au bloc des noms propres n'est PAS établie** : le récapitulatif montre bien des `WebSearch` déclenchés par lui (*« nom confirmé par WebSearch + source CNSA indépendante »*), mais la page à 403 et le mur JS en coûtent aussi. **La prévision du 31/10 — « +0,6 % pour le bloc, ~3,3 % par tour supplémentaire » — était juste sur le mécanisme et muette sur l'ampleur**, puisqu'elle n'en prescrivait « au moins un ». Les deux seuls dépassements documentés du dépôt ont été précédés d'avertissements à 86 et 93 % ; celui-ci est à **95 %**, et c'est le second avertissement de suite sur ce job.
+
+**Un changement d'état à consigner, et le document l'a vu juste** : la page `cnsa.fr/actualites/serafin-ph-un-recueil-de-donnees-obligatoire…` rendait **HTTP 500** les 26 et 28/10 ; elle rend aujourd'hui **HTTP 403**, `curl` exit 0, deux essais, pendant que la racine `www.cnsa.fr` répond **200** et que ses deux pages sœurs rendent 10 702 et 8 741 caractères. Le serveur est debout et refuse **cette** page. Le document écrit *« HTTP 403 — non accessible »* : exact. 📐 Détail d'instrumentation sans conséquence : le récapitulatif du run annonce *« marge 132 »*, calculée sur **tous** les paragraphes (148 − 16), là où l'assertion prescrite porte sur les paragraphes **porteurs de texte** (140 − 16 = **124**) — deux grandeurs différentes, toutes deux très au-dessus du plancher de 10.
+
+### Requêtes passées
+
+| Source | Requête | Degré |
+|---|---|---|
+| CNSA PLFSS (10 702 car.) | `90 millions d'euros` (apostrophe **droite**) | ④ ABSENT — **ma requête** |
+| idem | `90 millions d’euros` · `les 90 millions d’euros annoncés` (apostrophe **courbe**) | **① LITTÉRAL** ×2 |
+| idem | `Paul Christophe` · `Camille Galliard-Minier` · `crédits nouveaux` · `branche Autonomie` · `SERAFIN-PH` | ① ×5 |
+| idem | `report d'un an` | ② GRAPHIE — *« le report d’un an du financement de la réforme SERAFIN-PH »* |
+| idem | `15 octobre 2026` | ④ — la page écrit *« Réuni le **15 octobre** »*, **sans millésime** (+ *« Publié le 16/10/2026 »*) |
+| idem | `volet` · `ne figurent` · `inscri` · `2028` | **0 occurrence** — les deux qualifications du document ne sont pas là |
+| e-solidarites (6 838 car.) | `Camille Galliard-Minier` · `Uniopss` · `13 organisations` · `13 associations et fédérations` · `2028` · `SERAFIN-PH` · `DGCS` | ① ×7 |
+| idem | `90 millions` (4 occ.) | *« ne figurent pas dans le PLFSS 2027 et sont renvoyés hypothétiquement à 2028 »* · *« 360 millions sur quatre ans »* |
+| CNSA préparation (8 741 car.) | `SIDOBA` · `dotation complémentaire` · `année blanche` | ① ×3 — *« sans incidence sur le financement des structures en 2026 »* |
+| idem | `10 variables` · `6 variables` · `indicateurs de modulation` | ④ — **mes requêtes** ; la page écrit *« une dizaine de variables »* et *« six variables »*, **en mots** |
+| FHF (6 640 car.) | `30 mars 2026` · `SIDOBA` | ① ×2 |
+| idem | `caractéristiques des places` | ② GRAPHIE |
+| idem | `phase` | *« A partir du 27 avril et jusqu'au 24 mai s'ouvrira la **phase de qualification par les ARS** »* |
+| ATIH (8 903 car.) | `convergence` | ① — *« construire la trajectoire de convergence tarifaire »*, **sans durée ni intervalle** |
+| **les 6 pages lisibles** | `2027–2034` · `2027-2034` · `8 ans` · `huit ans` | **0 occurrence sur les six** |
+| handicap.gouv.fr **en direct** | — | **93 car.** (94 au second passage) : mur JS intégral, `✅ lue` dans le document, **NON LUE** pour le contrôle |
+| handicap.gouv.fr **archive 18/05/2026** (5 761 car.) | `Camille Galliard-Minier` · `30 mars 2026` · `transport` · `dotation globale` · `automne 2026` · `fiabiliser` | ① ×6 |
+| idem | `1er janvier 2027` | présent sous *« 1 er janvier 2027 »* |
+| idem | `simulations individualisées` | ④ — la page dit *« une simulation des effets de la réforme »* ; **« individualisées » est le mot de la note** |
+| idem | `année charnière` · `Groupe Technique National` | ② ×2 |
+| Wayback CDX | 4 derniers instantanés | `20260327 · 20260416 · 20260517 · 20260518`, tous 200 — **aucun depuis le 18/05/2026** |
+| cnsa.fr (page ⛔) | 2 essais + racine | **403 · 403**, `curl` exit 0 ; racine **200** → le serveur est debout, c'est la page qui refuse |
+
+**Ce que STANDARD n'a pas interrogé** : le texte du **PLFSS 2027** lui-même et l'amendement sur les 90 M€, qu'aucune source listée ne porte · le **courrier interfédéral** (un PDF est à télécharger sur e-solidarites, non ouvert) · l'**avis du Conseil de la CNSA en PDF** (*« Avis du conseil de la CNSA - PLFSS 2027 (pdf, 129 Ko) »*, non ouvert) · le **tableau des rôles DGCS/CNSA/ATIH/ARS**, boilerplate institutionnel confronté à aucune page · la **page CNSA à 403**, et donc tout ce qui concerne le caractère *obligatoire* du recueil · l'origine de la **convergence sur 8 ans**, cherchée sur six pages et trouvée sur aucune · et la question de savoir si la **phase 2 de mai 2026 a réellement eu lieu**, qu'aucune page lue ne confirme.
+
+**Mes erreurs de cette séance, et les trois sont la même** : trois ④ rendus sur **ma propre graphie** et non sur le document — `90 millions d'euros` à l'apostrophe droite là où la page écrit la courbe, puis `10 variables` et `6 variables` là où la page écrit *« une dizaine »* et *« six »* **en toutes lettres**. ⚠️ **Le premier est le plus gênant : c'est exactement la règle que j'ai écrite hier**, et elle n'a pas de filet, puisque le degré ② est **interdit dès que la requête porte un chiffre**. Septième, huitième et neuvième récurrences de *« le ④ vient de la requête avant de venir du document »* — et la règle de remède est écrite : **taper la citation au copier-coller de la page aspirée, jamais à la main.**
+
+## Notes liées
+
+- **⬅️ Précédente** · [[2026-10-28_veille_SERAFIN-PH.fiche]]
+  **elle avait mesuré les 93 caractères, nommé l'archive du 18/05/2026 comme seule voie de lecture, et écrit que la convergence sur 8 ans n'était portée par aucune source listée — les trois points sont rejoués à l'identique.** Elle relevait aussi *« plafond à 90 % »* et notait que relever n'était pas commandé mais que la mesure était posée : le relèvement a eu lieu le 31/10 et il est **absorbé en un créneau**. ⚠️ **Et le motif ② de la relecture d'édition signale cette semaine la phrase de semaine creuse comme « à relire » : c'est un faux positif**, la fiche du 28/10 jugeait cette déclaration **honnête**, et le contrôle le dit lui-même (*« une citation de fiche voisine d'un mot de faute n'est pas toujours la formulation fautive »*).
+- **🔗 Pont** · [[2026-10-21_veille_SERAFIN-PH.fiche]]
+  **c'est elle qui a mesuré les 93 caractères la première, et elle demandait déjà qu'on cesse de s'en servir sans rouvrir la page autrement.** Trois semaines, trois fiches, la même page murée citée comme source primaire — et c'est aussi l'édition où la convergence est entrée dans la série, écrite **2027–2035**. **Une demande écrite dans une fiche ne protège pas l'édition suivante : seul un contrôle le fait, et aucun contrôle ne regarde la colonne « Statut » du tableau des sources.**
+- **🔗 Pont** · [[2026-11-02_veille_has-actualite.fiche]]
+  **deux veilles de la même semaine, et le même défaut exactement : une projection lue comme un fait.** Là-bas un groupe de travail *« à constituer »* devenait *« GT constitué »* ; ici un recueil annoncé au futur sous réserve CNIL devient *« ✅ Terminé — 2 phases réalisées »* et *« [x] FAIT »*. **Dans les deux cas la page source est au futur et le tableau de bord au passé composé, et aucune passe du dépôt ne compare un temps verbal à un statut.**
+- **🗂️ Dossier** · [[SERAFIN-PH_dossier.fiche]]
+  à mettre à jour sur six points mesurés ce jour : **`handicap.gouv.fr` reste muré** (93 car., mur JS intégral) et son **instantané du 18/05/2026 est toujours le dernier du catalogue** — vérifié, rien depuis ; **`cnsa.fr` est passé de HTTP 500 à HTTP 403** sur la page du recueil obligatoire, racine à 200, donc le serveur est debout et c'est la page qui refuse ; **la convergence sur 8 ans n'est portée par aucune des six pages lisibles** et son millésime de fin a glissé de **2035 à 2034** ; **les 90 M€ sont la première annuité d'un engagement de 360 M€ sur quatre ans** (e-solidarites ①), cadre absent de la note ; **la phase 2 de mai 2026 n'est confirmée par aucune page lue**, la seule qui couvre mai y plaçant la qualification ARS ; et **la fenêtre 28/10–04/11 est vide**, le prochain fait attendu restant le vote du PLFSS 2027.
