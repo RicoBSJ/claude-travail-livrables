@@ -6290,3 +6290,70 @@ Mode défaut : **exit 0, 0 `✗`, 2 min 46 s**. Gate `--docs` sur les éditions 
 ### Une règle de normalisation, payée par mon erreur du matin
 
 Une citation qui mêle **un nombre et une apostrophe** ne se prouve qu'au **degré ①**. Le degré ② de `chercher.py` est **interdit dès que la requête contient un chiffre** — borne **voulue** du 15/10, sans quoi « 1 338 » s'apparierait à « 1,338 ». Conséquence jamais nommée : toute déviation de ponctuation sort alors en **④**, indiscernable d'une vraie absence. J'avais consigné « entre décembre 2026 et début de l'année 2028 » avec l'apostrophe **droite** là où la page écrit la **typographique** : `U+2019` → ① LITTÉRAL, `U+0027` → ④ ABSENT. **Cinquième récurrence de « mon ④ venait de ma requête », et la première dont la cause est une borne délibérée et non une négligence : il n'y a rien à corriger dans `chercher.py`.** Le remède est de taper la citation au **copier-coller de la page aspirée**.
+
+---
+
+## 04/11/2026 — Le bloquant A4 de la veille SERAFIN-PH du 04/11 est corrigé, et la correction a trouvé un défaut plus grave qu'elle
+
+**Ordre** : « corrige le bloquant A4 ». Document : `sources/veille/serafin-ph/2026-11-04_veille_SERAFIN-PH.docx`.
+
+### Le bloquant, et pourquoi il n'était qu'un mot
+
+Le hook avait refusé le push **trois fois** le 4 novembre, sur un motif **exact** :
+
+```
+A4. LIGNES « Source : » QUI NOMMENT SANS LIER
+      INTERDIT Source primaire : CNSA, publié le 16/10/2026 (hors fenêtre)
+```
+
+A4 exige une adresse **appariée au nom**, sur la ligne logique ou sur les deux suivantes. La ligne nommait et datait l'institution ; le lien vers l'article existait **six paragraphes plus bas**, sous `→ Source primaire :`. ⚠️ **La ligne jumelle n'était pas signalée** — `Source secondaire : e-solidarites.fr, publié le 9/10/2026 (hors fenêtre)` porte un **domaine**, et `nom_source` le retient comme nom, que `apparie()` apparie à lui-même. **L'asymétrie était là : une ligne nommait l'institution par son sigle, l'autre par son domaine.**
+
+**Correction** : `Source primaire : CNSA (cnsa.fr), publié le 16/10/2026 (hors fenêtre)`.
+
+| Mesure | Avant | Après |
+|---|---|---|
+| `controle_attributions.py` (rejoué **seul**, `env -i`) | **1 bloquant** | **0** |
+| A4 | `INTERDIT …` | `(aucune)` |
+| gate `--docs` | exit 1 | **exit 0** |
+| décompte · édition précédente | — | exit 0 · exit 0 (1 point non bloquant) |
+| ¶ · tableaux · liens · marge | 151 · 4 · 16 · 132 | 153 · **4 · 16** · 134 |
+| attributions au site nu (**non bloquant**) | `e-solidarites.fr`, `handicap.gouv.fr` | **+ `cnsa.fr`** |
+
+⚠️ **Le seul effet secondaire est dit** : `cnsa.fr` rejoint la liste non bloquante des attributions au site nu, où les deux autres domaines **figuraient déjà**. La correction hérite du coût de la convention que le document suivait — c'est le prix de la symétrie avec la ligne jumelle, et non un défaut neuf.
+
+⛔ **Pourquoi pas un hyperlien sur « CNSA »** : `adresses(logique, sans=nom)` écarte un libellé de lien contenu dans le nom (`lib not in sans`). Un lien dont le libellé est exactement `CNSA` serait **exclu** et A4 refuserait toujours. Le domaine en clair est la voie robuste, et c'est **celle que le document employait déjà** deux paragraphes plus bas.
+
+### 🔴 Le défaut que la correction a découvert : un marqueur qui nomme le journal rend le contrôle AVEUGLE, en vert
+
+`controle_attributions.py:98` :
+
+```python
+jrn = corps.find("Journal des corrections")
+journal = corps[jrn:] if jrn != -1 else ""
+if jrn != -1:
+    corps = corps[:jrn]
+```
+
+`find` prend la **première** occurrence. Mon premier marqueur disait *« Libellé d'origine conservé au 📝 Journal des corrections »* : la sentinelle se trouvait donc **avant** la vraie section, et le corps lu par **A, A2, A3, A4, A5, A6, B, B-NOM, C, C2 et D** s'arrêtait au marqueur.
+
+| Mesure (marqueur portant la sentinelle) | Valeur |
+|---|---|
+| `len(corps)` | **2 886** au lieu de 9 854 — **70 % du document hors de portée** |
+| `SPANS` | **`[]`** — le marqueur, coupé avant son `]`, n'était plus reconnu comme marqueur |
+| A4 | `(aucune)` — **sans avoir lu la ligne fautive** |
+| `e-solidarites.fr` dans la liste des sites nus | **disparu** (2 occurrences sur 3 hors du corps lu) |
+| VERDICT | **0 bloquant — un faux vert** |
+
+🔴 **Je ne l'ai pas vu en relisant.** Je l'ai vu parce que le diff portait un changement que je **n'avais pas prévu** — `e-solidarites.fr` **sortait** d'une liste —, et je l'ai cerné par **bissection** : deux copies de plus, *marqueur seul* puis *journal seul*, qui ont désigné le **marqueur**. Le diagnostic a ensuite tourné sur une **copie instrumentée du vrai contrôle, dans le scratchpad** — `controle_attributions.py` du dépôt est resté au sha256 `a35ae53d…`, vérifié. **Un diff qui bouge là où on n'a rien touché est le signal ; le lire comme un détail cosmétique aurait publié le vert.**
+
+📊 **Portée mesurée sur tout le corpus, pas supposée : ZÉRO.** Sur **328** documents — **116** porteurs d'au moins un marqueur, **196** porteurs d'un journal — **0** présente une première occurrence de la sentinelle **à l'intérieur d'un marqueur**. La regex `MARQUEUR` était **extraite du contrôle** et non recopiée (règle du 15/10), avec une assertion qu'elle est opérante avant usage. **Le défaut était le mien seul, et attrapé avant toute écriture dans le vrai fichier.**
+
+🟢 **Remèdes posés** : le marqueur dit *« conservé en fin de document »*, et le script de patch porte `assert "Journal des corrections" not in MARQ`. La règle est consignée dans `CLAUDE.md`, **et un pointeur est posé sur la ligne de doctrine « corrige X »**, qui est exactement l'endroit où le piège se tend.
+
+📌 **Non fait, non ordonné** : aucune borne du **harnais** ne refuse un marqueur portant la sentinelle. Le garde vit dans le script de patch, qui est **jetable** — donc il ne protégera pas la prochaine correction. Remède à dix lignes : un témoin qui fabrique un `.docx` portant un tel marqueur et exige que le corps lu **ne soit pas tronqué**.
+
+### Méthode suivie
+
+Sauvegarde au scratchpad **d'abord** (`AVANT.docx`, sha256 `d96c0e66…`, identique au fichier) · édits **par position, de la fin vers le début** (journal, puis marqueur, puis l'adresse) · **garde par soustraction dans l'espace XML** — retirer les trois fragments rend l'XML d'origine **à l'octet** (règles du 26/10 et du 01/11) · marqueur en **fin de ¶, hors de tout hyperlien, rien après lui**, vérifié par assertion · **NFC** vérifié sur les quatre chaînes insérées · aucune mesure chiffrée dans un ¶ porteur de lien, les chiffres allant au journal (règle du 31/10) · contrôles **rejoués seuls**, jamais en parallèle.
+
+⚠️ **Et le document reste porteur des neuf autres défauts mesurés à l'audit** — le mur JavaScript marqué `✅ lue` pour la troisième semaine, la projection promue en `✅ Terminé`, la convergence sur 8 ans sans source, les deux attributions à la mauvaise page, `J-57` pour 58 jours. **Seul le bloquant A4 était commandé ; aucun des neuf n'est corrigé.**
