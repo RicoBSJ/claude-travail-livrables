@@ -6357,3 +6357,79 @@ if jrn != -1:
 Sauvegarde au scratchpad **d'abord** (`AVANT.docx`, sha256 `d96c0e66…`, identique au fichier) · édits **par position, de la fin vers le début** (journal, puis marqueur, puis l'adresse) · **garde par soustraction dans l'espace XML** — retirer les trois fragments rend l'XML d'origine **à l'octet** (règles du 26/10 et du 01/11) · marqueur en **fin de ¶, hors de tout hyperlien, rien après lui**, vérifié par assertion · **NFC** vérifié sur les quatre chaînes insérées · aucune mesure chiffrée dans un ¶ porteur de lien, les chiffres allant au journal (règle du 31/10) · contrôles **rejoués seuls**, jamais en parallèle.
 
 ⚠️ **Et le document reste porteur des neuf autres défauts mesurés à l'audit** — le mur JavaScript marqué `✅ lue` pour la troisième semaine, la projection promue en `✅ Terminé`, la convergence sur 8 ans sans source, les deux attributions à la mauvaise page, `J-57` pour 58 jours. **Seul le bloquant A4 était commandé ; aucun des neuf n'est corrigé.**
+
+---
+
+## 04/11/2026 — La borne du corps tronqué est au harnais, et mon câblage refusait d'abord TOUS les pushs
+
+**Ordre** : « ajoute la borne au harnais », suite de la correction A4 du même jour, qui avait découvert le défaut.
+
+### La garde, dans le contrôle
+
+`controle_attributions.py` capture le corps **complet** avant la coupe et refuse quand la sentinelle tombe dans un marqueur :
+
+```python
+corps_plein = corps                 # AVANT la coupe — l'ordre est la moitié de la garde
+if jrn != -1:
+    corps = corps[:jrn]
+...
+if jrn != -1 and any(a_ <= jrn < b_ for a_, b_ in spans_de(corps_plein)):
+    sys.exit("CORPS TRONQUE PAR UN MARQUEUR DE CORRECTION : …")
+```
+
+⚠️ **On teste `spans_de(corps_plein)` et NON `SPANS`** : `SPANS` est calculé sur le corps **déjà tronqué**, où le marqueur est mutilé et n'apparie plus — `dans_marqueur(jrn)` ne détecterait **rien**. C'est le défaut naïf, et la borne ③ existe pour lui.
+
+**Placement** : la garde précède le **premier `print`** du contrôle et **toute requête réseau** — donc aucun verdict n'est émis sur un corps tronqué, et le témoin de bout en bout ne touche pas le réseau. Le harnais imprime `✗ … LE CONTRÔLE N'A PAS PU LIRE CE DOCUMENT`, et le chemin `--accepter` refuse de même : **un faux vert ne peut pas entrer dans la référence**.
+
+⛔ **Bloquant, et la dérogation est dite** : la règle du 14/10 demande d'avertir sur des éditions neuves avant de bloquer. Ce motif ne juge pas un **contenu** mais si le contrôle a pu **lire** — même famille que le bloc `0 nonies` du 26/10, rendu bloquant aussitôt pour la même raison. Un manque coûte un vert sur un document non lu ; un faux refus est impossible par construction, la condition signifiant toujours que le corps **est** tronqué par un marqueur.
+
+📊 **Recensement COMPLET, et il l'est par construction** : la garde étant purement textuelle et placée avant tout réseau, mesurer « mord-elle ? » sur tout le corpus mesure **tout** ce que le patch a changé. **328 documents lus sur 328** — 116 porteurs d'un marqueur, 196 d'un journal —, la condition **extraite du contrôle patché** : **0 document**. Zéro verdict changé, zéro faux refus.
+
+### Le témoin — `non_regression/corps_tronque.py`, 15 bornes, aucun réseau, 1 s
+
+| Borne | Ce qu'elle garde |
+|---|---|
+| ① | le contrôle porte la garde : `MARQUEUR`, `spans_de` et la condition sont **extractibles** |
+| ② | `corps_plein = corps` **précède** la coupe — sinon il est déjà tronqué et la garde est **inerte** |
+| ③ | la condition teste `spans_de(corps_plein)`, **pas** `SPANS` ni `dans_marqueur` |
+| ④ | la garde précède le **premier `print`** : aucun verdict sur un corps tronqué |
+| ⑤ | le message porte la sentinelle **et** les deux longueurs |
+| ⑥ ⑩ | coupe dans un marqueur (avec et sans vraie section) → **MORD** |
+| ⑦ ⑧ ⑨ | aucun journal · marqueur qui ne nomme pas · vraie section **d'abord** → **ACCEPTÉES** |
+| ⑪ | la version **naïve** (spans sur le tronqué) **ne mord pas** → la borne ③ n'est pas décorative |
+| ⑫ | **LIMITE DITE** : la sentinelle dans du **texte ordinaire** n'est pas attrapée → **ACCEPTÉE** |
+| ⑬ ⑭ | bout en bout sur deux `.docx` **fabriqués** : le fautif refusé (exit 1, sentinelle), le conforme **non** |
+| ⑮ | le **motif du harnais**, appliqué à la ligne que le témoin imprime **réellement**, rend le dénominateur |
+
+Corpus et `.docx` sont **fabriqués en `tempfile`** — rien de vivant dans le verdict (leçon du 22/10). Le bloc `MARQUEUR`/`spans_de` et la condition sont **extraits du contrôle** et exécutés, jamais recopiés (15/10), avec une assertion que le bloc extrait est **opérant** avant usage. `RACINE` est assise sur un fait (`assert os.path.isfile(CTRL)`) — le bug de `tolerance_page_morte.py` du 23/10. Câblé en **`--docs`** (le gate qui porte les pushs de job) et en **mode défaut**, `ATTENDU_CT=15` lisant le **dénominateur**.
+
+### 🔴 Et mon câblage refusait TOUS les pushs — quatrième occurrence, première par le GARDE
+
+Mon `sed` s'écrivait `s/.* \([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes du corps tronque.*/\2/p`. Il exige **un caractère PUIS une espace** avant le numérateur ; la ligne du témoin commençait en **colonne 1**. Donc `LU_CT` était **vide**, `"" != "15"`, et **`--docs` sortait en 1 sur un dépôt sain** — mesuré : `exit=1`, `✗ 0 borne(s) jouée(s), 14 attendue(s)`.
+
+**Quatrième fois qu'un garde du harnais bloque tout le dépôt** après les 15, 22 et 23/10 — et **la première dont la cause est le garde lui-même, et non un témoin qui se périme**.
+
+⚠️ **C'est le sabotage qui l'a dit, pas la relecture** : `S1` imprimait « 0 borne jouée » pour un témoin qui affichait « 13/13 », ce qui n'avait aucun sens. Sans ce chiffre absurde, le câblage partait tel quel.
+
+🟢 **Deux remèdes, et le second est le vrai** : l'ancre devient `^[[:space:]]*`, insensible à la colonne ; et la **borne ⑮ applique le motif DU HARNAIS à la ligne que le témoin imprime réellement**, via une constante de format `LIGNE` partagée entre la borne et le `print` final. **Un garde de compte doit être essayé sur la ligne qu'il va vraiment lire : faux, il bloque tout — et avec une comparaison inversée, il accepterait tout.**
+
+### Sabotages — sept qui ont tourné, sept refus
+
+| # | Sabotage | Borne qui mord |
+|---|---|---|
+| S1 | une borne retirée du lot | `ATTENDU_CT` : **14 jouées / 15 attendues** |
+| S2 | `corps_plein` capturé **après** la coupe | ② et ⑬ |
+| S3 | condition sur `SPANS` au lieu de `corps_plein` | ③ |
+| S4 | garde retirée | ① (extraction impossible) |
+| S5 | sentinelle rognée du message | ④, ⑤ et ⑬ |
+| S6 | condition remplacée par `if jrn != -1:` | ① — **la forme est cassée, donc il ne prouve que ça** |
+| S6bis | garde élargie **en gardant la forme** (`[(0, len(corps_plein))]`) | ⑧, ⑨, **⑫** et **⑭** |
+| S7 | dérive de libellé dans le motif du harnais (`tronque` → `tronqué`) | **⑮**, `lu=''` |
+
+Chaque sabotage **prouve d'abord qu'il a modifié le fichier** (sha256 avant → après) avant qu'on lise le verdict, et les trois fichiers sont restaurés au **sha256 identique** à chaque fois. ⚠️ **`S6bis` n'est pas un doublon de `S6`** : `S6` casse la forme de la condition, donc l'extraction échoue et seule ① mord — **un élargissement silencieux passait**. C'est la règle du 26/10 (« une borne qui ne peut pas échouer n'est pas une borne ») appliquée aux cinq bornes ACCEPTÉES. ⚠️ Et mon `S7` est **d'abord mort sur une ancre non appariée** (échappement d'un heredoc imbriqué) : le pilote l'a **dit** — `PATCH EN ERREUR — rien à lire` — au lieu de rendre un vert. Le pilote n'est **jamais tuyauté dans `head`** (SIGPIPE a tué celui du 03/11 en plein vol et laissé un sabotage en place).
+
+### Vérifications finales
+
+`--docs` sur la veille du 04/11 : **exit 0, 0 ✗, 15/15** · mode **défaut** : **exit 0, 0 ✗, 15/15**, 3 min 13 s · `zsh -n` OK (⚠️ `bash -n` est le mauvais vérificateur : `(N)` est un qualificateur de glob **zsh**) · les trois fichiers touchés vérifiés au sha256 après les sabotages.
+
+📌 **Non fait, non ordonné** : la sentinelle posée dans du **texte ordinaire** du corps tronque tout autant et n'est pas attrapée — **0 occurrence au corpus**, donc l'étendre serait un durcissement **préventif** et non mesuré. La borne ⑫ fixe cette limite pour qu'elle ne dérive pas en silence.

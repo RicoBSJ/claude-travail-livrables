@@ -1029,6 +1029,36 @@ fi
 #    fautifs. Mesure sur les 22 documents affectés, relancés un par un avec le réseau :
 #    0 bloquant changé, 0 compteur du corps changé, 0 ligne perdue.
 #    Le bloc PORTE_JRN … porte_jrn est EXTRAIT du contrôle, pas recopié. AUCUN RÉSEAU.
+if [ -f "$ROOT/outils/scripts/non_regression/corps_tronque.py" ]; then
+  echo "▶ Corps tronqué par un marqueur — un VERT sur ce que les passes n'ont pas lu (aucun réseau, 1 s)"
+  CT_OUT="$CUR/corps_tronque.txt"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/corps_tronque.py" > "$CT_OUT" 2>&1; then
+    tail -1 "$CT_OUT"
+    # ⚠️ LE GARDE LIT LE DÉNOMINATEUR (bornes JOUÉES), jamais le numérateur — règle du 26/10.
+    ATTENDU_CT=15
+    # ⚠️ ANCRE ROBUSTE À LA COLONNE. Écrit « .* » devant, le motif exigeait un caractère PUIS une
+    #    espace : la ligne du témoin commençant en colonne 1, LU_CT était VIDE et le garde
+    #    refusait TOUS les pushs (mesuré le 04/11/2026, avant commit). La borne ⑮ du témoin
+    #    applique désormais CE motif à SA propre ligne, pour que la classe ne revienne pas.
+    LU_CT=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes du corps tronque.*/\2/p" "$CT_OUT")
+    if [ "$LU_CT" != "$ATTENDU_CT" ]; then
+      echo "  ✗ ${LU_CT:-0} borne(s) jouée(s), $ATTENDU_CT attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_CT à jour en disant pourquoi."
+      exit 1
+    fi
+  else
+    grep '✗' "$CT_OUT" | head -9
+    echo "  ✗ LA GARDE DU CORPS TRONQUÉ NE TIENT PLUS. controle_attributions.py coupe le corps à la"
+    echo "    PREMIÈRE occurrence de « Journal des corrections » : un marqueur qui NOMME cette"
+    echo "    section — ce que la doctrine « corrige X » invite à écrire — coupe donc le corps avant"
+    echo "    la vraie section, et TOUTES les passes rendent un VERT sur ce qu'elles n'ont pas lu."
+    echo "    Mesuré le 04/11/2026 : 2 886 caractères lus sur 9 854, SPANS vide, A4 « (aucune) »"
+    echo "    sans avoir lu la ligne fautive. L'ORDRE et la SOURCE sont la moitié de la garde :"
+    echo "    « corps_plein » doit être capturé AVANT la coupe, et les spans calculés sur LUI."
+    exit 1
+  fi
+fi
+
 if [ -f "$ROOT/outils/scripts/non_regression/bfr_journal.py" ]; then
   echo "▶ B-FR sur le journal — ce que le journal AFFIRME d'une page (aucun réseau, 0,1 s)"
   BFJ_OUT="$CUR/bfr_journal.txt"

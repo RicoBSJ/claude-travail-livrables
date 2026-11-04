@@ -97,6 +97,10 @@ entete, corps = t[:sep], t[sep:]
 # des passes qui lisent « corps ». ⚠️ SAUF B-FR DEPUIS LE 03/11/2026 — voir CIT_SRC.
 jrn = corps.find("Journal des corrections")
 journal = corps[jrn:] if jrn != -1 else ""
+# 04/11/2026 — LE CORPS COMPLET EST GARDE AVANT LA COUPE. L'ordre est la moitie de la garde :
+#    capture APRES la coupe, « corps_plein » serait deja tronque, spans_de() rendrait [] et la
+#    garde ci-dessous ne mordrait JAMAIS. C'est le defaut naif, et la borne (2) du temoin le dit.
+corps_plein = corps
 if jrn != -1:
     corps = corps[:jrn]
 def urls_de(z, fin=r"\s"):
@@ -163,6 +167,30 @@ def spans_de(z):
     identiques — meme regex, meme texte — donc A, A2, A3, A4, B-NOM, C2 et D ne bougent pas."""
     return [m.span() for m in MARQUEUR.finditer(z)]
 SPANS = spans_de(corps)
+# 🔴 GARDE DU CORPS TRONQUE PAR UN MARQUEUR — 04/11/2026, et le defaut etait le mien.
+#    La coupe ci-dessus prend la PREMIERE occurrence de « Journal des corrections ». Un marqueur
+#    de correction qui NOMME cette section — « libelle d'origine conserve au 📝 Journal des
+#    corrections », ce que la doctrine « corrige X » invite a ecrire — place donc la sentinelle
+#    AVANT la vraie section, et toutes les passes qui lisent « corps » (A, A2, A3, A4, A5, A6, B,
+#    B-NOM, C, C2, D) s'arretent au marqueur. MESURE du 04/11 sur la veille SERAFIN-PH du 04/11 :
+#    corps lu 2 886 caracteres au lieu de 9 854 — 70 % hors de portee —, SPANS = [] (le marqueur,
+#    coupe avant son « ] », n'etait plus reconnu), et A4 repondait « (aucune) » SANS AVOIR LU la
+#    ligne fautive : un VERT sur ce qu'il n'a pas lu.
+#    ⚠️ ON TESTE SUR « corps_plein », PAS SUR SPANS : SPANS est calcule sur le corps DEJA tronque,
+#    ou le marqueur est mutile et n'apparie plus — « dans_marqueur(jrn) » ne detecterait RIEN.
+#    ⛔ BLOQUANT, et cela deroge a la regle du 14/10 (« avertir sur des editions neuves avant de
+#    bloquer ») : ce motif ne juge pas un CONTENU, il juge si le controle a pu LIRE le document —
+#    meme famille que le bloc « 0 nonies » du harnais (26/10), rendu bloquant aussitot pour la
+#    meme raison. Un manque coute un vert sur un document non lu ; un faux refus est impossible
+#    par construction, la condition signifiant toujours que le corps EST tronque par un marqueur.
+#    📊 PORTEE MESUREE SUR LES 328 DOCUMENTS : 116 portent un marqueur, 196 un journal, et 0 a sa
+#    premiere occurrence DANS un marqueur — donc zero faux refus, et zero verdict change.
+if jrn != -1 and any(a_ <= jrn < b_ for a_, b_ in spans_de(corps_plein)):
+    sys.exit("CORPS TRONQUE PAR UN MARQUEUR DE CORRECTION : la chaine « Journal des corrections »"
+             " apparait dans un marqueur (index %d) AVANT toute vraie section de journal, donc les"
+             " passes ne liraient que %d caracteres sur %d et le verdict serait un VERT sur ce"
+             " qu'elles n'ont pas lu. Retire cette chaine du marqueur (dis « conserve en fin de"
+             " document ») : %s" % (jrn, len(corps), len(corps_plein), DOCX))
 def dans_marqueur(i, spans=None):
     """i tombe-t-il dans un marqueur de correction ? (la trace n'est pas une attribution)"""
     return any(a <= i < b for a, b in (SPANS if spans is None else spans))
