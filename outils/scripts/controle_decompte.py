@@ -45,7 +45,7 @@ Ce que le test NE LIT PAS : une source qui en cache deux (« A & B — non consu
   1 + le nombre de « & »), un décompte par domaine quand la liste est par page — lis la
   ligne « liste » qu'il imprime avant de croire son verdict.
 """
-import sys, re, os, subprocess
+import sys, re, os, subprocess, unicodedata
 DEBUG = bool(os.environ.get("DEBUG"))
 
 DOCX = sys.argv[1]
@@ -78,6 +78,103 @@ R_HEAD = re.compile(r"^[^\w]{0,6}Sources?\b[^\n]{0,80}$")
 R_END_SEC = re.compile(r"^\s*(?:\d+\.\s*)?(?:🔜|🔵|─{5,}|(?:Produit|Généré|Document|Note|Compte-rendu|CR|Veille)\b.{0,40}(?:généré|produit|automatiquement)|.*[Ss]urveiller)")
 R_META = re.compile(r"(?i)^(?:Affirmations|Légende|Legende|Décompte|Decompte|Bilan|Total|NB\b|Note\b)")
 R_NUM_SYM = re.compile(r"(?<![\d/.])(?<![Ss]ource )(\d{1,2})[^\S\n]*(?:sources?[^\S\n]*)?(?:[a-zéèêàçô'’ -]{0,30}?\()?[^\S\n]*([✅⚠⛔])(?:\s*/\s*([✅⚠⛔]))?")
+
+# ── 1 bis. UNE SOURCE DONNÉE POUR LUE DONT LA REMARQUE S'AVOUE SOUS LE PLANCHER (05/11/2026)
+#    Le dépôt tient qu'au-dessous de 3 000 caractères utiles une page est une façade, et qu'une
+#    mention absente y est INDISCERNABLE d'une mention non lue (règle du 12/10/2026). Une ligne
+#    de sources qui porte « ✅ » et dont la remarque annonce elle-même un compte sous ce plancher
+#    se contredit donc dans sa propre ligne — et c'est arrivé DEUX FOIS EN SIX JOURS :
+#      · ai-act 30/10 : « ✅ » + « — Consultée (2 758 car.), dates d'échéances vérifiées », quand
+#        les éditions des 17/10 et 24/10 marquaient ⚠ LA MÊME page, l'une écrivant même « sous le
+#        seuil au-delà duquel cette page peut être considérée comme lue. Rien n'en est tiré. » ;
+#      · SERAFIN-PH 04/11 : « ✅ » + « Source primaire lue (rendu JS, 93 car. utiles) ».
+#    AUCUN motif du dépôt ne regardait la conjonction des deux cellules, et c'est structurel :
+#    ce contrôle comptait les symboles sans lire les remarques, controle_attributions.py lit les
+#    citations sans voir les statuts, et ㊳ bis ne relève que les décomptes de liens du LOG.
+#    ⛔ NON BLOQUANT. Le motif juge un CONTENU, et aucune édition neuve ne l'a encore exercé en
+#    avertissement : un balayage rétrospectif ne valide pas un motif bloquant (règle du 14/10 ;
+#    les 73 éditions du 12/09 passaient toutes, la 74e a cassé le contrôle en 48 h). Il imprime,
+#    le lecteur tranche — et le code de sortie reste celui du décompte, seul juge du refus.
+#    ⚠️ CE QU'IL NE PEUT PAS VOIR, ET C'EST MESURÉ : il faut que le document AVOUE le compte.
+#    La veille du 28/10 porte « ✅ 200 » sans colonne de remarque pour la MÊME page murée : le
+#    motif est muet dessus, et un HTTP 200 sur un mur est précisément le piège. De même, la
+#    veille du 21/10, qui marquait « ⚠ Mur JavaScript », n'est pas accusée — à bon droit.
+#    Les bornes sont MESURÉES sur les 328 documents du dépôt, pas devinées :
+#      ① le symbole de la ligne doit être « ✅ » — ⚠ et ⛔ sont la marque HONNÊTE d'une façade
+#         (ai-act 17/10 et 24/10, SERAFIN-PH 21/10 : des lignes légitimes qu'un motif étendu aux
+#         autres symboles accuserait), et « repli » (⛔/✅) non plus : la source a été lue ailleurs ;
+#      ② le compte doit être dans la LIGNE du statut — du jeton de statut au prochain jeton
+#         structurant (exclu). Sans cette borne, les comptes de la prose et des relectures
+#         remontent à la dernière ligne du tableau : distances mesurées entre un ✅ et un compte
+#         hors tableau, 9 · 12 · 15 · 21 · 47 · 48 · 95 · 107 · 108 jetons ;
+#      ③ un compte AU MOINS égal au plancher DANS LA MÊME CELLULE exempte : c'est la page murée
+#         dont le contenu est lu ailleurs — « 93 caractères utiles … instantané d'archive
+#         (5 761 caractères) » est la forme CORRIGÉE du 04/11, elle doit passer.
+#    ⚠️ Et la portée de ③ à la CELLULE plutôt qu'à la LIGNE est PRÉVENTIVE, pas mesurée : les
+#    deux formes rendent des verdicts IDENTIQUES sur les 47 documents du dépôt qui annoncent un
+#    compte sous le plancher. La cellule est retenue parce que le motif est non bloquant : son
+#    erreur chère est le SILENCE, pas le bruit. Une borne fabriquée l'épingle au témoin.
+#    Les marqueurs de correction sont écartés une SECONDE fois ici, en NFC et sur un verbe plus
+#    large que la regex du haut du fichier — qui laisse passer 22 ouvertures dans 6 documents du
+#    dépôt. Un marqueur CONSERVE par doctrine le libellé fautif : le relire rouvrirait le motif
+#    qu'on vient de fermer (leçons des 23 et 25/10, passe A de controle_attributions.py).
+PLANCHER_LISIBLE = 3000
+R_CAR_ANN = re.compile(r"(?<![\d/.,])(\d[\d    ]{0,12}\d|\d)\s*(?:caract[eè]res?|car\.)", re.I)
+R_MARQ_LARGE = re.compile(r"\[(?:corrig|precis|ajout|reformul|compl|retir|remplac)\w*\s+le\s+\d\d/\d\d/\d{4}.*?\]", re.S)
+
+def _nombre_car(s):
+    v = re.sub(r"[    ]", "", s)
+    return int(v) if v.isdigit() else None
+
+def _hors_marqueur(txt):
+    """le texte, rendu en NFC, privé de ses marqueurs de correction — repérés sur une forme
+    pliée (accents retirés, minuscules) pour qu'un « é » DÉCOMPOSÉ n'y échappe pas.
+    ⚠️ NFC D'ABORD, ET C'EST LA MOITIÉ DE LA FONCTION (règle du dépôt) : sur un texte décomposé,
+    « [Corrigé le » n'est apparié par AUCUNE forme de « \w* », le « é » y étant deux caractères
+    dont le second (U+0300) n'est pas alphanumérique — le marqueur n'était pas retiré, et la
+    borne ⑬ du témoin passait pour la mauvaise raison. En NFC, pliage et texte ont la MÊME
+    longueur pour tout l'alphabet latin, donc les positions appariées restent valides."""
+    txt = unicodedata.normalize("NFC", txt)
+    pli = unicodedata.normalize("NFD", txt)
+    pli = "".join(ch for ch in pli if not unicodedata.combining(ch)).lower()
+    if len(pli) != len(txt):
+        return R_MARQ_LARGE.sub(" ", txt)      # pliage non isométrique : on apparie sur le texte lu
+    garde, i = [], 0
+    for m in R_MARQ_LARGE.finditer(pli):
+        garde.append(txt[i:m.start()]); i = m.end()
+    garde.append(txt[i:])
+    return " ".join(garde)
+
+def murs_donnes_pour_lus(toks):
+    """-> [(compte le plus bas, cellules fautives)] pour chaque ligne « ✅ » dont une cellule
+    annonce un texte utile sous le plancher SANS annoncer, dans la même cellule, un compte
+    au moins égal au plancher."""
+    out, i = [], 0
+    while i < len(toks):
+        if toks[i][0] in ("STAT", "ENTRY") and toks[i][1] == "✅":
+            j = i + 1
+            while j < len(toks) and toks[j][0] not in ("SUB", "STAT", "ENTRY"):
+                j += 1
+            fautifs, cellules = [], []
+            for k in range(i, j):
+                bas, haut = [], []
+                # _hors_marqueur rend du NFC : « caractères » écrit avec un « è » DÉCOMPOSÉ
+                # n'est apparié par AUCUNE classe [eè], donc le pliage ne peut pas être facultatif.
+                for m in R_CAR_ANN.finditer(_hors_marqueur(toks[k][2])):
+                    v = _nombre_car(m.group(1))
+                    if v is None:
+                        continue
+                    (bas if v < PLANCHER_LISIBLE else haut).append(v)
+                if bas and not haut:
+                    fautifs += bas
+                    cellules.append(toks[k][2])
+            if fautifs:
+                out.append((min(fautifs), " · ".join(c[:90] for c in cellules)))
+            i = j
+            continue
+        i += 1
+    return out
+
 
 def norm(s):
     return s.replace(" ", " ").strip()
@@ -284,6 +381,9 @@ if start is not None:
                 s_g = toks[groupe][1] if groupe is not None and toks[groupe][1] else "autres"
                 c[s_g] += 1 + tk[2].split(" — ")[0].count(" & ")
                 if DEBUG: print("   %-5s %s  %s" % (s_g, "nue", tk[2][:80]), file=sys.stderr)
+    for v, cellules in murs_donnes_pour_lus(toks):
+        print("SOURCE DONNÉE POUR LUE SOUS LE PLANCHER (non bloquant) : %d caractères annoncés "
+              "pour une ligne ✅, plancher %d — %s" % (v, PLANCHER_LISIBLE, cellules))
     seuls = [tk for tk in toks if tk[0] == "STAT" and tk[1] != "autres" and not tk[3]]
     if seuls:
         # un statut sans nom n'est pas compté : on le signale, le lecteur tranche

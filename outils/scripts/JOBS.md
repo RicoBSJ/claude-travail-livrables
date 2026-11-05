@@ -6461,3 +6461,87 @@ Chaque sabotage **prouve d'abord qu'il a modifié le fichier** (sha256 avant →
 🟢 **ET LA BORNE ÉCRITE LE MATIN MÊME A TOURNÉ DANS LE SENS CONFORME, SUR UNE CORRECTION RÉELLE.** Les quatre marqueurs disent « libellé d'origine conservé **en fin de document** » et jamais « Journal des corrections » ; le témoin a imprimé **15/15**, le gate est passé, et le corps lu est resté entier. **La borne a été écrite le matin pour un défaut que j'avais commis le matin, et elle a gardé la correction de l'après-midi.**
 
 ⚠️ **DEUX MESURES RELEVÉES ET NON CORRIGÉES, FAUTE D'ORDRE.** La cellule `Date publi.` annonce « 23 mars 2026 », qui est la date du **comité** et non celle de la publication — l'instantané porte « Publié le 27/03/2026 ». Et le **23/03/2026 lui-même n'est écrit nulle part** sur la page, qui dit « Ce lundi » : c'est une **déduction juste** (le 23 mars 2026 était un lundi) que le document présente comme une lecture. **Troisième semaine consécutive que cette page murée est citée comme source primaire** — les fiches des 21/10 et 28/10 l'avaient déjà mesurée et demandé par écrit qu'on cesse ; **une demande écrite dans une fiche ne protège pas l'édition suivante, seul un contrôle le fait, et aucun contrôle ne regarde la colonne « Statut » du tableau des sources.** 📌 Piste bornée, non faite : faire refuser par le gate une ligne de source dont la remarque annonce un nombre de caractères **sous le plancher de 3 000** et dont le statut est `✅` — le motif est purement textuel, sans réseau, et il aurait mordu les trois semaines.
+
+---
+
+## 05/11/2026 — Le motif « remarque sous 3 000 + statut ✅ » : lire la remarque au lieu de compter les symboles
+
+**L'ordre** : `ajoute le motif remarque sous 3 000 + statut ✅`. C'est la piste bornée relevée la veille, à la fin de la correction du mur JS de la veille SERAFIN-PH du 04/11.
+
+### Ce que le motif garde, et pourquoi rien ne le gardait
+
+Le dépôt tient qu'au-dessous de **3 000 caractères utiles** une page est une façade, et qu'une mention absente y est **indiscernable** d'une mention non lue (règle du 12/10/2026). Une ligne de la rubrique des sources qui porte `✅` et dont une cellule annonce **elle-même** un compte sous ce plancher se contredit donc **dans sa propre ligne**.
+
+⛔ **Aucun motif du dépôt ne regardait cette conjonction, et c'est structurel, pas accidentel** :
+
+| Contrôle | Ce qu'il lit | Pourquoi il est aveugle ici |
+|---|---|---|
+| `controle_decompte.py` | les symboles de statut | il **compte** les ✅, il ne lit pas les remarques |
+| `controle_attributions.py` | les citations, les chiffres, les adresses | il ne voit **aucun** statut |
+| ㊳ bis (`controle_livrable_du_job.py`) | le décompte de liens du **log** | un livrable ne garde pas trace de ce qu'il a écarté |
+
+### Les deux occurrences, mesurées
+
+| Édition | Ligne | Verdict |
+|---|---|---|
+| `ai-act` **30/10** | `✅` + « — Consultée (**2 758 car.**), dates d'échéances vérifiées » | **vrai défaut** — les éditions des **17/10 et 24/10** marquaient **⚠** la MÊME page, l'une écrivant « sous le seuil au-delà duquel cette page peut être considérée comme lue. Rien n'en est tiré. » |
+| `SERAFIN-PH` **04/11** (avant correction) | `✅` + « Source primaire lue (rendu JS, **93 car. utiles**) » | **vrai défaut** — c'est l'incident de la veille |
+| `ai-act` **16/10** | `✅` + « (pub. 09 oct 2026, …, **2 982 caractères**, lu en entier) » | ⚠️ **borderline, et il faut le dire** : un communiqué de presse peut légitimement faire 2 982 caractères. C'est le prix du plancher, pas un défaut démontré. |
+
+📊 **Recensement AVANT câblage, sur les 328 documents du dépôt** : **2 lignes ajoutées, 0 code de sortie changé, 0 régression** — par construction, le motif n'ajoute qu'un `print`.
+
+### 🔴 Et ma prédiction de la veille était FAUSSE sur deux des trois semaines
+
+J'avais écrit, en avocat du diable, que ce motif « aurait mordu les trois semaines ». Mesuré :
+
+- **21/10** : la ligne portait `⚠ Mur JavaScript` + « Mur JavaScript : 93 caractères servis ». Le marquage était **honnête**, le motif ne l'accuse pas — **à bon droit**.
+- **28/10** : le tableau est `Source | Statut | URL testée`, **sans colonne de remarque**, et le statut est `✅ 200`. **Le motif est muet dessus**, alors qu'un HTTP 200 sur un mur est précisément le piège.
+- **04/11** : mord, sur la ligne exacte de l'incident.
+
+⚠️ **La limite est donc nommée : il faut que le document AVOUE le compte.** Un mur non confessé reste hors de portée de ce motif — c'est `balayer_adresses.py` et sa piste « FAÇADE ? » qui couvriraient cette classe, pas celui-ci.
+
+### Les trois bornes, mesurées
+
+| Borne | Règle | Mesure qui la fonde |
+|---|---|---|
+| ① | seul **`✅`** est accusé | `⚠`, `⛔` et le repli `⛔/✅` sont la marque **honnête** d'une façade : quatre lignes légitimes du dépôt (ai-act 17/10 et 24/10, SERAFIN-PH 21/10) seraient accusées par un motif étendu |
+| ② | le compte doit être **dans la ligne du statut** — du jeton de statut au prochain jeton structurant (exclu) | distances mesurées entre un `✅` et un compte **hors** tableau : **9 · 12 · 15 · 21 · 47 · 48 · 95 · 107 · 108** jetons. Sans cette borne, les comptes de la prose et des relectures remontent tous à la dernière ligne du tableau |
+| ③ | un compte **≥ 3 000 dans la MÊME cellule** exempte | « 93 caractères utiles … instantané d'archive (**5 761 caractères**) » est la forme **corrigée** du 04/11 : elle doit passer |
+
+⚠️ **La portée de ③ à la CELLULE plutôt qu'à la LIGNE est PRÉVENTIVE, et c'est dit** : les deux formes rendent des verdicts **identiques** sur les **47** documents qui annoncent un compte sous le plancher. La cellule est retenue parce que le motif est **non bloquant** — son erreur chère est le **silence**, pas le bruit. Une borne **fabriquée** l'épingle, sans quoi elle se réélargirait sans que rien ne le dise (règle du 26/10 : un durcissement dont aucune borne ne peut échouer sur le corpus est **préventif**, et doit être annoncé ainsi).
+
+### ⛔ NON BLOQUANT, et pas par prudence vague
+
+Le motif juge un **contenu**. Un balayage rétrospectif ne valide pas un motif bloquant (règle du 14/10 : les 73 éditions du 12/09 passaient toutes, la 74ᵉ a cassé le contrôle en 48 h). Il **imprime**, le lecteur tranche, et le code de sortie reste celui du décompte. Pour le rendre bloquant il faudra l'avoir vu **avertir sur des éditions neuves** — c'est-à-dire au moins les créneaux `serafin-ph` et `ai-act` des prochaines semaines.
+
+### 🔴 Trois défauts à moi, tous trouvés par la mesure ou le sabotage, aucun par la relecture
+
+**① Au premier essai du gate, personne ne lisait la ligne.** Le bloc `--docs` **capture** la sortie du contrôle dans `$CUR/doc_dec.txt` et n'imprime qu'un `✓`/`✗` : le motif mourait dans un fichier temporaire. C'est **le trou exact comblé le 27/10** pour l'alerte d'étiquette HAS — *« une alerte que personne ne lit n'existe pas »* —, **reproduit huit jours plus tard**. Le gate remonte désormais la ligne, préfixée `⚠ <document> :`, et la borne ㉑ garde cette remontée.
+
+**② Mes deux bornes de marqueur ne discriminaient pas, et le sabotage l'a dit.** Elles portaient « Consultée (**8 903 car.**) » **hors** du marqueur : sans l'exemption des marqueurs, la cellule contenait alors un compte **bas** (93, dans le marqueur) **et** un compte **haut** (8 903), donc la borne ③ l'exemptait de toute façon — **le témoin passait pour la mauvaise raison**, harnais en exit 0. Troisième occurrence de *« une borne qui ne peut pas échouer n'est pas une borne »* (26/10).
+
+**③ Et la borne du marqueur DÉCOMPOSÉ passait pour une raison encore pire : le motif ne savait pas lire un texte décomposé du tout.** `R_MARQ_LARGE` s'appuie sur `\w*` pour franchir le « é » de `[Corrigé le` — or en NFD ce `é` est deux caractères dont le second (U+0300, catégorie Mn) **n'est pas alphanumérique** : `\w*` s'arrête avant, et le marqueur n'était pas retiré. Symétriquement, `caract[eè]res` n'apparie **rien** sur un « è » décomposé, donc aucun compte n'était lu non plus — et les deux erreurs s'annulaient en un faux vert. 🟢 **`_hors_marqueur` normalise maintenant en NFC AVANT tout**, ce qui rétablit l'isométrie du pliage (en NFC, pliage et texte ont la même longueur pour tout l'alphabet latin, donc les positions appariées restent valides). **C'est la règle « NFC d'abord » du dépôt, enfreinte par moi dans la fonction même qui pliait les accents.**
+
+### 🧪 Le témoin
+
+`outils/scripts/non_regression/murs_lus.py` — **21 bornes, aucun réseau, aucun tiers, 0,3 s**. Jetons et `.docx` de bout en bout **fabriqués en `tempfile`** (rien de vivant dans le verdict, leçon du 22/10). Le bloc `PLANCHER_LISIBLE … murs_donnes_pour_lus` est **extrait du contrôle** et exécuté, jamais recopié (règle du 15/10). **Neuf bornes doivent être ACCEPTÉES.** La borne ⑳ applique le motif **du harnais** à la ligne que le témoin imprime réellement (mon défaut du 04/11, où un `sed` mal ancré refusait tous les pushs) ; la ㉑ garde la remontée au gate.
+
+Câblé en mode **défaut** et en **`--docs`** — la porte des pushs de job —, avec `ATTENDU_MUR=21` qui lit le **dénominateur** (bornes **jouées**), jamais le numérateur (règle du 26/10).
+
+**Sept sabotages, sept refus**, chacun nommant **sa** borne, chacun prouvant d'abord qu'il a modifié le fichier (sha256 avant → après, règle du 26/10) et restauré au **sha256 identique** :
+
+| Sabotage | Borne qui mord |
+|---|---|
+| une borne retirée du lot | `ATTENDU_MUR` : `20/20` lu contre 21 |
+| borne ① réélargie à `⚠`, `⛔`, repli | ④⑤⑥ |
+| exemption ③ retirée | ⑦ (ACCEPTÉE) |
+| exemption ③ réélargie à la LIGNE | ⑧ (fabriquée) |
+| exemption des marqueurs retirée | ⑫⑬ |
+| remontée du gate retirée | ㉑ |
+| appel du motif retiré du contrôle | ⑰⑲ |
+
+### 📌 Ce qui reste, borné et non ordonné
+
+- Rendre le motif **bloquant** après l'avoir vu avertir sur des éditions neuves.
+- La classe que ce motif **ne couvre pas** : un mur **non confessé** (`✅ 200` sans remarque, veille du 28/10). C'est la piste « **FAÇADE ?** » de `balayer_adresses.py` — dire `FAÇADE ?` et non `VIVANTE` au-dessous d'un plancher de caractères utiles.
+- `controle_decompte.py` laisse passer **22 ouvertures de marqueur dans 6 documents** (verbes hors de `Corrigé|Précisé|Ajouté|Reformulé`, ou « é » décomposé) : son `re.sub` du haut de fichier n'est **pas** celui du motif, qui est plus large. Élargir celui du haut changerait les **décomptes**, donc cela se mesure à part.

@@ -1059,6 +1059,47 @@ if [ -f "$ROOT/outils/scripts/non_regression/corps_tronque.py" ]; then
   fi
 fi
 
+# ── 0 duodecies. UNE SOURCE DONNÉE POUR LUE QUI S'AVOUE SOUS LE PLANCHER (05/11/2026)
+#    Le dépôt tient qu'au-dessous de 3 000 caractères utiles une page est une façade, et qu'une
+#    mention absente y est INDISCERNABLE d'une mention non lue (12/10). Deux éditions en six
+#    jours ont pourtant porté « ✅ » sur une ligne dont la remarque annonçait elle-même un compte
+#    sous ce plancher : ai-act 30/10 (2 758 car., quand les 17/10 et 24/10 marquaient ⚠ LA MÊME
+#    page) et SERAFIN-PH 04/11 (93 car., mur anti-automate). Aucun motif du dépôt ne regardait
+#    la conjonction des deux cellules. ⛔ LE MOTIF EST NON BLOQUANT (règle du 14/10 : un
+#    balayage rétrospectif ne valide pas un motif bloquant), donc il se garde par des EXIGENCES
+#    DE LIGNE sur des jetons et un .docx FABRIQUÉS — aucun réseau, aucun tiers, rien de vivant.
+#    Recensement avant câblage, sur les 328 documents : 2 lignes ajoutées, 0 code de sortie
+#    changé — le motif n'imprime que, il ne refuse rien.
+if [ -f "$ROOT/outils/scripts/non_regression/murs_lus.py" ]; then
+  echo "▶ Source donnée pour lue sous le plancher de 3 000 caractères (aucun réseau, 0,3 s)"
+  MUR_OUT="$CUR/murs_lus.txt"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/murs_lus.py" > "$MUR_OUT" 2>&1; then
+    tail -1 "$MUR_OUT"
+    # ⚠️ LE GARDE LIT LE DÉNOMINATEUR (bornes JOUÉES), jamais le numérateur — règle du 26/10.
+    #    Et l'ancre est robuste à la colonne : écrite « .* », elle exigerait un caractère PUIS
+    #    une espace et rendrait VIDE sur une ligne en colonne 1 (mon défaut du 04/11). La borne
+    #    ⑳ du témoin applique CE motif à SA propre ligne pour que la classe ne revienne pas.
+    ATTENDU_MUR=21
+    LU_MUR=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes de la source donnee pour lue.*/\2/p" "$MUR_OUT")
+    if [ "$LU_MUR" != "$ATTENDU_MUR" ]; then
+      echo "  ✗ ${LU_MUR:-0} borne(s) jouée(s), $ATTENDU_MUR attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_MUR à jour en disant pourquoi."
+      exit 1
+    fi
+  else
+    grep '✗' "$MUR_OUT" | head -9
+    echo "  ✗ LE MOTIF « SOURCE DONNÉE POUR LUE SOUS LE PLANCHER » NE TIENT PLUS. Une ligne de"
+    echo "    sources qui porte ✅ et dont une cellule annonce un texte utile sous 3 000"
+    echo "    caractères se contredit dans sa propre ligne — ai-act 30/10 et SERAFIN-PH 04/11."
+    echo "    Les trois bornes sont mesurées : ① seul ✅ est accusé (⚠, ⛔ et le repli ⛔/✅ sont"
+    echo "    la marque HONNÊTE d'une façade) ; ② le compte doit être DANS la ligne du statut ;"
+    echo "    ③ un compte ≥ 3 000 dans la MÊME cellule exempte — c'est la forme corrigée du"
+    echo "    04/11, « 93 caractères … instantané d'archive (5 761 caractères) », qui doit passer."
+    echo "    Et les marqueurs de correction sont écartés : ils CONSERVENT le libellé fautif."
+    exit 1
+  fi
+fi
+
 if [ -f "$ROOT/outils/scripts/non_regression/bfr_journal.py" ]; then
   echo "▶ B-FR sur le journal — ce que le journal AFFIRME d'une page (aucun réseau, 0,1 s)"
   BFJ_OUT="$CUR/bfr_journal.txt"
@@ -1164,6 +1205,12 @@ PYH
       nom="${f#*sources/veille/}"; ref=$(awk -F'\t' -v n="$nom" '$2==n{print $1}' "$REF/decompte.tsv" 2>/dev/null)
       if [ "$rc" = "1" ] && [ "${ref:-0}" != "1" ]; then echo "  ✗ $nom : décompte INCOHÉRENT (exit 1) — $(tail -1 "$CUR/doc_dec.txt")"; STATUT=1
       else echo "  ✓ $nom : décompte exit $rc"; fi
+      # 05/11/2026 — ET LE MOTIF DU PLANCHER DOIT ÊTRE REMONTÉ, SINON PERSONNE NE LE LIT.
+      # Ce bloc CAPTURE la sortie du contrôle et n'imprime qu'un ✓/✗ : une alerte non bloquante
+      # y mourrait dans un fichier temporaire — le trou exact comblé le 27/10 pour l'alerte
+      # d'étiquette HAS. NON BLOQUANT : on imprime, le lecteur tranche.
+      grep -h "SOURCE DONNÉE POUR LUE SOUS LE PLANCHER" "$CUR/doc_dec.txt" 2>/dev/null \
+        | sed "s|^|  ⚠ $nom : |"
       # 12/10/2026 — relecture à l'édition PRÉCÉDENTE et à sa fiche. Aucun appel réseau, 0,3 s :
       # ce contrôle a sa place ici, dans la porte des pushs de job, et c'est le seul motif de
       # cette porte qui regarde AILLEURS que dans le document poussé.
