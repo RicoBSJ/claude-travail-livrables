@@ -6545,3 +6545,205 @@ Câblé en mode **défaut** et en **`--docs`** — la porte des pushs de job —
 - Rendre le motif **bloquant** après l'avoir vu avertir sur des éditions neuves.
 - La classe que ce motif **ne couvre pas** : un mur **non confessé** (`✅ 200` sans remarque, veille du 28/10). C'est la piste « **FAÇADE ?** » de `balayer_adresses.py` — dire `FAÇADE ?` et non `VIVANTE` au-dessous d'un plancher de caractères utiles.
 - `controle_decompte.py` laisse passer **22 ouvertures de marqueur dans 6 documents** (verbes hors de `Corrigé|Précisé|Ajouté|Reformulé`, ou « é » décomposé) : son `re.sub` du haut de fichier n'est **pas** celui du motif, qui est plus large. Élargir celui du haut changerait les **décomptes**, donc cela se mesure à part.
+
+---
+
+## 05/11/2026 — Le motif « FAÇADE ? » de `balayer_adresses.py` : un 200 ne prouve pas qu'une page existe
+
+**Ordre reçu** : `ajoute le motif façade ? à balayer_adresses.py`. C'est la piste bornée consignée le 25/10
+(« au-dessous d'un plancher de caractères utiles, dire `FAÇADE ?` plutôt que `VIVANTE` »), restée ouverte
+dix jours, et nommée de nouveau la veille au soir comme la seule qui couvrirait le **mur non confessé**.
+
+### Les deux cas qui fondent le motif, remesurés le jour même
+
+Un par un, espacés, faisceau compris (règle du 12/10 : jamais en parallèle, y compris pour mes mesures).
+
+| Adresse | HTTP | Octets bruts | Caractères utiles | Ce que la page dit |
+|---|---|---|---|---|
+| `www.handicap.gouv.fr/` | 200 | 6 845 | **93** | mur anti-automate |
+| `www.observalys.fr/` (http) | 200 | 32 079 | **927** | « Parked Domain name on Hostinger » |
+
+⛔ **CES DEUX MESURES INTERDISENT LE RACCOURCI QUI SEMBLAIT ÉVIDENT.** La **taille brute** ne discrimine
+rien : **6 845 et 32 079 octets sont tous deux au-dessus du plancher de 3 000**, et les deux pages sont
+muettes. Il faut **aplatir**, donc lire le corps — un compteur d'octets aurait raté les deux cas qui
+justifient le motif.
+
+🟢 **ET LIRE LE CORPS NE COÛTE AUCUNE REQUÊTE DE PLUS, ce qui décide de tout** : `-o /dev/null`
+téléchargeait déjà le corps entier pour le jeter. On change la **destination**, pas le trafic. Mesuré :
+**1 585 s (26,4 min) contre 34 min le 25/10** — donc pas plus lent, et le tourniquet par hôte comme la
+stricte séquentialité sont intacts. Le corps transite par le dossier temporaire du **système**, jamais par
+le dépôt : l'arbre de travail vit dans kDrive, et le 27/10 kDrive a dématérialisé un objet de `.git`.
+
+⚠️ **L'aplatissement est IMPORTÉ d'`aspirer.py`, jamais recopié** (règle du 15/10 : un test qui teste une
+copie de la logique ne garde rien). Les deux outils comptent donc **les mêmes** caractères utiles, et une
+divergence est impossible par construction. Sur une machine où l'import échoue, `aplati` vaut `None`, le
+balayage **l'imprime**, et aucune adresse n'est jamais dite façade — on perd le motif, on n'invente pas
+de verdict.
+
+### La non-régression est une PREUVE, pas un échantillon
+
+| Mesure | Résultat |
+|---|---|
+| Les deux `classe()` jouées sur **toutes** les paires (code, rc) | **51 005 paires · 0 verdict différent** quand la page n'est pas mesurée |
+| Les paires que le motif **peut** changer | **10 302**, **toutes** en 2xx, **toutes** `VIVANTE` avant, **toutes** `FACADE` après |
+| Les verdicts du balayage réel, rejoués par le code livré depuis le `.tsv` | **1 353/1 353 · 0 écart** |
+
+**Le seul changement possible est `VIVANTE → FACADE`, et c'est structurel.** Le `.tsv` du balayage a été
+écrit par la version **en vol** (colonnes `v,c,car,u,d`) ; la version livrée écrit `v,c,u,d,car` pour que
+la 5ᵉ colonne soit un **ajout** et qu'un balayage du 25/10 et un du 05/11 se relisent côte à côte. La
+reproduction 1 353/1 353 prouve que ce réordonnancement est cosmétique.
+
+### Le balayage du 05/11
+
+**1 353 adresses · 402 hôtes · 295 documents · 26,4 min.**
+
+| Verdict | 05/11 | 25/10 |
+|---|---|---|
+| VIVANTE | 1 181 | 1 234 |
+| **FACADE** | **78** | — |
+| REFUS | 89 | 88 |
+| DELAI | 2 | 12 |
+| INJOIGNABLE | 2 | 0 |
+| MORTE | 1 | 8 |
+| DNS · TLS · PANNE | 0 · 0 · 0 | 2 · 5 · 1 |
+
+### Les quatre bornes, et les deux que la mesure a rendues décisives
+
+| Borne | Ce qu'elle ferme | Mesure |
+|---|---|---|
+| ① seul un **2xx** peut être une façade | le corps d'une erreur n'est pas la page | règle d'`aspirer.py` ; un 404 est déjà MORTE |
+| ② `rc != 0` ne mesure **rien** | un transfert coupé par `--max-time` rend un corps **tronqué** avec un code 200 | une mesure partielle n'est pas une petite page |
+| ③ un **PDF ou tout corps non textuel** n'est pas aplatissable | une image, un zip, un PDF | **30 des 52 non mesurés sont des `application/pdf`** |
+| ④ **`None` n'est JAMAIS une façade** | l'absence de mesure confondue avec une page vide | **11 adresses sauvées**, voir ci-dessous |
+
+🔴 **④ EST LA BORNE QUI SAUVE ONZE ADRESSES, ET JE NE L'AVAIS PAS PRÉVU.** `eur-lex.europa.eu` ×7,
+`edps.europa.eu` ×3 et `amazon.fr` répondent **`202` avec un corps VIDE** — le gabarit d'un automate
+écarté. Sans le `not brut`, `aplati("")` rend **0 caractère** : **onze fausses façades, et à 0 caractère,
+c'est-à-dire sous la forme la plus sûre d'elle-même.** C'est la règle du 12/10 (« une mention absente est
+indiscernable d'une mention non lue ») appliquée un étage plus bas, au corps de la réponse.
+
+⚠️ **Et le coût de la liste blanche de types est MESURÉ, pas supposé** : les **7 `text/markdown`** et le
+**`application/json`** laissés non mesurés rendent, aplatissement forcé, **12 655 à 115 719 caractères** —
+tous très au-dessus du plancher. **La liste blanche ne coûte donc rien de mesurable.**
+
+### Le plancher de 3 000 tombe dans une bande VIDE de 80 caractères
+
+| | Valeur |
+|---|---|
+| La façade la plus **haute** | **2 997** |
+| La vivante mesurée la plus **basse** | **3 077** |
+| Médiane des 1 129 vivantes mesurées | **12 546** |
+| Premier décile | **4 737** |
+| Vivantes sous 3 200 | **12** sur 1 129 |
+
+La distribution est **bimodale** : le plancher n'a pas été choisi au jugé, il tombe dans un creux mesuré.
+
+### Ce que le motif a trouvé — et c'est la source primaire d'une série
+
+| Hôte | Adresses | Caractères | Citations de documents |
+|---|---|---|---|
+| **`www.cnsa.fr`** | 5 | **166** | **42** |
+| **`handicap.gouv.fr`** | 5 | **93–94** | **30** |
+| `ai-act-service-desk.ec.europa.eu` (frise) | 1 | 2 860 | **22** |
+| `digital-strategy.ec.europa.eu` | 7 | 2 598–2 997 | 16 |
+| `icd.who.int` | 3 | 556–808 | 10 |
+| `simonwillison.net` | 7 | 1 119–2 970 | 7 |
+| `www.has-sante.fr` (flux RSS) | 1 | 2 206 | 6 |
+| `pubmed` · `ncbi` | 4 · 3 | 155 · 167 | 4 · 5 |
+| `encyclopediaofbuddhism.org` | 3 | **1** | 3 |
+| `www.gazzettaufficiale.it` | 1 | **697** | 1 |
+
+🔴 **LE PLUS GRAVE EST `cnsa.fr` : LA SOURCE PRIMAIRE DE LA SÉRIE SERAFIN-PH EST UNE FAÇADE, ET RIEN DANS
+LE DÉPÔT NE LE DISAIT.** Le 26/10 ces cinq pages étaient diagnostiquées **HTTP 500** derrière un échec TLS,
+et le correctif du faisceau avait **révélé** la panne. Le serveur est depuis revenu — mais il sert une
+**coquille de 166 caractères** à `curl`, ce qui est indiscernable d'une page lue pour tout contrôle qui
+regarde un code. **42 citations de documents** reposent dessus.
+
+✅ **Et `gazzettaufficiale.it` à 697 caractères est EXACTEMENT le chiffre que j'avais mesuré à la main le
+31/10** en déclarant cette façade dans un marqueur : le motif **reproduit un incident mesuré à la main**.
+
+✅ **IL RETIRE UNE PISTE DU DÉPÔT.** « Faire dire `MUR ?` à `balayer_adresses.py` sur un titre
+“Identification” », consignée les 01 et 03/11 et **bornée sur 14 pages**, est **sans objet** : le plancher
+attrape ces murs sur **38 hôtes**, sans aucune heuristique de titre, et il les attrape *parce qu'ils sont
+muets*, non parce qu'ils se nomment.
+
+### Le coût, dit et chiffré
+
+**Sous 1 000 caractères : 40 adresses, 113 citations — mur ou gabarit de parking, aucun doute.**
+**Entre 1 000 et 2 999 : 38 adresses, 77 citations — et c'est là que vit le bruit.** Les **7 billets
+courts** de `simonwillison.net` et les **7 communiqués** de `digital-strategy.ec.europa.eu` (2 598–2 997)
+sont des pages **réelles et brèves**, la même classe que le borderline du 16/10 (2 982 caractères, un
+communiqué annoncé « lu en entier »). Et `has-sante.fr/feed/Rss2.jsp` à 2 206 est un **flux RSS** : faux
+positif **de ma main**, puisque j'ai moi-même mis `text/xml` dans la liste blanche. Il est **laissé** et
+nommé : le retirer serait un rétrécissement **préventif** dont le bénéfice est une adresse et le risque
+non mesuré — et une exemption qui silence est la direction d'erreur coûteuse.
+
+⛔ **LE VERDICT PORTE UN POINT D'INTERROGATION ET NE CONDAMNE PAS.** Seuls `MORTE` et `DNS` font sortir
+en 1, c'est **inchangé** : une page rendue en JavaScript est muette pour `curl` et riche pour un lecteur.
+Le détail imprime « **À LIRE, pas à corriger** ».
+
+### Le câblage, et pourquoi il s'arrête là
+
+⛔ **Le balayage reste NON câblé au harnais** — 26 min de réseau sur 402 hôtes, et le 26/10 a montré qu'un
+hook long **tue la connexion SSH du push** (SIGPIPE 141, rien de publié). Une page tierce muette n'est pas
+une régression du dépôt : même raison que `--manques`. **C'est sa CLASSIFICATION qui est câblée**,
+`ATTENDU_BAL` **41 → 72**, et le `sed` du harnais lit désormais le **DÉNOMINATEUR** et non le numérateur
+(règle du 26/10 : un garde de compte doit lire les bornes **jouées**).
+
+🧪 **31 bornes neuves (41 → 72), aucun tiers, 1 s** — dont **7 qui doivent être ACCEPTÉES**, parce que ce
+motif **RESSERRE** le verdict `VIVANTE` et que sans elles rien n'empêche de le réélargir demain ; **5 DE
+BOUT EN BOUT** sur un serveur HTTP **local** (`127.0.0.1`) et une arborescence fabriquée en `tempfile`,
+donc ce lot **ne peut pas périmer sur la panne d'un site**, contrairement aux trois témoins qui ont bloqué
+TOUS les pushs du dépôt les 15, 22 et 23/10 ; et **une borne de concordance du plancher sur les QUATRE
+autres fichiers qui le portent** (`aspirer.py`, `controle_attributions.py`, `controle_noms_propres.py`,
+`controle_decompte.py`) — aucun n'importe celui d'un autre, donc une dérive serait **silencieuse** et un
+même « sous le plancher » voudrait dire deux choses selon l'outil qui le dit.
+
+### Neuf sabotages, neuf refus
+
+| Sabotage | La borne qui mord |
+|---|---|
+| une borne retirée du lot | `71 borne(s) jouée(s), 72 attendue(s)` — `ATTENDU_BAL` |
+| `utiles()` cesse d'exiger un 2xx | `utiles(…, 404/0) → 52, attendu None` |
+| `utiles()` cesse d'exiger `rc == 0` | `utiles(…, 200/28) → 52, attendu None` |
+| la garde de type saute | `utiles(…, 'application/pdf', 200/0)` |
+| le plancher passe en `<=` | `3000 car. → FACADE, attendu VIVANTE` (borne **ACCEPTÉE**) |
+| FAÇADE se met à **condamner** | `une façade ne CONDAMNE pas` (bout en bout) |
+| FAÇADE disparaît du détail | `le détail NOMME l'adresse` (bout en bout) |
+| l'aplatissement est **recopié** | `l'aplatissement est IMPORTÉ d'aspirer.py` |
+| le plancher de `controle_decompte.py` dérive à 2 500 | `controle_decompte.py : plancher 2500` |
+
+Chacun **prouve d'abord qu'il a modifié le fichier** (sha256 avant → après), **vérifie que le fichier reste
+syntaxiquement valide** — un fichier cassé fait planter le témoin sans nommer de borne, ce qui ne prouve
+rien — et restaure au **sha256 identique** quoi qu'il arrive : `balayer_adresses.py` `21e9f88afc0e…`,
+`controle_decompte.py` `733e3b9fb6a1…`, vérifiés après coup.
+
+### Mes défauts
+
+🔴 **LE BOUT-EN-BOUT A TROUVÉ UN DÉFAUT QU'AUCUNE BORNE TEXTUELLE N'AURAIT VU.** En passant les lignes de
+sortie de 4 à 5 colonnes, j'avais manqué un `for v, _, _, _ in lignes` dans le comptage : `balaye()`
+mourait sur `ValueError: too many values to unpack`. **C'est la borne qui lance le VRAI `balaye()` sur un
+serveur local qui l'a dit, pas la relecture** — et c'est l'argument qui justifie son coût.
+
+⚠️ **Et j'ai lancé le balayage AVANT de rendre la colonne additive**, donc le `.tsv` de mesure porte
+l'ordre de colonnes en vol. Ce n'est pas une erreur de verdict — la reproduction 1 353/1 353 le prouve —
+mais **c'est une mesure faite sur une version qui n'est pas celle qu'on livre**, et il a fallu une
+vérification de plus pour le dire. **Finir le fichier avant de lancer une mesure de 26 minutes.**
+
+⚠️ **Et mon script d'analyse a planté deux fois sur mes propres hypothèses de colonnes** (`int()` sur un
+nom de document, puis `sorted()` sur un `None`) : le symptôme d'un script jetable écrit plus vite que la
+donnée qu'il lit.
+
+### Pistes bornées, non faites, non ordonnées
+
+- Les **11 adresses à `202` et corps vide** (`eur-lex` ×7, `edps` ×3, `amazon.fr`) ne sont **ni vivantes
+  ni façades** : un verdict `MUET` leur irait, borné sur 11 adresses et 3 hôtes. Aujourd'hui elles sont
+  comptées `VIVANTE`, ce qui est le comportement d'avant — donc pas une régression, mais une inexactitude
+  qui a désormais un nom.
+- Exclure les **flux** (`text/xml`, `application/xml`) de la liste blanche : bénéfice **1 adresse**,
+  risque non mesuré. À faire le jour où un second cas le montre.
+- `cnsa.fr` : **42 citations de documents** reposent sur cinq pages de 166 caractères. Les relire par
+  `aspirer.py` et, le cas échéant, ré-ancrer sur des instantanés d'archive — c'est un ordre `corrige`,
+  pas une piste d'outillage.
+- Le motif ne voit une façade que si le serveur la **sert** : une page qui exige un cookie ou un rendu JS
+  et répond **403** reste `REFUS`, ce qui est juste et muet.

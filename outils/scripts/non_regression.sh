@@ -878,14 +878,19 @@ fi
 #    écrire en face d'une page vivante qu'elle est morte — exactement ce que `has-sante.fr` a
 #    coûté le 18/10 avant le faisceau. Seuls MORTE (404/410) et DNS (hôte disparu) condamnent.
 if [ -x "$ROOT/outils/scripts/balayer_adresses.py" ]; then
-  echo "▶ Auto-tests de la classification du balayage d'adresses (aucun réseau)"
+  echo "▶ Auto-tests de la classification du balayage d'adresses (aucun tiers, 1 s)"
   BAL_OUT="$CUR/balayage_autotest.txt"
   if env -i $PY "$ROOT/outils/scripts/balayer_adresses.py" --autotest > "$BAL_OUT" 2>&1; then
     tail -1 "$BAL_OUT"
     # même garde qu'ATTENDU_LIENS, ATTENDU_MARQ et ATTENDU_TOL : le total est CALCULÉ depuis le lot,
     # donc un lot amputé imprimerait un « N/N » plus petit sans que rien ne refuse.
-    ATTENDU_BAL=41
-    LU_BAL=$(sed -n 's/.* \([0-9]\{1,\}\)\/[0-9]\{1,\} bornes de balayer_adresses.*/\1/p' "$BAL_OUT")
+    # 🆕 05/11/2026 : 41 -> 72 avec le motif « FAÇADE ? » (31 bornes neuves, dont 7 qui doivent
+    # être ACCEPTÉES et 5 de bout en bout sur un serveur HTTP LOCAL — aucun tiers, donc ce lot
+    # ne peut pas périmer sur la panne d'un site, contrairement aux trois témoins qui ont bloqué
+    # TOUS les pushs du dépôt les 15, 22 et 23/10). Et le sed lit désormais le DÉNOMINATEUR,
+    # règle du 26/10 : un garde de compte doit lire les bornes JOUÉES, pas les réussies.
+    ATTENDU_BAL=72
+    LU_BAL=$(sed -n 's/.* \([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes de balayer_adresses.*/\2/p' "$BAL_OUT")
     if [ "$LU_BAL" != "$ATTENDU_BAL" ]; then
       echo "  ✗ ${LU_BAL:-0} borne(s) de classification jouée(s), $ATTENDU_BAL attendue(s) — un lot"
       echo "    amputé imprimerait un total plus petit et passerait au vert."
@@ -894,7 +899,8 @@ if [ -x "$ROOT/outils/scripts/balayer_adresses.py" ]; then
   else
     grep '✗' "$BAL_OUT" | head -5
     echo "  ✗ LA CLASSIFICATION DU BALAYAGE A PERDU UNE BORNE — un défaut de TLS pourrait redevenir"
-    echo "    « lien mort », et on corrigerait des adresses vivantes."
+    echo "    « lien mort », et on corrigerait des adresses vivantes ; ou un 2xx muet (gabarit de"
+    echo "    parking, mur anti-automate, page rendue en JS) redeviendrait « VIVANTE »."
     exit 1
   fi
 fi
