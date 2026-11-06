@@ -1131,11 +1131,48 @@ if [ -f "$ROOT/outils/scripts/non_regression/bfr_journal.py" ]; then
   fi
 fi
 
+# ── UN RUN N'EST PAS UNE PUBLICATION (06/11/2026)
+#    Le créneau imac du 25/10 est allé au bout, a committé son livrable, et son push a été refusé
+#    TROIS fois. `--manques` répondait « ✓ tracé » : il lisait la PRÉSENCE de l'épilogue sans lire
+#    ce que run_job.sh écrit APRÈS lui ; ㊳ ne disait rien non plus, puisqu'il juge l'EXÉCUTION,
+#    qui avait réussi. 📊 Mesuré sur les 39 logs présents : 12 — 31 % — portent la ligne d'échec,
+#    tous à code 0, sur sept jobs du 07/10 au 04/11, et les douze portent `pre-push : ✗ PUSH
+#    REFUSÉ` : la cause dominante est le HOOK, pas le transport.
+#    ⛔ `--manques` reste volontairement NON câblé au hook — un créneau perdu n'est pas une
+#    régression du dépôt, et bloquer un push pour cela punirait le document qui passe. C'est sa
+#    LOGIQUE qui est gardée ici, sur des logs FABRIQUÉS : aucun réseau, aucun tiers, aucun log
+#    vivant, donc ce lot ne peut pas se périmer sur une purge à 30 jours ni sur la panne d'un
+#    site — contrairement aux trois témoins qui ont bloqué TOUS les pushs les 15, 22 et 23/10.
+bloc_publication () {
+  local OUT="$CUR/publication_run.txt" PUB_KO=0 LU
+  local ATTENDU_PUB=17         # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  echo "▶ Un run réussi dont le push échoue est-il vu ? (logs fabriqués, aucun réseau, 0,1 s)"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/publication_run.py" > "$OUT" 2>&1; then
+    tail -1 "$OUT"
+    LU=$(sed -n 's/^[[:space:]]*[0-9]\{1,\}\/\([0-9]\{1,\}\) borne(s) jouée(s).*/\1/p' "$OUT")
+    if [ "${LU:-0}" != "$ATTENDU_PUB" ]; then
+      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_PUB attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_PUB à jour en disant pourquoi."
+      PUB_KO=1
+    fi
+  else
+    grep '✗' "$OUT" | head -8
+    echo "  ✗ « --manques » NE DISTINGUE PLUS UN RUN PUBLIÉ D'UN RUN QUI NE L'EST PAS."
+    echo "    Soit le motif ne mord plus — et un créneau qui a produit son livrable sans le"
+    echo "    publier redevient « ✓ tracé », l'état mesuré sur 12 des 39 logs le 06/11 —, soit"
+    echo "    il mord trop : les quatre autres états terminaux de run_job.sh (push OK, rien à"
+    echo "    committer, exit 7, job en erreur) sont des SILENCES, et six bornes le gardent."
+    PUB_KO=1
+  fi
+  return $PUB_KO
+}
+
 bloc_orthographe || exit 1
 bloc_noms_propres || exit 1
 bloc_omission_axe2 || exit 1
 bloc_desarmement || exit 1
 bloc_coherence_skill || exit 1
+bloc_publication || exit 1
 
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then

@@ -6747,3 +6747,151 @@ donnée qu'il lit.
   pas une piste d'outillage.
 - Le motif ne voit une façade que si le serveur la **sert** : une page qui exige un cookie ou un rendu JS
   et répond **403** reste `REFUS`, ce qui est juste et muet.
+
+---
+
+## 06/11/2026 — Un run n'est pas une publication : le quatrième état de `--manques`, et un taux de 31 % que personne ne voyait
+
+**L'incident qui fonde la règle.** Le créneau `imac-veille` du samedi 25/10 à 08h03 est allé au bout :
+épilogue `(code de sortie : 0, tentatives : 1)`, livrable produit, committé. Puis, **après** l'épilogue :
+
+```
+[git] ⛔ push ÉCHEC après 3 tentatives — 2 commit(s) en avance sur origin/main
+```
+
+`rattrapage_jobs.sh --manques` répondait **`✓ tracé`, exit 0**. Il lisait la **présence** de l'épilogue —
+correctif du 23/10, « un log n'est pas un run » — sans jamais lire ce que `run_job.sh` écrit **après** lui.
+㊳ ne pouvait rien dire non plus : il juge l'**exécution**, qui avait réussi. **Entre « créneau perdu » et
+« job en échec » il existait un TROISIÈME état que personne ne regardait**, et c'est le motif du 23/10 d'un
+cran plus loin.
+
+### Ce n'est pas un incident, c'est un taux — mesuré sur les 39 logs présents
+
+| État terminal de `run_job.sh` | Logs | Code de sortie |
+|---|---|---|
+| `✅ push OK` | 19 | 0 |
+| **`⛔ push ÉCHEC après 3 tentatives`** | **12 (31 %)** | **0** |
+| `Rien de nouveau à committer` | 5 | 0 |
+| `Job en erreur (exit N)` | 2 | ≠ 0 |
+| `⛔ PAS DE PUBLICATION` (exit 7) | 0 | — |
+
+**Sept jobs, du 07/10 au 04/11** — dont `controle-livrables` lui-même et la veille SERAFIN-PH du **04/11**,
+celle dont la fiche a été écrite avant-hier.
+
+**La cause dominante est le HOOK, pas le transport** : les douze portent `pre-push : ✗ PUSH REFUSÉ` **trois
+fois** ; deux seulement portent aussi `Connection to github.com closed by remote host.` (le défaut de
+transport du 26 et du 31/10).
+
+**Et le mécanisme est une cascade.** Un document bloquant refuse le push du job qui l'a produit, puis celui
+de **tous les jobs suivants**, qui héritent du même backlog — d'où les « 2, 3, 5 commit(s) en avance » :
+
+| Document bloquant | Pushs refusés |
+|---|---|
+| `2026-10-07_veille_SERAFIN-PH.docx : 1 bloquant` | serafin 07/10 · enneagramme 07/10 · stoicisme 08/10 |
+| `2026-10-21_veille_SERAFIN-PH.docx` | astrologie 22/10 · stoicisme 22/10 |
+
+🟢 **Rien n'a été perdu, et c'est mesuré** : le backlog est repris par le push du job suivant, et le local
+n'est aujourd'hui en avance que des commits du jour. Le coût est un **retard de publication invisible**,
+pas une perte.
+
+### Le quatrième état
+
+`✗ NON PUBLIÉ — N commit(s) en avance (cause)`, exit **1**. La cause est **nommée**, parce que les deux
+gestes sont **opposés** :
+
+| Cause | Geste |
+|---|---|
+| `hook` | corriger le document ; **relancer le job ne sert à rien** |
+| `transport` | un `git push` relancé suffit (règle du 31/10) |
+
+⛔ **Détection POSITIVE, jamais par absence.** On apparie la ligne que `run_job.sh` n'écrit QUE dans cette
+branche (ligne 488), donc **pas de log = pas d'accusation**. Un garde satisfait par un état cassé est le
+défaut qui revient le plus dans ce dépôt — `$SEMENCE` non vide (27/10), les deux photos vides de
+`supprimer_job.sh` (27/10), le `✅` sur un mur (05/11).
+
+⛔ **Et la portée s'arrête au RUN, pas au travail.** L'état dit « CE run n'a pas publié », ce que le log
+affirme, et non « ce livrable est absent du distant », qui demanderait le réseau. Les **11 occurrences hors
+fenêtre** de 7 jours sont **comptées et dites**, jamais accusées — et la purge à 30 jours
+(`run_job.sh:494`) efface cette mesure d'elle-même.
+
+⛔ **`--manques` reste NON câblé au hook** : un créneau perdu n'est pas une régression du dépôt, et bloquer
+un push pour cela punirait le document qui passe. C'est sa **logique** qui est gardée.
+
+🔌 **Et `rattrapage_jobs.sh` n'appartenait à AUCUNE catégorie du hook** — un push qui ne touchait que lui ne
+déclenchait **rien**. C'est le défaut du 27/10 pour `CLAUDE.md` et pour `SKILL.md`, reproduit une troisième
+fois : il entre dans `SURVEILLES`.
+
+### Le témoin — `non_regression/publication_run.py`
+
+**17 bornes, aucun réseau, aucun tiers, aucun log vivant, 0,1 s.** Logs **fabriqués en `tempfile`**, les
+quatre motifs **et** la fonction `publication()` **extraits du script** puis exécutés — jamais recopiés
+(règle du 15/10).
+
+⛔ **Il ne peut pas se périmer**, contrairement aux trois témoins qui ont bloqué TOUS les pushs les 15, 22
+et 23/10 : aucune date, aucun site, aucun job vivant dans le verdict.
+
+**Six bornes doivent être ACCEPTÉES** — les quatre autres états terminaux de `run_job.sh`, le rattrapage qui
+publie le même jour, et le **log vide**, parce que la détection est positive. ⑮ vérifie les **quatre**
+exigences de câblage et **nomme laquelle** manque ; ⑯ que `rattrapage_jobs.sh` est dans `SURVEILLES` ; ⑰
+applique le `sed` **du harnais** à la ligne que le témoin imprime réellement et exige
+`ATTENDU_PUB == len(jouees) + 1` — le **dénominateur**, règle du 26/10.
+
+📌 **Et la piste du 23/10 est résolue autrement** : « donner au script un chemin de `logs/` surchargeable »
+est sans objet — le témoin extrait la fonction et lui passe ses propres chemins, donc le script n'a besoin
+d'**aucun paramètre neuf**.
+
+### Sept sabotages, sept refus, chacun nommant SA borne
+
+| # | Sabotage | Borne qui mord |
+|---|---|---|
+| S1 | une borne retirée du lot | ⑰ `ATTENDU_PUB=17 mais 16 bornes sont jouées` |
+| S2 | `any(PUB_OK…)` retiré | ⑧ ACCEPTÉE : échec + rattrapage qui publie le même jour |
+| S3 | `^` retiré de `PUB_ECHEC` | ⑬ ACCEPTÉE : la ligne d'échec **citée** n'accuse pas |
+| S4 | l'appel `publication(logs)` remplacé par une constante | ⑮ … MANQUE : n'est pas **APPELÉE** |
+| S5 | `nonpublies` retiré de la condition de sortie | ⑮ … MANQUE : pas dans la condition de sortie |
+| S6 | `rattrapage_jobs.sh` retiré de `SURVEILLES` | ⑯ |
+| S7 | dérive de libellé de la ligne finale | ⑰ le `sed` rend `''` sur la ligne réelle |
+
+Les trois fichiers restaurés au **sha256 identique** à chaque fois (`781224878c7acbd1`, `2bd08c80d418d749`,
+`eed5629a2e1c73ca`).
+
+### Validation dans les deux sens, sur le dépôt réel
+
+- Témoin seul sous `env -i` : **exit 0**, `17/17 borne(s) jouée(s)`.
+- `--manques` sur le dépôt réel : **exit 1**, `Wed 04/11 08h03 serafin-ph-veille ✓ tracé ✗ NON PUBLIÉ — 1
+  commit(s) en avance (hook)`, puis `ℹ 11 run(s) NON PUBLIÉ(S) plus ancien(s) que la fenêtre de 7 jours —
+  non comptés.`
+- Harnais mode défaut sous `env -i` : **exit 0**, zéro `✗`.
+- `--consignes` : **exit 0**.
+
+### Trois défauts à moi, aucun trouvé par la relecture
+
+🔴 **① Mon `exit=$?` lisait le code de `tail`**, parce que je tuyautais la sortie. **Le piège du 15/10, et
+le mien du 31/10, refait** : les dix codes de sortie annoncés plus tôt dans la séance n'étaient pas mesurés.
+Re-mesurés sans tuyau : **tous à 0**, la substance des deux fiches tenait — mais je l'ai su après l'avoir
+écrit.
+
+🔴 **② Ma borne ⑮ ne pouvait pas échouer.** Elle appariait `publication\(logs\)`, motif **satisfait par
+`def publication(logs):`** : remplacer l'appel par une constante laissait le lot **vert et le harnais en
+exit 0**. C'est le sabotage S4 qui l'a dit, et c'était précisément la borne qui gardait la leçon du 27/10
+— « une fonction juste jamais appelée n'écrit dans aucun log ». Forme juste : `=\s*publication\(logs\)`.
+**Règle du 26/10 (« une borne qui ne peut pas échouer n'est pas une borne »), enfreinte dans le garde même
+qui l'applique.**
+
+🔴 **③ Le détail de mes bornes ne portait pas de `✗`**, et la branche d'échec du harnais fait
+`grep '✗' "$OUT"` : **les sept sabotages rendaient le même message générique**. Une alerte lisible par
+personne — le défaut du 27/10 (« une alerte que personne ne lit n'existe pas »), reproduit.
+
+⚠️ Et deux rappels payés à nouveau : **`bash -n` ne vaut rien sur `non_regression.sh`**, qui est en `zsh`
+(son `*.docx(N)` est un qualificatif de glob zsh) ; et une paire de **backticks dans un `echo` zsh exécute
+son contenu** — j'avais écrit `` `--manques` `` dans un message, exactement le défaut du 27/10.
+
+### Pistes bornées, non faites, non ordonnées
+
+- Faire **remonter l'inventaire par `run_job.sh`** en fin de run, pour que l'état se dise tout seul au lieu
+  d'attendre un `--manques` lancé à la main (piste du 20/10, toujours ouverte, et ce quatrième état lui
+  donne un second motif).
+- **Les 12 refus de push méritent leur cause nommée document par document** : un `--manques --tout` qui
+  ignore la fenêtre de 7 jours dirait les 11 hors fenêtre au lieu de les compter.
+- La branche `launchctl` qui reconnaît un **PID vivant** reste **NON TESTÉE** (23/10) : aucun job ne tournait
+  pendant les validations.

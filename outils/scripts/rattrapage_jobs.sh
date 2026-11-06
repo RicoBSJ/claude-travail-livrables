@@ -75,6 +75,35 @@ JOURS = 7
 #    le maximum observé. Un run encore vivant est reconnu par son PID chez launchd, pas par
 #    ce délai — le délai ne sert qu'aux runs lancés à la main, hors launchd.
 FIN = re.compile(r"^<<< .* — Fin du job .* \(code de sortie : (-?\d+)", re.M)
+# 🔴 06/11/2026 — UN RUN N'EST PAS UNE PUBLICATION, et c'est la suite exacte du « un log
+#    n'est pas un run » du 23/10. Le créneau imac du 25/10 a produit son livrable, l'a
+#    committé, et son push a été REFUSÉ TROIS FOIS : `[git] ⛔ push ÉCHEC après 3 tentatives
+#    — 2 commit(s) en avance sur origin/main`. L'épilogue portait pourtant `(code de sortie :
+#    0, tentatives : 1)`, donc `--manques` répondait « ✓ tracé » : il lisait la PRÉSENCE de
+#    l'épilogue sans jamais lire ce que run_job.sh écrit APRÈS lui. Et ㊳ ne pouvait rien
+#    dire non plus : il juge l'EXÉCUTION, qui a bel et bien réussi.
+#    📊 BORNE MESURÉE SUR LES 39 LOGS PRÉSENTS, PAS SUPPOSÉE : 19 portent `✅ push OK`,
+#    5 portent `Rien de nouveau à committer`, 2 `Job en erreur`, 0 `PAS DE PUBLICATION` —
+#    et **12, soit 31 %, portent la ligne d'échec**, tous avec un code de sortie 0, sur
+#    SEPT jobs différents du 07/10 au 04/11. Les douze portent `pre-push : ✗ PUSH REFUSÉ`
+#    trois fois : la cause dominante est le HOOK, pas le transport (deux seulement portent
+#    aussi « Connection to github.com closed by remote host. »).
+#    🔴 ET LE MÉCANISME EST UNE CASCADE : un document bloquant refuse le push du job qui
+#    l'a produit, puis celui de TOUS les jobs suivants, qui héritent du même backlog —
+#    d'où les « 2, 3, 5 commit(s) en avance ». `2026-10-07_veille_SERAFIN-PH.docx : 1
+#    bloquant` a ainsi refusé serafin 07/10, enneagramme 07/10 et stoicisme 08/10.
+#    ⛔ DÉTECTION POSITIVE, jamais par absence : on apparie la ligne que run_job.sh
+#    n'écrit QUE dans cette branche (ligne 488). Un garde satisfait par un état cassé est
+#    le défaut qui revient le plus dans ce dépôt — `$SEMENCE` non vide, les deux photos
+#    vides, le `✅` sur un mur. Ici, pas de log = pas d'accusation.
+#    ⛔ ET LA PORTÉE S'ARRÊTE AU RUN, PAS AU TRAVAIL : le backlog est presque toujours
+#    poussé par le push du job SUIVANT (mesuré : le local n'est en avance que des commits
+#    du jour). L'état dit donc « CE run n'a pas publié », ce que le log affirme, et non
+#    « ce livrable est absent du distant », qui demanderait le réseau.
+PUB_OK = re.compile(r"^\[git\] ✅ push OK", re.M)
+PUB_ECHEC = re.compile(r"^\[git\] ⛔ push ÉCHEC après 3 tentatives — ([0-9?]+) commit\(s\) en avance", re.M)
+PUB_HOOK = re.compile(r"^pre-push : ✗ PUSH REFUSÉ", re.M)
+PUB_RESEAU = re.compile(r"Connection to github\.com closed by remote host\.")
 SEUIL_EN_COURS = 3600
 cfg = json.load(open(os.path.join(RACINE, "jobs_config.json"), encoding="utf-8"))["jobs"]
 plan = {}
@@ -88,7 +117,7 @@ for j in cfg:
     plan.setdefault(int(c[4]), []).append((int(c[1]), int(c[0]), j["id"]))
 maintenant = datetime.datetime.now()
 aujourdhui = maintenant.date()
-manques, interrompus, lignes = [], [], []
+manques, interrompus, nonpublies, lignes = [], [], [], []
 
 def juge(logs, quand):
     """-> (etat, id_du_motif). La question est « ce créneau a-t-il eu UN run complet ? », donc
@@ -117,6 +146,27 @@ def juge(logs, quand):
     if age < SEUIL_EN_COURS:
         return "· en cours ? démarré il y a %d min, pas d'épilogue" % (age // 60), None
     return "✗ INTERROMPU — aucune ligne de fin (%d o)" % os.path.getsize(dernier), "interrompu"
+def publication(logs):
+    """-> (suffixe, motif) pour un créneau DÉJÀ jugé « ✓ tracé ».
+       Même règle de jour que juge() : il suffit qu'UN des logs du jour ait publié — un run
+       refusé suivi d'un rattrapage qui passe est publié. Les quatre autres états terminaux
+       de run_job.sh (`✅ push OK`, `Rien de nouveau à committer`, `PAS DE PUBLICATION`
+       après un exit 7, `Job en erreur`) sont des SILENCES : les deux derniers n'ont rien à
+       publier, et accuser un job en échec contredirait la borne du 23/10 — cet outil
+       détecte un créneau perdu, pas un job raté."""
+    textes = [open(f, encoding="utf-8", errors="replace").read() for f in logs]
+    if any(PUB_OK.search(x) for x in textes):
+        return "", None
+    echecs = [m for m in (PUB_ECHEC.search(x) for x in textes) if m]
+    if not echecs:
+        return "", None
+    causes = []
+    if any(PUB_HOOK.search(x) for x in textes):
+        causes.append("hook")
+    if any(PUB_RESEAU.search(x) for x in textes):
+        causes.append("transport")
+    return ("  ✗ NON PUBLIÉ — %s commit(s) en avance%s" % (
+        echecs[0].group(1), (" (" + " + ".join(causes) + ")") if causes else ""), "nonpublie")
 for d in range(JOURS - 1, -1, -1):
     jour = aujourdhui - datetime.timedelta(days=d)
     dow = (jour.weekday() + 1) % 7          # python : lundi=0 ; cron : dimanche=0
@@ -127,6 +177,11 @@ for d in range(JOURS - 1, -1, -1):
             etat, motif = juge(logs, quand)
             if motif == "interrompu":
                 interrompus.append(jid)
+            elif etat.startswith("✓ tracé"):
+                suffixe, motif_pub = publication(logs)
+                etat += suffixe
+                if motif_pub == "nonpublie":
+                    nonpublies.append(jid)
         elif quand > maintenant:
             etat = "· à venir"
         else:
@@ -148,7 +203,34 @@ if manques:
     print("   launchd ne rattrape pas un créneau passé machine éteinte. Pour les rejouer :")
     print("     bash outils/scripts/rattrapage_jobs.sh %s" % " ".join(sorted(set(manques))))
     print("   (anti-doublon actif, budget par job, push durci — et le livrable portera la date du jour)")
-if manques or interrompus:
+if nonpublies:
+    print("\n✗ %d run(s) NON PUBLIÉ(S) : %s" % (len(nonpublies), " ".join(sorted(set(nonpublies)))))
+    print("   Le run est allé au bout et a committé, et les 3 tentatives de push ont échoué.")
+    print("   Les deux causes demandent des gestes OPPOSÉS, et le détail ci-dessus les nomme :")
+    print("     · hook       → un document du push est refusé par un contrôle. Lis le log,")
+    print("                    corrige le document, puis repousse. Relancer le job ne sert à rien :")
+    print("                    tant que le bloquant est là, le push de CHAQUE job suivant est refusé.")
+    print("     · transport  → la connexion a été coupée pendant le hook. Un simple `git push`")
+    print("                    relancé à la main suffit (règle du 31/10).")
+    print("   Pour voir ce qui reste en local :  git rev-parse HEAD  puis  git ls-remote origin main")
+# Les logs HORS fenêtre ne sont pas accusés — le créneau est trop vieux pour être rejoué — mais
+# les taire reviendrait à cacher la mesure qui a fait écrire ce bloc (12 logs sur 39 le 06/11).
+hors = 0
+for f in glob.glob(os.path.join(LOGS, "*.log")):
+    m_ = re.search(r"_(\d{8})_\d{6}\.log$", f)
+    if not m_:
+        continue
+    jour_ = datetime.datetime.strptime(m_.group(1), "%Y%m%d").date()
+    if jour_ > aujourdhui - datetime.timedelta(days=JOURS - 1):
+        continue
+    x = open(f, encoding="utf-8", errors="replace").read()
+    if PUB_ECHEC.search(x) and not PUB_OK.search(x):
+        hors += 1
+if hors:
+    print("\nℹ %d run(s) NON PUBLIÉ(S) plus ancien(s) que la fenêtre de %d jours — non comptés."
+          % (hors, JOURS))
+    print("   La purge de run_job.sh efface les logs à 30 jours : cette mesure se perd d'elle-même.")
+if manques or interrompus or nonpublies:
     sys.exit(1)
 print("\n✓ tous les créneaux prescrits des %d derniers jours ont leur log ET sa ligne de fin" % JOURS)
 PYMANQUES
