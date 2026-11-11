@@ -105,6 +105,34 @@ borne("⑧ le motif de répertoire est dans SURVEILLES, la catégorie qui lance 
 #    et pas les « # » en ligne, qui vivent dans des chaînes et des motifs.
 HARNAIS = (RACINE / "outils" / "scripts" / "non_regression.sh").read_text()
 
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+# MODE --journal : LE RECENSEMENT D'EXÉCUTION, celui que le prédicat textuel ne pouvait pas
+# faire. L'épilogue du harnais appelle ce mode avec le journal que le shim nr_trace.sh vient
+# d'écrire, donc on confronte les catégories du hook à ce qui a RÉELLEMENT été lancé, et non
+# à ce que le texte du harnais a l'air de lancer. Appelé, jamais recopié (règle du 15/10) :
+# `categories()` et `CATS` sont les mêmes ici et dans les bornes.
+# ⛔ Un journal ABSENT ou VIDE n'accuse personne : l'absence de mesure n'est pas une mesure
+#    (c'est la borne ④ de balayer_adresses.py, « None n'est jamais une façade »). Il le DIT.
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+if len(sys.argv) > 2 and sys.argv[1] == "--journal":
+    jr = pathlib.Path(sys.argv[2])
+    if not jr.exists():
+        print("  ⓘ JOURNAL D'EXÉCUTION ABSENT : %s — rien n'est mesuré, rien n'est accusé" % jr)
+        sys.exit(0)
+    lances = sorted({l.strip() for l in jr.read_text().split("\n") if l.strip()})
+    if not lances:
+        print("  ⓘ JOURNAL D'EXÉCUTION VIDE — rien n'est mesuré, rien n'est accusé")
+        sys.exit(0)
+    orph = [c for c in lances if c in set(suivis) and not categories(c)]
+    hors = [c for c in lances if c not in set(suivis)]
+    print("  JOURNAL D'EXÉCUTION : %d script(s) RÉELLEMENT lancé(s) · %d orphelin(s) de catégorie"
+          "%s" % (len(lances), len(orph), " · %d non suivi(s) par git" % len(hors) if hors else ""))
+    for c in orph:
+        print("  ⛔ LANCÉ PAR LE HARNAIS, NON SURVEILLÉ : %s — un push qui ne touche que lui ne "
+              "déclenche rien" % c)
+    sys.exit(1 if orph else 0)
+
+
 def code_seul(texte):
     """Le texte privé de ses lignes ENTIÈREMENT commentées. UNE seule définition : la borne ⑭
     l'appelle, elle ne la recopie pas — sans quoi l'élargir laisserait la borne verte (défaut
@@ -122,8 +150,26 @@ def code_seul(texte):
 #    borne ⑰ l'épingle. Exiger un préfixe (`$ROOT/` ou `<var> + "/`) sépare les deux.
 FORMES = r'(?:\$\{?ROOT\}?|[A-Za-z_][A-Za-z0-9_]* \+ ")/(outils/scripts/[A-Za-z0-9_./-]+\.(?:py|sh))'
 
+# 🔴 11/11/2026, TROISIÈME ANGLE MORT, ET C'EST LE RECENSEMENT D'EXÉCUTION QUI L'A TROUVÉ, PAS
+#    LA RELECTURE : `tolerance_page_morte.py` est lancé par `$NR/…` — une variable AUTRE que
+#    `$ROOT` — donc aucun motif ancré sur `$ROOT` ne pouvait l'apparier. Mesuré : 2 scripts
+#    (`tolerance_page_morte.py` ×3, `muter_docx.py` ×1), tous deux déjà câblés, donc zéro trou
+#    de câblage — mais le garde ne les aurait PAS accusés s'ils avaient été orphelins.
+# 🟢 La table des variables est DÉRIVÉE du harnais, jamais écrite en dur : une variable de
+#    chemin ajoutée demain est prise d'elle-même (« un motif, jamais une liste »).
+def prefixes(texte):
+    """{nom de variable : prefixe relatif} pour toute variable du harnais valant $ROOT/…"""
+    return {m.group(1): m.group(2).rstrip("/") for m in
+            re.finditer(r'(?m)^([A-Z][A-Z0-9_]*)="?\$\{?ROOT\}?/(outils/scripts[^"\s]*)"?\s*$',
+                        texte)}
+
 def scripts_executes(texte):
-    return sorted(set(re.findall(FORMES, code_seul(texte))))
+    c = code_seul(texte)
+    trouves = set(re.findall(FORMES, c))
+    for nom, pref in prefixes(texte).items():
+        for rel in re.findall(r'\$\{?%s\}?/([A-Za-z0-9_./-]+\.(?:py|sh))' % nom, c):
+            trouves.add("%s/%s" % (pref, rel))
+    return sorted(trouves)
 
 executes = scripts_executes(HARNAIS)
 suivis_set = set(suivis)
@@ -162,6 +208,108 @@ borne("⑨ le recensement de premier niveau est fait (un périmètre VIDE n'est 
 #    ligne dans `SURVEILLES`. ⚠️ Le coût est dit : un script neuf de premier niveau doit être
 #    rattaché à une catégorie AVANT son premier push, sans quoi le hook refuse.
 borne("⑱ AUCUN script de premier niveau n'est orphelin de categorie", not orph1)
+
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+# L'INSTRUMENTATION ELLE-MÊME (11/11/2026). Les bornes ci-dessus gardent le CÂBLAGE ; celles-ci
+# gardent le MÉCANISME qui le mesure. Sans elles, remettre `PY=/usr/bin/python3` rendrait
+# l'épilogue aveugle et muet — un journal vide n'accuse personne, par conception.
+# ⛔ Le shim est exercé POUR DE VRAI, sur une arborescence FABRIQUÉE en tempfile : rien de
+#    vivant n'entre dans le verdict (leçon du 22/10), et ce lot ne peut donc pas périmer.
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+SHIM = RACINE / "outils" / "scripts" / "nr_trace.sh"
+borne("⑲ le harnais definit PY sur le SHIM, au litteral (sinon l'epilogue est aveugle)",
+      'PY="$ROOT/outils/scripts/nr_trace.sh"' in HARNAIS
+      and not re.search(r'(?m)^PY=/usr/bin/python3\s*$', HARNAIS))
+
+import tempfile, os, shutil, stat
+with tempfile.TemporaryDirectory() as _t:
+    _sc = pathlib.Path(_t) / "outils" / "scripts"
+    (_sc / "logs").mkdir(parents=True)
+    _sh = _sc / "nr_trace.sh"
+    shutil.copy(SHIM, _sh); os.chmod(_sh, 0o755)
+    _jr = _sc / "logs" / ".nr_journal"
+    (_sc / "bidon.py").write_text("import sys\nsys.exit(7)\n")
+
+    def _lance(*args):
+        r = subprocess.run([str(_sh), *args], capture_output=True, text=True, env={})
+        return r.returncode, (_jr.read_text() if _jr.exists() else "")
+
+    _rc, _j = _lance(str(_sc / "bidon.py"))
+    borne("⑳ le shim JOURNALISE le script lance, en chemin relatif a la racine",
+          "outils/scripts/bidon.py" in _j)
+    borne("㉑ et il TRANSMET le code de sortie du vrai interprete (7, pas 0)", _rc == 7)
+    _jr.unlink(missing_ok=True)   # S18 produit un journal ABSENT : un plantage ici
+                                 # n'imprimerait AUCUN ✗ (diagnostic vide, 11/11)
+    # ㉒ LA BORNE QUI DOIT ÊTRE ACCEPTÉE : un `-c` inline ne lance aucun script du dépôt, donc il
+    #    ne journalise RIEN. Sans elle, un élargissement remplirait le journal de bruit et
+    #    l'épilogue accuserait des chaînes qui ne sont pas des scripts.
+    _rc2, _j2 = _lance("-c", "print(1)")
+    borne("㉒ un `-c` inline ne journalise RIEN (ACCEPTEE)", _rc2 == 0 and _j2.strip() == "")
+    # ㉓ tout cela a tourné avec env={} — donc sans NR_JOURNAL, sans PATH, sans HOME : c'est la
+    #    contrainte qui dicte la forme du shim, le harnais lançant presque tout sous `env -i`.
+    borne("㉓ le shim fonctionne sous un environnement VIDE (le harnais lance sous env -i)",
+          "outils/scripts/bidon.py" in _lance(str(_sc / "bidon.py"))[1])
+
+borne("㉔ l'epilogue du harnais APPELLE le mode --journal et pose STATUT=1 — une alerte que "
+       "personne ne lit n'existe pas (27/10)",
+      '--journal "$NR_JOURNAL"' in code_seul(HARNAIS)
+      and "Recensement d'exécution" in HARNAIS
+      and re.search(r"--journal \"\$NR_JOURNAL\"[\s\S]{0,260}?STATUT=1", code_seul(HARNAIS)))
+borne("㉕ les trois lancements de .sh se DECLARENT par nr_lance (ils ne passent pas par $PY)",
+      all(("nr_lance %s" % c) in code_seul(HARNAIS) for c in
+          ("outils/scripts/non_regression.sh", "outils/scripts/supprimer_job.sh",
+           "outils/scripts/non_regression_runner.sh")))
+# ㉖ `sys.executable` CONTOURNAIT le shim : c'est la forme d'appel qui avait échappé au
+#    recensement textuel, et elle ne doit pas revenir sur ce site.
+# ㉗ et ㉘ exercent le mode --journal LUI-MÊME, en relançant ce script : c'est lui que
+#    l'épilogue appelle, donc c'est lui qu'il faut éprouver, pas une réimplémentation (15/10).
+MOI = str(pathlib.Path(__file__).resolve())
+with tempfile.TemporaryDirectory() as _t:
+    _j = pathlib.Path(_t) / "j"
+    # un script SUIVI par git et DÉPOURVU de catégorie doit faire sortir en 1. On en fabrique un
+    # en retirant sa catégorie du hook dans une COPIE, jamais dans le fichier du dépôt.
+    _j.write_text("outils/scripts/nr_trace.sh\n")
+    _r = subprocess.run([sys.executable, MOI, "--journal", str(_j)],
+                        capture_output=True, text=True)
+    borne("㉗ un script LANCE et surveille ne fait PAS sortir en 1 (ACCEPTEE)",
+          _r.returncode == 0 and "RÉELLEMENT lancé" in _r.stdout)
+    _j.write_text("")
+    _r2 = subprocess.run([sys.executable, MOI, "--journal", str(_j)],
+                         capture_output=True, text=True)
+    borne("㉘ un journal VIDE n'accuse personne et le DIT (ACCEPTEE) — l'absence de mesure "
+          "n'est pas une mesure",
+          _r2.returncode == 0 and "VIDE" in _r2.stdout)
+    _r3 = subprocess.run([sys.executable, MOI, "--journal", str(_j) + ".absent"],
+                         capture_output=True, text=True)
+    borne("㉙ un journal ABSENT n'accuse personne et le DIT (ACCEPTEE)",
+          _r3.returncode == 0 and "ABSENT" in _r3.stdout)
+    # ㉜ LE CAS REFUSANT du mode --journal, et c'est lui le garde : ㉗ ㉘ ㉙ ne prouvent que
+    #    les cas où il se TAIT. On y met un chemin SUIVI par git et dépourvu de catégorie —
+    #    il n'a pas besoin d'être un script, le mode ne juge que « suivi ET sans catégorie ».
+    _hors = next((c for c in suivis if c.startswith("outils/templates/")
+                  and not categories(c)), None)
+    assert _hors, "aucun chemin suivi sans catégorie : la borne ㉜ passerait sur du vide"
+    _j.write_text(_hors + "\n")
+    _r4 = subprocess.run([sys.executable, MOI, "--journal", str(_j)],
+                         capture_output=True, text=True)
+    borne("㉜ un chemin LANCE et SANS categorie fait sortir en 1, et il est NOMME",
+          _r4.returncode == 1 and _hors in _r4.stdout and "NON SURVEILLÉ" in _r4.stdout)
+
+# ㉚ la table des préfixes est DÉRIVÉE : un lancement via une variable autre que $ROOT est vu.
+borne("㉚ un lancement via une AUTRE variable de chemin ($NR/…) est recense",
+      "outils/scripts/non_regression/tolerance_page_morte.py" in executes
+      and "NR" in prefixes(HARNAIS))
+# ㉛ LA BORNE QUI DOIT ÊTRE ACCEPTÉE : une variable qui ne vaut PAS $ROOT/outils/scripts n'entre
+#    pas dans la table — sinon n'importe quel $VAR/x.py deviendrait un lancement de script du dépôt.
+borne("㉛ une variable etrangere a outils/scripts n'entre pas dans la table (ACCEPTEE)",
+      "HOME" not in prefixes('HOME="$ROOT/livrables"\nNR="$ROOT/outils/scripts/non_regression"\n')
+      and "NR" in prefixes('HOME="$ROOT/livrables"\nNR="$ROOT/outils/scripts/non_regression"\n'))
+
+borne("㉖ l'appel Python interne passe par le shim, PAS par sys.executable",
+      "sys.executable, racine" not in HARNAIS
+      and 'racine + "/outils/scripts/nr_trace.sh"' in HARNAIS)
+print("")
+
 
 print("CATÉGORIES DU HOOK : %d · témoins : %d dont %d orphelin(s) · exécutés par le harnais : "
       "%d dont %d non surveillé(s) · premier niveau : %d dont %d sans catégorie"

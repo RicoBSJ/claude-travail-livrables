@@ -29,7 +29,19 @@ ROOT="/Users/utilisateur/kDrive/Claude_Travail"
 NR="$ROOT/outils/scripts/non_regression"
 REF="$NR/reference"
 CUR="$NR/courant"
-PY=/usr/bin/python3
+# 🆕 11/11/2026 — L'INTERPRÉTEUR EST UN SHIM QUI DÉCLARE CE QU'IL LANCE. Une seule ligne
+#    instrumente les 37 lancements Python du harnais ; le shim journalise le chemin du script
+#    puis `exec` le vrai /usr/bin/python3. Voir l'en-tête de nr_trace.sh pour le pourquoi
+#    (un recensement TEXTUEL ratait une forme d'appel et comptait 14 tests d'existence).
+# ⛔ NE PAS remettre /usr/bin/python3 ici : l'épilogue ne verrait plus rien lancer, et la borne
+#    du témoin exige cette ligne au littéral — c'est la seule chose qui branche tout le reste.
+PY="$ROOT/outils/scripts/nr_trace.sh"
+NR_JOURNAL="$ROOT/outils/scripts/logs/.nr_journal"
+# Le journal est remis à zéro par le run EXTÉRIEUR seulement : le harnais se rappelle lui-même
+# (témoin du gate illisible), et un run imbriqué doit AJOUTER au journal de son parent.
+if [ -z "${NR_SANS_TEMOIN_KO:-}" ]; then mkdir -p "$(dirname "$NR_JOURNAL")"; : > "$NR_JOURNAL"; fi
+# nr_lance : déclaration EXPLICITE, pour les lancements qui ne passent pas par $PY (les .sh).
+nr_lance () { printf '%s\n' "$1" >> "$NR_JOURNAL" 2>/dev/null || true; }
 mkdir -p "$CUR"
 MODE="${1:-}"
 
@@ -1241,7 +1253,7 @@ bloc_publication || exit 1
 #    qui interdit de revenir à une liste de fichiers en dur, le défaut payé trois fois ici.
 bloc_categories () {
   local OUT="$CUR/categories_hook.txt" CAT_KO=0 LU
-  local ATTENDU_CAT=18   # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  local ATTENDU_CAT=32   # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
   echo "▶ Tout témoin du dépôt est-il déclenché par le hook ? (structurel, aucun réseau, 0,1 s)"
   if env -i $PY "$ROOT/outils/scripts/non_regression/categories_hook.py" > "$OUT" 2>&1; then
     grep -E '^(CATÉGORIES DU HOOK|  ⓘ )' "$OUT" | head -12
@@ -1395,6 +1407,7 @@ if [ -z "${NR_SANS_TEMOIN_KO:-}" ] && [ -d "$NR/temoins_passe_A_marqueurs" ]; th
   printf 'ceci n est pas un zip
 ' > "$TKO/corrompu.docx"
   KO_OUT="$CUR/temoin_gate_illisible.txt"
+  nr_lance outils/scripts/non_regression.sh
   NR_SANS_TEMOIN_KO=1 "$ROOT/outils/scripts/non_regression.sh" --docs     "$TKO/bon.docx" "$TKO/corrompu.docx" "$TKO/absent.docx" > "$KO_OUT" 2>&1
   RC_KO=$?
   TKO_KO=0; TKO_N=0
@@ -2075,7 +2088,7 @@ if [ "$MODE" = "--complet" ]; then
       STATUT=1; continue
     fi
     EP_N=$((EP_N + 1))
-    env -i /usr/bin/python3 "$ROOT/outils/scripts/controle_edition_precedente.py" "$DOC" \
+    env -i "$PY" "$ROOT/outils/scripts/controle_edition_precedente.py" "$DOC" \
         > "$CUR/edprec_$NOM.txt" 2>&1; rc=$?
     if [ "$rc" != "$ATT" ]; then
       echo "  ✗ témoin « $NOM » sort en $rc au lieu de $ATT — $(tail -1 "$CUR/edprec_$NOM.txt")"
@@ -2160,6 +2173,7 @@ fi
 # Sans réseau, sans jeton, moins d'une seconde. Pas en --docs : c'est la porte des documents.
 if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/supprimer_job.sh" ]; then
   echo "▶ Témoins de supprimer_job.sh (le garde-fou doit refuser avant le bilan)"
+  nr_lance outils/scripts/supprimer_job.sh
   SJ="$ROOT/outils/scripts/supprimer_job.sh"
   SJ_KO=0
   # LES DEUX CONFIGS SONT FABRIQUÉES ICI puis détruites, comme une mutation : l'une déclare
@@ -2241,7 +2255,9 @@ for cible, annonce in ((complet, n), (incomplet, n + 1)):
             vus += 1
     assert vus == 1, "%s absent de la config" % jid
     json.dump(d, open(cible, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    vu = subprocess.run([sys.executable, racine + "/outils/scripts/controle_clauses_parcours.py",
+    # le shim, et NON sys.executable, qui contournerait l'instrumentation (11/11/2026)
+    vu = subprocess.run([racine + "/outils/scripts/nr_trace.sh",
+                         racine + "/outils/scripts/controle_clauses_parcours.py",
                          cible], capture_output=True, text=True).stdout
     ligne = [l for l in vu.splitlines() if l.strip().startswith(jid)]
     assert ligne, "%s absent de la sortie du contrôle des clauses" % jid
@@ -2350,8 +2366,33 @@ fi
 if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/non_regression_runner.sh" ]; then
   RUNNER_ARGS=()
   [ "$MODE" = "--complet" ] && RUNNER_ARGS=(--mutations)
+  nr_lance outils/scripts/non_regression_runner.sh
   if ! "$ROOT/outils/scripts/non_regression_runner.sh" "${RUNNER_ARGS[@]}"; then
     echo "  ✗ les témoins du runner ont changé de comportement (voir ci-dessus)"
+    STATUT=1
+  fi
+fi
+
+# ── ÉPILOGUE : LE RECENSEMENT D'EXÉCUTION (11/11/2026). Le shim nr_trace.sh a journalisé, tout
+#    au long du run, chaque script Python réellement lancé ; les trois lancements de .sh se sont
+#    déclarés par nr_lance. On confronte maintenant ce journal aux catégories du hook.
+# ⛔ C'EST UN RECENSEMENT D'EXÉCUTION, PAS UN RECENSEMENT TEXTUEL, et c'est tout l'intérêt : le
+#    prédicat textuel de categories_hook.py ratait la forme d'appel Python d'un heredoc et
+#    comptait 14 `if [ -x … ]` comme des lancements. Les deux vues restent, parce que leurs
+#    angles morts ne se recouvrent pas (25/10) : le texte voit ce qui n'a pas tourné dans CE
+#    mode, l'exécution voit ce que le texte ne sait pas lire.
+# ⛔ La logique est APPELÉE, jamais recopiée (15/10) : `categories()` du témoin est la même.
+# ⛔ Un run IMBRIQUÉ ne juge pas le journal de son parent : il n'en a lancé qu'une tranche.
+# ⚠️ LIMITE MESURÉE, DITE PLUTÔT QUE TAUE (11/11/2026) : huit blocs antérieurs sortent en
+#    `|| exit 1`, donc cet épilogue N'EST PAS ATTEINT quand l'un d'eux échoue — mesuré au
+#    sabotage S25. Aucun push n'échappe pour autant (le bloc refuse déjà) : ce qui est
+#    conditionnel est la VISIBILITÉ du recensement d'exécution, pas le refus. Le cas
+#    refusant du mode --journal est donc gardé par la borne ㉜ du témoin, hors réseau.
+if [ -z "${NR_SANS_TEMOIN_KO:-}" ] && [ -f "$ROOT/outils/scripts/non_regression/categories_hook.py" ]; then
+  echo "▶ Recensement d'exécution — ce que le harnais a RÉELLEMENT lancé (aucun réseau)"
+  if ! env -i HOME="$HOME" PATH=/usr/bin:/bin "$PY" \
+        "$ROOT/outils/scripts/non_regression/categories_hook.py" --journal "$NR_JOURNAL"; then
+    echo "  ✗ un script lancé par le harnais n'appartient à aucune catégorie du hook"
     STATUT=1
   fi
 fi

@@ -7405,3 +7405,81 @@ CATÉGORIES DU HOOK : 8 · témoins : 13 dont 0 orphelin(s) · exécutés par le
 Chaque sabotage prouve d'abord qu'il a modifié le fichier (sha256 avant → après), et les deux fichiers sont restaurés au **sha256 identique** à chaque fois.
 
 🔴 **Et une coquille à moi dans cette consignation même** : j'avais écrit `formeYthon` pour « forme Python ». ⚠️ **`controle_orthographe.py` ne pouvait pas la voir** — son appariement exige un **préfixe plié de 3 partagé**, et `yth` ≠ `pyt`. C'est exactement l'angle mort écrit le 27/10 : *« un nom tapé de travers une seule fois et jamais juste reste invisible »*. Attrapée par un `grep`, pas par le contrôle.
+
+---
+
+## 11/11/2026 — le harnais DÉCLARE ce qu'il lance : `nr_trace.sh` + un épilogue de recensement
+
+**Pourquoi un prédicat textuel ne pouvait pas suffire — trois angles morts, tous mesurés le même jour.**
+
+| # | Angle mort | Mesure |
+|---|---|---|
+| ① | une seule forme d'appel connue (`$ROOT/…`) | la forme Python `racine + "/outils/…"` d'un heredoc ratée → `controle_clauses_parcours.py` ni compté, ni accusé |
+| ② | des tests d'existence comptés comme des lancements | sur **59 sites appariés, 14** étaient des `if [ -x … ]` / `if [ -f … ]` |
+| ③ | un chemin bâti sur **une autre variable** | `tolerance_page_morte.py` est lancé par `$NR/…` (×3) et `muter_docx.py` aussi (×1) — invisibles à tout motif ancré sur `$ROOT` |
+
+⚠️ **③ a été trouvé par le recensement d'exécution lui-même, dès son premier run, pas par la relecture.** Les deux scripts étaient déjà câblés, donc **zéro trou de câblage** — mais le garde ne les aurait **pas accusés** s'ils avaient été orphelins.
+
+### Le mécanisme
+
+**Le levier est une seule ligne.** `PY=/usr/bin/python3` devient `PY="$ROOT/outils/scripts/nr_trace.sh"` : cela instrumente **les 37 lancements Python du harnais d'un coup**. Le shim écrit dans `logs/.nr_journal` le chemin relatif de chaque argument qui est un script du dépôt, puis `exec` le vrai `/usr/bin/python3`.
+
+Le reste est nominatif et borné :
+
+| Forme de lancement | Nombre | Traitement |
+|---|---|---|
+| `$PY <script.py>` | 37 | le shim, automatiquement |
+| `$PY -c '…'` inline | 8 | **rien n'est journalisé** (borne ㉒, ACCEPTÉE) |
+| `env -i /usr/bin/python3 …` | 1 | passe par `$PY` |
+| `subprocess.run([sys.executable, …])` | 1 | passe par le shim — `sys.executable` le **contournait** |
+| lancements de `.sh` | 3 | se **déclarent** par `nr_lance` |
+
+**⛔ Le shim survit à `env -i`, et c'est cette contrainte qui dicte sa forme.** Le harnais lance presque tout sous `env -i`, qui efface l'environnement : le chemin du journal **ne peut pas** être transmis par une variable, il est déduit de l'emplacement du shim (`$0`), et tout est appelé en **absolu** (aucun `PATH` n'est garanti).
+
+**⛔ Et il ne doit jamais faire échouer un run.** Un journal impossible à écrire est silencieux : l'instrumentation est un **observateur**, le garde est l'**épilogue**.
+
+### Mesure du premier run complet
+
+```
+JOURNAL D'EXÉCUTION : 27 script(s) RÉELLEMENT lancé(s) · 0 orphelin(s) de catégorie
+```
+
+Confronté au recensement textuel (31) :
+
+- **3 vus par le texte, jamais lancés dans ce mode** : `controle_ai_act.py`, `controle_edition_precedente.py`, et le shim lui-même — qui **ne se journalise pas**, par construction.
+- **1 lancé qu'aucun texte ne voyait** : `tolerance_page_morte.py`.
+
+🟢 **Les deux vues restent, parce que leurs angles morts ne se recouvrent pas** (règle du 25/10) : le texte voit ce qui n'a pas tourné dans *ce* mode, l'exécution voit ce que le texte ne sait pas lire. Et la table des variables de chemin est **dérivée du harnais** (`^VAR="$ROOT/outils/scripts…"`), jamais écrite en dur — « un motif, jamais une liste ».
+
+### 🔴 L'épilogue n'est pas atteint quand un bloc antérieur échoue
+
+Trouvé par le **sabotage S25**, pas par la relecture : **huit blocs sortent en `|| exit 1`** avant la ligne de l'épilogue. Retirer le motif de répertoire de `SURVEILLES` fait donc refuser le harnais — mais par `bloc_categories`, et **l'épilogue ne parle jamais**.
+
+⛔ **Aucun push n'échappe pour autant** : soit un bloc refuse, soit l'épilogue refuse. Ce qui est conditionnel est la **visibilité** du recensement d'exécution quand autre chose est déjà cassé. C'est dit dans le harnais, et le **cas refusant** du mode `--journal` est gardé hors réseau par la borne **㉜** — sans elle, ㉗ ㉘ ㉙ ne prouvaient que les cas où il se **tait**.
+
+### 🔴 Un défaut à moi : mon témoin PLANTAIT au lieu d'accuser
+
+Le sabotage **S18** (shim rendu muet) produit un journal **absent**, état sur lequel mon `_jr.unlink()` levait une exception. **Un plantage n'imprime AUCUN `✗`** : le témoin sortait en 1 avec un diagnostic **vide**. C'est exactement le défaut du hook à `ROOT` vide (27/10) — *le sens d'échec était bon, le diagnostic trompeur* — refait quinze jours plus tard. Corrigé par `missing_ok=True`, et S18 nomme désormais ⑳ **et** ㉓.
+
+### Bilan
+
+`ATTENDU_CAT` 18 → **32**. Le shim prend l'extension `.sh` **à dessein** : la borne ⑱ a exigé d'elle-même qu'il soit surveillé **dès son `git add`** — mesuré, les deux bornes ⑬ et ⑱ sont tombées à cet instant.
+
+**Dix sabotages, dix refus**, chacun nommant **sa** borne :
+
+| Sabotage | Borne |
+|---|---|
+| `PY` remis à `/usr/bin/python3` | ⑲ |
+| le shim ne journalise plus rien | ⑳ **et** ㉓ |
+| son `exec` avale le code de sortie | ㉑ |
+| le shim journalise **tout** (un `-c` compris) | ㉒ |
+| `STATUT=1` retiré de l'épilogue | ㉔ |
+| `sys.executable` rétabli sur l'appel interne | ㉖ |
+| la table de préfixes désarmée | ㉚ |
+| la branche refusante de `--journal` neutralisée | ㉜ |
+| le motif de répertoire retiré de `SURVEILLES` | ⑬ ⑱ (et l'épilogue reste muet — S25) |
+| une borne retirée du lot | auto-test **exit 0** lisant « 31/31 », harnais **exit 1** |
+
+Fichiers restaurés au **sha256 identique** à chaque fois. Harnais **défaut · `--consignes` · `--desarmement` · `--docs` : exit 0, zéro `✗`**.
+
+⚠️ **Ce que l'instrumentation ne voit pas, et c'est dit** : un script lancé par un autre script (le harnais ne journalise que **ses** appels), un lancement en `.sh` non déclaré par `nr_lance` (les 3 actuels le sont, un quatrième devrait l'être — la borne ㉕ exige les trois au littéral, elle ne peut pas deviner le quatrième), et tout ce qui tourne dans un mode non joué.
