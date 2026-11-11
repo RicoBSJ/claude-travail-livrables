@@ -6895,3 +6895,208 @@ son contenu** — j'avais écrit `` `--manques` `` dans un message, exactement l
   ignore la fenêtre de 7 jours dirait les 11 hors fenêtre au lieu de les compter.
 - La branche `launchctl` qui reconnaît un **PID vivant** reste **NON TESTÉE** (23/10) : aucun job ne tournait
   pendant les validations.
+
+---
+
+## 07/11/2026 — Création de `neuropsychologie-lecon` : six gestes, 20 hôtes sondés, et deux motifs à moi qui étaient faux
+
+**L'ordre.** Un parcours de neuropsychologie, 12 leçons, tous les mardis à 8h03, aux mêmes conditions
+que les parcours hypnose / stoïcisme / psychopathologie, **sources vérifiées**.
+
+### Le créneau était libre, et c'est mesuré
+
+`3 8 * * 2` — mardi 8h03, **libéré le 15/10/2026** par la suppression de `dzogchen-lecon`. Vérifié avant
+écriture : aucun des cinq jobs vivants n'avait un `cron` finissant par `* * 2`.
+
+### Les sources — 20 hôtes sondés un à un le 07/11/2026, séquentiellement, faisceau compris
+
+⛔ **Jamais en parallèle** (règle du 12/10), 15 s d'intervalle, `aspirer.py` et son plancher de 3 000
+caractères utiles.
+
+**✅ RETENUES — les douze du socle**
+
+| adresse | car. utiles |
+|---|---|
+| `plato.stanford.edu/entries/neuroscience/` | 146 920 |
+| `en.wikipedia.org/wiki/Neuropsychology` | 54 895 |
+| `www.inserm.fr/dossier/memoire/` | 42 170 |
+| `fr.wikipedia.org/wiki/Neuropsychologie` | 32 839 |
+| `fr.wikipedia.org/wiki/Fonctions_exécutives` | 27 760 |
+| `www.cen-neurologie.fr/` | 16 889 |
+| `institutducerveau.org/` | 14 530 |
+| `www.nature.com/subjects/neuropsychology` | 11 393 |
+| `www.frontiersin.org/journals/human-neuroscience` | 8 134 |
+| `www.has-sante.fr/` | 7 145 |
+| `www.alzheimer-recherche.org/` | 5 928 |
+| `www.sfnp.fr/` | 4 564 |
+
+**⛔ ÉCARTÉES — et toutes celles qui répondent 200 sont le piège : un 200 ne prouve pas qu'une page existe**
+
+| adresse | mesure | ce que c'est |
+|---|---|---|
+| `icd.who.int/browse11` | 200 · **646 car.** | la CIM-11 est une application JavaScript, muette pour `curl` |
+| `www.ncbi.nlm.nih.gov/books/` | 200 · **167 car.** | mur anti-automate — **confirme le balayage du 05/11 (167 ×3)** |
+| `www.apa.org/topics/brain-health` | 200 · **1 à 84 car.** | mur |
+| `pubmed.ncbi.nlm.nih.gov/` | 200 · 3 612 à l'accueil | mais **155 car.** sur une fiche d'article (05/11) |
+| `www.cairn.info/…neuropsychologie` | **403** | blocage anti-robot |
+| `www.scholarpedia.org/` | **000 · curl 60** | défaut de chaîne TLS **avec** le faisceau — ⚠️ **pas une page morte, et pas notre pile** |
+| `lecerveau.mcgill.ca/` | 200 · **1 167 car.** | site à cadres |
+| `iep.utm.edu/neurophi/` | **404** | l'article n'est pas à ce slug |
+| `www.inserm.fr/dossier/maladie-alzheimer/` | **404** | **adresse que j'avais devinée** — la bonne est le dossier Mémoire |
+
+🔴 **ET DEUX DE CES MESURES SONT DES LEÇONS DU DÉPÔT QUI SE RÉPÈTENT.** ① `inserm.fr/dossier/maladie-alzheimer/`
+est une URL que j'ai **reconstruite de mémoire**, ce que les neuf prompts interdisent explicitement
+(« ne reconstruis JAMAIS une URL de mémoire ») ; c'est `WebSearch` qui a rendu la bonne. ② `scholarpedia.org`
+sort en **exit 60**, et la règle du 25/10 interdit d'écrire « page morte » sur la foi d'un 000 : derrière ce
+code il y a quatre causes aux gestes opposés. Le prompt **conserve les deux dans une liste d'écartées avec
+leur chiffre**, précisément pour qu'elles ne soient pas réintroduites sans re-sonde.
+
+### Le plafond : 4,00 $, et le 4 vient de quatre mesures
+
+| mesure | valeur |
+|---|---|
+| `psychopathologie-lecon`, le seul autre parcours **clinique** | plafond **4,00 $**, run à **50 %** (2,0034 $, 49 tours, 12/10) |
+| **maximum** des 16 derniers runs de leçon | **3,0218 $** (`astrologie-karmique` 08/10) — a **crevé** 3,00 $ |
+| dernier `stoicisme-lecon` | 2,3102 $ = **77 %** de 3,00 $ |
+| bloc des **noms propres** (31/10), qu'aucun prompt de leçon n'a jamais porté | ≥ 1 tour, et un tour coûte **~3,3 %** |
+
+Cumul **22,00 → 26,00 $/semaine** pour 6 jobs, mesuré en exécutant le vrai bloc `case`.
+**Pour annuler : remettre `3.00` dans `run_job.sh`, rien d'autre.**
+
+### L'Étape 5 bis est en AVERTISSEMENT, et c'est la seule position honnête
+
+⛔ **Un parcours neuf n'a AUCUNE leçon**, donc aucun balayage rétrospectif n'est possible — et la règle du
+14/10 dit qu'*un balayage rétrospectif ne valide pas un motif bloquant*. Les cinq motifs **impriment et
+sortent en 0**. Le prompt porte son **critère de promotion** : après la leçon n°3, rejouer les cinq motifs
+sur les trois leçons réelles, compter les faux positifs, ne passer en bloquant que ceux à **zéro**.
+
+Les cinq motifs : ① une source **mesurée muette** donnée pour lue ; ② un chiffre d'échelle ou de test absent
+des pages lues ; ③ les **trois interdits de périmètre** (posologie, procédure ou cotation de test, diagnostic
+d'une personne) ; ④ une fonction attribuée à une structure cérébrale sans page qui la porte ; ⑤ une ressource
+listée qui n'irrigue pas le corps (B4).
+
+🧪 **Validé DANS LES DEUX SENS sur deux `.docx` FABRIQUÉS**, script **ré-extrait verbatim du prompt** et non
+recopié d'un bac à sable (leçon du 01/10 : un test mis au point à côté définissait son propre `page()` et
+accusait TOUT). Adresses en `.invalid`, qui ne résolvent **jamais par norme** (RFC 2606) : **aucun réseau,
+aucun tiers dans le verdict**. Défectueux → **7 motifs**, propre → **`OK — aucun des cinq motifs`**, les deux
+en exit 0 ; 9 bornes, dont celles qui exigent que chaque motif de ③ ait **nommément** mordu.
+
+### 🔴 Trois défauts à moi, et le témoin en a trouvé deux que la relecture n'avait pas vus
+
+**① Le motif ① n'acceptait pas la réserve que mon PROPRE prompt prescrit.** L'Étape 3 fait écrire *« la page
+n'est pas lisible par un automate »* ; le motif cherchait `non (?:lue|lisible|vérifiab)`, donc **« n'est pas
+lisible » ne l'appariait pas** et le motif accusait un document **conforme**. **Un contrôle et la consigne
+qu'il garde doivent nommer la même chose** — c'est « une borne qui compare deux découpages différents ne
+compare rien » (31/10) appliqué à un libellé.
+
+**② Le motif ③ ratait la majuscule, faute de `re.I`.** *« Un résident présente un syndrome dysexécutif »* —
+l'alternance était en minuscules, et la majuscule est la forme **la plus probable** puisqu'elle ouvre la
+phrase. Corrigé en deux `finditer` : `re.I` pour les noms communs, sans `re.I` pour `M./Mme` suivis d'une
+capitale, afin de ne pas apparier « m. x ».
+
+**③ Et ② et ④ accusaient TOUT quand aucune page n'était lue.** `if m.group(1) not in " ".join(LUES.values())`
+avec `LUES` vide apparie n'importe quel chiffre. C'est la **direction d'erreur la plus coûteuse** — un chiffre
+JUSTE réécrit en faux — et c'est exactement la borne que `controle_noms_propres.py` a dû se donner le 31/10.
+Les deux motifs **se taisent et le disent** (`⛔ ② NON APPLIQUÉ : aucune page lue…`). **Trouvé en préparant le
+témoin, pas en relisant le code.**
+
+⚠️ **Et un quatrième, sur l'outillage de la séance** : ma première sonde a été lancée en `nohup … &` **à
+l'intérieur** d'un `run_in_background`, donc le tool a rendu « exit 0 » pour le `&` tandis que le vrai enfant
+était tué — **2 hôtes sur 20 sondés, et un faux succès**. Un double arrière-plan rend un code de sortie qui
+ne décrit rien. C'est la même famille que l'`exit=$?` derrière un tuyau (15/10, 31/10, 06/11).
+
+### Mesure finale
+
+| | |
+|---|---|
+| jobs · .plist · chargés | **6 · 6 · 6**, aucun orphelin |
+| plafonds | **26,00 $** (exécution du vrai bloc `case`) |
+| créneau | Weekday 2 · Hour 8 · Minute 3 |
+| `coherence_skill.py` | 6 jobs · **0 écart** |
+| `refaire_classeur.py --verifier` | **exit 1 avant** (nommant l'absent), **exit 0 après** |
+| `controle_clauses_parcours.py` | `annoncé 12 · réels 0 · clause oui · limite oui · actif`, exit 0 |
+| `audit_vault.py` | **9 contrôles au vert** |
+| harnais mode défaut | **exit 0, zéro ✗**, gardes de prompt à **6/6** |
+| `jobs_config.json` | **+8 lignes, −0**, retrait du job ⇒ fichier d'avant au **sha256 identique** |
+| prompt | **59 566 octets** |
+
+### Pistes bornées, non faites, non ordonnées
+
+- **Écrire `creer_job.sh`**, miroir de `supprimer_job.sh` : les six gestes sont mécaniques, la séquence est
+  mesurée, et c'est une note datée qui les tient — or *une note datée a déjà échoué sur exactement cette
+  classe de tâche* (27/09, la 11ᵉ leçon de `revenus-passifs`).
+- **Faire lire `JOBS` à `setup_launchd.sh` depuis `jobs_config.json`** : la liste en dur est le défaut du
+  15/10, et la création vient de la payer une seconde fois, dans l'autre sens.
+- **Promouvoir l'Étape 5 bis** après la leçon n°3, selon le critère écrit dans le prompt.
+- Le motif ① **ne connaît que quatre hôtes muets**, ceux que j'ai mesurés : un cinquième mur passera.
+
+## 11/11/2026 — `serafin-ph-veille` relevé de 4 à 5 $ : le dépassement était annoncé par écrit, avec son chiffre
+
+Le créneau du mercredi 11/11 à 08:03 est mort sur son plafond : **4,0529 $ pour 4,00 $, soit 101 %**,
+49 tours, 737 997 ms, `out` 37 316, `cache-read` 6 355 989, `cache-write` 155 882, une tentative,
+`exit 1` sur `error_max_budget_usd`, `stop_reason=end_turn`. Plafond porté à **5,00 $** — cumul
+**27,00 $ pour 6 jobs**, mesuré en exécutant le vrai bloc `case`, pas en additionnant de mémoire.
+
+🔴 **L'AVERTISSEMENT AVAIT ÉTÉ ÉCRIT, AVEC LE CHIFFRE QUI MANQUAIT.** Trajectoire sur six créneaux :
+**27 · 39 · 37 · 90 · 95 · 101 %**. La fiche du 04/11 disait *« il reste 0,22 $ de marge »* et
+*« second avertissement de suite »*. C'est la règle du 16/10 — *surveiller le taux d'usage, pas
+seulement les échecs* — énoncée, consignée, et **non suivie d'effet**. Troisième job du dépôt à crever
+un plafond après un avertissement chiffré, après `astrologie-karmique` (86 % le 01/10 → 101 % le 08/10)
+et `ai-act` (durci le 09/10 sans relèvement → 108 % le 16/10).
+
+🔴 **ET LA CAUSE N'EST PAS DANS LES COMPTEURS DU LOG — MESURÉ, ET CELA CORRIGE MA PROPRE FORMULATION
+DU MATIN.** J'avais écrit, dans la fiche puis dans le message de commit, que le `cache-read` par tour
+avait bondi de **42 %** (91 266 → 129 714). C'est arithmétiquement vrai et **trompeur** : c'est le même
+volume de cache étalé sur **moins de tours**. Les variations réelles du 04/11 au 11/11, à **prompt
+identique** (35 312 octets aux deux créneaux) :
+
+| Compteur | 04/11 | 11/11 | Variation |
+|---|---|---|---|
+| coût | 3,7815 $ | 4,0529 $ | **+7,2 %** |
+| tours | 67 | 49 | **−26,9 %** |
+| `out` | 43 201 | 37 316 | **−13,6 %** |
+| `cache-read` | 6 114 842 | 6 355 989 | **+3,9 %** |
+| `cache-write` | 226 880 | 155 882 | **−31,3 %** |
+
+**Le coût monte de 7,2 % alors que trois compteurs sur quatre baissent.** Les quatre compteurs du
+`[mesure]` n'expliquent donc pas la hausse, et ce que ce log **ne porte pas** — le coût des appels
+d'outils et de recherche — n'y est pas mesurable. ⛔ **Le relèvement ne s'appuie donc PAS sur une cause
+élucidée**, mais sur la règle du 16/10 : le plafond s'applique **par tentative** et le fail-fast du
+27/09 coupe les tentatives dès le dépassement, donc relever ne multiplie pas la dépense — cela évite
+de perdre le créneau. **Pour annuler : remettre `4.00` dans `run_job.sh`, rien d'autre.**
+
+🔴 **AGGRAVANT PROPRE À CE RUN : LE LIVRABLE EST PUBLIC, POUSSÉ PAR UN RUN QUI ALLAIT MOURIR.**
+L'agent a committé **et poussé** le `.docx` à **08:09:46** (`abb0305`) ; `run_job.sh` n'a conclu qu'à
+**08:15:29**. ㊳ refuse ce document aujourd'hui, mais il était **aveugle au moment du push** : le script
+n'écrit `[diagnostic]` et `[mesure]` qu'au **retour** de `claude -p`. Mesuré dans les deux sens avec le
+**vrai `verdict()`** et un dossier `LOGS` fabriqué — log tel qu'à 08:09 → *aucune alerte, le gate
+passe* ; log complet de 08:15 → **REFUS**. **Un push n'est pas une fin de run**, cinquième variante de
+la classe « un garde satisfait par un état qui n'est pas encore écrit ».
+
+🔴 **ET LE GESTE A RÉPARÉ UN DÉFAUT À MOI, VIEUX DE QUATRE JOURS, QUE PERSONNE N'AURAIT VU.**
+La création de `neuropsychologie-lecon` le 07/11 avait laissé la ligne `serafin-ph-veille` **nue**
+— 37 octets, `BUDGET="4.00" ;;` sans un mot — et collé **son historique entier en queue de la ligne
+neuro**, derrière un second `#`. Mesuré : ligne neuro **2 900 octets en trois morceaux**, dont
+**1 601 octets** décrivant un **autre job**. Aucun effet fonctionnel, tout étant en commentaire — mais
+dans ce dépôt **la justification d'un plafond est la seule trace de sa mesure**, et elle était classée
+sous le mauvais job : l'historique du relèvement de 3 à 4 $ du 31/10, avec le calcul des 99 300 jetons
+par tour, se lisait comme une justification du parcours de neuropsychologie. L'historique est remis sur
+la ligne serafin, précédé de la mesure du jour. ⚠️ **Et ce n'est pas la relecture qui l'a trouvé, c'est
+d'avoir ouvert le bloc `case` pour y écrire** : la ligne fait 2 900 octets, elle ne se relit pas.
+
+🛡 **Trois gardes à ce geste**, tous passés : `bash -n` sur `run_job.sh` ; **garde par soustraction**
+— retirer exactement ce qui a été ajouté rend les deux fichiers d'avant **au sha256 identique**, donc
+ni l'un ni l'autre n'a été reformaté ; et les six plafonds relus **en exécutant le vrai bloc `case`**
+pour chacun des ids de `jobs_config.json`, d'où le cumul de 27,00 $.
+
+### Ce que ce geste ne ferme pas
+
+- **La cause du +7,2 % reste inconnue**, et aucun compteur du dépôt ne peut l'atteindre. À ce rythme,
+  5,00 $ sera crevé avant la fin du mois, et le relèvement suivant n'aura pas plus d'explication.
+  📌 Piste bornée : faire écrire par `run_job.sh` le coût **non lié aux jetons** si l'API le rend.
+- **㊳ ne sait toujours pas refuser un run EN COURS.** La sentinelle de début de tentative déjà
+  consignée ne couvre pas ce cas : le log existait, il ne portait simplement pas encore le verdict.
+- **Le cinquième état de `--manques`** — `✗ PUBLIÉ SANS CONTRÔLE` — reste la seule forme d'outil capable
+  de dire « ce livrable est sur le distant public et ㊳ le refuse ». Non écrit.
+- **`imac-veille` est dans le même état**, à 101 % lui aussi, et son document du 08/11 vient d'un run
+  mort. Non traité dans ce geste.

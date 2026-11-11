@@ -1,6 +1,6 @@
 ---
 name: lancer-job
-description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : imac, serafin, rbpp, ai-act, controle
+description: Déclenche manuellement et immédiatement un job planifié du projet. Usage : /lancer-job [nom] où nom est : imac, serafin, rbpp, ai-act, controle, neuro
 disable-model-invocation: false
 ---
 
@@ -24,6 +24,7 @@ Identifie le job correspondant à l'argument selon cette correspondance :
   04/10/2026 — parcours fermé, les 12 leçons et le projet fil rouge sont conservés. » et arrête-toi.
 - "ai-act" ou "aiact" ou "ia-act" ou "reglement-ia"                  → job id "ai-act-veille"
 - "controle" ou "qualite" ou "relecture" ou "verif"                  → job id "controle-livrables"
+- "neuro" ou "neuropsy" ou "neuropsychologie" ou "cognition"         → job id "neuropsychologie-lecon"
 
 Si l'argument est vide ou non reconnu, affiche la liste des jobs disponibles :
 ```
@@ -33,6 +34,7 @@ Jobs disponibles :
   /lancer-job rbpp        — Pipeline RBPP HAS (lundi 8h30)
   /lancer-job ai-act      — Veille règlement IA européen (vendredi 9h03)
   /lancer-job controle    — Contrôle qualité des livrables de la semaine (dimanche 11h03)
+  /lancer-job neuro       — Leçon Neuropsychologie (mardi 8h03)
 ```
 Et arrête-toi.
 

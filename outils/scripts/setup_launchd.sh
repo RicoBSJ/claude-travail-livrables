@@ -74,7 +74,8 @@ JOBS="imac-veille|3|8|0
 rbpp-pipeline|30|8|1
 serafin-ph-veille|3|8|3
 controle-livrables|3|11|0
-ai-act-veille|3|9|5"
+ai-act-veille|3|9|5
+neuropsychologie-lecon|3|8|2"
 
 # ⚠ AGENTS ORPHELINS — DÉFAUT MESURÉ LE 15/10/2026, À LA SUPPRESSION DE TROIS JOBS.
 # Ce script porte sa PROPRE liste de créneaux (JOBS ci-dessus) et ne lit PAS
