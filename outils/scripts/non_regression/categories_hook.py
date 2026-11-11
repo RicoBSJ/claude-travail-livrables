@@ -89,17 +89,62 @@ borne("⑦ les catégories spécifiques SURVIVENT au motif de répertoire — mu
 borne("⑧ le motif de répertoire est dans SURVEILLES, la catégorie qui lance le mode normal",
       "SURVEILLES" in categories("outils/scripts/non_regression/publication_run.py"))
 
+# ──────── ⑫ LE PRÉDICAT QUI COMPTE : TOUT SCRIPT QUE LE HARNAIS EXÉCUTE EST-IL SURVEILLÉ ?
+#    Mesuré le 11/11/2026 : des 27 scripts que non_regression.sh référence par chemin, DEUX
+#    n'appartenaient à aucune catégorie — `balayer_adresses.py` (ATTENDU_BAL=72) et
+#    `ca_bundle.py` (ATTENDU_CA=6). Leurs bornes vivent DANS le harnais, donc les toucher
+#    aurait dû le lancer : il ne se lançait pas. C'est le même invariant que ③ d'un cran plus
+#    large, et il est LU DANS LE HARNAIS — aucune liste, aucun compte en dur, donc le prochain
+#    script que le harnais apprendra à exécuter sera exigé tout seul.
+#    ⚠️ LES LIGNES ENTIÈREMENT COMMENTÉES SONT RETIRÉES AVANT LE BALAYAGE. Mon premier jet
+#    lisait le texte brut, et un sabotage qui ajoutait une référence EN COMMENTAIRE le faisait
+#    mordre : c'est « un recensement textuel n'est pas un recensement d'appels » (27/10), qui
+#    m'avait déjà fait presque durcir trois fichiers qui ne font rien. L'erreur allait dans le
+#    sens sûr — une exigence de trop — mais une fausse exigence se « corrige » en câblant un
+#    script que le harnais n'exécute pas. On retire donc les lignes de commentaire ENTIÈRES,
+#    et pas les « # » en ligne, qui vivent dans des chaînes et des motifs.
+HARNAIS = (RACINE / "outils" / "scripts" / "non_regression.sh").read_text()
+
+def code_seul(texte):
+    """Le texte privé de ses lignes ENTIÈREMENT commentées. UNE seule définition : la borne ⑭
+    l'appelle, elle ne la recopie pas — sans quoi l'élargir laisserait la borne verte (défaut
+    mesuré au sabotage S12, troisième occurrence de la règle du 15/10 dans la même séance)."""
+    return "\n".join(l for l in texte.split("\n") if not l.lstrip().startswith("#"))
+
+def scripts_executes(texte):
+    return sorted(set(re.findall(r"\$ROOT/(outils/scripts/[A-Za-z0-9_./-]+\.(?:py|sh))",
+                                 code_seul(texte))))
+
+executes = scripts_executes(HARNAIS)
+suivis_set = set(suivis)
+orph_exec = [p for p in executes if p in suivis_set and not categories(p)]
+borne("⑫ le harnais exécute bien des scripts (un périmètre VIDE n'est pas un dépôt sain)",
+      len(executes) >= 20)
+borne("⑬ TOUT script que le harnais exécute est déclenché par le hook", not orph_exec)
+# ⑭ LA BORNE QUI DOIT ÊTRE ACCEPTÉE : une référence posée EN COMMENTAIRE n'est pas une
+#    exécution, donc elle n'exige rien. Sans elle, rien n'empêche de réélargir demain et de
+#    faire câbler un script que le harnais ne lance pas (leçon du 27/10).
+borne("⑭ une reference EN COMMENTAIRE n'exige rien — recensement d'APPELS, pas textuel (ACCEPTEE)",
+      "outils/scripts/audit_vault.py" not in
+      scripts_executes(HARNAIS + '\n#   "$ROOT/outils/scripts/audit_vault.py"\n'))
+borne("⑮ et une reference RÉELLE, elle, est bien recensée (sans quoi ⑭ passerait sur du vide)",
+      "outils/scripts/audit_vault.py" in
+      scripts_executes(HARNAIS + '\nenv -i $PY "$ROOT/outils/scripts/audit_vault.py"\n'))
+
 # ── recensement NON BLOQUANT des scripts de premier niveau, pour qu'il ne soit pas silencieux
 niv1 = sorted(p for p in suivis if re.match(r"outils/scripts/[^/]+\.(py|sh)$", p))
 orph1 = [p for p in niv1 if not categories(p)]
 borne("⑨ le recensement de premier niveau est fait (il est imprimé, non bloquant)",
       len(niv1) >= 20)
 
-print("CATÉGORIES DU HOOK : %d · témoins : %d · orphelins : %d · "
-      "scripts de premier niveau : %d dont %d sans catégorie (NON bloquant)"
-      % (len(CATS), len(temoins), len(orphelins), len(niv1), len(orph1)))
+print("CATÉGORIES DU HOOK : %d · témoins : %d dont %d orphelin(s) · exécutés par le harnais : "
+      "%d dont %d non surveillé(s) · premier niveau : %d dont %d sans catégorie (NON bloquant)"
+      % (len(CATS), len(temoins), len(orphelins), len(executes), len(orph_exec), len(niv1), len(orph1)))
 for p in orphelins:
     print("  ⛔ TÉMOIN ORPHELIN : %s — un push qui ne touche que lui ne déclenche RIEN" % p)
+for p in orph_exec:
+    print("  ⛔ EXÉCUTÉ PAR LE HARNAIS, NON SURVEILLÉ : %s — ses bornes vivent dans le harnais,"
+          " et le toucher ne le lance pas" % p)
 for p in orph1:
     print("  ⓘ  premier niveau sans catégorie : %s" % p)
 

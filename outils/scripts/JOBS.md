@@ -7307,3 +7307,44 @@ est un diagnostic **par paire de substitution**, avec le compte d'occurrences, p
 
 Chacun prouve d'abord qu'il a modifié le fichier (sha256 avant → après) ; les trois fichiers sont
 restaurés au **sha256 identique** à chaque fois. Harnais mode défaut : **exit 0, zéro ✗**.
+
+---
+
+## 11/11/2026 — `balayer_adresses.py` et `ca_bundle.py` entrent dans une catégorie du hook
+
+**Le trou.** Le garde `non_regression/categories_hook.py`, écrit le matin même, ne vérifiait que les **témoins** du répertoire `non_regression/`. Or le harnais exécute aussi des scripts de **premier niveau** dont les bornes ne vivent pas dans un fichier témoin mais **dans le harnais lui-même** :
+
+| Script | Ses bornes | Catégorie avant |
+|---|---|---|
+| `balayer_adresses.py` | `ATTENDU_BAL=72`, bloc « 0 septies » | **aucune** |
+| `ca_bundle.py` | `ATTENDU_CA=6`, bloc « 0 octies » | **aucune** |
+
+Conséquence : un push qui ne touchait que l'un des deux ne déclenchait **rien**. On pouvait modifier le classifieur d'adresses (`VIVANTE`/`FACADE`/`MORTE`/`DNS`) ou le module de faisceau TLS et publier sans qu'une seule de leurs 78 bornes soit jouée.
+
+**Le remède, en deux parties.**
+1. Les deux entrent dans `SURVEILLES` (hook), avec un commentaire `(1 ter)` qui dit *pourquoi* : leurs bornes vivent dans le harnais, donc aucune catégorie spécifique ne les atteignait.
+2. Le garde porte une **troisième exigence** : *tout script que le harnais exécute est déclenché par le hook*. Les scripts sont relevés par motif `$ROOT/(outils/scripts/…\.(py|sh))` sur le texte du harnais — **jamais une liste** (règle du jour : une liste se périme au prochain script écrit).
+
+**Mesure : 27 scripts exécutés par le harnais, 0 non surveillé** (2 avant). Ligne imprimée :
+
+```
+CATÉGORIES DU HOOK : 8 · témoins : 13 dont 0 orphelin(s) · exécutés par le harnais : 27 dont 0 non surveillé(s) · premier niveau : 29 dont 6 sans catégorie (NON bloquant)
+```
+
+**⛔ Un recensement d'APPELS, pas textuel.** Le sabotage S10 a mordu sur une référence **en commentaire** — donc sur un script que le harnais ne lance pas. C'est la leçon du 27/10 (« un recensement textuel n'est pas un recensement d'appels ») reproduite par moi. Les lignes entièrement commentées sont retirées avant le relevé ; le compte reste à **27**, donc le raffinement ne coûte rien, et la borne ⑭ — **qui doit être ACCEPTÉE** — l'épingle.
+
+**🔴 Trois défauts à moi, tous trouvés par le sabotage et aucun par la relecture.**
+
+| # | Défaut | Ce qui l'a dit |
+|---|---|---|
+| ① | Borne ⑥ écrite `True if X == [] else X != []` — **elle ne pouvait pas échouer** (règle du 26/10) | sabotage d'élargissement, lot resté vert |
+| ② | Borne ⑩ **RECOPIAIT** le `sed` du harnais au lieu de le lire — une dérive de libellé dans les deux fichiers laissait le lot vert | sabotage de dérive |
+| ③ | **Borne ⑭ testait sa PROPRE copie du nettoyage** : elle reconstruisait son texte fautif avec sa copie de `if not l.lstrip().startswith("#")`, donc élargir la ligne de **production** la laissait verte | sabotage S12 : `✗ SABOTAGE NON VU`, sha modifié, **harnais exit 0** |
+
+③ est la **troisième occurrence de la règle du 15/10 dans la même séance** (« un test qui teste une COPIE de la logique ne garde rien »), après ② une heure plus tôt. Corrigé en factorisant le nettoyage dans une fonction **unique**, `code_seul()`, que la borne **appelle**. S12 rejoué → ⑭ mord, exit 1. Plus une borne **⑮** qui exige qu'une référence **réelle** soit bien recensée — sans elle, ⑭ passerait sur du vide.
+
+**Deux sabotages visaient à côté** : l'un cassait la **première** alternative de `CINQBIS` quand `muter_docx` est la **quatrième** ; l'autre portait un `\n` dans une chaîne **brute**, donc un antislash littéral. *Un sabotage qui n'a pas tourné ressemble à un sabotage qui ne mord pas* (26/10) — diagnostiqué en comptant les occurrences paire par paire.
+
+**Bilan** : `ATTENDU_CAT` 11 → **15**, **douze sabotages, douze refus**, fichiers restaurés au **sha256 identique** à chaque fois, harnais mode défaut **exit 0 / zéro ✗**.
+
+📌 **Non fait, non ordonné** : **6 scripts de premier niveau** restent sans catégorie, imprimés **non bloquants** par le garde — `audit_vault.py`, `controle_clauses_parcours.py`, `fiches_obsidian.py`, `fiches_veille.py`, `setup_launchd.sh`, `teardown_launchd.sh`. Leur rattachement est une décision par script : aucun n'est exécuté par le harnais.

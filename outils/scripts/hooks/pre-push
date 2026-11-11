@@ -30,6 +30,13 @@ unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_COMMON_DIR \
       GIT_QUARANTINE_PATH GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_PREFIX
 ROOT="$(git rev-parse --show-toplevel)"
 [ -n "$ROOT" ] || { echo "pre-push : ✗ racine du dépôt introuvable — git rev-parse --show-toplevel a échoué."; echo "  Rien n'a été vérifié, le push est refusé. Vérifie le fichier .git de l'arbre de travail."; exit 1; }
+# (1 ter) LES DEUX SCRIPTS QUE LE HARNAIS EXÉCUTE SANS LES SURVEILLER (11/11/2026).
+# Mesuré : des 27 scripts que non_regression.sh référence par chemin, DEUX n'appartenaient
+# à aucune catégorie — balayer_adresses.py (ATTENDU_BAL=72, bloc « 0 septies ») et
+# ca_bundle.py (ATTENDU_CA=6, bloc « 0 octies ». Leurs bornes vivent DANS le harnais, donc
+# les toucher aurait dû le lancer ; il ne se lançait pas. Le garde correspondant n'est plus
+# un inventaire mais un PRÉDICAT LU DANS LE HARNAIS : tout script que non_regression.sh
+# exécute doit être déclenché par le hook (borne ⑫ de non_regression/categories_hook.py).
 # (1 bis) LES TÉMOINS DU HARNAIS, PAR MOTIF DE RÉPERTOIRE (11/11/2026). Mesuré : NEUF des
 # douze fichiers de outils/scripts/non_regression/ n'appartenaient à AUCUNE catégorie —
 # bfr_journal, coherence_skill, corps_tronque, desarmement_git, etiquette_has, faisceau_5bis,
@@ -41,7 +48,7 @@ ROOT="$(git rev-parse --show-toplevel)"
 # écrit, et c'est le défaut que ce dépôt a déjà payé trois fois (setup_launchd.sh,
 # rattrapage_jobs.sh, la table dossier → job de ㊳). non_regression/categories_hook.py
 # garde que le motif couvre TOUS les témoins, par un prédicat structurel et non un compte.
-SURVEILLES='^(jobs_config\.json|outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push|controle_astrologie_karmique\.py|controle_psychopathologie\.py|controle_ai_act\.py|controle_edition_precedente\.py|non_regression/muter_docx\.py|chercher\.py|aspirer\.py|lire_page\.py|supprimer_job\.sh|refaire_classeur\.py|maj_xlsx_jobs\.py|controle_livrable_du_job\.py|controle_orthographe\.py|controle_noms_propres\.py|rattrapage_jobs\.sh|controle_integrite_livrables\.py|non_regression/[a-z0-9_]+\.py))$'
+SURVEILLES='^(jobs_config\.json|outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push|controle_astrologie_karmique\.py|controle_psychopathologie\.py|controle_ai_act\.py|controle_edition_precedente\.py|non_regression/muter_docx\.py|chercher\.py|aspirer\.py|lire_page\.py|supprimer_job\.sh|refaire_classeur\.py|maj_xlsx_jobs\.py|controle_livrable_du_job\.py|controle_orthographe\.py|controle_noms_propres\.py|rattrapage_jobs\.sh|controle_integrite_livrables\.py|balayer_adresses\.py|ca_bundle\.py|non_regression/[a-z0-9_]+\.py))$'
 ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'
 # (2 bis) LES DEUX ÉTAPES 5 BIS SORTIES DES PROMPTS LE 08/10/2026 et leur fabricant de
 # mutations → non_regression.sh --complet, parce que c'est LÀ que vivent leurs témoins
