@@ -1167,12 +1167,69 @@ bloc_publication () {
   return $PUB_KO
 }
 
+# ── LES LIVRABLES PUBLIÉS SONT-ILS INTACTS SUR LE DISQUE ? (11/11/2026)
+#    kDrive a réécrit TROIS livrables publiés le 10/11 à 19:19:42, à la même seconde : le .md de
+#    psychopathologie n°11 ramené au contenu de a8285ab et bourré de 3 106 NUL finaux, et DEUX
+#    .docx — psychopathologie n°11 et appli-ia n°04 — ramenés à 19 058 et 26 525 caractères au
+#    lieu de 27 058 et 37 840, soit −29,6 % et −29,9 %, en restant des ZIP VALIDES, CRC justes,
+#    `dcterms:modified` INCHANGÉ. L'information était dans `git status` pendant cinq jours — trois
+#    lignes « M » — et personne ne l'a lue : ce qui l'a dite est le diff avec la référence, qui a
+#    refusé un push le 11/11 en nommant « 0 → 1 bloquant(s) ». Un contrôle écrit pour autre chose,
+#    cinq jours trop tard. ⛔ CE N'EST PAS UN REMPLAÇANT DE `git status` : git voit les trois.
+#    Ce qu'il ne sait pas dire, c'est si un « M » est une CORRECTION EN COURS ou une CORRUPTION.
+#    🔴 ET LA MESURE A DÉMOLI L'HYPOTHÈSE ÉVIDENTE : « le disque est revenu à une révision passée »
+#    ne couvre QUE le .md — les deux .docx ne sont AUCUN blob des 2 904 objets du dépôt. Ce qui les
+#    voit est la PERTE DE TEXTE, bornée sur les 189 transitions .docx de l'historique : perte
+#    maximale LÉGITIME 15,58 %, médiane +11,93 %, 0 au-delà de 20 % → plancher à 20 %, BANDE VIDE
+#    DE 14 POINTS. NUL : 0 sur 360 fichiers texte. ZIP : 0 sur 395 conteneurs.
+#    ⛔ `DIVERGENT` n'est PAS bloquant : indiscernable d'une correction en cours (règle du 14/10).
+#    🧪 Le témoin est sur un dépôt git FABRIQUÉ en tempfile, le classifieur EXTRAIT du contrôle :
+#    aucun réseau, aucun tiers, aucune date, aucun fichier vivant dans son verdict.
+bloc_integrite () {
+  local OUT="$CUR/integrite_livrables.txt" INT_KO=0 LU
+  local ATTENDU_INT=20         # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  echo "▶ Les livrables publiés sont-ils intacts sur le disque ? (dépôt fabriqué, aucun réseau, 1 s)"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/integrite_livrables.py" > "$OUT" 2>&1; then
+    tail -1 "$OUT"
+    LU=$(sed -n 's/^[[:space:]]*[0-9]\{1,\}\/\([0-9]\{1,\}\) bornes integrite livrables.*/\1/p' "$OUT")
+    if [ "${LU:-0}" != "$ATTENDU_INT" ]; then
+      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_INT attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_INT à jour en disant pourquoi."
+      INT_KO=1
+    fi
+  else
+    grep '✗' "$OUT" | head -9
+    echo "  ✗ LA GARDE DE L'INTÉGRITÉ DES LIVRABLES NE TIENT PLUS. Soit le classifieur ne nomme"
+    echo "    plus une corruption — et un livrable publié peut pourrir sur le disque pendant des"
+    echo "    jours, l'état mesuré le 10/11 sur trois fichiers —, soit il mord trop : un fichier"
+    echo "    qui diffère de HEAD sans signature est une CORRECTION EN COURS, et trois bornes"
+    echo "    qui doivent être ACCEPTÉES le gardent (perte de 15 %, .pdf à NUL, hors périmètre)."
+    INT_KO=1
+  fi
+  # ── ET LE VERDICT RÉEL, parce qu'une alerte que personne ne lit n'existe pas (27/10).
+  #    0,21 s, aucun réseau. C'est LUI qui aurait refusé le push du 10/11 au lieu de laisser
+  #    trois livrables publiés pourrir cinq jours sur le disque.
+  local VOUT="$CUR/integrite_verdict.txt"
+  env -i $PY "$ROOT/outils/scripts/controle_integrite_livrables.py" > "$VOUT" 2>&1
+  local VCODE=$?
+  sed -n '1p' "$VOUT"
+  grep -E '^  (⛔|⚠️ |ⓘ )' "$VOUT" | head -12
+  if [ "$VCODE" != "0" ]; then
+    echo "  ✗ UN LIVRABLE PUBLIÉ EST ABÎMÉ SUR LE DISQUE — le contenu de git est celui qui a été"
+    echo "    publié : restaure-le par « git checkout -- <chemin> ». Ce refus n'est PAS une"
+    echo "    régression du dépôt, c'est un fichier du disque qui ne correspond plus au publié."
+    INT_KO=1
+  fi
+  return $INT_KO
+}
+
 bloc_orthographe || exit 1
 bloc_noms_propres || exit 1
 bloc_omission_axe2 || exit 1
 bloc_desarmement || exit 1
 bloc_coherence_skill || exit 1
 bloc_publication || exit 1
+bloc_integrite || exit 1
 
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
 if [ "$MODE" = "--docs" ]; then

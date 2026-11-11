@@ -7100,3 +7100,129 @@ pour chacun des ids de `jobs_config.json`, d'où le cumul de 27,00 $.
   de dire « ce livrable est sur le distant public et ㊳ le refuse ». Non écrit.
 - **`imac-veille` est dans le même état**, à 101 % lui aussi, et son document du 08/11 vient d'un run
   mort. Non traité dans ce geste.
+
+## 11/11/2026 — Intégrité des livrables publiés : git le savait depuis cinq jours, personne ne l'a lu
+
+kDrive a réécrit **trois livrables publiés** le 10/11/2026 à **19:19:42**, à la seconde :
+
+| Fichier | Sur le disque | Au dépôt | Mesure |
+|---|---|---|---|
+| psychopathologie n°11 `.md` | 7 499 o | 7 499 o | **4 393 o du contenu de `a8285ab` + 3 106 NUL finaux contigus** |
+| psychopathologie n°11 `.docx` | 22 857 o | 22 857 o | **19 058 caractères** au lieu de 27 058 → **−29,6 %** |
+| appli-ia n°04 `.docx` | 25 035 o | 27 895 o | **26 525 caractères** au lieu de 37 840 → **−29,9 %** |
+
+🔴 **L'INFORMATION ÉTAIT DANS `git status` ET JE NE L'AI PAS LUE.** Trois lignes « M », servies dans
+le contexte de session **à chaque tour** du 11/11. Ce qui les a dites est le **diff avec la référence
+du harnais**, qui a refusé un push en nommant `0 → 1 bloquant(s)` — un contrôle écrit pour autre
+chose, **cinq jours plus tard, par accident**. ⚠️ Et la corruption **bloquait donc tous les pushs du
+dépôt** : cinquième occurrence après les 15, 22, 23/10 et le 04/11, et **la première dont la cause est
+le dossier de synchronisation** et non un témoin périmé ou un garde à moi.
+
+⛔ **LA LEÇON N'EST PAS « IL MANQUAIT UN DÉTECTEUR ».** Le détecteur existait : `git status`. Ce qui
+manquait est qu'il **classe**. Un « M » sur un livrable est soit une **correction en cours**, soit une
+**corruption**, et seul le classement dicte le geste — corriger, ou restaurer depuis le dépôt. Un
+détecteur qui ne distingue pas les deux causes d'un même symptôme n'est pas lu.
+
+### 🔴 La mesure a démoli l'hypothèse évidente
+
+« Le disque est revenu à une révision passée » semblait être LA signature. Mesuré : elle ne couvre
+**que le `.md`**. Les deux `.docx` abîmés :
+
+- ne sont **aucun blob** des **2 904 objets** du dépôt, ni tels quels ni NUL-rognés ;
+- **s'ouvrent** comme des zip à 22 entrées, **`testzip()` à None, chaque CRC juste** ;
+- portent un `dcterms:modified` **identique à l'octet** à celui du fichier publié ;
+- leur seule anomalie interne est que `word/document.xml` a **fondu** : 97 439 et 154 257 octets au
+  lieu de 109 068 et 174 263.
+
+**Aucune signature de conteneur ne les voit. Ce qui les voit est la perte de texte.**
+
+### Les bornes, mesurées sur le corpus et non devinées
+
+| Classe | Borne | Mesure | Bloquant |
+|---|---|---|---|
+| `NUL` | un livrable **texte** porte un octet NUL | **0 sur 360** fichiers | oui |
+| `ZIP` | conteneur illisible ou CRC faux | **0 sur 395** conteneurs | oui |
+| `REVENU` | contenu NUL-rogné = blob **passé** du chemin, HEAD exclu | — | oui |
+| `ABSENT` | suivi à HEAD, disparu du disque | — | oui |
+| `AMPUTÉ` | texte d'un `.docx` **−20 %** ou plus vs HEAD | **189 transitions** de l'historique : perte max **légitime 15,58 %**, médiane **+11,93 %**, **0 au-delà de 20 %** ; incident à **29,6** et **29,9 %** → **bande vide de 14 points** | oui |
+| `DIVERGENT` | diffère de HEAD, aucune signature | — | **NON** |
+
+⛔ **`DIVERGENT` n'est pas bloquant, et c'est le point** : indiscernable d'une correction en cours. Le
+contrôle le **dit** et ne tranche pas (règle du 14/10 : un faux refus coûte un livrable non publié).
+
+⚠️ **Les cinq autres sont bloquantes dès le premier jour**, ce qui déroge en apparence à la règle du
+14/10. `ABSENT`, `NUL`, `ZIP` et `REVENU` ne jugent pas un **contenu**, elles jugent si le fichier
+publié est encore **lisible** — même famille que le bloc `0 nonies` (26/10) et `corps_tronque.py`
+(04/11). **`AMPUTÉ` est le cas limite** : il lit un contenu. Ce qui le justifie n'est pas un argument
+mais la bande de 14 points, et le fait qu'**aucun ordre de la doctrine ne retire du texte** —
+« corrige X » **ajoute** un marqueur et une ligne de journal.
+
+### Validé dans les deux sens, sur l'incident réel
+
+| | Verdict |
+|---|---|
+| dépôt propre, sous `env -i` | **758 suivis · 0 divergence · exit 0 · 0,21 s** |
+| les trois états abîmés remis sur le disque | **3 divergences, 3 bloquantes, exit 1** — deux `AMPUTÉ` à −29,9 % et −29,6 %, un `NUL` qui **nomme en plus la révision passée** (`42d689d`) |
+| après restauration | les trois fichiers au **sha256 identique**, `git status -- livrables/` **vide** |
+
+### 🔴 Deux défauts à moi, le même, à une heure d'intervalle
+
+**Le premier essai du contrôle imprimait « 0 divergence(s) » avec exit 0 sur un périmètre qu'il n'avait
+jamais regardé.** `RACINE` avait **deux** `parent` au lieu de trois, donc il pointait sur `outils/`, où
+`git ls-files` rend **zéro** fichier. C'est le bug de `tolerance_page_morte.py` (23/10) et de
+`coherence_skill.py` (27/10), **repayé** — puis **reproduit dans le témoin** une heure plus tard, qui
+vit un cran plus bas et en demande **quatre**. La seconde fois, c'est **l'assertion qui l'a dit, pas la
+relecture**. 🟢 La borne ⑭ exige désormais un périmètre **non vide** sur un dépôt propre fabriqué :
+*un classifieur juste ne garde rien si le périmètre est vide.*
+
+**Et ma borne ⑫ accusait sa propre documentation.** Elle vérifiait textuellement que
+`<w:t[^>]*>` — le motif qui apparie **aussi** `<w:tbl>`, `<w:tc>`, `<w:tr>` — n'est pas dans le
+contrôle. Or le contrôle le **cite** dans l'avertissement qui en met en garde, **et dans une
+docstring**, que neutraliser les « # » ne touche pas. C'est le piège de la coquille citée qui
+s'immunisait elle-même (27/10). 🟢 La borne lit désormais le motif **réellement passé à `re.findall`**.
+
+### Neuf sabotages, neuf refus
+
+Chacun prouve d'abord qu'il a modifié le fichier (sha256 avant → après), nomme **sa** borne, et le
+fichier est restauré au **sha256 identique** :
+
+| Sabotage | Borne qui mord |
+|---|---|
+| plancher relevé à 40 % | ⑥ et ⑪ |
+| plancher resserré à 10 % | ⑦ (celle qui doit être **ACCEPTÉE**) et ⑪ |
+| `DIVERGENT` rendu bloquant | ⑨ |
+| exemption binaire du NUL retirée | ④ |
+| `RACINE` du contrôle à deux `parent` | l'assertion d'import |
+| motif `<w:t[^>]*>` remis | ⑫ et ⑬ |
+| liste blanche amputée des leçons | ⑮ |
+| libellé de la ligne dérivé (accent) | ⑳ |
+| **lot amputé d'une borne** | **auto-test seul exit 0 en lisant « 19/19 », harnais exit 1 sur `ATTENDU_INT`** |
+
+⚠️ Et le premier jet du sabotage de libellé **n'a pas tourné** — motif à deux occurrences : *un
+sabotage qui n'a pas tourné ressemble à un sabotage qui ne mord pas* (26/10).
+
+### Câblage
+
+- Témoin **et verdict réel** dans `bloc_integrite`, joué dans **tous les modes**, `--docs` compris.
+  Le verdict est appelé parce qu'**une alerte que personne ne lit n'existe pas** (27/10) : c'est lui
+  qui aurait refusé le push du 10/11.
+- `ATTENDU_INT=20`, le `sed` lisant le **dénominateur** (règle du 26/10), sur une ancre **ASCII sans
+  accent** — la dérive d'un libellé accentué a déjà fait refuser tous les pushs le 04/11.
+- Les deux fichiers entrent dans `SURVEILLES` du hook : sans cela, un push qui ne toucherait qu'eux
+  ne déclencherait **rien** (défaut du 27/10 pour `CLAUDE.md`, du 06/11 pour `rattrapage_jobs.sh`).
+- Optimisation nécessaire, pas cosmétique : **un seul `git ls-tree -r HEAD`** au lieu de 758
+  `git rev-parse`, soit **12,3 s → 0,21 s**. Un hook long tue la connexion SSH du push (26/10, 31/10).
+
+### Ce que ce contrôle ne ferme pas
+
+- **Un livrable abîmé AVANT son commit** : disque et HEAD concordent, tout est vert. Ce contrôle
+  compare au dépôt, **pas à la vérité**.
+- Une amputation **sous 20 %**, et **toute** amputation d'un `.pptx` ou d'un `.xlsx` : le plancher
+  n'est mesuré que sur les `.docx`. Les `.pptx` ont leur propre contrôle d'intégrité (56 fichiers,
+  texte présent, dimensions positives), qui ne compare rien au dépôt.
+- 📌 **Trou mesuré au passage, non corrigé, non ordonné** : `non_regression/publication_run.py`
+  n'appartient à **aucune** catégorie du hook — un push qui ne toucherait que lui ne déclenche rien.
+  `muter_docx.py` et `omission_axe2.py` sont listés, lui non.
+- 📌 L'origine kDrive n'est pas établie **par mesure** : la simultanéité à la seconde et la signature
+  du 27/10 (placeholder non hydraté, copie de conflit déposée dans `.git/objects`) la désignent, mais
+  aucun journal de kDrive n'a été lu.
