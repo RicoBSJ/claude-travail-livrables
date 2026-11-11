@@ -7226,3 +7226,84 @@ sabotage qui n'a pas tourné ressemble à un sabotage qui ne mord pas* (26/10).
 - 📌 L'origine kDrive n'est pas établie **par mesure** : la simultanéité à la seconde et la signature
   du 27/10 (placeholder non hydraté, copie de conflit déposée dans `.git/objects`) la désignent, mais
   aucun journal de kDrive n'a été lu.
+
+## 11/11/2026 — Neuf témoins sur douze n'étaient déclenchés par rien, et j'en avais annoncé un
+
+L'ordre était « câble `publication_run.py` au hook ». **Le recensement complet, avant de toucher à quoi
+que ce soit, en a trouvé NEUF** :
+
+| Témoin | Catégorie du hook avant |
+|---|---|
+| `bfr_journal.py` · `coherence_skill.py` · `corps_tronque.py` · `desarmement_git.py` · `etiquette_has.py` · `faisceau_5bis.py` · `murs_lus.py` · `publication_run.py` · `tolerance_page_morte.py` | **⛔ aucune** |
+| `muter_docx.py` | SURVEILLES, CINQBIS |
+| `omission_axe2.py` | EDPREC |
+| `integrite_livrables.py` | SURVEILLES (ajouté le matin même) |
+
+Un push qui ne touchait qu'un de ces neuf ne déclenchait **rien du tout** : le témoin pouvait être
+amputé, saboté ou vidé et partir sur le dépôt **sans qu'une seule de ses bornes soit jouée**. Même
+défaut que `CLAUDE.md` sans catégorie (27/10) et `rattrapage_jobs.sh` (06/11), à l'échelle d'un
+répertoire entier.
+
+🔴 **ET MA DESCRIPTION DU TROU, ÉCRITE LA VEILLE EN AVOCAT DU DIABLE, ÉTAIT FAUSSE.** J'avais écrit :
+*« `non_regression/publication_run.py` n'appartient à aucune catégorie — `muter_docx.py` et
+`omission_axe2.py` sont listés, lui non. »* **Deux éléments lus comme un recensement.** Avant
+d'annoncer la portée d'un trou, l'énumérer en entier : cela coûtait une commande.
+
+### Le remède est un MOTIF, pas une liste
+
+`SURVEILLES` porte désormais `non_regression/[a-z0-9_]+\.py`. ⛔ **Une liste de fichiers se périme au
+prochain témoin écrit**, et ce dépôt l'a déjà payé **trois fois** : la liste `JOBS` en dur de
+`setup_launchd.sh` (15/10), le `DEFAULT_JOBS` de `rattrapage_jobs.sh` (27/10), et la table dossier → job
+de ㊳, construite depuis la config (22/10). Les catégories spécifiques **survivent au motif** :
+`muter_docx.py` garde `CINQBIS` et `omission_axe2.py` garde `EDPREC`, donc `--complet` se déclenche
+toujours pour eux. **Orphelins après : 0 sur 12.**
+
+### Le garde est un prédicat structurel — `non_regression/categories_hook.py`
+
+**11 bornes, aucun réseau, aucun tiers, 0,1 s.** Les catégories sont **lues dans le hook** par motif de
+déclaration (renommer une catégorie ne la fait pas disparaître du recensement), les témoins sont
+**énumérés depuis git** : **aucun compte en dur**, donc la ligne imprimée change d'elle-même au prochain
+témoin. ⛔ Il ne peut pas se périmer : l'invariant ne devient faux que si un témoin cesse d'être
+déclenché.
+
+**La borne décisive est la ⑤** : un nom de témoin **fabriqué, qui n'existe pas dans le dépôt**, doit
+être **déjà couvert**. C'est elle, et elle seule, qui interdit de revenir à une liste — le sabotage
+« motif remplacé par la liste des douze noms » la fait tomber et **ne fait tomber qu'elle**.
+
+⚠️ **Portée bornée et dite** : les scripts de **premier niveau** ne sont pas exigés — leur rattachement
+est une décision par script, pas un invariant. Ils sont **recensés et imprimés**, non bloquants, pour
+que ce reste soit visible au lieu d'être silencieux (même parti que `--table` de
+`controle_livrable_du_job.py`). **8 orphelins au 11/11** : `audit_vault.py`, `balayer_adresses.py`,
+`ca_bundle.py`, `controle_clauses_parcours.py`, `fiches_obsidian.py`, `fiches_veille.py`,
+`setup_launchd.sh`, `teardown_launchd.sh`. Les trois premiers ont pourtant un `ATTENDU_` au harnais
+(`ATTENDU_BAL`, `ATTENDU_CA`) — **les toucher ne joue donc pas leurs bornes**, et c'est le même défaut
+d'un cran à côté. Non corrigé, non ordonné.
+
+### 🔴 Trois de mes six premiers sabotages n'ont rien prouvé, et un seul était un vrai défaut
+
+| Sabotage | Pourquoi il n'a rien prouvé |
+|---|---|
+| `DIVERGENT`… non, borne ⑥ | **Elle ne pouvait pas échouer** : écrite `True if X == [] else X != []` (règle du 26/10). Corrigée en « le motif est **ancré** au répertoire », qu'un élargissement en `.*\.py` fait tomber |
+| dérive du libellé | **Ma borne ⑩ RECOPIAIT le `sed` du harnais** : une dérive dans les deux fichiers laissait le lot vert. « Un test qui teste une COPIE de la logique ne garde rien » (15/10). Elle lit désormais le `sed` **dans `non_regression.sh`** — et le sabotage « `sed` du harnais dérivé, témoin intact » le prouve |
+| `muter_docx` perd `CINQBIS` | Mon motif cassait la **première** alternative de `CINQBIS` quand `muter_docx` est la **quatrième** |
+| hook ne se surveille plus | `hooks/pre-push` est apparié par **DEUX** catégories (`SURVEILLES` **et** `DESARMEMENT`) : en retirer une ne change rien. La borne ④ avait raison, mon sabotage visait à côté |
+| (encore) `muter_docx` | Un `\n` dans une chaîne **brute** Python est un **antislash littéral**, donc 0 occurrence |
+
+**Un sabotage qui n'a pas tourné ressemble à un sabotage qui ne mord pas** (26/10) — et ce qui l'a dit
+est un diagnostic **par paire de substitution**, avec le compte d'occurrences, pas la relecture.
+
+### Après correction : huit sabotages, huit refus
+
+| Sabotage | Borne qui mord |
+|---|---|
+| motif de répertoire retiré du hook | ③ — et **10 orphelins nommés** |
+| **motif remplacé par la liste des 12** | **⑤** |
+| motif élargi à tout `.py` | ⑥ |
+| hook retiré des **deux** catégories | ④ |
+| `muter_docx` retiré de `CINQBIS` | ⑦ |
+| libellé du témoin dérivé, harnais intact | ⑪ |
+| `sed` du harnais dérivé, témoin intact | ⑩ et ⑪ |
+| **lot amputé d'une borne** | auto-test seul **exit 0** en lisant « 10/10 », harnais **exit 1** sur `ATTENDU_CAT` |
+
+Chacun prouve d'abord qu'il a modifié le fichier (sha256 avant → après) ; les trois fichiers sont
+restaurés au **sha256 identique** à chaque fois. Harnais mode défaut : **exit 0, zéro ✗**.
