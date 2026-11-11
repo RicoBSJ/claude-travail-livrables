@@ -111,9 +111,19 @@ def code_seul(texte):
     mesuré au sabotage S12, troisième occurrence de la règle du 15/10 dans la même séance)."""
     return "\n".join(l for l in texte.split("\n") if not l.lstrip().startswith("#"))
 
+# 🔴 11/11/2026 — ET MON MOTIF NE CONNAISSAIT QU'UNE SEULE FORME D'APPEL, DONC IL RATAIT UN
+#    SCRIPT RÉELLEMENT EXÉCUTÉ. `controle_clauses_parcours.py` est lancé par le témoin de
+#    `supprimer_job.sh` sous la forme PYTHON — `racine + "/outils/scripts/…"`, dans un heredoc —
+#    et non `$ROOT/…` : il n'était NI compté parmi les exécutés, NI accusé. Un prédicat qui ne
+#    reconnaît qu'une forme de ce qu'il cherche rend un vert sur ce qu'il n'a pas vu ; c'est
+#    « un recensement textuel n'est pas un recensement d'appels » (27/10) d'un cran plus loin.
+# ⛔ ET LE PRÉFIXE EST LE DISCRIMINANT, PAS UN DÉTAIL : `setup_launchd.sh` apparaît NU dans le
+#    harnais, comme ARGUMENT d'un `git status --porcelain` — ce n'est pas une exécution, et la
+#    borne ⑰ l'épingle. Exiger un préfixe (`$ROOT/` ou `<var> + "/`) sépare les deux.
+FORMES = r'(?:\$\{?ROOT\}?|[A-Za-z_][A-Za-z0-9_]* \+ ")/(outils/scripts/[A-Za-z0-9_./-]+\.(?:py|sh))'
+
 def scripts_executes(texte):
-    return sorted(set(re.findall(r"\$ROOT/(outils/scripts/[A-Za-z0-9_./-]+\.(?:py|sh))",
-                                 code_seul(texte))))
+    return sorted(set(re.findall(FORMES, code_seul(texte))))
 
 executes = scripts_executes(HARNAIS)
 suivis_set = set(suivis)
@@ -130,15 +140,31 @@ borne("⑭ une reference EN COMMENTAIRE n'exige rien — recensement d'APPELS, p
 borne("⑮ et une reference RÉELLE, elle, est bien recensée (sans quoi ⑭ passerait sur du vide)",
       "outils/scripts/audit_vault.py" in
       scripts_executes(HARNAIS + '\nenv -i $PY "$ROOT/outils/scripts/audit_vault.py"\n'))
+# ⑯ la forme PYTHON d'un appel est reconnue : c'est le faux négatif mesuré le 11/11, et la
+#    borne nomme le script qui le révélait, pas un fabriqué — il est dans le harnais pour de bon.
+borne("⑯ la forme PYTHON « racine + \"/outils/… » est reconnue comme un appel",
+      "outils/scripts/controle_clauses_parcours.py" in executes)
+# ⑰ LA BORNE QUI DOIT ÊTRE ACCEPTÉE : un script passé en ARGUMENT n'est pas exécuté. Sans elle,
+#    retirer l'exigence de préfixe laisserait le lot vert et ferait compter des arguments.
+borne("⑰ un script passé en ARGUMENT n'est pas un appel (ACCEPTEE)",
+      "outils/scripts/setup_launchd.sh" not in
+      scripts_executes('  SJ=$(git status --porcelain outils/scripts/setup_launchd.sh)\n'))
 
 # ── recensement NON BLOQUANT des scripts de premier niveau, pour qu'il ne soit pas silencieux
 niv1 = sorted(p for p in suivis if re.match(r"outils/scripts/[^/]+\.(py|sh)$", p))
 orph1 = [p for p in niv1 if not categories(p)]
-borne("⑨ le recensement de premier niveau est fait (il est imprimé, non bloquant)",
+borne("⑨ le recensement de premier niveau est fait (un périmètre VIDE n'est pas un dépôt sain)",
       len(niv1) >= 20)
+# 🆕 11/11/2026 — LE RECENSEMENT DE PREMIER NIVEAU DEVIENT UNE BORNE, les six derniers orphelins
+#    ayant été câblés. ⛔ Cela déroge à la règle du 14/10 (« avertir avant de bloquer ») de la
+#    même façon que `corps_tronque.py` : le motif ne juge aucun CONTENU, il juge si le câblage du
+#    dépôt est complet — un fait structurel entièrement de notre main, dont le remède est UNE
+#    ligne dans `SURVEILLES`. ⚠️ Le coût est dit : un script neuf de premier niveau doit être
+#    rattaché à une catégorie AVANT son premier push, sans quoi le hook refuse.
+borne("⑱ AUCUN script de premier niveau n'est orphelin de categorie", not orph1)
 
 print("CATÉGORIES DU HOOK : %d · témoins : %d dont %d orphelin(s) · exécutés par le harnais : "
-      "%d dont %d non surveillé(s) · premier niveau : %d dont %d sans catégorie (NON bloquant)"
+      "%d dont %d non surveillé(s) · premier niveau : %d dont %d sans catégorie"
       % (len(CATS), len(temoins), len(orphelins), len(executes), len(orph_exec), len(niv1), len(orph1)))
 for p in orphelins:
     print("  ⛔ TÉMOIN ORPHELIN : %s — un push qui ne touche que lui ne déclenche RIEN" % p)

@@ -1241,7 +1241,7 @@ bloc_publication || exit 1
 #    qui interdit de revenir à une liste de fichiers en dur, le défaut payé trois fois ici.
 bloc_categories () {
   local OUT="$CUR/categories_hook.txt" CAT_KO=0 LU
-  local ATTENDU_CAT=15   # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  local ATTENDU_CAT=18   # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
   echo "▶ Tout témoin du dépôt est-il déclenché par le hook ? (structurel, aucun réseau, 0,1 s)"
   if env -i $PY "$ROOT/outils/scripts/non_regression/categories_hook.py" > "$OUT" 2>&1; then
     grep -E '^(CATÉGORIES DU HOOK|  ⓘ )' "$OUT" | head -12

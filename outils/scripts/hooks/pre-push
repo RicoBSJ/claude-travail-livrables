@@ -48,7 +48,19 @@ ROOT="$(git rev-parse --show-toplevel)"
 # écrit, et c'est le défaut que ce dépôt a déjà payé trois fois (setup_launchd.sh,
 # rattrapage_jobs.sh, la table dossier → job de ㊳). non_regression/categories_hook.py
 # garde que le motif couvre TOUS les témoins, par un prédicat structurel et non un compte.
-SURVEILLES='^(jobs_config\.json|outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push|controle_astrologie_karmique\.py|controle_psychopathologie\.py|controle_ai_act\.py|controle_edition_precedente\.py|non_regression/muter_docx\.py|chercher\.py|aspirer\.py|lire_page\.py|supprimer_job\.sh|refaire_classeur\.py|maj_xlsx_jobs\.py|controle_livrable_du_job\.py|controle_orthographe\.py|controle_noms_propres\.py|rattrapage_jobs\.sh|controle_integrite_livrables\.py|balayer_adresses\.py|ca_bundle\.py|non_regression/[a-z0-9_]+\.py))$'
+# (1 quater) 11/11/2026 — LES SIX DERNIERS SCRIPTS DE PREMIER NIVEAU ENTRENT ICI, ET IL FAUT
+#   DIRE CE QUE CELA VAUT POUR CHACUN, parce que ce n'est pas la même chose :
+#     · controle_clauses_parcours.py — RÉELLEMENT EXÉCUTÉ par le harnais (témoin de
+#       supprimer_job.sh, forme Python « racine + "/outils/… » que l'ancien motif ratait) :
+#       les 5 scénarios l'appellent et exigent le compte qu'il lit. C'est un VRAI garde.
+#     · setup_launchd.sh — n'est PAS exécuté : il figure comme ARGUMENT d'un git status.
+#     · audit_vault.py — une seule mention dans le harnais, et elle est EN COMMENTAIRE.
+#     · fiches_obsidian.py · fiches_veille.py · teardown_launchd.sh — ZÉRO occurrence.
+#   ⚠️ Pour ces cinq-là, la catégorie est donc un DÉCLENCHEMENT, pas une couverture : le push
+#   lance le harnais complet, qui ne les exécute pas. Ce que cela attrape est le dommage
+#   collatéral (un .plist, une fiche, un classeur cassés par ailleurs), pas leur logique propre.
+#   Le dire ainsi évite la pire erreur : lire « 0 orphelin » comme « tout est testé ».
+SURVEILLES='^(jobs_config\.json|outils/scripts/(controle_attributions\.py|controle_decompte\.py|extract_docx\.py|non_regression\.sh|hooks/pre-push|controle_astrologie_karmique\.py|controle_psychopathologie\.py|controle_ai_act\.py|controle_edition_precedente\.py|non_regression/muter_docx\.py|chercher\.py|aspirer\.py|lire_page\.py|supprimer_job\.sh|refaire_classeur\.py|maj_xlsx_jobs\.py|controle_livrable_du_job\.py|controle_orthographe\.py|controle_noms_propres\.py|rattrapage_jobs\.sh|controle_integrite_livrables\.py|balayer_adresses\.py|ca_bundle\.py|audit_vault\.py|controle_clauses_parcours\.py|fiches_obsidian\.py|fiches_veille\.py|setup_launchd\.sh|teardown_launchd\.sh|non_regression/[a-z0-9_]+\.py))$'
 ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'
 # (2 bis) LES DEUX ÉTAPES 5 BIS SORTIES DES PROMPTS LE 08/10/2026 et leur fabricant de
 # mutations → non_regression.sh --complet, parce que c'est LÀ que vivent leurs témoins

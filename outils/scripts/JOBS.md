@@ -7348,3 +7348,60 @@ CATÉGORIES DU HOOK : 8 · témoins : 13 dont 0 orphelin(s) · exécutés par le
 **Bilan** : `ATTENDU_CAT` 11 → **15**, **douze sabotages, douze refus**, fichiers restaurés au **sha256 identique** à chaque fois, harnais mode défaut **exit 0 / zéro ✗**.
 
 📌 **Non fait, non ordonné** : **6 scripts de premier niveau** restent sans catégorie, imprimés **non bloquants** par le garde — `audit_vault.py`, `controle_clauses_parcours.py`, `fiches_obsidian.py`, `fiches_veille.py`, `setup_launchd.sh`, `teardown_launchd.sh`. Leur rattachement est une décision par script : aucun n'est exécuté par le harnais.
+
+---
+
+## 11/11/2026 — les six derniers scripts de premier niveau entrent dans une catégorie
+
+**Et la mesure a d'abord trouvé un faux négatif dans le garde poussé une heure plus tôt.**
+
+`controle_clauses_parcours.py` est **réellement exécuté** par le harnais — ligne 2244, dans le témoin de `supprimer_job.sh` — mais sous la forme **Python** `racine + "/outils/scripts/…"`, à l'intérieur d'un heredoc. Mon motif ne connaissait que `$ROOT/…` : le script n'était **ni compté parmi les exécutés, ni accusé**, et il figurait sous la ligne molle « premier niveau sans catégorie (NON bloquant) », que personne n'actionne.
+
+C'est **« un recensement textuel n'est pas un recensement d'appels » (27/10) d'un cran plus loin** : un prédicat qui ne reconnaît qu'**une forme** de ce qu'il cherche est aveugle aux autres, et il rend un vert sur ce qu'il n'a pas vu.
+
+`FORMES` accepte désormais les deux formes. **Exécutés par le harnais : 27 → 28.**
+
+**⛔ Et le préfixe est le discriminant, pas un détail.** `setup_launchd.sh` apparaît **nu** dans le harnais, comme **argument** d'un `git status --porcelain`. Exiger un préfixe (`$ROOT/` ou `<var> + "/`) sépare un appel d'un argument, et la borne **⑰, qui doit être ACCEPTÉE**, interdit de retirer cette exigence.
+
+### Ce que la catégorie vaut pour chacun des six — mesuré, pas supposé
+
+| Script | Exécuté par le harnais ? | Ce que la catégorie apporte |
+|---|---|---|
+| `controle_clauses_parcours.py` | **OUI** (forme Python) | **un vrai garde** : les 5 scénarios de `supprimer_job.sh` l'appellent et exigent le compte qu'il lit |
+| `setup_launchd.sh` | NON — **argument** d'un `git status` | déclenchement seul |
+| `audit_vault.py` | NON — une mention, **en commentaire** | déclenchement seul |
+| `fiches_obsidian.py` | NON — **0 occurrence** | déclenchement seul |
+| `fiches_veille.py` | NON — **0 occurrence** | déclenchement seul |
+| `teardown_launchd.sh` | NON — **0 occurrence** | déclenchement seul |
+
+⚠️ **Pour cinq des six, la catégorie est un DÉCLENCHEMENT, pas une couverture** : le push lance le harnais complet, qui ne les exécute pas. Ce qu'on attrape est le **dommage collatéral** (un `.plist`, une fiche, un classeur cassés par ailleurs), pas leur logique propre. **Lire « 0 orphelin » comme « tout est testé » serait la pire erreur** — le commentaire `(1 quater)` du hook l'écrit noir sur blanc.
+
+### Le recensement de premier niveau devient une borne
+
+À **0 orphelin**, le laisser non bloquant garantissait qu'il repourrisse au prochain script écrit — c'est le motif payé trois fois dans ce dépôt. Borne **⑱**.
+
+⛔ **Cela déroge à la règle du 14/10 (« avertir avant de bloquer ») de la même façon que `corps_tronque.py`** : le motif ne juge aucun **contenu**, il juge si le câblage du dépôt est **complet** — un fait structurel entièrement de notre main, dont le remède est **une ligne** dans `SURVEILLES`.
+
+⚠️ **Coût dit** : un script neuf de premier niveau doit être rattaché à une catégorie **avant son premier push**, sans quoi le hook refuse.
+
+### Mesure finale
+
+```
+CATÉGORIES DU HOOK : 8 · témoins : 13 dont 0 orphelin(s) · exécutés par le harnais : 28 dont 0 non surveillé(s) · premier niveau : 29 dont 0 sans catégorie
+18/18 bornes categories hook
+```
+
+`ATTENDU_CAT` 15 → **18**. Harnais **défaut, `--consignes` et `--desarmement` : exit 0, zéro `✗`**.
+
+**Seize sabotages, seize refus**, et aucune borne n'est redondante — c'est le sabotage qui le dit :
+
+| Sabotage | Bornes qui tombent |
+|---|---|
+| les 6 retirés de `SURVEILLES` | ⑬ **et** ⑱ |
+| forme Python retirée du motif | ⑯ seule |
+| exigence de préfixe retirée | ⑰ seule |
+| une borne retirée du lot | auto-test **exit 0** en lisant « 17/17 », harnais **exit 1** sur `ATTENDU_CAT` |
+
+Chaque sabotage prouve d'abord qu'il a modifié le fichier (sha256 avant → après), et les deux fichiers sont restaurés au **sha256 identique** à chaque fois.
+
+🔴 **Et une coquille à moi dans cette consignation même** : j'avais écrit `formeYthon` pour « forme Python ». ⚠️ **`controle_orthographe.py` ne pouvait pas la voir** — son appariement exige un **préfixe plié de 3 partagé**, et `yth` ≠ `pyt`. C'est exactement l'angle mort écrit le 27/10 : *« un nom tapé de travers une seule fois et jamais juste reste invisible »*. Attrapée par un `grep`, pas par le contrôle.
