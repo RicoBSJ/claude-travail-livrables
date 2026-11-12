@@ -18,6 +18,25 @@ mkdir -p "$LOG_DIR"
 STAMP="$(date +%Y%m%d_%H%M%S)"
 LOG="$LOG_DIR/${JOB_ID}_${STAMP}.log"
 
+# ── 🆕 12/11/2026 — INSTRUMENTATION : run_job.sh DÉCLARE les scripts qu'il lance.
+# 🔴 POURQUOI, MESURÉ AVANT TOUT GESTE : le prédicat textuel de
+#    `non_regression/categories_hook.py` trouvait 0 (zéro) des 4 scripts que CE fichier lance
+#    réellement — fiches_obsidian, fiches_veille, maj_xlsx_jobs, audit_vault — parce qu'ils sont
+#    appelés par `$PROJECT/…`, une variable valant la racine en ABSOLU, qu'aucun motif ancré sur
+#    `$ROOT` ne pouvait apparier. QUATRIÈME angle mort du recensement textuel après les trois du
+#    11/11, et le même motif : un prédicat qui ne reconnaît qu'une forme de ce qu'il cherche rend
+#    un vert sur ce qu'il n'a pas vu.
+# ⛔ REPLI OBLIGATOIRE : ce script tourne en PRODUCTION sous launchd. Si le shim manque ou n'est
+#    pas exécutable, on garde l'interpréteur réel — l'instrumentation est un OBSERVATEUR, elle ne
+#    doit JAMAIS faire échouer un job. Le garde, c'est le harnais au push.
+# ⛔ SON PROPRE JOURNAL, vidé à chaque run : le harnais vide le sien au démarrage, et deux
+#    écrivains sur un même fichier mêleraient deux recensements.
+PY="/usr/bin/python3"
+NR_SHIM="$PROJECT/outils/scripts/nr_trace.sh"
+[ -x "$NR_SHIM" ] && PY="$NR_SHIM"
+export NR_TRACE_JOURNAL="$LOG_DIR/.nr_journal_run_job"
+: > "$NR_TRACE_JOURNAL" 2>/dev/null || true
+
 if [ -z "$JOB_ID" ]; then
   echo "[ERREUR] Aucun job_id fourni. Usage : run_job.sh <job_id>" | tee -a "$LOG"
   exit 1
@@ -118,7 +137,7 @@ echo "[budget] Plafond de coût pour $JOB_ID : ${BUDGET} \$" >> "$LOG"
 # UNIQUE — il est simplement lu par python3 (gratuit) au lieu de Claude (coûteux).
 # Aucun fichier dérivé à maintenir, donc aucune péremption possible.
 # ============================================================================
-JOB_PROMPT="$(/usr/bin/python3 - "$PROJECT/jobs_config.json" "$JOB_ID" <<'PYEOF'
+JOB_PROMPT="$("$PY" - "$PROJECT/jobs_config.json" "$JOB_ID" <<'PYEOF'
 import json, sys
 cfg = json.load(open(sys.argv[1], encoding='utf-8'))
 jobs = cfg['jobs'] if isinstance(cfg, dict) and 'jobs' in cfg else cfg
@@ -210,7 +229,7 @@ while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
     > "$RAW" 2>&1
   EXIT=$?
 
-  /usr/bin/python3 - "$RAW" "$LOG" "$MESURES" "$JOB_ID" "$ATTEMPT" "$EXIT" "$BUDGET" "${#JOB_PROMPT}" "$CFG_SIZE" "$TOURS_F" <<'PYEOF'
+  "$PY" - "$RAW" "$LOG" "$MESURES" "$JOB_ID" "$ATTEMPT" "$EXIT" "$BUDGET" "${#JOB_PROMPT}" "$CFG_SIZE" "$TOURS_F" <<'PYEOF'
 import json, sys, datetime
 raw_p, log_p, csv_p, job, att, exit_code, budget, psize, csize, tours_p = sys.argv[1:11]
 raw = open(raw_p, encoding='utf-8', errors='replace').read()
@@ -383,11 +402,11 @@ echo "<<< $(date '+%Y-%m-%d %H:%M:%S') — Fin du job $JOB_ID (code de sortie : 
 # ci-dessous, et apparaissent donc dans `git status` tant qu'elles ne sont pas
 # committées à la main. C'est voulu : la liste des fiches à compléter est visible.
 if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/fiches_obsidian.py" ]; then
-  /usr/bin/python3 "$PROJECT/outils/scripts/fiches_obsidian.py" >> "$LOG" 2>&1 \
+  "$PY" "$PROJECT/outils/scripts/fiches_obsidian.py" >> "$LOG" 2>&1 \
     || echo "⚠️ fiches_obsidian.py a échoué (sans conséquence sur le livrable)" >> "$LOG"
 fi
 if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/fiches_veille.py" ]; then
-  /usr/bin/python3 "$PROJECT/outils/scripts/fiches_veille.py" >> "$LOG" 2>&1 \
+  "$PY" "$PROJECT/outils/scripts/fiches_veille.py" >> "$LOG" 2>&1 \
     || echo "⚠️ fiches_veille.py a échoué (sans conséquence sur le livrable)" >> "$LOG"
 fi
 
@@ -399,7 +418,7 @@ fi
 # Idempotent : n'écrit le fichier que si une valeur a changé — donc pas de commit
 # parasite les jours où le job est sauté pour doublon.
 if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/maj_xlsx_jobs.py" ]; then
-  /usr/bin/python3 "$PROJECT/outils/scripts/maj_xlsx_jobs.py" >> "$LOG" 2>&1 \
+  "$PY" "$PROJECT/outils/scripts/maj_xlsx_jobs.py" >> "$LOG" 2>&1 \
     || echo "⚠️ maj_xlsx_jobs.py a échoué (sans conséquence sur le livrable)" >> "$LOG"
 fi
 
@@ -412,7 +431,7 @@ fi
 # « .fiche.md » — le suffixe exclu de l'auto-push. Le livrable n'aurait jamais
 # été publié, et rien dans le journal ne l'aurait signalé.
 if [ "$EXIT" -eq 0 ] && [ -f "$PROJECT/outils/scripts/audit_vault.py" ]; then
-  if /usr/bin/python3 "$PROJECT/outils/scripts/audit_vault.py" >> "$LOG" 2>&1; then
+  if "$PY" "$PROJECT/outils/scripts/audit_vault.py" >> "$LOG" 2>&1; then
     echo "[audit] vault conforme" >> "$LOG"
   else
     echo "⚠️ [audit] ANOMALIES DÉTECTÉES dans le vault — voir le détail ci-dessus." >> "$LOG"
@@ -495,6 +514,21 @@ elif [ "$EXIT" -eq 7 ]; then
   echo "[git] 👉 git status --short   puis décider : compléter, supprimer, ou committer à la main." >> "$LOG"
 else
   echo "[git] Job en erreur (exit $EXIT) — pas de commit." >> "$LOG"
+fi
+
+# ---- Recensement d'exécution (informatif, JAMAIS bloquant) ----
+# Ce que CE run a réellement lancé, confronté aux catégories du hook `pre-push`. Un script
+# lancé ici mais rattaché à aucune catégorie est un script qu'on peut modifier et pousser
+# sans qu'une seule de ses bornes soit jouée — le trou fermé les 11 et 12/11/2026.
+# ⛔ JAMAIS BLOQUANT, et c'est délibéré : un livrable produit et vérifié ne doit pas être
+#    retenu par un défaut de câblage du dépôt. Le garde qui REFUSE vit dans le harnais, au
+#    push (bornes ㉞ et ㊱ de categories_hook.py). Ici on laisse une trace, rien d'autre.
+# ⛔ ET IL NE TOUCHE PAS À $EXIT : le code de sortie du job reste celui de `claude -p`.
+if [ -f "$PROJECT/outils/scripts/non_regression/categories_hook.py" ]; then
+  echo "[trace] Recensement d'exécution — ce que ce run a RÉELLEMENT lancé :" >> "$LOG"
+  "$PY" "$PROJECT/outils/scripts/non_regression/categories_hook.py" \
+        --journal "$NR_TRACE_JOURNAL" >> "$LOG" 2>&1 \
+    || echo "[trace] ⛔ un script lancé par ce run n'appartient à AUCUNE catégorie du hook (détail ci-dessus) — sans conséquence sur le livrable" >> "$LOG"
 fi
 
 # Purge des logs de plus de 30 jours

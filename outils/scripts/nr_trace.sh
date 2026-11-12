@@ -27,9 +27,19 @@
 PY_REEL=/usr/bin/python3
 D=$(dirname "$0")                       # …/outils/scripts
 R=$(cd "$D/../.." 2>/dev/null && pwd)   # racine du dépôt
-J="$D/logs/.nr_journal"
 
-if [ -n "$R" ] && [ -d "$D/logs" ]; then
+# 🆕 12/11/2026 — DEUX ÉCRIVAINS, DEUX JOURNAUX. `run_job.sh` est instrumenté à son tour, et il
+#    tourne en PRODUCTION sous launchd, à des heures où un harnais peut tourner aussi : un seul
+#    fichier mêlerait deux recensements, et le harnais vide le sien à chaque run. `NR_TRACE_JOURNAL`
+#    est donc honoré QUAND IL EST POSÉ. Sous `env -i` il est absent, donc le chemin du harnais est
+#    inchangé — et c'est la borne ㊴ qui le garde DANS LES DEUX SENS, pas la relecture.
+if [ -n "${NR_TRACE_JOURNAL:-}" ]; then
+  J="$NR_TRACE_JOURNAL"; JD=$(dirname "$J")
+else
+  J="$D/logs/.nr_journal"; JD="$D/logs"
+fi
+
+if [ -n "$R" ] && [ -d "$JD" ]; then
   for a in "$@"; do
     case "$a" in
       "$R"/outils/scripts/*.py) printf '%s\n' "${a#"$R"/}" >> "$J" 2>/dev/null ;;

@@ -7483,3 +7483,79 @@ Le sabotage **S18** (shim rendu muet) produit un journal **absent**, état sur l
 Fichiers restaurés au **sha256 identique** à chaque fois. Harnais **défaut · `--consignes` · `--desarmement` · `--docs` : exit 0, zéro `✗`**.
 
 ⚠️ **Ce que l'instrumentation ne voit pas, et c'est dit** : un script lancé par un autre script (le harnais ne journalise que **ses** appels), un lancement en `.sh` non déclaré par `nr_lance` (les 3 actuels le sont, un quatrième devrait l'être — la borne ㉕ exige les trois au littéral, elle ne peut pas deviner le quatrième), et tout ce qui tourne dans un mode non joué.
+
+---
+
+## 12/11/2026 — `run_job.sh` est instrumenté à son tour, et le prédicat ne le voyait pas du tout
+
+**Ordre reçu** : « instrumente run_job.sh aussi ».
+
+### 🔴 Quatrième angle mort du recensement textuel : la variable n'est pas toujours `$ROOT`
+
+Mesuré **avant tout geste**, en appliquant le prédicat existant au fichier :
+
+```
+non_regression.sh    AVANT 31 · APRÈS 31 · delta []
+run_job.sh           AVANT  0 · APRÈS  4 · delta ['audit_vault.py', 'fiches_obsidian.py',
+                                                  'fiches_veille.py', 'maj_xlsx_jobs.py']
+```
+
+`run_job.sh` lance ses quatre scripts par `$PROJECT/outils/scripts/…` — une variable valant la racine **en absolu** —, et aucun motif ancré sur `$ROOT` ne pouvait les apparier. **Zéro sur quatre.** C'est le même motif que les trois angles morts du 11/11 : *un prédicat qui ne reconnaît qu'une forme de ce qu'il cherche rend un vert sur ce qu'il n'a pas vu*.
+
+🟢 **Le remède est générique, pas un cas particulier** : le discriminant utile est le **segment** `/outils/scripts/` précédé d'un préfixe, jamais le **nom** de la variable. La mesure ci-dessus est la non-régression : **delta VIDE sur le harnais**, et l'exigence de préfixe — donc la borne ⑰, qui refuse de compter un script passé en **argument** — reste intacte.
+
+⚠️ **Et les quatre étaient déjà dans `SURVEILLES` : ce qui est fermé est la CÉCITÉ du garde, pas un orphelin existant.** Même honnêteté qu'au premier run du harnais la veille.
+
+### 🔴 Et le garde n'était pas joué sur le push qui le concerne — la catégorie existait, c'est le MODE qui ne le jouait pas
+
+`run_job.sh` appartient à `RUNNER_RE` et à `DESARMEMENT`, **jamais à `SURVEILLES`** : un push qui ne touche que lui laisse `touche=0`, donc le harnais complet ne tourne pas — et `bloc_categories` vivait dans le chemin **commun**, c'est-à-dire **après** les deux modes qui sortent tôt. Les bornes qui gardent cette instrumentation ne gardaient donc **rien** sur le push même qui les porte.
+
+**Mesuré, pas raisonné** : la borne ㊶ écrite pour cet invariant **tombait** sur l'état réel du dépôt (`40/41`, `✗ ㊶`) avant le câblage.
+
+🟢 Le mode `--desarmement` — le seul que déclenche un tel push, hors les mutations du runner — joue désormais **aussi** `bloc_categories`, pour 0,2 s. Et la fonction **remonte avant le mode qui l'appelle** : en shell, une fonction appelée avant sa définition n'existe pas.
+
+> C'est « un témoin que le hook ne déclenche pas n'est pas un témoin » **d'un cran plus loin** : ici le hook déclenchait bien quelque chose, et ce quelque chose ne jouait pas le garde. Les bornes ㊵ (tout fichier dont ce garde lit le contenu appartient à une catégorie qui le joue) et ㊶ (ce mode joue ce garde) ne sont **pas** redondantes : la première dit que le push lance **quelque chose**, la seconde que ce quelque chose joue **ce** garde.
+
+### Deux écrivains, deux journaux — et c'est mesuré, pas gardé par un `unset` préventif
+
+`run_job.sh` tourne en **production** sous launchd, à des heures où un harnais peut tourner aussi : un seul fichier mêlerait deux recensements, et le harnais vide le sien au démarrage. Le shim honore donc `NR_TRACE_JOURNAL` **quand il est posé**, et garde son chemin par défaut sinon.
+
+🟢 **Pourquoi cela ne peut pas détourner le journal du harnais** : **tous** ses lancements `$PY` sont sous `env -i` — **zéro exception**, le site interne compris, dont le parent est lui-même un `env -i $PY -`. La variable ne peut pas y fuir. C'est un **fait mesuré** sur le fichier, pas une ligne de prudence.
+
+### Trois bornes de conception, dites telles
+
+- ⛔ **Repli obligatoire** : `PY="/usr/bin/python3"` puis `[ -x "$NR_SHIM" ] && PY="$NR_SHIM"`. Un shim manquant doit laisser le job tourner — l'instrumentation est un **observateur**.
+- ⛔ **Le recensement ne peut pas faire échouer un job** : il écrit dans le log et ne touche pas à `$EXIT`. Un livrable produit et vérifié ne doit pas être retenu par un défaut de câblage du dépôt ; le refus vit **au push**. C'est la borne ㊳, qui doit être **ACCEPTÉE**.
+- ⛔ **On exige le LITTÉRAL, et on dit qu'on n'en prouve pas l'effet** : exercer cette instrumentation demanderait de lancer un job, donc `claude -p`, du réseau et un plafond. Même parti que `desarmement_git.py` (27/10) et que le garde ② de l'assertion de tableau (18/10).
+
+### 🧪 Preuve de bout en bout sans lancer de job, par le chemin réel et en lectures seules
+
+```
+① forme heredoc (extraction du prompt) : ['serafin-ph-veille']   → journal VIDE (un `-` n'est pas un script)
+② forme $PROJECT/… (audit_vault.py)    : exit=0                  → journal : outils/scripts/audit_vault.py
+③ épilogue, tel que run_job.sh l'appelle : JOURNAL D'EXÉCUTION : 2 script(s) · 0 orphelin(s) · exit 0
+```
+
+### Bilan
+
+`ATTENDU_CAT` 32 → **41**. **Onze sabotages, onze refus**, chacun nommant **sa** borne et prouvant d'abord qu'il a modifié le fichier (sha256 avant → après) :
+
+| Sabotage | Borne |
+|---|---|
+| un lancement hors du shim (`/usr/bin/python3 "$PROJECT/…"`) | ㊱ |
+| le repli `[ -x "$NR_SHIM" ]` retiré | ㊱ |
+| l'épilogue ne lit plus le journal | ㊲ |
+| un `EXIT=` posé dans l'épilogue | ㊳ (ACCEPTÉE) |
+| motif restreint à `$ROOT` | ㉝ **et** ㉟ |
+| `NR_TRACE_JOURNAL` ignoré | ㊴ (premier sens) |
+| fuite vers le journal du harnais | ㊴ (second sens) |
+| `bloc_categories` retiré du mode `--desarmement` | ㊶ |
+| `run_job.sh` retiré de `DESARMEMENT` | ㊵ |
+| `fiches_obsidian.py` retiré de `SURVEILLES` | ㉞, **qui le nomme** |
+| une borne retirée du lot | auto-test **exit 0** lisant « 40/40 », harnais **exit 1** |
+
+📊 **Non-régression** : runner **15/15 témoins + 21/21 mutations, exit 0** alors que `run_job.sh` est modifié · harnais **défaut 3 min 12 s, exit 0, zéro `✗`** · `--consignes`, `--desarmement` exit 0 · `--docs` exit 0 sur la veille du 04/11.
+
+⚠️ **Et le `--docs` de la veille du 11/11 sort en 1, PRÉEXISTANT et sans rapport avec ce travail** : ㊳ refuse le document que l'agent a poussé à 08:09:46 (`abb0305`) alors que son run est mort sur son plafond à **101 %**. Le verdict est fonction du document et du log, que ce travail n'a pas touchés.
+
+⚠️ **Ce que l'instrumentation de `run_job.sh` ne voit pas, et c'est dit** : un script lancé par un script **qu'il lance** (il ne journalise que **ses** appels), et sa trace n'existe qu'**après un vrai créneau** — au moment du push, le garde reste **textuel et littéral**.

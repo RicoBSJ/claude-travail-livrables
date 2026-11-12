@@ -254,11 +254,56 @@ bloc_desarmement () {
   return $DES_KO
 }
 
+# ── TOUT TÉMOIN DU DÉPÔT EST-IL DÉCLENCHÉ PAR LE HOOK ? (11/11/2026)
+#    Mesuré : NEUF des douze fichiers de outils/scripts/non_regression/ n'appartenaient à AUCUNE
+#    catégorie du hook — un push qui ne touchait qu'eux ne déclenchait RIEN, donc un témoin amputé
+#    ou saboté partait sur le dépôt sans qu'UNE SEULE de ses bornes soit jouée. Défaut du 27/10
+#    (CLAUDE.md sans catégorie) et du 06/11 (rattrapage_jobs.sh), à l'échelle d'un répertoire.
+#    ⚠️ Et ma description du trou la veille était FAUSSE : j'avais nommé UN fichier « alors que
+#    muter_docx.py et omission_axe2.py le sont » — deux éléments lus comme un recensement.
+#    🔴 LE PRÉDICAT EST STRUCTUREL : les catégories sont lues DANS le hook, les témoins énumérés
+#    DEPUIS git, et la borne ⑤ exige qu'un nom de témoin FABRIQUÉ soit déjà couvert — c'est elle
+#    qui interdit de revenir à une liste de fichiers en dur, le défaut payé trois fois ici.
+bloc_categories () {
+  local OUT="$CUR/categories_hook.txt" CAT_KO=0 LU
+  local ATTENDU_CAT=41   # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  echo "▶ Tout témoin du dépôt est-il déclenché par le hook ? (structurel, aucun réseau, 0,1 s)"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/categories_hook.py" > "$OUT" 2>&1; then
+    grep -E '^(CATÉGORIES DU HOOK|  ⓘ )' "$OUT" | head -12
+    tail -1 "$OUT"
+    LU=$(sed -n 's/^[[:space:]]*[0-9]\{1,\}\/\([0-9]\{1,\}\) bornes categories hook.*/\1/p' "$OUT")
+    if [ "${LU:-0}" != "$ATTENDU_CAT" ]; then
+      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_CAT attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_CAT à jour en disant pourquoi."
+      CAT_KO=1
+    fi
+  else
+    grep -E '✗|⛔' "$OUT" | head -14
+    echo "  ✗ UN TÉMOIN DU DÉPÔT N'EST DÉCLENCHÉ PAR AUCUNE CATÉGORIE DU HOOK. Un push qui ne"
+    echo "    touche que lui ne lance rien : il peut être amputé ou saboté et partir sur le dépôt"
+    echo "    sans qu'une seule de ses bornes soit jouée — l'état mesuré le 11/11 sur NEUF des"
+    echo "    douze témoins. Ajoute-le à une catégorie de outils/scripts/hooks/pre-push."
+    CAT_KO=1
+  fi
+  return $CAT_KO
+}
+
 # ── mode --desarmement : ce que le hook lance quand un push touche run_job.sh ou le runner,
 #    qui ne sont PAS dans SURVEILLES et ne déclenchent donc que les mutations du runner —
 #    lesquelles tournent sans GIT_DIR, et ne voient rien. Même raison que --consignes la veille.
+# 🔴 12/11/2026 — ET CE MODE EST LE SEUL QU'UN PUSH NE TOUCHANT QUE run_job.sh DÉCLENCHE, donc
+#    il doit jouer AUSSI le recensement de câblage. `run_job.sh` est dans RUNNER_RE et DESARMEMENT,
+#    jamais dans SURVEILLES : `touche=0`, et `bloc_categories` vit dans le chemin COMMUN, après les
+#    deux modes qui sortent tôt. Les bornes qui gardent l'instrumentation de run_job.sh ne
+#    gardaient donc RIEN sur le push même qui les concerne — la catégorie existait, c'est le MODE
+#    qu'elle déclenche qui ne jouait pas le garde. Mesuré : la borne ㊶ tombait avant ce câblage.
+#    ⚠️ La fonction est définie JUSTE AU-DESSUS pour cette raison : appelée ici avant sa
+#    définition d'origine (ligne ~1480), elle n'existait pas.
 if [ "$MODE" = "--desarmement" ]; then
-  bloc_desarmement; exit $?
+  DESARM_KO=0
+  bloc_desarmement || DESARM_KO=1
+  bloc_categories  || DESARM_KO=1
+  exit $DESARM_KO
 fi
 
 # Effectif ATTENDU de chaque lot de témoins (23/09/2026). Les trois boucles de témoins contrôlaient ce
@@ -1241,39 +1286,6 @@ bloc_omission_axe2 || exit 1
 bloc_desarmement || exit 1
 bloc_coherence_skill || exit 1
 bloc_publication || exit 1
-# ── TOUT TÉMOIN DU DÉPÔT EST-IL DÉCLENCHÉ PAR LE HOOK ? (11/11/2026)
-#    Mesuré : NEUF des douze fichiers de outils/scripts/non_regression/ n'appartenaient à AUCUNE
-#    catégorie du hook — un push qui ne touchait qu'eux ne déclenchait RIEN, donc un témoin amputé
-#    ou saboté partait sur le dépôt sans qu'UNE SEULE de ses bornes soit jouée. Défaut du 27/10
-#    (CLAUDE.md sans catégorie) et du 06/11 (rattrapage_jobs.sh), à l'échelle d'un répertoire.
-#    ⚠️ Et ma description du trou la veille était FAUSSE : j'avais nommé UN fichier « alors que
-#    muter_docx.py et omission_axe2.py le sont » — deux éléments lus comme un recensement.
-#    🔴 LE PRÉDICAT EST STRUCTUREL : les catégories sont lues DANS le hook, les témoins énumérés
-#    DEPUIS git, et la borne ⑤ exige qu'un nom de témoin FABRIQUÉ soit déjà couvert — c'est elle
-#    qui interdit de revenir à une liste de fichiers en dur, le défaut payé trois fois ici.
-bloc_categories () {
-  local OUT="$CUR/categories_hook.txt" CAT_KO=0 LU
-  local ATTENDU_CAT=32   # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
-  echo "▶ Tout témoin du dépôt est-il déclenché par le hook ? (structurel, aucun réseau, 0,1 s)"
-  if env -i $PY "$ROOT/outils/scripts/non_regression/categories_hook.py" > "$OUT" 2>&1; then
-    grep -E '^(CATÉGORIES DU HOOK|  ⓘ )' "$OUT" | head -12
-    tail -1 "$OUT"
-    LU=$(sed -n 's/^[[:space:]]*[0-9]\{1,\}\/\([0-9]\{1,\}\) bornes categories hook.*/\1/p' "$OUT")
-    if [ "${LU:-0}" != "$ATTENDU_CAT" ]; then
-      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_CAT attendue(s) — un lot amputé ne prouve rien :"
-      echo "    rétablis la borne retirée, ou mets ATTENDU_CAT à jour en disant pourquoi."
-      CAT_KO=1
-    fi
-  else
-    grep -E '✗|⛔' "$OUT" | head -14
-    echo "  ✗ UN TÉMOIN DU DÉPÔT N'EST DÉCLENCHÉ PAR AUCUNE CATÉGORIE DU HOOK. Un push qui ne"
-    echo "    touche que lui ne lance rien : il peut être amputé ou saboté et partir sur le dépôt"
-    echo "    sans qu'une seule de ses bornes soit jouée — l'état mesuré le 11/11 sur NEUF des"
-    echo "    douze témoins. Ajoute-le à une catégorie de outils/scripts/hooks/pre-push."
-    CAT_KO=1
-  fi
-  return $CAT_KO
-}
 
 bloc_integrite || exit 1
 bloc_categories || exit 1

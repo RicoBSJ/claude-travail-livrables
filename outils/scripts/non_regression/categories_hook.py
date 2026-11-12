@@ -40,7 +40,16 @@ RACINE = pathlib.Path(__file__).resolve().parent.parent.parent.parent
 # outils/ — bug de tolerance_page_morte.py (23/10), coherence_skill.py (27/10) et
 # integrite_livrables.py (11/11, le jour même).
 assert (RACINE / "jobs_config.json").exists(), "RACINE ne pointe pas sur la racine : %s" % RACINE
-HOOK = RACINE / "outils" / "scripts" / "hooks" / "pre-push"
+# 🆕 12/11/2026 — LES FICHIERS DONT LE CONTENU DÉCIDE DU VERDICT DE CE GARDE, déclarés UNE
+# fois et utilisés pour les lire ET pour la borne ㊵ : modifier l'un d'eux doit déclencher ce
+# garde, sinon on peut casser le câblage et pousser sans qu'aucune de ces bornes ne soit jouée.
+# C'est le même invariant que ③ appliqué au garde lui-même — et ce n'est pas une liste de plus :
+# la borne LIT cet ensemble, elle ne le recopie pas (règle du 15/10).
+LUS = ("outils/scripts/hooks/pre-push", "outils/scripts/non_regression.sh",
+       "outils/scripts/run_job.sh", "outils/scripts/nr_trace.sh",
+       "outils/scripts/non_regression/categories_hook.py")
+CHEMINS = {n: RACINE / n for n in LUS}
+HOOK = CHEMINS["outils/scripts/hooks/pre-push"]
 
 KO, JOUEES = [], []
 def borne(nom, condition):
@@ -103,7 +112,7 @@ borne("⑧ le motif de répertoire est dans SURVEILLES, la catégorie qui lance 
 #    sens sûr — une exigence de trop — mais une fausse exigence se « corrige » en câblant un
 #    script que le harnais n'exécute pas. On retire donc les lignes de commentaire ENTIÈRES,
 #    et pas les « # » en ligne, qui vivent dans des chaînes et des motifs.
-HARNAIS = (RACINE / "outils" / "scripts" / "non_regression.sh").read_text()
+HARNAIS = CHEMINS["outils/scripts/non_regression.sh"].read_text()
 
 # ─────────────────────────────────────────────────────────────────────────────────────────────
 # MODE --journal : LE RECENSEMENT D'EXÉCUTION, celui que le prédicat textuel ne pouvait pas
@@ -148,7 +157,14 @@ def code_seul(texte):
 # ⛔ ET LE PRÉFIXE EST LE DISCRIMINANT, PAS UN DÉTAIL : `setup_launchd.sh` apparaît NU dans le
 #    harnais, comme ARGUMENT d'un `git status --porcelain` — ce n'est pas une exécution, et la
 #    borne ⑰ l'épingle. Exiger un préfixe (`$ROOT/` ou `<var> + "/`) sépare les deux.
-FORMES = r'(?:\$\{?ROOT\}?|[A-Za-z_][A-Za-z0-9_]* \+ ")/(outils/scripts/[A-Za-z0-9_./-]+\.(?:py|sh))'
+# 🔴 12/11/2026, QUATRIÈME ANGLE MORT : LA VARIABLE N'EST PAS TOUJOURS `$ROOT`. Appliqué à
+#    `run_job.sh`, ce motif rendait 0 (zéro) des 4 scripts qu'il lance réellement — ils sont
+#    appelés par `$PROJECT/…`, une variable valant la racine en ABSOLU. Le discriminant utile est
+#    le SEGMENT `/outils/scripts/` précédé d'un préfixe, pas le NOM de la variable.
+# 🟢 Mesuré dans les deux sens avant de toucher au fichier : la généralisation ne change RIEN sur
+#    le harnais (31 → 31, delta VIDE) et fait passer run_job.sh de 0 à 4. Zéro régression par
+#    construction — et l'exigence de préfixe, donc la borne ⑰, est intacte.
+FORMES = r'(?:\$\{?[A-Za-z_][A-Za-z0-9_]*\}?|[A-Za-z_][A-Za-z0-9_]* \+ ")/(outils/scripts/[A-Za-z0-9_./-]+\.(?:py|sh))'
 
 # 🔴 11/11/2026, TROISIÈME ANGLE MORT, ET C'EST LE RECENSEMENT D'EXÉCUTION QUI L'A TROUVÉ, PAS
 #    LA RELECTURE : `tolerance_page_morte.py` est lancé par `$NR/…` — une variable AUTRE que
@@ -216,7 +232,7 @@ borne("⑱ AUCUN script de premier niveau n'est orphelin de categorie", not orph
 # ⛔ Le shim est exercé POUR DE VRAI, sur une arborescence FABRIQUÉE en tempfile : rien de
 #    vivant n'entre dans le verdict (leçon du 22/10), et ce lot ne peut donc pas périmer.
 # ─────────────────────────────────────────────────────────────────────────────────────────────
-SHIM = RACINE / "outils" / "scripts" / "nr_trace.sh"
+SHIM = CHEMINS["outils/scripts/nr_trace.sh"]
 borne("⑲ le harnais definit PY sur le SHIM, au litteral (sinon l'epilogue est aveugle)",
       'PY="$ROOT/outils/scripts/nr_trace.sh"' in HARNAIS
       and not re.search(r'(?m)^PY=/usr/bin/python3\s*$', HARNAIS))
@@ -249,6 +265,18 @@ with tempfile.TemporaryDirectory() as _t:
     #    contrainte qui dicte la forme du shim, le harnais lançant presque tout sous `env -i`.
     borne("㉓ le shim fonctionne sous un environnement VIDE (le harnais lance sous env -i)",
           "outils/scripts/bidon.py" in _lance(str(_sc / "bidon.py"))[1])
+    # ㊴ LA BORNE QUI DOIT ÊTRE ACCEPTÉE DANS LES DEUX SENS (12/11/2026) : `run_job.sh` tourne en
+    #    production à des heures où un harnais peut tourner aussi, donc il lui faut SON journal.
+    #    Le shim honore `NR_TRACE_JOURNAL` quand il est posé, et SANS lui il écrit TOUJOURS au
+    #    journal par défaut. Les deux sens sont nécessaires : sans le premier l'instrumentation de
+    #    run_job.sh est muette, sans le second elle aurait détourné celle du harnais EN SILENCE.
+    _autre = pathlib.Path(_t) / "journal_a_part"
+    _av = len(_jr.read_text()) if _jr.exists() else 0
+    subprocess.run([str(_sh), str(_sc / "bidon.py")], capture_output=True,
+                   env={"NR_TRACE_JOURNAL": str(_autre)})
+    _ap = len(_jr.read_text()) if _jr.exists() else 0
+    borne("㊴ le shim honore NR_TRACE_JOURNAL et, SANS lui, n'ecrit QUE par defaut (ACCEPTEE)",
+          _autre.exists() and "outils/scripts/bidon.py" in _autre.read_text() and _ap == _av)
 
 borne("㉔ l'epilogue du harnais APPELLE le mode --journal et pose STATUT=1 — une alerte que "
        "personne ne lit n'existe pas (27/10)",
@@ -305,6 +333,63 @@ borne("㉛ une variable etrangere a outils/scripts n'entre pas dans la table (AC
       "HOME" not in prefixes('HOME="$ROOT/livrables"\nNR="$ROOT/outils/scripts/non_regression"\n')
       and "NR" in prefixes('HOME="$ROOT/livrables"\nNR="$ROOT/outils/scripts/non_regression"\n'))
 
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+# 🆕 12/11/2026 — `run_job.sh` EST INSTRUMENTÉ À SON TOUR, ET LE PRÉDICAT NE LE VOYAIT PAS DU
+# TOUT. C'est le SEUL `git push` du pipeline et le lanceur de tous les jobs : les scripts qu'il
+# lance après un exit 0 (fiches, classeur, audit du coffre) pouvaient être modifiés et poussés
+# sans qu'une seule borne soit jouée. ⚠️ Les 4 étaient DÉJÀ dans `SURVEILLES` : ce qui est fermé
+# est la CÉCITÉ du garde, pas un orphelin existant — même honnêteté qu'au premier run du harnais.
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+RUNJOB = CHEMINS["outils/scripts/run_job.sh"].read_text()
+executes_rj = scripts_executes(RUNJOB)
+orph_rj = [p for p in executes_rj if p in suivis_set and not categories(p)]
+borne("㉝ run_job.sh exécute bien des scripts (un périmètre VIDE n'est pas un dépôt sain)",
+      len(executes_rj) >= 4)
+borne("㉞ TOUT script que run_job.sh exécute est déclenché par le hook", not orph_rj)
+# ㉟ le faux négatif MESURÉ le 12/11, nommé : sans la généralisation du motif, cette borne tombe.
+borne("㉟ la forme `$PROJECT/…` est reconnue comme un appel (0 → 4, mesuré le 12/11)",
+      "outils/scripts/fiches_obsidian.py" in executes_rj
+      and "outils/scripts/audit_vault.py" in executes_rj)
+# ㊱ ON EXIGE LE LITTÉRAL, PARCE QU'AUCUN TÉMOIN NE PEUT PROUVER L'EFFET : exercer
+#    l'instrumentation de run_job.sh demanderait de lancer un job, donc `claude -p`, du réseau et
+#    un plafond. Même parti que `desarmement_git.py` (27/10) et que le garde ② de l'assertion de
+#    tableau (18/10) : on exige la forme, et on DIT qu'on n'en prouve pas l'effet.
+# ⛔ LE REPLI FAIT PARTIE DE L'EXIGENCE : ce script tourne sous launchd. Un shim manquant doit
+#    laisser le job tourner, pas le tuer — l'instrumentation est un observateur.
+borne("㊱ run_job.sh route son interprete par le SHIM, AVEC repli (il tourne en production)",
+      'NR_SHIM="$PROJECT/outils/scripts/nr_trace.sh"' in RUNJOB
+      and '[ -x "$NR_SHIM" ] && PY="$NR_SHIM"' in RUNJOB
+      and not re.search(r'/usr/bin/python3 "\$PROJECT/outils/scripts/', RUNJOB)
+      and not re.search(r'(?m)^\s*/usr/bin/python3 - ', RUNJOB))
+borne("㊲ il a SON journal, vidé à chaque run, et il APPELLE le mode --journal — une alerte "
+      "que personne ne lit n'existe pas (27/10)",
+      'export NR_TRACE_JOURNAL=' in RUNJOB
+      and re.search(r'(?m)^: > "\$NR_TRACE_JOURNAL"', RUNJOB)
+      and '--journal "$NR_TRACE_JOURNAL"' in code_seul(RUNJOB))
+# ㊳ LA BORNE QUI DOIT ÊTRE ACCEPTÉE : le recensement ne peut pas faire échouer un job. Un
+#    livrable produit et vérifié ne doit pas être retenu par un défaut de câblage du dépôt —
+#    c'est au push que le garde refuse. Sans cette borne, rien n'empêche d'y poser un EXIT=.
+_bloc_rj = RUNJOB[RUNJOB.index("Recensement d'exécution"):]
+borne("㊳ ce recensement ne touche PAS au code de sortie du job (ACCEPTEE)",
+      "EXIT=" not in _bloc_rj and re.search(r'(?m)^exit \$EXIT\s*$', RUNJOB) is not None)
+
+# 🔴 12/11/2026 — ET LE GARDE N'ÉTAIT PAS JOUÉ SUR LE PUSH QUI LE CONCERNE. `run_job.sh` est
+#    dans les catégories `RUNNER_RE` et `DESARMEMENT`, donc `touche=0` : le hook lançait les
+#    mutations du runner et le mode `--desarmement`, et `bloc_categories` vit dans le chemin
+#    COMMUN du harnais, après ces deux modes qui sortent tôt. Les bornes ㉝–㊴ ne gardaient donc
+#    RIEN au moment d'un push ne touchant que run_job.sh. ⛔ La catégorie existait : c'est le
+#    MODE qu'elle déclenche qui ne jouait pas le garde — « un témoin que le hook ne déclenche pas
+#    n'est pas un témoin », un cran plus loin, et aucune borne ne regardait ce cran.
+borne("㊵ tout fichier dont ce garde LIT le contenu appartient a une categorie qui le joue",
+      all(categories(n) and ("SURVEILLES" in categories(n) or "DESARMEMENT" in categories(n))
+          for n in LUS))
+# ㊶ et le mode que `run_job.sh` déclenche joue bien ce garde. Les deux bornes ne sont PAS
+#    redondantes : ㊵ dit que le push lance QUELQUE CHOSE, ㊶ que ce quelque chose joue CE garde.
+_desarm = HARNAIS[HARNAIS.index('if [ "$MODE" = "--desarmement" ]'):][:700]
+borne("㊶ le mode --desarmement, seul mode d'un push qui ne touche que run_job.sh, joue "
+      "bloc_categories",
+      "bloc_categories" in _desarm)
+
 borne("㉖ l'appel Python interne passe par le shim, PAS par sys.executable",
       "sys.executable, racine" not in HARNAIS
       and 'racine + "/outils/scripts/nr_trace.sh"' in HARNAIS)
@@ -312,8 +397,13 @@ print("")
 
 
 print("CATÉGORIES DU HOOK : %d · témoins : %d dont %d orphelin(s) · exécutés par le harnais : "
-      "%d dont %d non surveillé(s) · premier niveau : %d dont %d sans catégorie"
-      % (len(CATS), len(temoins), len(orphelins), len(executes), len(orph_exec), len(niv1), len(orph1)))
+      "%d dont %d non surveillé(s) · exécutés par run_job.sh : %d dont %d non surveillé(s) · "
+      "premier niveau : %d dont %d sans catégorie"
+      % (len(CATS), len(temoins), len(orphelins), len(executes), len(orph_exec),
+         len(executes_rj), len(orph_rj), len(niv1), len(orph1)))
+for p in orph_rj:
+    print("  ⛔ EXÉCUTÉ PAR run_job.sh, NON SURVEILLÉ : %s — un job le lance après chaque exit 0,"
+          " et le toucher ne déclenche rien" % p)
 for p in orphelins:
     print("  ⛔ TÉMOIN ORPHELIN : %s — un push qui ne touche que lui ne déclenche RIEN" % p)
 for p in orph_exec:
@@ -330,7 +420,7 @@ for p in orph1:
 #    sabotage qui faisait dériver le libellé dans les DEUX fichiers du témoin laissait la
 #    borne verte, puisque la copie dérivait avec. « Un test qui teste une COPIE de la
 #    logique ne garde rien » (15/10) — c'est le sabotage qui l'a dit, pas la relecture.
-_h = (RACINE / "outils" / "scripts" / "non_regression.sh").read_text()
+_h = HARNAIS   # le même texte, lu une seule fois : une COPIE dériverait
 _seds = re.findall(r"sed -n '([^']*categories hook[^']*)'", _h)
 borne("⑩ le harnais porte UN seul sed pour cette ligne", len(_seds) == 1)
 _sed = _seds[0] if _seds else "s/ZZZ/\\1/p"
