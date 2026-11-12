@@ -118,6 +118,58 @@ MOTS_CITATION = 4
 #    sa ligne. C'est le compromis assumé du dépôt : en production un faux refus coûte un
 #    livrable non publié, un vrai manqué ne coûte qu'une relecture humaine.
 FENETRE = 80           # distance maximale, en caractères, entre le jeton revenu et son accompagnateur
+# ─────────────────────────────────────────────────────────────────────────────
+# 🆕 12/11/2026 — L'AXE ① EST ÉLARGI À PLUSIEURS ÉDITIONS, EN AVERTISSEMENT.
+#    L'INCIDENT. La veille imac du 08/11/2026 écrivait « Windows 11 : jusque 2031 ». Ce chiffre est
+#    FAUX — mesuré le 18/10/2026 sur quatre pages de cycle de vie Microsoft, zéro occurrence — et la
+#    correction du 11/10 l'avait déjà retiré une première fois. Les éditions du 25/10 et du 01/11
+#    n'en portent AUCUNE occurrence : la chaîne de continuité a donc perdu le jeton, et ce contrôle,
+#    qui ne compare N qu'à N-1, a rendu « OK sur ses trois axes » trois semaines plus tard. Il avait
+#    raison au regard de ce qu'il surveillait ; ce qui manquait est une mémoire plus longue qu'UN
+#    maillon. Et aucun autre contrôle du dépôt ne regarde cette classe.
+#    LA PROFONDEUR EST MESURÉE, PAS CHOISIE — balayage des 120 éditions de veille du dépôt, le .docx
+#    du 08/11 étant pris dans son état D'AVANT correction :
+#      · K=3 : 1 signalement — l'incident 2031 est PERDU. Il est retiré par une correction de
+#        l'édition du 11/10, soit N-4 pour celle du 08/11 ; et ce n'est pas N-3 parce que le
+#        vocabulaire de l'édition du 18/10, où « microsoft » et « support » sont fréquents, écarte
+#        l'accompagnateur — le rang auquel un jeton se signale n'est donc PAS monotone.
+#      · K=4 : 2 signalements, 2 VRAIS, 0 faux — l'incident 2031 et le fondeur « TSMC » du 25/10,
+#        qui est le rejeu que l'axe ② avait dû couvrir le 01/11 et que ① voit maintenant en face.
+#      · K=5, K=6, K=7 : verdicts IDENTIQUES à K=4 — bande vide de trois rangs.
+#      · K=8 : premier faux positif, « Development » accompagné de « and » dans la veille ai-act du
+#        06/11, tiré d'une citation de 18/09 ; K=9 : « Lien » accompagné de « cloture ». Deux mots
+#        ordinaires, à sept et neuf semaines de distance.
+#    DEUX BORNES, ET LA MESURE DIT LAQUELLE PORTE.
+#      · CHAÎNE — le jeton doit être absent du corps de TOUTE édition entre E et N. Sans elle, un
+#        jeton déjà revenu entre-temps fait accuser N pour un retour que le motif BLOQUANT de son
+#        propre maillon a eu l'occasion de juger ; et c'est elle qui fait que le rejeu « TSMC » est
+#        imputé au maillon 11/10 → 25/10, le plus proche, et non à toute la série.
+#      · JOURNAL DE N — le jeton ne doit pas être discuté dans le journal ou les marqueurs de N :
+#        l'édition l'a alors TRAITÉ. C'est la borne qui porte tout, mesurée : elle retire les DEUX
+#        faux positifs de K=4. Le cas qui la fonde est « 170 » dans la veille imac du 18/10, retiré
+#        le 04/10 comme « ne figurant sur aucune des onze pages » et revenu le 18/10 — mais le
+#        journal du 18/10 écrit « les 170 Go/s désormais littéraux sur la page Apple », et la page
+#        Apple est dans ses sources ✅. L'édition a re-sourcé le chiffre : l'accuser serait accuser
+#        un document qui a fait exactement ce qu'il fallait. ⚠️ Et pour le second faux positif,
+#        « Trois » dans la veille ai-act du 09/10, la borne mord pour une raison DIFFÉRENTE — le mot
+#        se trouve aussi dans un marqueur — donc par coïncidence, dans le bon sens. Il faut le dire.
+#    ⛔ ET CE N'EST PAS BLOQUANT, pour deux raisons mesurées, non par prudence vague : un balayage
+#    rétrospectif ne valide pas un motif bloquant (règle du 14/10), et ce contrôle a DÉJÀ produit
+#    deux faux refus en production, les 14/10 et 19/10, qui ont chacun bloqué TOUS les pushs du
+#    dépôt. Élargir la fenêtre multiplie la matière par PROFONDEUR : on avertit, avec la ligne.
+#    ⚠️ CE QUE LA BORNE « JOURNAL DE N » COÛTE, ET C'EST L'OBJECTION ÉVIDENTE : citer un jeton dans
+#    un marqueur SILENCE le motif. C'est la forme du défaut du 27/10, où la consignation d'une
+#    coquille l'immunisait. Trois choses le bornent : le motif n'est pas bloquant, donc l'évasion ne
+#    publie rien qu'un silence ; le motif BLOQUANT de N-1 n'exempte PAS les marqueurs et reste
+#    inchangé ; et la doctrine EXIGE un marqueur quand on corrige — un jeton discuté dans le journal
+#    de N laisse donc au relecteur la trace que le motif réclamait.
+#    BORNE ESSAYÉE PUIS ABANDONNÉE SUR MESURE : « un jeton que N écrit AUSSI en minuscules n'est pas
+#    un nom propre » — le discriminant de controle_orthographe.py (27/10) et de
+#    controle_noms_propres.py (31/10). Mesurée seule : elle retire ZÉRO signalement sur les 120
+#    éditions ; ajoutée à la borne « journal de N » : zéro différence. Inerte sur ce corpus, donc
+#    non retenue — un durcissement dont aucune borne ne peut échouer est préventif, et il doit être
+#    annoncé ainsi plutôt que vendu comme une correction (règle du 26/10).
+PROFONDEUR = 4         # N-1 inclus : le motif bloquant lit N-1, l'avertissement lit N-2 à N-4
 ANNEE = re.compile(r"^(?:19|20)\d\d$")     # un millésime nu n'accompagne pas : il horodate
 VOC_MIN = 5           # occurrences dans le corps de N-1 au-delà desquelles un mot est du VOCABULAIRE
 DENONCE = re.compile(r"(?i)n['’]?(?:est|était|étant|e figure|e figurait)? ?(?:pas|plus)? ?nomm"
@@ -224,20 +276,43 @@ def jetons(s):
                 gardes.add(j); break                      # vu au moins une fois en milieu de citation
     return gardes
 
+def candidats_de(journal_e, marq_e):
+    """(citations retenues, citations vues, jetons candidats, porteuses) pour UNE édition.
+    Appelée par le motif ① sur N-1 et par ①bis sur les éditions plus anciennes : la logique
+    des candidats n'existe qu'ici."""
+    cites, n_vues = citations_retenues(journal_e, marq_e)
+    cands, porteuses = set(), {}
+    for c, _ctx in cites:
+        js = jetons(c)
+        cands |= js
+        for j in js:
+            porteuses.setdefault(j, []).append((c, js))
+    return cites, n_vues, cands, porteuses
+
+
 def suites(s, n):
     w = mots(s)
     return {" ".join(cle(" ".join(w[i:i+n])).split()) for i in range(len(w)-n+1)} if len(w) >= n else set()
 
-def precedente(p):
+def precedentes(p, k=None):
+    """les éditions ANTÉRIEURES de la même série, (date, chemin), de la plus récente à la plus
+    ancienne. UN SEUL endroit les énumère : precedente() rend la première, et le motif ① élargi
+    du 12/11/2026 lit les PROFONDEUR premières — on ne recopie pas une logique (règle du 15/10)."""
     d, b = os.path.dirname(p) or ".", os.path.basename(p)
     m = re.match(r"(\d{4}-\d\d-\d\d)_(veille_.+)\.docx$", b)
-    if not m: return None
+    if not m: return []
     date, suite = m.groups()
     cands = []
     for f in glob.glob(os.path.join(d, "*_%s.docx" % suite)):
         mm = re.match(r"(\d{4}-\d\d-\d\d)_", os.path.basename(f))
         if mm and mm.group(1) < date: cands.append((mm.group(1), f))
-    return max(cands)[1] if cands else None
+    cands.sort(reverse=True)
+    return cands if k is None else cands[:k]
+
+
+def precedente(p):
+    c = precedentes(p, 1)
+    return c[0][1] if c else None
 
 def fiche_de(p):
     base = p[:-5]
@@ -269,23 +344,17 @@ pb = []
 
 # ① un jeton que la correction de N-1 a retiré et qui revient
 print("\n① JETONS RETIRÉS PAR UNE CORRECTION DE L'ÉDITION PRÉCÉDENTE ET REVENUS (bloquant)")
-cites_p, n_vues = citations_retenues(journal_p, marq_p)
-cands = set()
-porteuses = {}                      # jeton -> [(citation, tous ses jetons)] : il faut l'ACCOMPAGNATEUR
-for c, _ctx in cites_p:
-    js = jetons(c)
-    cands |= js
-    for j in js:
-        porteuses.setdefault(j, []).append((c, js))
+# porteuses : jeton -> [(citation, tous ses jetons)] — il faut l'ACCOMPAGNATEUR
+cites_p, n_vues, cands, porteuses = candidats_de(journal_p, marq_p)
 plat_p, plat_c = plat(corps_p), plat(corps_c)
 retires = sorted(j for j in cands if not present(j, plat_p))
 revenus = [j for j in retires if present(j, plat_c)]
 
 
-_VOC = None
+_VOC = {}
 
 
-def vocabulaire():
+def vocabulaire(corps):
     """le VOCABULAIRE de la série, lu dans le corps corrigé de N-1 lui-même : un mot qui y
     revient VOC_MIN fois ou plus ne peut pas servir d'accompagnateur. Autonome — aucune autre
     édition n'est ouverte, donc le verdict ne dérive pas quand la série s'allonge, et un témoin
@@ -296,19 +365,18 @@ def vocabulaire():
     « commission » 3, « support » 2, « oct » 2, « procede » 1, « validees » 1, « charge » 1,
     « jusqu » 0, « microsoft » 0, « tsmc » 0. Le vide entre 3 et 7 est large : tout seuil de 4 à
     7 rend les mêmes verdicts sur les trois cas gelés."""
-    global _VOC
-    if _VOC is None:
+    if corps not in _VOC:
         from collections import Counter
-        k_ = Counter(cle(corps_p).split())
-        _VOC = {w for w, n_ in k_.items() if n_ >= VOC_MIN}
-    return _VOC
+        k_ = Counter(cle(corps).split())
+        _VOC[corps] = {w for w, n_ in k_.items() if n_ >= VOC_MIN}
+    return _VOC[corps]
 
 
-def accompagne(j):
+def accompagne(j, porteuses, retires, plat_c, corps_p):
     """(citation, accompagnateur, distance) si le jeton revient ACCOMPAGNÉ — voir la borne du
     19/10/2026 en tête de fichier. Sinon (None, None, None) : le retour n'est pas un rejeu
     prouvé, et il sort en avertissement."""
-    ubi = vocabulaire()
+    ubi = vocabulaire(corps_p)
     jmots = set(cle(j).split())
     for c, js in porteuses.get(j, []):
         # les mots de la CITATION, pas ses seuls jetons : « Procédé 2 nm TSMC » n'a qu'un jeton
@@ -337,7 +405,7 @@ print("   %d citation(s) d'origine dans le journal et les marqueurs de N-1, dont
 if revenus:
     for j in revenus:
         ou = [c for c, _ in cites_p if j in c]
-        c_, acc, dist = accompagne(j)
+        c_, acc, dist = accompagne(j, porteuses, retires, plat_c, corps_p)
         if acc:
             print("   INTERDIT « %s » — retiré du corps de %s par une correction, présent dans celui-ci"
                   % (j, os.path.basename(PREC)[:10]))
@@ -357,6 +425,54 @@ if revenus:
                   " relis ce passage à la main")
 else:
     print("      (aucun)")
+
+# ①bis les éditions PLUS ANCIENNES que N-1 — AVERTISSEMENT, jamais bloquant (12/11/2026)
+print("\n①bis JETONS RETIRÉS PAR UNE CORRECTION D\'UNE ÉDITION PLUS ANCIENNE QUE N-1 ET REVENUS"
+      " (non bloquant)")
+_PLUS = precedentes(COUR, PROFONDEUR)[1:]
+_CORPS = {}
+
+
+def _plat_corps(f):
+    if f not in _CORPS:
+        _CORPS[f] = plat(decoupe(paragraphes(f))[0])
+    return _CORPS[f]
+
+
+if not _PLUS:
+    print("   aucune édition avant %s — motif INERTE, et ce n\'est PAS une réussite"
+          % os.path.basename(PREC)[:10])
+else:
+    print("   profondeur %d : %s" % (PROFONDEUR, ", ".join(d for d, _ in _PLUS)))
+    _inter, _vus, _n_bis, _mu = [PREC], set(revenus), 0, 0
+    _jr_c, _mq_c = plat(journal_c), plat(marq_c)
+    for _rang, (_dE, _E) in enumerate(_PLUS, start=2):
+        _T = paragraphes(_E)
+        _corps_e, _jr_e, _mq_e = decoupe(_T)
+        _plat_e = plat(_corps_e)
+        _cites_e, _, _cands_e, _port_e = candidats_de(_jr_e, _mq_e)
+        _retires_e = sorted(j for j in _cands_e if not present(j, _plat_e))
+        for _j in (x for x in _retires_e if present(x, plat_c)):
+            if _j in _vus: continue
+            if present(_j, _jr_c) or present(_j, _mq_c):
+                _vus.add(_j); _mu += 1; continue        # N l\'a TRAITÉ : son journal en parle
+            if any(present(_j, _plat_corps(f)) for f in _inter): continue   # borne de CHAÎNE
+            _c, _acc, _dist = accompagne(_j, _port_e, _retires_e, plat_c, _corps_e)
+            if not _acc: continue
+            _vus.add(_j); _n_bis += 1
+            print("   À RELIRE « %s » — retiré du corps de %s (N-%d) par une correction, absent de"
+                  " toutes les éditions depuis, et présent ici" % (_j, _dE, _rang))
+            print("             accompagné de « %s » : la revendication revient, pas seulement le mot"
+                  % _acc)
+            _ou = [c for c, _x in _cites_e if _j in c]
+            if _ou: print("             formulation d\'origine : « %s »" % _ou[0][:150])
+            print("             NON BLOQUANT : une correction vieille de %d édition(s) peut avoir été"
+                  " défaite par un fait neuf — relis ce passage à la main" % _rang)
+        _inter.append(_E)
+    if not _n_bis:
+        print("      (aucun)")
+    print("   %d signalement(s) · %d jeton(s) écarté(s) parce que le journal ou un marqueur de cette"
+          " édition en parle : elle l\'a traité" % (_n_bis, _mu))
 
 # ② une suite de mots que la fiche de N-1 donne pour fautive
 print("\n② FORMULATIONS QUE LA FICHE DE L'ÉDITION PRÉCÉDENTE DONNE POUR FAUTIVES ET QUI REVIENNENT (non bloquant)")

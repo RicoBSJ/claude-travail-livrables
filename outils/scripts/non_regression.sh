@@ -1280,9 +1280,51 @@ bloc_integrite () {
   return $INT_KO
 }
 
+bloc_edition_profondeur () {
+  # 🆕 12/11/2026 — L'AXE ① DE controle_edition_precedente.py NE REGARDAIT QU'UN SEUL MAILLON.
+  # La veille imac du 08/11 a rejoué « Windows 11 : jusque 2031 », faux et retiré DEUX fois (11/10
+  # puis 18/10) ; les éditions du 25/10 et du 01/11 n'en portant aucune occurrence, la chaîne avait
+  # perdu le jeton et le contrôle a rendu « OK sur ses trois axes » trois semaines plus tard.
+  # PROFONDEUR = 4, MESURÉE sur les 120 éditions, le .docx du 08/11 pris dans son état d'avant
+  # correction : K=3 PERD l'incident (retiré par l'édition du 11/10, soit N-4) · K=4 → 2
+  # signalements, 2 vrais, 0 faux · K=5, 6, 7 → verdicts IDENTIQUES · K=8 → premier faux positif.
+  # ⛔ NON BLOQUANT (règle du 14/10, et ce contrôle a déjà produit deux faux refus en production les
+  # 14 et 19/10), d'où les DEUX exigences de ligne ci-dessous en plus du code de sortie.
+  # Le témoin est FABRIQUÉ en tempfile : le signalement unique du corpus réel disparaît dès qu'une
+  # édition sort ou qu'un document est corrigé — un témoin ancré dessus périrait tout seul.
+  local EP_OUT="$CUR/edition_profondeur.txt" EP_KO=0 LU_EP
+  local ATTENDU_EP=17         # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  echo "▶ Axe ① sur plusieurs éditions — une correction défaite trois semaines plus tard (aucun réseau, 1 s)"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/edition_profondeur.py" > "$EP_OUT" 2>&1; then
+    tail -3 "$EP_OUT"
+    LU_EP=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes de la profondeur de l.axe 1.*/\2/p" "$EP_OUT")
+    if [ "${LU_EP:-0}" != "$ATTENDU_EP" ]; then
+      echo "  ✗ ${LU_EP:-0} borne(s) jouée(s), $ATTENDU_EP attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_EP à jour en disant pourquoi."
+      EP_KO=1
+    fi
+    if ! grep -q "①bis portee : ZORGLUB vu a N-4 · GLOUBI dedupe a N-2 · XANADU hors profondeur" "$EP_OUT"; then
+      echo "  ✗ la ligne de PORTÉE de ①bis n'est pas imprimée — le témoin peut être vert sans rien dire."
+      EP_KO=1
+    fi
+    if ! grep -q "①bis cadre : N-1 reste bloquant (exit 1) · exit 0 quand seul ①bis parle" "$EP_OUT"; then
+      echo "  ✗ la ligne de CADRE de ①bis n'est pas imprimée — rien ne garde que N-1 reste bloquant."
+      EP_KO=1
+    fi
+  else
+    grep '✗' "$EP_OUT" | head -8
+    echo "  ✗ les bornes de la profondeur de l'axe ① ne passent plus."
+    echo "    Mesuré le 12/11 : sans la borne de CHAÎNE et sans celle du JOURNAL DE N, K=4 rend 2 faux"
+    echo "    positifs sur 4 signalements ; avec les deux, 2 signalements et 2 vrais sur 120 éditions."
+    EP_KO=1
+  fi
+  return $EP_KO
+}
+
 bloc_orthographe || exit 1
 bloc_noms_propres || exit 1
 bloc_omission_axe2 || exit 1
+bloc_edition_profondeur || exit 1
 bloc_desarmement || exit 1
 bloc_coherence_skill || exit 1
 bloc_publication || exit 1

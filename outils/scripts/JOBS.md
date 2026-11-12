@@ -7642,3 +7642,72 @@ Mon journal écrivait *« Les contrôles **ont donc été** rejoués »* ; `RELU
 🛡 **Gardes du script de patch** (identiques à ceux du 11/11, et l'un d'eux a été ajouté par la leçon de ce jour-là) : sauvegarde **d'abord** · ancre **unique** vérifiée pour les 7 cibles · édits **par position, de la fin vers le début** · marqueur en **fin de ¶**, hyperliens **comptés équilibrés** et aucun `<w:hyperlink` entre le run et la fin du ¶ · `assert "Journal des corrections" not in marq` (04/11) · garde **par soustraction comparée dans l'espace XML** (26/10 + 01/11) · et une assertion qui exige que le journal apparie **les deux motifs de ㊳** — c'est elle qui a évité de repayer le « séparateur collé » du 24/10, qui avait coûté une restauration complète la veille.
 
 📌 **Non fait, non ordonné** : la fenêtre de l'axe ① (ci-dessus) · les trois prix de PC Windows restent des extraits de recherche, pages Fnac/Darty en 403 · `macOS : ~7 ans estimés` n'est adossé à rien, mais s'annonce comme une estimation · la réserve ㊲ sur `403` reste un faux positif connu, non bloquant.
+
+---
+
+## 12/11/2026 — L'axe ① ne regardait qu'un seul maillon : `PROFONDEUR = 4`, deux bornes, et un seuil qu'on ne peut pas déduire du rang
+
+**L'incident.** « Windows 11 : jusque 2031 » est **faux** — mesuré le 18/10/2026, **zéro occurrence sur les quatre pages de cycle de vie Microsoft**. La correction du **11/10** l'a retiré ; celle du **18/10** l'a retiré une **seconde** fois ; les éditions du **25/10** et du **01/11** n'en portent **aucune** occurrence ; il est **revenu le 08/11**, et `controle_edition_precedente.py` a répondu `OK sur ses trois axes`.
+
+**Pourquoi le contrôle ne pouvait pas le voir.** L'axe ① part du journal et des marqueurs de **N-1**, et de lui seul. **Deux éditions propres suffisent donc à blanchir n'importe quel défaut corrigé** : il suffit d'attendre. Ce n'est pas un trou accidentel, c'est la portée du motif.
+
+**`PROFONDEUR = 4`, et le 4 est mesuré.** Balayage des **121 éditions**, le `.docx` du 08/11 repris dans son état d'**avant** correction :
+
+| K | Verdict |
+|---|---|
+| 3 | **perd l'incident** |
+| 4 | 2 signalements · 2 vrais · **0 faux** |
+| 5, 6, 7 | verdicts **identiques** à K=4 |
+| 8 | **premier faux positif** |
+
+🔴 **Et le rang n'est pas monotone — c'est la mesure qui surprend.** Le jeton a été retiré par le 11/10 **et** par le 18/10, mais il ne ressort que par le **11/10, soit N-4** : le vocabulaire de l'édition du 18/10 écarte `microsoft` et `support` comme accompagnateurs (≥ 5 occurrences, règle du 19/10), donc son maillon est **muet**. Déduire la profondeur du rang observé aurait donné **2**, c'est-à-dire un motif **inerte sur l'incident qui l'a motivé**. **Un seuil de profondeur se balaye, il ne se déduit pas.**
+
+**Deux bornes, et c'est la seconde qui porte tout.**
+
+| Borne | Ce qu'elle interdit | Faux positifs de K=4 retirés |
+|---|---|---|
+| **CHAÎNE** | accuser un jeton absent du corps de E mais **déjà revenu** dans une édition intermédiaire — l'axe ① le voit déjà | **0** sur le corpus du jour |
+| **JOURNAL DE N** | accuser un jeton dont **N elle-même** parle dans son journal ou un marqueur : elle l'a traité | **les deux** |
+
+⚠️ **Mesurer la contribution de chaque borne séparément** : sans cela on garde la décorative en croyant qu'elle travaille.
+
+⛔ **NON BLOQUANT.** Le motif ne touche jamais `pb`. Une correction vieille de plusieurs éditions **peut avoir été défaite par un fait neuf**, et ce contrôle a déjà produit **deux faux refus en production** (14 et 19/10) qui ont bloqué **tous** les pushs du dépôt.
+
+⚠️ **Coût dit : la borne du journal s'évade par un marqueur.** Une édition qui *mentionne* le jeton sans le corriger est exemptée. Mesuré : **3 éditions** du corpus l'exercent (`ai-act` 09/10, `imac` 18/10 et 01/11), et le compte des écartés est **imprimé**, jamais tu.
+
+⛔ **Une borne mesurée puis abandonnée.** « Un jeton que N écrit aussi en minuscules n'est pas un nom propre » — le discriminant de `controle_orthographe.py` (27/10) et de `controle_noms_propres.py` (31/10) — est **inerte** sur le corpus : non livrée. Un durcissement dont aucune borne ne peut échouer est **préventif** (26/10).
+
+**Non-régression prouvée, pas argumentée.** Les **121 éditions** rejouées avec la version d'avant (sha `c24168d9867f`) **et** celle d'après (`eb384d9b339b`), strictement séquentiellement, aucun réseau (le contrôle est textuel pur : **0** occurrence d'`urlopen`, `requests`, `curl` ou `aspirer`) :
+
+- **0 code de sortie divergent** — 100 × `0`, 21 × `2`, à l'identique ;
+- diff fait d'**ajouts seuls** : **0 ligne retirée**, 493 ajoutées.
+
+**Les deux sens sur l'incident réel.** Le 08/11 dans son état d'avant (sauvegarde sha `4d8662c2797e`) rend `À RELIRE « 2031 » — retiré du corps de 2026-10-11 (N-4) … accompagné de « support »`, avec la **formulation d'origine** citée. Le 08/11 corrigé rend `(aucun)`. ⚠️ **Et ce n'est pas la borne du journal qui blanchit le document corrigé**, contrairement à ce que j'allais écrire : le jeton ne figure plus **du tout** dans le corps, donc il n'y a aucun retour à exempter — le compte des écartés est **0**.
+
+**Corpus réel après correction : 1 signalement de ①bis** — `TSMC` dans la veille imac du 25/10, retiré du corps du 11/10 (N-2) —, c'est-à-dire le rejeu que la fiche du 01/11 avait mesuré **à la main**.
+
+🧪 **Témoin `non_regression/edition_profondeur.py` — 17 bornes, aucun réseau, aucun tiers, 1 s.** Trois séries de veille **fabriquées en `tempfile`** (rien de vivant dans le verdict — leçon du 22/10 : le signalement unique du corpus réel disparaîtrait à la première correction), `.docx` réduits à leur `word/document.xml`, tête du contrôle **extraite** puis exécutée. **Quatre bornes doivent être ACCEPTÉES**, et chacune interdit un élargissement : ⑧ `XANADU` retiré par **N-5** n'est pas signalé · ⑨ `MAGMA` déjà revenu en N-2 non plus · ⑩ `PLOUTOS`, dont le journal de N parle, n'est pas signalé **mais est compté** · ⑪ `SOLITUDE`, revenue **seule**, n'est pas signalée (borne du 19/10 préservée). Plus ⑬ (**exit 0** quand seul ①bis parle) et ⑭ (un rejeu de **N-1** reste **bloquant**). La ⑰ applique le `sed` **lu dans `non_regression.sh`** à la ligne réellement imprimée, ancre **ASCII sans accent** (la dérive d'un libellé accentué a fait refuser tous les pushs le 04/11).
+
+**Onze sabotages, onze refus**, chacun nommant **sa** borne et prouvant d'abord qu'il a modifié le fichier (sha256 avant → après), fichiers restaurés au **sha256 identique** à chaque fois :
+
+| Sabotage | Borne qui mord |
+|---|---|
+| `PROFONDEUR` ramenée à **1** — le défaut d'avant | ① ③ ⑥ |
+| `PROFONDEUR` portée à **8** | ① ③ **⑧** |
+| borne de **chaîne** retirée | **⑨** |
+| borne du **journal de N** retirée | **⑩** |
+| exigence d'**accompagnateur** retirée | **⑪** |
+| motif rendu **bloquant** | **⑬** |
+| libellé de la ligne **dérivé** | **⑰**, avec `lu=''` |
+| **lot amputé** d'une borne | auto-test seul **exit 0** en lisant « 16/16 », harnais **exit 1** sur `ATTENDU_EP` |
+| ligne de **portée** retirée | l'**exigence de ligne** du harnais |
+
+🔴 **Et deux de mes neuf premiers sabotages n'ont pas prouvé ce qu'ils annonçaient.** Commenter un `borne(` et un `print(` **multilignes** a fait **planter** le témoin : refus obtenu, mais par un plantage — donc on ne voyait mordre **ni** `ATTENDU_EP` **ni** l'exigence de ligne, c'est-à-dire précisément les deux gardes qu'ils devaient prouver. Refaits en **retirant l'appel entier** : auto-test **exit 0**, harnais **exit 1**, chacun sur **sa** ligne. **Un sabotage qui fait planter sa cible masque le garde qu'il teste, exactement comme un sabotage qui n'a pas tourné** (26/10).
+
+🔴 **Un défaut à moi, trouvé par la borne et non par la relecture.** La borne ⑰ lit dans le harnais le motif `LU_EP=$(sed -n "…" "$EP_OUT")` ; j'avais écrit le bloc avec `"$OUT"`. Elle a imprimé `motif=False · lu=''` et refusé — une **borne qui lit le harnais au lieu d'en recopier le `sed`** attrape une divergence de nom de variable que rien d'autre n'aurait vue (règle du 15/10, appliquée à l'envers : c'est le garde qui a corrigé l'auteur).
+
+🔌 **Câblage.** `bloc_edition_profondeur ()` dans `non_regression.sh`, appelé dans le chemin **commun** — donc joué en mode **défaut** et par le gate **`--docs`** —, avec `ATTENDU_EP=17` lisant le **dénominateur** (règle du 26/10) et **deux exigences de ligne**, le motif étant non bloquant. Le témoin est couvert par le **motif de répertoire** `non_regression/[a-z0-9_]+\.py` de `SURVEILLES` : rien à ajouter, et `categories_hook.py` rend **témoins 14 · 0 orphelin · exécutés par le harnais 32 · 0 non surveillé**, `41/41`.
+
+📊 **Mesures.** Harnais mode **défaut** : **3 min 29 s, exit 0, zéro `✗`** (3 min 12 s avant — le témoin coûte ~1 s, le reste est du bruit) · `--consignes` **exit 0**, 304 noms au vocabulaire, **0 coquille** · `--docs` **exit 0** sur les veilles imac 08/11 et SERAFIN-PH 11/11, dont les deux déclarations ㊳ sont acceptées · recensement d'exécution **28 scripts réellement lancés · 0 orphelin**.
+
+📌 **Défaut mesuré, non corrigé, non ordonné** : le `dist` que l'axe ① **imprime** peut lire `@2552` alors que sa borne est de **80** — `accompagne()` teste l'accompagnateur dans une fenêtre de 80 caractères **pliés** mais rapporte le `min` des occurrences sur le texte **ponctuation conservée**. Le verdict est juste ; le nombre affiché trompe.
