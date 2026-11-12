@@ -4,7 +4,8 @@ source: 2026-11-08_veille_imac.docx
 date_creation: 2026-11-08
 date_veille: 2026-11-08
 veille: imac
-statut: veille-active
+statut: corrigee
+date_correction: 2026-11-12
 tags:
   - veille/imac
   - registre/perso
@@ -15,6 +16,10 @@ tags:
   - concept/tout-en-un-windows
   - concept/plafond-depasse
   - concept/livrable-sans-controle
+  - concept/corrige-le-12-11-2026
+  - concept/un-chiffre-faux-revenu-une-troisieme-fois
+  - concept/le-seul-bloquant-cachait-la-page-qui-dementait
+  - source/microsoft-lifecycle
   - source/consomac
   - source/apple
   - source/macrumors
@@ -28,6 +33,14 @@ Document source : [[2026-11-08_veille_imac.docx]]
 ## Résumé
 
 **Le run est mort sur son plafond et le document a été publié quand même — par l'agent du job lui-même, cinquante et une secondes avant que `run_job.sh` déclare l'échec.** Mesures : `is_error=True`, `subtype=error_max_budget_usd`, **4,0233 $ pour 4,00 $, soit 101 %**, 1 tentative, exit **1**, et la dernière ligne du log est `[git] Job en erreur (exit 1) — pas de commit.` Pourtant le `.docx` est dans `b5708a9`, horodaté **08:26:51**, signé `Co-Authored-By: Claude Sonnet 4.6`, poussé — `origin/main` et `HEAD` valaient tous deux `b5708a9` à la mesure de 11h20, avant que le créneau `controle-livrables` de 11h03 n'ajoute son propre commit. Autrement dit le commit et le push ont eu lieu **à l'intérieur** de l'appel `claude -p`, et l'épilogue de `run_job.sh` (08:27:42) décrit un geste que son propre bloc git n'a pas fait. ⚠️ Et la trajectoire du plafond est le vrai signal : **64 % le 01/11, 101 % le 08/11** — troisième dépassement du dépôt après `astrologie-karmique` (08/10, 101 %) et `ai-act` (16/10, 108 %), et les trois meurent en pleine vérification, après avoir écrit un livrable complet. La règle du 16/10 s'applique ici telle quelle : surveiller le taux d'usage, pas seulement les échecs.
+
+**📝 Corrigé le 12/11/2026 — sept paragraphes, sept marqueurs, cinq paragraphes de journal, et le document passe de REFUSÉ à accepté par ㊳.** Les contrôles n'avaient jamais tourné : le log trace **0 contrôle**. Ils ont été rejoués **à la main, un par un, sans parallélisme**, et le livrable le **dit** désormais lui-même — seule voie ouverte quand relancer le job n'est pas ordonné. Mesures avant / après : gate `--docs` **exit 1 → exit 0, zéro `✗`** · ㊳ **REFUSÉ → Accepté par déclaration** · `controle_attributions.py` **0 → 0 bloquant**, et son inventaire D est **inchangé aux six valeurs** parce que les chiffres de la correction vivent dans des marqueurs, que D exempte — il l'écrit lui-même : *1 valeur écartée, elle ne figure que dans un marqueur*. Décompte **COHÉRENT, 5 ✅ · 2 ⚠ · 2 ⛔, total 9** : les marqueurs posés dans deux cellules de la rubrique Sources **n'ont pas dérangé l'appariement**, ce qui n'était pas acquis vu l'ambiguïté d'aplatissement de ce contrôle. 21 des 22 parties du zip **identiques à l'octet**, **7 relations externes / 7 servies / 0 orpheline** avant comme après, `testzip` OK, intégrité rejouée **verbatim sous `env -i`** : `7 lien(s), 185 paragraphe(s) (marge 178), 5 tableau(x)`.
+
+**🔴 Le défaut qui coûtait le plus était l'unique ⛔ de la note, et il cachait exactement la page qui la démentait.** Le job a relevé un code 000 sur l'Apple Store reconditionné et en a conclu que la page était inaccessible et le stock M4 *« probable mais non confirmé »*. Re-sondée le 12/11/2026, seule, faisceau compris : **HTTP 200 · 776 882 octets · 23 220 caractères utiles**, et **22 offres** d'iMac 24 pouces reconditionné — dont **trois 10c/10c Gigabit Ethernet à 1 599,00 €** (`Ancien prix : 1 879,00 €`, `Économisez 280,00 €`, coloris Argent, Jaune, Rose) et un **8c/8c à 1 429,00 €**, tous au degré **①**. La note couronnait donc comme *« la meilleure opportunité côté Apple »*, à des *« niveaux jamais observés depuis le lancement »*, deux prix marchands que l'Apple Store lui-même battait de **220 €** sur le 8c et de **116 €** sur le 10c. ⚠️ **Et le stock a bougé entre les deux mesures** : quatre offres à 1 599 € le 08/11 (Argent, Jaune, **Vert**, Rose), trois le 12/11 — le Vert est parti, et le 8c/8c à 1 429 € est apparu. C'est pourquoi les prix sont écrits dans le corps **sans** prétendre les attribuer au 08/11.
+
+**🔴 Et le second défaut est un chiffre faux qui revient pour la TROISIÈME fois, invisible à l'axe ① parce qu'il ne regarde que N-1.** `Windows 11 : jusque 2031` avait été retiré par la correction du **11/10/2026**, puis retiré **une seconde fois** le **18/10/2026** après mesure de zéro occurrence de « 2031 » sur quatre pages de cycle de vie Microsoft. Les éditions du 25/10 et du 01/11 n'en portent **aucune occurrence** — donc la chaîne de continuité, qui compare N à **N-1 seulement**, ne pouvait pas le voir revenir trois semaines plus tard : `controle_edition_precedente.py` rend **OK sur ses trois axes**, et il a raison au regard de ce qu'il surveille. Re-sondé le 12/11/2026 sur `learn.microsoft.com/en-us/lifecycle/products/windows-11-home-and-pro` : **« 2031 » compte zéro occurrence dans le texte comme dans le HTML brut**, la page énonce `Modern Lifecycle Policy` et une fin de service **par version** — `Version 26H2 … 10/10/2028`, 26H1 `3/15/2028`, 25H2 `10/13/2027`, 24H2 `10/14/2026` —, soit **la même date la plus lointaine qu'au 18/10**. ⚠️ **Et il faut dire la borne de cette mesure** : la page ne rend que **1 773 caractères utiles**, sous le plancher de 3 000 du dépôt ; son tableau de cycle de vie y est pourtant bien lu, et le brut confirme le zéro — c'est une page **courte**, pas une façade, même classe que le borderline du 16/10. ⚠️ **Et une erreur de ma fiche du 08/11 est corrigée au passage** : elle datait ces quatre pages du **19/10** ; le marqueur du document dit **18/10**, et c'est lui qui a mesuré.
+
+**Ce qui n'est pas corrigé, et pourquoi.** Les **symboles** de la rubrique Sources sont conservés tels que le job les a posés — ils enregistrent ce que **SA** sonde a mesuré, et le décompte annoncé en tête de note s'appuie sur eux ; seule la **cause énoncée** dans chaque cellule est rectifiée (`données non lues` et `Timeout` étaient tous deux faux : la seconde page répond **200 · 31 766 caractères utiles** et ne publie aucun prix en headless, ce que la note disait juste). La moitié Windows reste invérifiable, et la correction n'y ajoute qu'une **réserve mesurée** sur les 32 Go du Lenovo : un prix bas tiré d'un extrait Fnac/Darty a déjà été démenti dans cette série — l'édition du **04/10/2026** avait établi qu'un 27IPH11 annoncé à 1 349 € était un **Core Ultra 5 / 16 Go en rupture** —, et la seule configuration 32 Go vérifiée sur une page ouverte l'a été le **18/10/2026 chez LDLC**, référence `F0JJ000WFR`, à **1 699,95 €**. ⛔ **Enfin aucune page n'a été ajoutée aux ressources** : citer la page Microsoft aurait demandé de créer une relation externe dans un document déjà publié, ce qui n'était pas ordonné — la route de lecture est donnée **en clair** dans le marqueur du comparatif, comme pour l'instantané d'archive de la veille SERAFIN-PH du 11/11.
 
 **🔴 Et ㊳ est structurellement aveugle à un document que l'agent du job pousse lui-même — mesuré dans les deux sens, sur le log réel.** `controle_livrable_du_job.py:277` sort sur `if not err or err.group(1) != "True": return None`, et le marqueur `is_error=` n'est écrit par `run_job.sh` qu'**après** le retour du SDK. Au moment du push, le log comptait **six lignes** et aucun marqueur : rejoué sur ce log tronqué à son état de 08:26, le verdict rend **`None`** — silence, détection positive, aucune accusation ; rejoué sur le log complet, il rend **`⛔ REFUSÉ`, exit 1**, en nommant *« contrôles tracés dans le log : 0 — AUCUN : ce document n'a été vérifié par personne »*. Le gate `--docs` **refuse donc aujourd'hui** ce qu'il a autorisé ce matin : `exit 1`, 2 lignes de refus. ⛔ C'est un cran plus loin que le trou du 22/10 (« supprimer un job rend ses livrables invisibles à ㊳ ») et que celui du 06/11 (« un run n'est pas une publication ») : ici le run **publie avant d'échouer**, et ㊳ ne peut voir un échec qui n'est pas encore écrit. 📌 Piste bornée, non faite, non ordonnée : faire poser par `run_job.sh` une sentinelle d'« exécution en cours » **au démarrage** de la tentative, que ㊳ lirait comme « run non terminé, donc non vérifié » — aujourd'hui l'absence de marqueur est indiscernable d'un run réussi.
 
@@ -95,10 +108,26 @@ Sept pages aspirées sur disque (`aspirer.py`, faisceau de certificats, séquent
 | `TSMC` · `2 nm` · `PCIe` · `Sequoia` dans le `.docx` | **0 occurrence chacun** — les corrections du 01/11 tiennent |
 | `MSI Modern AM273QP AI 1UM-081FR` · `IdeaCentre AIO 27IPH11` · `OmniStudio X 27-cs1011nf` | `WebSearch` — les trois modèles existent ; **16 Go et non 32 Go** sur toutes les variantes Lenovo retrouvées |
 
+**Requêtes du 12/11/2026 — la relecture hors du job.** Trois pages re-sondées **une par une**, aucune en contexte.
+
+| Requête | Page | Degré |
+|---|---|---|
+| `1 599,00 €` · `CPU 10 cœurs et GPU 10 cœurs` | apple.com reconditionné (**200**, 23 220 car.) | **① ×2** |
+| les 22 offres iMac M4 relevées une par une | apple.com reconditionné | min **1 429,00 €** (8c/8c) · **1 599,00 €** ×3 (10c/10c, ancien 1 879,00 €) |
+| `M6 Puce` · `CPU 10 cœurs` | apple.com Apple Store (**200**, 31 766 car.) | **① ×2** |
+| `1 799,00 €` · `1 799` · `32 Go` | apple.com Apple Store | **④ ×3** — « prix non lisibles en headless » est exact, « Timeout » est faux |
+| `2031` | learn.microsoft.com cycle de vie (**200**, 1 773 car. · brut 28 718 o) | **0 occurrence, texte ET brut** |
+| `10/10/2028` · `Modern Lifecycle Policy` · `Version 26H2` | learn.microsoft.com | lus dans le tableau de cycle de vie |
+| `controle_livrable_du_job.py` (㊳) | le `.docx` corrigé | **exit 0 · Accepté par déclaration** |
+| `controle_attributions.py` | le `.docx` corrigé | **0 bloquant**, D inchangé à 6 valeurs |
+| `controle_decompte.py` · `controle_edition_precedente.py` · `controle_noms_propres.py` | le `.docx` corrigé | **COHÉRENT** · **OK 3 axes** · 5 interrogés / 3 non retrouvés (inchangés) |
+| intégrité, rejouée verbatim sous `env -i` | le `.docx` corrigé | `7 lien(s), 185 ¶ (marge 178), 5 tableau(x)` |
+| gate `--docs` | le `.docx` corrigé | **exit 0, zéro `✗`** |
+
 ### Ce que STANDARD n'a pas interrogé
 
 - **Les pages `fnac.com` et `darty.com`**, déclarées 403 par la note et non re-sondées : la vérification des trois PC est passée par `WebSearch`, donc par des **extraits de comparateurs datés de juillet et septembre 2026**. Aucun prix Windows n'est établi à la date du jour, et c'est la moitié du document qui porte l'arbitrage le plus engageant.
-- **Le cycle de vie de Windows 11**, dont le « 2031 » est un héritage de la série : les quatre pages Microsoft ouvertes le 19/10 n'ont pas été rouvertes.
+- ~~**Le cycle de vie de Windows 11**, dont le « 2031 » est un héritage de la série : les quatre pages Microsoft ouvertes le 19/10 n'ont pas été rouvertes.~~ → **MESURÉ ET CORRIGÉ le 12/11/2026** : la page `windows-11-home-and-pro` re-sondée, `2031` à **zéro occurrence** texte et brut, fin de service la plus lointaine **10/10/2028** (version 26H2). ⚠️ Et la date de ces quatre pages est le **18/10**, non le 19/10 : c'est le marqueur du document qui le dit.
 - **La durée de support de macOS** (`~7 ans estimés`), qui n'est adossée à rien et ne l'annonce pas comme une mesure.
 - **Les configurations CTO du M6** (32 Go, SSD > 512 Go) : la grille Apple Store n'étant pas relevable en headless, le `2 659 €` repose sur macg seul, et le `2 069 €`/`2 159 €` que l'extraction du reconditionné laisse apparaître n'a pas été démêlé — mon premier passage d'extraction confondait un `Ancien prix` avec l'offre suivante, et seul le motif structuré à quatre groupes a rendu les **4** offres fiables.
 - **La question de savoir si le reconditionné M4 est passé de 5 offres (01/11) à 4 (08/11) par épuisement de stock ou par retrait** : la page ne le dit pas, et il n'existe aucun relevé intermédiaire.

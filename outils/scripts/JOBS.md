@@ -7601,3 +7601,44 @@ Mon journal écrivait *« Les contrôles **ont donc été** rejoués »* ; `RELU
 🛡 **Gardes du script de patch** : sauvegarde **d'abord** · édits **par position, de la fin vers le début** · échanges **locaux à un run** · marqueur en **fin de ¶, hors de tout hyperlien** (25/10) · `assert "Journal des corrections" not in marq` (04/11) · garde **par soustraction, comparée dans l'espace XML** (26/10 + 01/11) · aucune écriture si une assertion tombe.
 
 📌 **Non fait, non ordonné** : l'instantané d'archive **n'est pas devenu une source cliquable** de l'édition — cela demanderait une relation externe et une entrée de ressource dans un document déjà publié ; la route est en clair dans le marqueur de la section 4. Et `imac-veille` est dans le **même état** (101 %, document d'un run mort).
+
+---
+
+## 12/11/2026 — correction de la veille imac du 08/11 : un chiffre faux revenu une TROISIÈME fois, et un ⛔ qui cachait la page qui démentait la note
+
+🗂️ **Document** : `sources/veille/imac/2026-11-08_veille_imac.docx` · XML **66 129 → 76 907 octets** · 7 marqueurs · 5 ¶ de journal · original conservé au scratchpad (sha256 `4d8662c2797e75c3…`).
+
+⚠️ **Et il n'y a PAS de veille imac du 11/11 : `imac-veille` tourne le dimanche.** L'ordre visait la seule édition imac dans l'état signalé la veille — **run mort à 101 %, document publié quand même** —, c'est-à-dire celle du **08/11/2026**.
+
+🔴 **MÊME ÉTAT QUE LA VEILLE SERAFIN-PH DU 11/11, ET LA MÊME VOIE DE SORTIE.** Run mort à **4,0233 $ pour 4,00 $ (101 %)**, `subtype=error_max_budget_usd`, **0 contrôle tracé**, `[git] Job en erreur (exit 1) — pas de commit` — et pourtant le `.docx` est dans `b5708a9`, committé et poussé **à l'intérieur** de l'appel `claude -p`. ⛔ Relancer le job n'étant pas ordonné, la **déclaration** est le seul chemin : le journal dit l'échec **et** la relecture hors du job, et ㊳ passe de **REFUSÉ** à **Accepté**.
+
+### Les deux défauts de fond, et aucun contrôle ne pouvait les voir
+
+| Défaut | Ce qui le prouve |
+|---|---|
+| 🔴 **L'unique ⛔ de la note cachait exactement la page qui la démentait** | le job a relevé `000` sur l'Apple Store reconditionné et en a conclu *« page inaccessible »* + stock M4 *« probable mais non confirmé »*. Re-sondée seule le 12/11, faisceau compris : **200 · 776 882 o · 23 220 car. · 22 offres**, dont **trois 10c/10c à 1 599,00 €** (ancien 1 879,00 €) et un **8c/8c à 1 429,00 €**, au degré **①**. La note couronnait donc *« la meilleure opportunité côté Apple »* à des *« niveaux jamais observés »* deux prix que l'Apple Store battait de **220 €** et **116 €** |
+| 🔴 **`Windows 11 : jusque 2031` revient pour la TROISIÈME fois** | retiré par la correction du **11/10**, retiré une seconde fois le **18/10** après zéro occurrence sur quatre pages Microsoft. Re-sondé le 12/11 : **0 occurrence, texte ET brut**, `Modern Lifecycle Policy`, fin de service **par version**, la plus lointaine **10/10/2028** (26H2) — la même qu'au 18/10 |
+
+🔴 **ET L'AXE ① NE POUVAIT PAS VOIR CE RETOUR, CE QUI EST STRUCTUREL : IL NE COMPARE N QU'À N-1.** Les éditions du **25/10 et du 01/11 ne portent aucune occurrence de 2031** — la chaîne de continuité a donc perdu le jeton, et `controle_edition_precedente.py` rend **OK sur ses trois axes** trois semaines plus tard. **Il a raison au regard de ce qu'il surveille** : ce qui manque est une mémoire plus longue qu'un maillon. 📌 Piste bornée, non faite, non ordonnée : faire suivre à l'axe ① les jetons corrigés des **N dernières** éditions d'une série, et non de la seule précédente — borne à mesurer, parce qu'un marqueur conserve par doctrine le libellé fautif et qu'élargir la fenêtre élargit d'autant la matière à faux positifs (c'est la mesure qui a borné B-FR le 03/11 : +1 006 citations dont 183 bloquantes si l'on reprend le journal en entier).
+
+### Mesures avant / après
+
+| Contrôle | Avant | Après |
+|---|---|---|
+| ㊳ `controle_livrable_du_job.py` | **⛔ REFUSÉ** | **✓ Accepté par déclaration** |
+| gate `--docs` | **exit 1** | **exit 0, zéro `✗`** |
+| `controle_attributions.py` | 0 bloquant · D 6 valeurs | **0 bloquant · D 6 valeurs, INCHANGÉ** |
+| `controle_decompte.py` | COHÉRENT 5/2/2 | **COHÉRENT 5/2/2, appariement intact** |
+| `controle_edition_precedente.py` · `controle_noms_propres.py` | OK · 5 interrogés / 3 non retrouvés | **inchangés** |
+| intégrité (verbatim, `env -i`) | 7 liens · 179 ¶ · 5 tbl | **7 liens · 185 ¶ (marge 178) · 5 tbl** |
+| zip · relations | — | **21/22 parties identiques à l'octet** · 7 externes / 7 servies / **0 orpheline** avant comme après |
+
+🟢 **Deux choses se sont bien passées parce qu'elles étaient MESURÉES, pas supposées.** ① Les chiffres de la correction vivent dans des **marqueurs**, que la passe D exempte : son inventaire est resté **identique aux six valeurs**, et le contrôle l'écrit de lui-même — *1 valeur écartée, elle ne figure que dans un marqueur*. ② Poser un marqueur dans **deux cellules de la rubrique Sources** n'a **pas** dérangé l'appariement du décompte, ce qui n'était pas acquis : ce contrôle lit un tableau **aplati en cellules** et n'a aucune notion de ligne — c'est le défaut consigné le 23/10. **Vérifié, pas deviné.**
+
+⚠️ **ET LE STOCK A BOUGÉ ENTRE LES DEUX MESURES, CE QUI DICTE LA FORME DE LA CORRECTION** : **quatre** offres à 1 599 € le 08/11 (Argent, Jaune, **Vert**, Rose), **trois** le 12/11 — et le 8c/8c à 1 429 € est apparu. Les prix sont donc écrits dans le corps **sans prétendre les attribuer au 08/11**, et les deux dates de sonde sont dans le marqueur. *Un balayage date ; une correction se décide sur une sonde du jour* (25/10) — ici les **deux** sondes comptent, parce que le défaut est d'avoir déclaré la page illisible.
+
+⚠️ **Borne de la mesure Microsoft, et elle est dite** : la page ne rend que **1 773 caractères utiles**, **sous le plancher de 3 000** du dépôt. Son tableau de cycle de vie y est pourtant lu et le brut (28 718 o) confirme le zéro : c'est une page **courte**, pas une façade — même classe que le borderline du 16/10. ⛔ **Et elle n'a PAS été ajoutée aux ressources du document** : créer une relation externe dans un livrable déjà publié n'était pas ordonné ; la route est en clair dans le marqueur, comme l'instantané d'archive de la veille SERAFIN-PH du 11/11.
+
+🛡 **Gardes du script de patch** (identiques à ceux du 11/11, et l'un d'eux a été ajouté par la leçon de ce jour-là) : sauvegarde **d'abord** · ancre **unique** vérifiée pour les 7 cibles · édits **par position, de la fin vers le début** · marqueur en **fin de ¶**, hyperliens **comptés équilibrés** et aucun `<w:hyperlink` entre le run et la fin du ¶ · `assert "Journal des corrections" not in marq` (04/11) · garde **par soustraction comparée dans l'espace XML** (26/10 + 01/11) · et une assertion qui exige que le journal apparie **les deux motifs de ㊳** — c'est elle qui a évité de repayer le « séparateur collé » du 24/10, qui avait coûté une restauration complète la veille.
+
+📌 **Non fait, non ordonné** : la fenêtre de l'axe ① (ci-dessus) · les trois prix de PC Windows restent des extraits de recherche, pages Fnac/Darty en 403 · `macOS : ~7 ans estimés` n'est adossé à rien, mais s'annonce comme une estimation · la réserve ㊲ sur `403` reste un faux positif connu, non bloquant.
