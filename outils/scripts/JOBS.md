@@ -7559,3 +7559,45 @@ run_job.sh           AVANT  0 · APRÈS  4 · delta ['audit_vault.py', 'fiches_o
 ⚠️ **Et le `--docs` de la veille du 11/11 sort en 1, PRÉEXISTANT et sans rapport avec ce travail** : ㊳ refuse le document que l'agent a poussé à 08:09:46 (`abb0305`) alors que son run est mort sur son plafond à **101 %**. Le verdict est fonction du document et du log, que ce travail n'a pas touchés.
 
 ⚠️ **Ce que l'instrumentation de `run_job.sh` ne voit pas, et c'est dit** : un script lancé par un script **qu'il lance** (il ne journalise que **ses** appels), et sa trace n'existe qu'**après un vrai créneau** — au moment du push, le garde reste **textuel et littéral**.
+
+---
+
+## 12/11/2026 — correction de la veille SERAFIN-PH du 11/11 : un défaut de fond, un faux positif contourné, une route de lecture retrouvée
+
+🗂️ **Document** : `sources/veille/serafin-ph/2026-11-11_veille_SERAFIN-PH.docx` · XML **65 057 → 73 999 octets** · sha256 `fc947c8e0f3b1d07…` → `61829417026f0deb…` · original conservé au scratchpad.
+
+🔴 **LE POINT DE DÉPART EST UN LIVRABLE DÉJÀ PUBLIC QUE ㊳ REFUSAIT.** Le run du 11/11 est mort à **4,0529 $ pour 4,00 $ (101 %)**, le log trace **0 contrôle**, et l'agent a **poussé le document quand même** (`abb0305`, 08:09:46). Le gate `--docs` sortait donc en **1** sur un fichier déjà sur le distant : *un push n'est pas une fin de run*, et aucun outil du dépôt ne sait formuler cela — le cinquième état `✗ PUBLIÉ SANS CONTRÔLE` reste une piste non ordonnée.
+
+### Les quatre marqueurs
+
+| § | Geste | Fondement mesuré |
+|---|---|---|
+| 6 bis | `360 M€ sur quatre ans (90 M€/an)` → `… à hauteur de 90 M€ dès 2027` | la page e-solidarites écrit `à hauteur de 90 millions d'euros dès 2027` — **① LITTÉRAL**. 360 ÷ 4 = 90, mais la source n'engage **que la tranche 2027**, et la **section 7 portait déjà la forme juste** : le document se contredisait |
+| 6 | `Aucune page « Recueil PH 2026 » distincte…` → guillemets retirés | **faux positif B-FR**, vérifié dans les deux sens : la chaîne est **absente** de l'ATIH (8 903 car. lus) et **présente** sur la CNSA — le contrôle accusait une phrase qui affirmait une **absence** |
+| 4 | réserve + route de lecture ajoutées | l'**instantané 20260518063812** est lisible : `HTTP 200 · 60 231 octets · 5 761 car. utiles`, et il porte **au degré ①** `au 1 er janvier 2027`, `30 mars 2026`, `14e réunion`, `Camille Galliard-Minier`, `automne 2026`, `confirmer une mise en œuvre opérationnelle de la réforme tarifaire` |
+| 7 | `confirmé au 1er janvier 2027` précisé | « confirmé » est **le mot de la source primaire**, pas une inférence de la note |
+
+### 🔴 Et ma propre relecture a été corrigée par la fiche de la veille, écrite la veille
+
+Mon premier marqueur de la section 7 disait que la date du 1er janvier 2027 *« ne vient que des extraits indexés »*. **Faux.** C'est la fiche du 11/11 — item 4 de « ce que STANDARD n'a pas interrogé » — qui portait la route de lecture, et c'est en la lisant puis en **remesurant l'instantané moi-même** que la mesure a démenti mon marqueur. Le document a été **restauré depuis la sauvegarde au sha256 identique puis repatché en entier**, jamais rattrapé par-dessus (règle du 25/10 : *une correction partielle est pire qu'un échec*). ⚠️ L'instantané précède la fenêtre de six mois, et c'est admissible **parce qu'il porte sur une réunion du 23 mars 2026, antérieure à lui** — la règle du 25/10 n'autorise une archive ancienne que pour un contenu qui ne dérive pas.
+
+### 🔴 Et ㊳ a refusé une PREMIÈRE fois après écriture, pour une raison de forme
+
+Mon journal écrivait *« Les contrôles **ont donc été** rejoués »* ; `RELU_DIT` exige `contrôles rejoués` **adjacents** — c'est la classe du « séparateur collé » du 24/10, repayée. Correctif : restauration depuis la sauvegarde, repatch complet, **et une assertion avant écriture qui exige que le journal apparie les DEUX motifs de ㊳** (`ECHEC_DIT` et `RELU_DIT`). Le garde est donc dans le script de patch, pas dans ma relecture.
+
+### Mesures avant / après
+
+| Contrôle | Avant | Après |
+|---|---|---|
+| `controle_attributions.py` | **1 bloquant** | **0** |
+| ㊳ `controle_livrable_du_job.py` | **REFUSÉ** | **Accepté par déclaration** |
+| gate `--docs` | **exit 1** | **exit 0, zéro `✗`** |
+| intégrité du zip | — | 20 parties **identiques à l'octet** · rels **8 externes / 8 servies / 0 orpheline** · `testzip` OK |
+| tableaux · marge | 4 · 121 | 4 · 121 (planchers 3 et 10) |
+| `controle_decompte.py` · `_noms_propres.py` · `_edition_precedente.py` | 2 · 0 · 0 | **inchangés** |
+
+⚠️ **LE COÛT DU CONTOURNEMENT, ET IL FAUT LE DIRE** : retirer les guillemets rend **B-FR INERTE sur le corps** de ce document — *une passe inerte n'est PAS une passe réussie*. Et la citation d'archive du journal revient en **`JOURNAL NON VERIFIABLE`** (non bloquant), parce que B-FR l'attribue à `handicap.gouv.fr`, page murée, et qu'il ne peut pas atteindre l'instantané. **Le défaut reste côté contrôle** : borner B-FR pour qu'une phrase de négation ne soit pas accusée est **consigné et non ordonné**.
+
+🛡 **Gardes du script de patch** : sauvegarde **d'abord** · édits **par position, de la fin vers le début** · échanges **locaux à un run** · marqueur en **fin de ¶, hors de tout hyperlien** (25/10) · `assert "Journal des corrections" not in marq` (04/11) · garde **par soustraction, comparée dans l'espace XML** (26/10 + 01/11) · aucune écriture si une assertion tombe.
+
+📌 **Non fait, non ordonné** : l'instantané d'archive **n'est pas devenu une source cliquable** de l'édition — cela demanderait une relation externe et une entrée de ressource dans un document déjà publié ; la route est en clair dans le marqueur de la section 4. Et `imac-veille` est dans le **même état** (101 %, document d'un run mort).

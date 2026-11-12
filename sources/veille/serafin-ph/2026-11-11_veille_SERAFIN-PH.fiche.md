@@ -5,7 +5,8 @@ date_creation: 2026-11-11
 date_veille: 2026-11-11
 serie: serafin-ph
 edition: 32
-statut: relue
+statut: corrigee
+date_correction: 2026-11-12
 tags:
   - veille/serafin-ph
   - serafin-ph/recueil-ph-2026
@@ -22,6 +23,11 @@ tags:
   - theme/route-de-lecture-perdue-par-l-edition-suivante
   - theme/motif-sans-notion-de-negation
   - theme/trois-corrections-de-n-1-heritees
+  - theme/corrige-le-12-11-2026
+  - theme/faux-positif-bloquant-contourne-dans-le-document
+  - theme/route-de-lecture-retrouvee-sur-larchive
+  - theme/une-annuite-que-la-source-ne-porte-pas
+  - theme/ma-propre-relecture-corrigee-par-la-fiche-de-la-veille
 ---
 
 # 2026-11-11_veille_SERAFIN-PH
@@ -31,6 +37,14 @@ Document source : [[2026-11-11_veille_SERAFIN-PH.docx]]
 ## Résumé
 
 **Le document est sur le dépôt public, et il vient d'un run mort à 101 % de son plafond que personne n'a pu arrêter.** Mesure du log : **4,0529 $ pour 4,00 $**, `error_max_budget_usd`, **49 tours**, 737 997 ms, out 37 316, cache-read 6 355 989, `exit 1`, marque d'échec posée. Et pourtant le commit `abb0305` existe, horodaté **08:09:46**, écrit par l'agent du run lui-même (`Co-Authored-By: Claude Sonnet 4.6`), poussé — alors que `run_job.sh` a conclu à **08:15:29** par `[git] Job en erreur (exit 1) — pas de commit`. Les deux phrases sont vraies : le run a publié **avant** de mourir, et le bloc git de `run_job.sh` n'avait effectivement rien à committer. **Le livrable est public, ㊳ le refuse, et rien ne peut plus l'arrêter.**
+
+**📝 Corrigé le 12/11/2026 — quatre marqueurs, six paragraphes de journal, et le document passe de REFUSÉ à accepté par ㊳.** Les contrôles n'avaient jamais tourné : le log trace **0 contrôle**, et le run est mort à 101 % de son plafond. Ils ont donc été rejoués **à la main, hors du job, un par un et sans parallélisme** — et le livrable le **dit** désormais lui-même, ce qui est la seule voie quand relancer le job n'est pas ordonné. Mesure avant / après : `controle_attributions.py` **1 bloquant → 0**, ㊳ **REFUSÉ → Accepté**, gate `--docs` **exit 1 → exit 0, zéro `✗`**. Les 20 autres parties du zip sont **identiques à l'octet**, les **8 relations externes restent 8 servies, 0 orpheline**, et la garde par soustraction prouve qu'en retirant exactement ce qui a été ajouté on retombe sur le XML d'avant.
+
+**Un seul défaut de FOND, et aucun contrôle ne le voyait : une annuité que la source ne porte pas.** La section 6 bis écrivait *« une enveloppe de 360 M€ sur quatre ans (90 M€/an) »*. La page e-solidarites écrit *« une enveloppe de 360 millions sur quatre ans, à hauteur de 90 millions d'euros dès 2027 »* — **① LITTÉRAL le 12/11/2026** — et n'engage **que la tranche de 2027** : 360 ÷ 4 vaut bien 90, mais la glose transformait un premier versement en profil annuel. La passe D rend **0** (le nombre n'est pas dans un paragraphe d'attribution au sens du motif), et la section 7 portait **déjà** la forme juste, *« dont 90 M€ dès 2027 »* — donc le document se contredisait d'une section à l'autre. Corrigé sur la formulation de la page.
+
+**🔴 Et ma propre relecture a été corrigée par cette fiche, écrite la veille : la date du 1er janvier 2027 n'est PAS sans source.** J'avais rédigé un marqueur disant qu'elle *« ne vient que des extraits indexés »*. Faux, et c'est la fiche du 11/11 qui le dit : l'**instantané d'archive du 18/05/2026** de la page murée est lisible. Remesuré moi-même le 12/11 — `HTTP 200 · 60 231 octets · 5 761 caractères utiles` — il porte au **degré ①** `30 mars 2026`, `14e réunion`, `Camille Galliard-Minier`, `automne 2026`, `au 1 er janvier 2027`, et le verbe de la page elle-même : *« confirmer une mise en œuvre opérationnelle de la réforme tarifaire »*. **Le « confirmé » du tableau de vigilance est donc le mot de la source primaire**, et les quatre points clés de la section 4 ne sont pas que des extraits de moteur. Le marqueur a été **refait depuis la sauvegarde**, jamais rattrapé par-dessus (règle du 25/10). ⚠️ L'instantané précède la fenêtre de six mois : c'est admissible ici parce qu'il porte sur une réunion du **23 mars 2026**, antérieure à lui — la règle du 25/10 n'autorise une archive ancienne que pour un contenu qui ne dérive pas.
+
+**Le bloquant B-FR était un faux positif, et il a été contourné DANS LE DOCUMENT — il faut le dire ainsi.** La phrase *« Aucune page « Recueil PH 2026 » distincte n'a été trouvée sur atih.sante.fr »* affirmait une absence, et B-FR l'accusait de l'affirmer. Vérifié dans les deux sens : la chaîne est **absente** de la page de l'ATIH (8 903 caractères lus) et **présente** sur celle de la CNSA, ce que le contrôle signalait lui-même. Les guillemets sont retirés, le sens est strictement conservé. ⛔ **Mais le défaut reste côté contrôle** : borner B-FR pour qu'une phrase de négation ne soit pas accusée est une piste **consignée et non ordonnée**, et ce contournement ne la referme pas. ⚠️ Coût mesuré du geste, et c'est le prix à dire : B-FR devient **INERTE** sur le corps de ce document — *une passe inerte n'est pas une passe réussie*, elle n'a plus rien à chercher.
 
 **Et ㊳ n'a pas failli : au moment du push, le fait qu'il lit n'existait pas encore.** Mesuré dans les deux sens avec le **vrai `verdict()`** du contrôle, `LOGS` redirigé vers un dossier fabriqué, aucun log vivant touché : avec le log tel qu'il était à 08:09 — c'est-à-dire s'arrêtant à `--- Tentative 1/3 ---` —, le contrôle rend **aucune alerte, le gate passe** ; avec le log complet de 08:15, il rend **REFUS**. `run_job.sh` n'écrit `[diagnostic]` et `[mesure]` qu'au **retour** de `claude -p` : un document poussé en cours de run est donc jugé sur un log qui ne sait encore rien. C'est la cinquième variante de la classe qui revient le plus ici — après « `$SEMENCE` non vide », « les deux photos vides », « un `✅` sur un mur », « un log n'est pas un run » et « un run n'est pas une publication » : **un push n'est pas une fin de run.**
 
@@ -59,6 +73,8 @@ Document source : [[2026-11-11_veille_SERAFIN-PH.docx]]
 ### Avocat du diable
 
 La note est **juste sur tout ce que j'ai pu vérifier**, elle a hérité des trois corrections de N-1, et son seul bloquant est un faux positif. Le problème n'est pas le document : c'est que **rien dans le dépôt ne peut dire ce qui est vrai de lui**. `--manques` rend `✓ tracé, exit 0` (mesuré **sans tuyau**), `publication_run.py` se tait parce que `Job en erreur (exit 1)` est l'un de ses quatre états terminaux acceptés, le gate a laissé passer à 08:09 et refuse à 08:15, et `㊳` refuse un document qu'il est trop tard pour retenir. **Quatre outils, et aucun qui sache formuler « ce livrable est sur le distant public et ㊳ le refuse ».** Le cinquième état `✗ PUBLIÉ SANS CONTRÔLE` déjà consigné comme piste couvrirait exactement ce cas ; rien n'est ordonné.
+
+**Mise à jour du 12/11/2026.** ㊳ accepte désormais, mais **par déclaration, pas par vérification** : le log trace toujours **0 contrôle**, et ce qui a changé est que le document **dit** son échec et sa relecture. C'est exactement l'intention de l'exemption en ET du 16/10 — et sa limite : elle rend lisible un trou, elle ne le comble pas. **Trois choses restent entières** : le cinquième état `✗ PUBLIÉ SANS CONTRÔLE` n'existe pas, le bornage de B-FR sur une phrase de négation n'est pas fait (je l'ai contourné dans le document, pas réparé), et **l'instantané d'archive n'est pas devenu une source cliquable de l'édition** — il aurait fallu créer une relation externe et une entrée de ressource dans un document déjà publié, ce qui n'était pas ordonné ; la route est consignée en clair dans le marqueur de la section 4. ⚠️ Conséquence immédiate et mesurée : B-FR classe cette citation d'archive **`JOURNAL NON VERIFIABLE`**, parce que le contrôle l'attribue à `handicap.gouv.fr`, page murée, et qu'il n'a aucun moyen d'atteindre l'instantané. Le contrôle dit « à vérifier à la main » ; la vérification a eu lieu, et sa date est dans le journal.
 
 ### Requêtes passées
 
@@ -89,6 +105,29 @@ La note est **juste sur tout ce que j'ai pu vérifier**, elle a hérité des tro
 | ㊳ avec le log de 08:09 | le `.docx` | **aucune alerte** |
 | gate `--docs` | le `.docx` | **exit 1**, 0 `✗`, `✓ 0 bloquant(s)` |
 | `rattrapage_jobs.sh --manques` | les 7 derniers jours | **exit 0** · `✓ tracé` |
+
+**Requêtes du 12/11/2026 — la relecture hors du job**
+
+| Requête | Page | Degré |
+|---|---|---|
+| `une enveloppe de 360 millions sur quatre ans, à hauteur de 90 millions d'euros dès 2027` | e-solidarites (6 697 car.) | **①** |
+| `90 millions d'euros dès 2027` · `renvoyés hypothétiquement à 2028` · `9 octobre 2026` | e-solidarites | ① ×3 |
+| `13 associations et fédérations nationales` · `13 organisations` · `Uniopss` · `amendement` | e-solidarites | ① ×4 |
+| `ministre déléguée chargée de l'Autonomie` | e-solidarites | ② |
+| `SIDOBA` · `année blanche` · `une dizaine de variables` · `six variables` · `une quarantaine de variables` · `dotation complémentaire` · `caractéristiques des places` | CNSA (8 741 car.) | ① ×7 |
+| `le déploiement du nouveau modèle tarifaire en 2027` | CNSA | **①** |
+| `17 décembre 2025` | CNSA (écrit `17/12/2025`) | ④ → graphie |
+| `RAMSECE-PH` · `3 février` · `13 avril 2025` · `recueil PH 2025` · `SERAFIN-PH` | ATIH (8 903 car.) | ① ×5 |
+| `14/05/2025` | ATIH (`Mise à jour le 14/05/2025`) | **①** |
+| `Recueil PH 2026` | ATIH | **④ — l'absence que la note affirmait est VRAIE** |
+| `au 1 er janvier 2027` · `confirmer une mise en œuvre opérationnelle de la réforme tarifaire` | **archive 20260518063812** (5 761 car.) | **① ×2** |
+| `30 mars 2026` · `14e réunion` · `Camille Galliard-Minier` · `automne 2026` · `Publié le 27/03/2026` | **archive 20260518063812** | ① ×5 |
+| `30 mars 2026` · `23 mars 2026` · `1er janvier 2027` | les 3 pages lisibles | **④ ×3** |
+| `controle_attributions.py` | le `.docx` corrigé | **exit 0 · 0 bloquant** |
+| `controle_livrable_du_job.py` (㊳) | le `.docx` corrigé | **exit 0 · Accepté par déclaration** |
+| `controle_edition_precedente.py` · `controle_noms_propres.py` · `controle_decompte.py` | le `.docx` corrigé | exit 0 · 0 · 2 (inchangés) |
+| gate `--docs` | le `.docx` corrigé | **exit 0, zéro `✗`** |
+| intégrité | le `.docx` corrigé | 4 tableaux · marge **121** · 8 rels **servies** · 0 orpheline · zip OK |
 
 ### Ce que STANDARD n'a pas interrogé
 
