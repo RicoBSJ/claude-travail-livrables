@@ -393,14 +393,89 @@ borne("㊶ le mode --desarmement, seul mode d'un push qui ne touche que run_job.
 borne("㉖ l'appel Python interne passe par le shim, PAS par sys.executable",
       "sys.executable, racine" not in HARNAIS
       and 'racine + "/outils/scripts/nr_trace.sh"' in HARNAIS)
+
+# ──────── ㊷–㊾ LE TROISIÈME PRÉDICAT : TOUT LIVRABLE PUBLIÉ EST-IL DÉCLENCHÉ PAR LE HOOK ?
+#    Mesuré le 12/11/2026 : des 758 livrables suivis de la liste blanche, **451 n'appartenaient
+#    à AUCUNE catégorie** — seuls les 307 .docx de livrables/lecons/ et sources/veille/, par DOCS.
+#    Un push qui ne portait qu'une fiche .md, un quiz .pptx, un classeur .xlsx ou un .docx de
+#    livrables/documents/ ne déclenchait donc RIEN, et controle_integrite_livrables.py — écrit le
+#    11/11 PARCE QUE kDrive avait abîmé trois livrables publiés, dont un .md de fiche bourré de
+#    3 106 NUL — ne tournait pas. Le push capable de charrier un livrable corrompu était
+#    exactement celui que personne ne regardait. Même invariant que ③ et ⑫, d'un cran plus loin :
+#    ③ garde les témoins, ⑫ les scripts que le harnais exécute, celui-ci les livrables publiés.
+#    🔴 ET LE REMÈDE QUE J'AVAIS ANNONCÉ ÉTAIT TROP ÉTROIT, la mesure l'a démenti : une catégorie
+#    bornée aux fiches .md aurait laissé 129 livrables publiés dans l'état qu'elle fermait —
+#    57 .pptx, 26 .docx, 16 .js, 6 .json, 5 .xlsx, 5 .tsx, 5 .ts, 2 .pdf, 2 .html, 2 .css…
+#    ⛔ LE PÉRIMÈTRE EST LU DANS LE CONTRÔLE, JAMAIS RECOPIÉ (règle du 15/10) : la tranche entre
+#    les marqueurs ──8<── est exécutée, donc `BLANCHE` est le même tuple ici et là-bas, et
+#    ajouter un dossier à BLANCHE sans l'ajouter au hook REFUSE au lieu de dériver en silence.
+_CTRL = RACINE / "outils/scripts/controle_integrite_livrables.py"
+_src_c = _CTRL.read_text()
+_i = _src_c.index("# \u2500\u25008<\u2500\u2500 CLASSIFICATION")
+_j = _src_c.index("# \u2500\u25008<\u2500\u2500 FIN CLASSIFICATION")
+_G = {}
+exec(compile(_src_c[_i:_j], str(_CTRL), "exec"), _G)
+BLANCHE = _G.get("BLANCHE", ())
+assert BLANCHE, "BLANCHE n'a pas été extraite du contrôle — l'extraction rend du vide (24/10)"
+
+livrables_suivis = [c for c in suivis if c.startswith(tuple(BLANCHE))]
+orph_liv = [c for c in livrables_suivis if not categories(c)]
+
+borne("㊷ le perimetre des livrables publies est NON VIDE (un perimetre vide n'accuse personne)",
+      len(livrables_suivis) >= 100)
+borne("㊸ AUCUN livrable publie n'est orphelin de categorie", not orph_liv)
+# ㊹ LA BORNE QUI NE PEUT PAS DÉRIVER : les sept préfixes du contrôle, un par un. Sans elle, on
+#    pourrait ajouter un dossier à la liste blanche du contrôle et le laisser hors du hook.
+_nus = [b for b in BLANCHE if not categories(b + "fichier_quelconque.md")]
+borne("㊹ CHAQUE prefixe de la liste blanche LUE dans le controle est couvert par le hook",
+      not _nus)
+# ㊺ ACCEPTÉE — un livrable FUTUR, dont le nom est FABRIQUÉ et absent du dépôt, doit être
+#    couvert : c'est elle qui interdit de remplacer le motif par la liste des 758 chemins.
+_FABLIV = BLANCHE[0] + "serie_fabriquee/2099-01-01_livrable_qui_nexiste_pas.md"
+assert _FABLIV not in suivis, "le nom fabrique existe pour de vrai : en changer"
+borne("㊺ un livrable FUTUR est deja couvert — donc c'est un MOTIF, pas une liste (ACCEPTEE)",
+      bool(categories(_FABLIV)))
+# ㊻ ACCEPTÉE — et le motif est ANCRÉ : un .md hors de la liste blanche n'est PAS attrapé.
+#    Un motif élargi en `.*\.md$` ferait tomber cette borne, et le mode tournerait sur des pushs
+#    qui ne publient rien — c'est le prix qu'elle garde.
+borne("㊻ le motif est ANCRE a la liste blanche : en_cours/, contexte/, sources/rbpp/ hors (ACCEPTEE)",
+      not any(categories(c) for c in ("en_cours/jetable.md", "contexte/cpom/CLAUDE_autre.md",
+                                      "sources/rbpp/note.docx", "ressources/vim.md")))
+# ㊼ et ㊽ ne sont PAS redondantes, même raison que ㊵/㊶ : l'une dit que le push lance QUELQUE
+#    CHOSE, l'autre que ce quelque chose joue LE contrôle d'intégrité.
+_src_h = HOOK.read_text()
+_cats_fab = [n for n in categories(_FABLIV)]
+_dispatch = []
+for _n in _cats_fab:
+    _mf = re.search(r'grep -Eq "\$%s" && ([a-z_]+)=1' % _n, _src_h)
+    if not _mf or "--integrite" not in _src_h:
+        continue
+    _k = _src_h.index("--integrite")
+    if '"$%s"' % _mf.group(1) in _src_h[max(0, _k - 500):_k]:
+        _dispatch.append((_n, _mf.group(1)))
+borne("㊼ la categorie du livrable FUTUR pose un drapeau que le hook teste pour lancer --integrite",
+      bool(_dispatch))
+_int = HARNAIS[HARNAIS.index('if [ "$MODE" = "--integrite" ]'):][:200] \
+       if 'if [ "$MODE" = "--integrite" ]' in HARNAIS else ""
+borne("㊽ le mode --integrite joue bloc_integrite — le temoin ET le verdict reel",
+      "bloc_integrite" in _int)
+# ㊾ EN SHELL, UNE FONCTION APPELÉE AVANT SA DÉFINITION N'EXISTE PAS. Défaut corrigé le 12/11
+#    pour bloc_categories, et le mode --integrite sort BIEN avant la place d'origine de la
+#    fonction (ligne ~1245) : elle a dû remonter. Sans cette borne, la remettre en bas rendrait
+#    le mode muet — « command not found » — sans qu'aucune autre borne ne le voie.
+_MODE_INT = 'if [ "$MODE" = "--integrite" ]'
+borne("㊾ bloc_integrite est DEFINIE avant le mode qui l'appelle (ordre du shell)",
+      "bloc_integrite () {" in HARNAIS and _MODE_INT in HARNAIS
+      and HARNAIS.index("bloc_integrite () {") < HARNAIS.index(_MODE_INT))
 print("")
 
 
 print("CATÉGORIES DU HOOK : %d · témoins : %d dont %d orphelin(s) · exécutés par le harnais : "
       "%d dont %d non surveillé(s) · exécutés par run_job.sh : %d dont %d non surveillé(s) · "
-      "premier niveau : %d dont %d sans catégorie"
+      "premier niveau : %d dont %d sans catégorie · livrables publiés : %d dont %d sans catégorie"
       % (len(CATS), len(temoins), len(orphelins), len(executes), len(orph_exec),
-         len(executes_rj), len(orph_rj), len(niv1), len(orph1)))
+         len(executes_rj), len(orph_rj), len(niv1), len(orph1),
+         len(livrables_suivis), len(orph_liv)))
 for p in orph_rj:
     print("  ⛔ EXÉCUTÉ PAR run_job.sh, NON SURVEILLÉ : %s — un job le lance après chaque exit 0,"
           " et le toucher ne déclenche rien" % p)
@@ -411,6 +486,9 @@ for p in orph_exec:
           " et le toucher ne le lance pas" % p)
 for p in orph1:
     print("  ⓘ  premier niveau sans catégorie : %s" % p)
+for p in orph_liv[:8]:
+    print("  ⛔ LIVRABLE PUBLIÉ SANS CATÉGORIE : %s — un push qui ne porte que lui ne déclenche"
+          " rien, et le contrôle d'intégrité ne tourne pas" % p)
 
 # ⑩ LE sed DU HARNAIS, APPLIQUÉ À LA LIGNE RÉELLEMENT IMPRIMÉE. L'ancre est ASCII sans
 #    accent : la dérive d'un libellé accentué a déjà fait lire un dénominateur VIDE et

@@ -266,7 +266,12 @@ bloc_desarmement () {
 #    qui interdit de revenir à une liste de fichiers en dur, le défaut payé trois fois ici.
 bloc_categories () {
   local OUT="$CUR/categories_hook.txt" CAT_KO=0 LU
-  local ATTENDU_CAT=41   # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  local ATTENDU_CAT=49   # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+                         # 41 → 49 le 12/11/2026 : le TROISIÈME prédicat, les livrables publiés.
+                         # 451 des 758 n'appartenaient à aucune catégorie — le push d'une fiche,
+                         # d'un quiz ou d'un classeur ne lançait RIEN, donc le contrôle
+                         # d'intégrité ne tournait pas sur le seul push qui pouvait charrier
+                         # la corruption qu'il cherche (incident kDrive du 10/11).
   echo "▶ Tout témoin du dépôt est-il déclenché par le hook ? (structurel, aucun réseau, 0,1 s)"
   if env -i $PY "$ROOT/outils/scripts/non_regression/categories_hook.py" > "$OUT" 2>&1; then
     grep -E '^(CATÉGORIES DU HOOK|  ⓘ )' "$OUT" | head -12
@@ -304,6 +309,76 @@ if [ "$MODE" = "--desarmement" ]; then
   bloc_desarmement || DESARM_KO=1
   bloc_categories  || DESARM_KO=1
   exit $DESARM_KO
+fi
+# ── LES LIVRABLES PUBLIÉS SONT-ILS INTACTS SUR LE DISQUE ? (11/11/2026)
+#    kDrive a réécrit TROIS livrables publiés le 10/11 à 19:19:42, à la même seconde : le .md de
+#    psychopathologie n°11 ramené au contenu de a8285ab et bourré de 3 106 NUL finaux, et DEUX
+#    .docx — psychopathologie n°11 et appli-ia n°04 — ramenés à 19 058 et 26 525 caractères au
+#    lieu de 27 058 et 37 840, soit −29,6 % et −29,9 %, en restant des ZIP VALIDES, CRC justes,
+#    `dcterms:modified` INCHANGÉ. L'information était dans `git status` pendant cinq jours — trois
+#    lignes « M » — et personne ne l'a lue : ce qui l'a dite est le diff avec la référence, qui a
+#    refusé un push le 11/11 en nommant « 0 → 1 bloquant(s) ». Un contrôle écrit pour autre chose,
+#    cinq jours trop tard. ⛔ CE N'EST PAS UN REMPLAÇANT DE `git status` : git voit les trois.
+#    Ce qu'il ne sait pas dire, c'est si un « M » est une CORRECTION EN COURS ou une CORRUPTION.
+#    🔴 ET LA MESURE A DÉMOLI L'HYPOTHÈSE ÉVIDENTE : « le disque est revenu à une révision passée »
+#    ne couvre QUE le .md — les deux .docx ne sont AUCUN blob des 2 904 objets du dépôt. Ce qui les
+#    voit est la PERTE DE TEXTE, bornée sur les 189 transitions .docx de l'historique : perte
+#    maximale LÉGITIME 15,58 %, médiane +11,93 %, 0 au-delà de 20 % → plancher à 20 %, BANDE VIDE
+#    DE 14 POINTS. NUL : 0 sur 360 fichiers texte. ZIP : 0 sur 395 conteneurs.
+#    ⛔ `DIVERGENT` n'est PAS bloquant : indiscernable d'une correction en cours (règle du 14/10).
+#    🧪 Le témoin est sur un dépôt git FABRIQUÉ en tempfile, le classifieur EXTRAIT du contrôle :
+#    aucun réseau, aucun tiers, aucune date, aucun fichier vivant dans son verdict.
+bloc_integrite () {
+  local OUT="$CUR/integrite_livrables.txt" INT_KO=0 LU
+  local ATTENDU_INT=20         # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  echo "▶ Les livrables publiés sont-ils intacts sur le disque ? (dépôt fabriqué, aucun réseau, 1 s)"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/integrite_livrables.py" > "$OUT" 2>&1; then
+    tail -1 "$OUT"
+    LU=$(sed -n 's/^[[:space:]]*[0-9]\{1,\}\/\([0-9]\{1,\}\) bornes integrite livrables.*/\1/p' "$OUT")
+    if [ "${LU:-0}" != "$ATTENDU_INT" ]; then
+      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_INT attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_INT à jour en disant pourquoi."
+      INT_KO=1
+    fi
+  else
+    grep '✗' "$OUT" | head -9
+    echo "  ✗ LA GARDE DE L'INTÉGRITÉ DES LIVRABLES NE TIENT PLUS. Soit le classifieur ne nomme"
+    echo "    plus une corruption — et un livrable publié peut pourrir sur le disque pendant des"
+    echo "    jours, l'état mesuré le 10/11 sur trois fichiers —, soit il mord trop : un fichier"
+    echo "    qui diffère de HEAD sans signature est une CORRECTION EN COURS, et trois bornes"
+    echo "    qui doivent être ACCEPTÉES le gardent (perte de 15 %, .pdf à NUL, hors périmètre)."
+    INT_KO=1
+  fi
+  # ── ET LE VERDICT RÉEL, parce qu'une alerte que personne ne lit n'existe pas (27/10).
+  #    0,21 s, aucun réseau. C'est LUI qui aurait refusé le push du 10/11 au lieu de laisser
+  #    trois livrables publiés pourrir cinq jours sur le disque.
+  local VOUT="$CUR/integrite_verdict.txt"
+  env -i $PY "$ROOT/outils/scripts/controle_integrite_livrables.py" > "$VOUT" 2>&1
+  local VCODE=$?
+  sed -n '1p' "$VOUT"
+  grep -E '^  (⛔|⚠️ |ⓘ )' "$VOUT" | head -12
+  if [ "$VCODE" != "0" ]; then
+    echo "  ✗ UN LIVRABLE PUBLIÉ EST ABÎMÉ SUR LE DISQUE — le contenu de git est celui qui a été"
+    echo "    publié : restaure-le par « git checkout -- <chemin> ». Ce refus n'est PAS une"
+    echo "    régression du dépôt, c'est un fichier du disque qui ne correspond plus au publié."
+    INT_KO=1
+  fi
+  return $INT_KO
+}
+
+# ── mode --integrite : ce que le hook lance quand un push ne porte QUE des livrables publiés
+#    qui ne sont pas des .docx de lecons/ ou de veille/ — une fiche .md, un quiz .pptx, un
+#    classeur .xlsx. Mesuré le 12/11 : 451 des 758 livrables suivis n'appartenaient à AUCUNE
+#    catégorie du hook, donc ce push ne déclenchait RIEN et le contrôle d'intégrité — écrit le
+#    11/11 parce que kDrive avait abîmé trois livrables PUBLIÉS, dont un .md de fiche — ne
+#    tournait pas sur le seul push capable de charrier la corruption qu'il cherche.
+#    ⛔ Le mode APPELLE bloc_integrite, il ne recopie rien (règle du 15/10) : le témoin et le
+#    verdict réel y sont joués comme dans le mode normal, pour 1,2 s au lieu de 160.
+#    ⚠️ La fonction est déplacée JUSTE AU-DESSUS pour cette raison : en shell, une fonction
+#    appelée avant sa définition n'existe pas — défaut corrigé le 12/11 pour bloc_categories.
+if [ "$MODE" = "--integrite" ]; then
+  bloc_integrite
+  exit $?
 fi
 
 # Effectif ATTENDU de chaque lot de témoins (23/09/2026). Les trois boucles de témoins contrôlaient ce
@@ -1224,61 +1299,6 @@ bloc_publication () {
   return $PUB_KO
 }
 
-# ── LES LIVRABLES PUBLIÉS SONT-ILS INTACTS SUR LE DISQUE ? (11/11/2026)
-#    kDrive a réécrit TROIS livrables publiés le 10/11 à 19:19:42, à la même seconde : le .md de
-#    psychopathologie n°11 ramené au contenu de a8285ab et bourré de 3 106 NUL finaux, et DEUX
-#    .docx — psychopathologie n°11 et appli-ia n°04 — ramenés à 19 058 et 26 525 caractères au
-#    lieu de 27 058 et 37 840, soit −29,6 % et −29,9 %, en restant des ZIP VALIDES, CRC justes,
-#    `dcterms:modified` INCHANGÉ. L'information était dans `git status` pendant cinq jours — trois
-#    lignes « M » — et personne ne l'a lue : ce qui l'a dite est le diff avec la référence, qui a
-#    refusé un push le 11/11 en nommant « 0 → 1 bloquant(s) ». Un contrôle écrit pour autre chose,
-#    cinq jours trop tard. ⛔ CE N'EST PAS UN REMPLAÇANT DE `git status` : git voit les trois.
-#    Ce qu'il ne sait pas dire, c'est si un « M » est une CORRECTION EN COURS ou une CORRUPTION.
-#    🔴 ET LA MESURE A DÉMOLI L'HYPOTHÈSE ÉVIDENTE : « le disque est revenu à une révision passée »
-#    ne couvre QUE le .md — les deux .docx ne sont AUCUN blob des 2 904 objets du dépôt. Ce qui les
-#    voit est la PERTE DE TEXTE, bornée sur les 189 transitions .docx de l'historique : perte
-#    maximale LÉGITIME 15,58 %, médiane +11,93 %, 0 au-delà de 20 % → plancher à 20 %, BANDE VIDE
-#    DE 14 POINTS. NUL : 0 sur 360 fichiers texte. ZIP : 0 sur 395 conteneurs.
-#    ⛔ `DIVERGENT` n'est PAS bloquant : indiscernable d'une correction en cours (règle du 14/10).
-#    🧪 Le témoin est sur un dépôt git FABRIQUÉ en tempfile, le classifieur EXTRAIT du contrôle :
-#    aucun réseau, aucun tiers, aucune date, aucun fichier vivant dans son verdict.
-bloc_integrite () {
-  local OUT="$CUR/integrite_livrables.txt" INT_KO=0 LU
-  local ATTENDU_INT=20         # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
-  echo "▶ Les livrables publiés sont-ils intacts sur le disque ? (dépôt fabriqué, aucun réseau, 1 s)"
-  if env -i $PY "$ROOT/outils/scripts/non_regression/integrite_livrables.py" > "$OUT" 2>&1; then
-    tail -1 "$OUT"
-    LU=$(sed -n 's/^[[:space:]]*[0-9]\{1,\}\/\([0-9]\{1,\}\) bornes integrite livrables.*/\1/p' "$OUT")
-    if [ "${LU:-0}" != "$ATTENDU_INT" ]; then
-      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_INT attendue(s) — un lot amputé ne prouve rien :"
-      echo "    rétablis la borne retirée, ou mets ATTENDU_INT à jour en disant pourquoi."
-      INT_KO=1
-    fi
-  else
-    grep '✗' "$OUT" | head -9
-    echo "  ✗ LA GARDE DE L'INTÉGRITÉ DES LIVRABLES NE TIENT PLUS. Soit le classifieur ne nomme"
-    echo "    plus une corruption — et un livrable publié peut pourrir sur le disque pendant des"
-    echo "    jours, l'état mesuré le 10/11 sur trois fichiers —, soit il mord trop : un fichier"
-    echo "    qui diffère de HEAD sans signature est une CORRECTION EN COURS, et trois bornes"
-    echo "    qui doivent être ACCEPTÉES le gardent (perte de 15 %, .pdf à NUL, hors périmètre)."
-    INT_KO=1
-  fi
-  # ── ET LE VERDICT RÉEL, parce qu'une alerte que personne ne lit n'existe pas (27/10).
-  #    0,21 s, aucun réseau. C'est LUI qui aurait refusé le push du 10/11 au lieu de laisser
-  #    trois livrables publiés pourrir cinq jours sur le disque.
-  local VOUT="$CUR/integrite_verdict.txt"
-  env -i $PY "$ROOT/outils/scripts/controle_integrite_livrables.py" > "$VOUT" 2>&1
-  local VCODE=$?
-  sed -n '1p' "$VOUT"
-  grep -E '^  (⛔|⚠️ |ⓘ )' "$VOUT" | head -12
-  if [ "$VCODE" != "0" ]; then
-    echo "  ✗ UN LIVRABLE PUBLIÉ EST ABÎMÉ SUR LE DISQUE — le contenu de git est celui qui a été"
-    echo "    publié : restaure-le par « git checkout -- <chemin> ». Ce refus n'est PAS une"
-    echo "    régression du dépôt, c'est un fichier du disque qui ne correspond plus au publié."
-    INT_KO=1
-  fi
-  return $INT_KO
-}
 
 bloc_edition_profondeur () {
   # 🆕 12/11/2026 — L'AXE ① DE controle_edition_precedente.py NE REGARDAIT QU'UN SEUL MAILLON.

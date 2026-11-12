@@ -101,7 +101,24 @@ CONSIGNES='^(CLAUDE\.md|outils/scripts/JOBS\.md|\.claude/skills/lancer-job/SKILL
 # run_job.sh et le runner, eux, ne déclenchent QUE les mutations du runner — qui tournent sans
 # GIT_DIR et ne peuvent donc rien voir. Mode dédié à 0,1 s, même raison que --consignes.
 DESARMEMENT='^outils/scripts/(run_job\.sh|non_regression_runner\.sh|hooks/pre-push)$'
-touche=0; complet=0; runner=0; consignes=0; desarm=0; docs=()
+# (6) LES LIVRABLES PUBLIÉS (12/11/2026). Mesuré : des 758 livrables suivis de la liste blanche,
+# **451 n'appartenaient à AUCUNE catégorie** — seuls les 307 .docx de livrables/lecons/ et
+# sources/veille/ étaient vus, par DOCS. Un push qui ne portait qu'une fiche .md, un quiz .pptx,
+# un classeur .xlsx ou un .docx de livrables/documents/ ne déclenchait donc RIEN, et
+# controle_integrite_livrables.py — écrit le 11/11 PARCE QUE kDrive avait abîmé trois livrables
+# publiés, dont un .md de fiche bourré de 3 106 NUL — ne tournait pas. Le push qui pouvait
+# charrier un livrable corrompu était exactement celui que personne ne regardait.
+# 🔴 LA CATÉGORIE N'EST PAS « LES FICHES » : le remède que j'avais annoncé portait sur les .md,
+# et la mesure l'a démenti — 322 .md, mais aussi 57 .pptx, 26 .docx, 16 .js, 5 .xlsx, 5 .tsx…
+# soit 14 extensions. Une catégorie bornée aux fiches aurait laissé 129 livrables publiés dans
+# l'état même qu'elle fermait.
+# ⛔ ET LE MOTIF EST LE PÉRIMÈTRE DU CONTRÔLE, pas une liste de dossiers de plus : ce sont les
+# sept préfixes du tuple BLANCHE de controle_integrite_livrables.py, et une borne de
+# categories_hook.py LIT ce tuple et exige que cette catégorie le couvre — ajouter un dossier à
+# BLANCHE sans l'ajouter ici refuse. Déclencheur SÉPARÉ : toucher un livrable n'oblige pas à
+# rejouer les 250 documents, et le mode dédié coûte 1,2 s.
+LIVRABLES='^(sources/veille|livrables/(lecons|quiz|infographies|projets|controles|documents))/'
+touche=0; complet=0; runner=0; consignes=0; desarm=0; livrables=0; docs=()
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue     # suppression de branche
   if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
@@ -129,6 +146,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   echo "$fichiers" | grep -Eq "$RUNNER_RE" && runner=1
   echo "$fichiers" | grep -Eq "$CONSIGNES" && consignes=1
   echo "$fichiers" | grep -Eq "$DESARMEMENT" && desarm=1
+  echo "$fichiers" | grep -Eq "$LIVRABLES" && livrables=1
   for d in $(echo "$fichiers" | grep -E "$DOCS"); do [ -f "$ROOT/$d" ] && docs+=("$ROOT/$d"); done
 done
 if [ "$touche" = "1" ]; then
@@ -215,6 +233,27 @@ pre-push : ✗ PUSH REFUSÉ — un document régresse (plus de bloquants que sa 
   nouveau bloque aux passes A/A2/A3/A4, ou un décompte de veille est incohérent. Corrige le document
   (journal des corrections, formulation d'origine conservée) ; si le verdict est faux, c'est le contrôle
   qu'on corrige, puis non_regression.sh --accepter. Passer outre : git push --no-verify
+MSG
+    exit 1
+  fi
+fi
+# les livrables publiés seuls : le mode normal (touche=1) et le gate --docs jouent déjà
+# bloc_integrite — il vit dans le chemin COMMUN du harnais, avant la branche --docs. On ne lance
+# donc le mode dédié que si ni l'un ni l'autre ne l'a fait, c'est-à-dire sur le push d'un
+# livrable qui n'est pas un .docx de lecons/ ou de veille/ : une fiche, un quiz, un classeur.
+if [ "$touche" != "1" ] && [ ${#docs[@]} -eq 0 ] && [ "$livrables" = "1" ]; then
+  echo "pre-push : un livrable publié est dans ce push → non_regression.sh --integrite (1,2 s)…"
+  if "$ROOT/outils/scripts/non_regression.sh" --integrite; then
+    echo "pre-push : ✓ les livrables publiés sont intacts sur le disque — push autorisé"
+  else
+    cat <<'MSG'
+pre-push : ✗ PUSH REFUSÉ — un livrable PUBLIÉ est abîmé sur le disque (NUL, zip illisible, zip
+  revenu à une révision passée, ou plus de 20 % du texte perdu), ou la garde du classifieur ne
+  tient plus. Le contenu de git est celui qui a été publié : restaure par
+      git checkout -- <chemin>
+  Ce refus n'est PAS une régression du dépôt : c'est un fichier du disque qui ne correspond plus
+  au publié — l'état mesuré le 10/11 sur trois livrables, que git status disait depuis cinq jours
+  et que personne n'a lu.  Passer outre : git push --no-verify
 MSG
     exit 1
   fi

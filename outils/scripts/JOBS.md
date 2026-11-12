@@ -7711,3 +7711,58 @@ Mon journal écrivait *« Les contrôles **ont donc été** rejoués »* ; `RELU
 📊 **Mesures.** Harnais mode **défaut** : **3 min 29 s, exit 0, zéro `✗`** (3 min 12 s avant — le témoin coûte ~1 s, le reste est du bruit) · `--consignes` **exit 0**, 304 noms au vocabulaire, **0 coquille** · `--docs` **exit 0** sur les veilles imac 08/11 et SERAFIN-PH 11/11, dont les deux déclarations ㊳ sont acceptées · recensement d'exécution **28 scripts réellement lancés · 0 orphelin**.
 
 📌 **Défaut mesuré, non corrigé, non ordonné** : le `dist` que l'axe ① **imprime** peut lire `@2552` alors que sa borne est de **80** — `accompagne()` teste l'accompagnateur dans une fenêtre de 80 caractères **pliés** mais rapporte le `min` des occurrences sur le texte **ponctuation conservée**. Le verdict est juste ; le nombre affiché trompe.
+---
+
+## 12/11/2026 — Le push d'une fiche ne déclenchait rien : catégorie `LIVRABLES`, mode `--integrite`, et un remède annoncé trop étroit de 129 fichiers
+
+**Ce qui a déclenché l'ordre.** Ma propre ligne d'avocat du diable, une heure plus tôt : le push `f5e084a`, qui ne portait que `sources/veille/imac/2026-11-08_veille_imac.fiche.md`, n'appariait **aucune** des huit catégories du hook. Donc `controle_integrite_livrables.py` — écrit la veille **parce que** kDrive avait abîmé trois livrables publiés le 10/11 à 19:19:42, dont **un `.md` de fiche** ramené au contenu de `a8285ab` et bourré de **3 106 NUL** — ne tournait pas sur le seul push capable de charrier la corruption qu'il cherche.
+
+**🔴 ET LA MESURE A DÉMENTI MON PROPRE REMÈDE, QUI DISAIT « une catégorie FICHES ».** Recensement complet avant tout geste — les catégories lues dans le hook, les livrables énumérés depuis git :
+
+| | avant |
+|---|---|
+| livrables suivis de la liste blanche | **758** |
+| orphelins de catégorie | **451** |
+| couverts, et par quoi | **307**, tous des `.docx`, par `DOCS` |
+| extensions des orphelins | `.md` **322** · `.pptx` **57** · `.docx` **26** · `.js` 16 · `.json` 6 · `.xlsx` 5 · `.tsx` 5 · `.ts` 5 · `.pdf` 2 · `.html` 2 · `.css` 2 · `.mts` 1 · `.example` 1 · sans extension 1 — **14 extensions** |
+| répertoires des orphelins | `lecons` 187 · `veille` 130 · `projets` 42 · `infographies` 38 · `quiz` 19 · `documents` 18 · `controles` 17 |
+
+Une catégorie bornée aux **fiches** aurait fermé 322 orphelins et laissé **129 livrables publiés dans l'état exact qu'elle fermait** — dont les 57 quiz et infographies `.pptx` et les 26 `.docx` de `documents/` et `controles/`. **Un remède proposé avant la mesure se dimensionne sur l'incident qu'on a vu, pas sur la classe.** La catégorie s'appelle donc `LIVRABLES`, et le choix est dit, pas subi : un nom borné aux fiches aurait **menti sur ce qu'il garde**, et ce dépôt tient qu'un contrôle et la consigne qu'il garde doivent nommer la même chose (07/11).
+
+**🟢 Le remède, et son motif n'est pas une liste de dossiers de plus.**
+
+| | |
+|---|---|
+| hook | `LIVRABLES='^(sources/veille\|livrables/(lecons\|quiz\|infographies\|projets\|controles\|documents))/'`, drapeau `livrables`, et un bloc qui lance `--integrite` **seulement si** `touche != 1` **et** aucun `.docx` dans `docs[]` — le mode normal et le gate `--docs` jouent déjà `bloc_integrite`, qui vit dans le chemin **commun** avant la branche `--docs` |
+| harnais | mode `--integrite` qui **APPELLE** `bloc_integrite` — témoin (20 bornes) **et** verdict réel, jamais une copie (15/10). **1,36 s** mesuré |
+| ⚠️ ordre du shell | la fonction a dû **remonter** avant le mode : en shell, une fonction appelée avant sa définition n'existe pas. C'est le défaut corrigé le **12/11 au matin** pour `bloc_categories`, et la borne ㊾ le garde |
+| ⛔ périmètre | les **sept préfixes du tuple `BLANCHE`**, **lus dans le contrôle** par exécution de la tranche `──8<──`. Ajouter un dossier à `BLANCHE` sans le câbler **refuse** au lieu de dériver en silence |
+
+**🧪 Le garde : `categories_hook.py` passe de 41 à 49 bornes, troisième prédicat.** ③ garde les témoins, ⑫ les scripts que le harnais exécute, ㊷–㊾ les **livrables publiés**.
+
+| borne | ce qu'elle garde | le sabotage qui la fait tomber |
+|---|---|---|
+| ㊷ | le périmètre est **non vide** (le bug payé trois fois : un `RACINE` faux rend un vert sur rien) | — |
+| ㊸ | **aucun** livrable publié n'est orphelin | S1, S3 |
+| ㊹ | **chaque préfixe de `BLANCHE` lu dans le contrôle** est couvert | **S4, seule** |
+| ㊺ | **ACCEPTÉE** — un livrable **fabriqué**, absent du dépôt, est déjà couvert : c'est un **motif**, pas une liste | **S3** (la liste des 758 chemins) |
+| ㊻ | **ACCEPTÉE** — le motif est **ancré** : `en_cours/`, `contexte/`, `ressources/`, `sources/rbpp/` restent dehors | **S2, seule** |
+| ㊼ | la catégorie du livrable **futur** pose un **drapeau** que le hook teste **là où** il lance `--integrite` | S1, S5 |
+| ㊽ | le mode `--integrite` joue **`bloc_integrite`** | S6, S8 |
+| ㊾ | `bloc_integrite` est **définie avant** le mode qui l'appelle | S6, **S7 seule** |
+
+**📊 Les deux sens, sur le dépôt réel et sur le push réel.** Témoin rejoué contre le hook du 11/11 : **451 orphelins · 45/49 · exit 1**, quatre bornes nommées, les huit premiers orphelins imprimés. Contre le hook corrigé : **758 suivis · 0 orphelin · 49/49 · exit 0**. Puis le **vrai hook** rejoué sur l'entrée réelle du push `f5e084a` — hook du 11/11 : **aucune sortie, exit 0**, c'est-à-dire ce que ce push a déclenché il y a une heure ; hook corrigé : `un livrable publié est dans ce push → --integrite`, `758 suivi(s) · 0 divergence(s)`, `✓ push autorisé`.
+
+**🧪 Et le refus est prouvé de bout en bout, pas argumenté.** 8 octets NUL ajoutés à la fiche publiée, même entrée de push : `⛔ NUL  sources/veille/imac/2026-11-08_veille_imac.fiche.md — 8 octet(s) NUL dont 8 finaux contigus`, `✗ PUSH REFUSÉ`, **exit 1**. Fiche restaurée par `git checkout --` au **sha256 identique** (`0a61b71438505dbf`), `git status` vide.
+
+**🔴 DEUX DÉFAUTS À MOI, AUCUN TROUVÉ PAR LA RELECTURE.**
+
+① **Ma ㊼ était satisfaite par `DOCS`.** Elle demandait qu'« une catégorie des livrables » soit nommée dans le hook et que `--integrite` y figure quelque part : comme 307 des 758 livrables sont couverts par `DOCS`, retirer `LIVRABLES` la laissait **verte** — S1 ne faisait tomber que ㊸ ㊹ ㊺. C'est **le sabotage qui l'a dit**. Forme juste : le **drapeau** que pose la catégorie du livrable futur doit être testé **dans les 500 caractères qui précèdent `--integrite`**, les deux lus dans le hook.
+
+② **Ma ㊾ plantait au lieu d'accuser.** `HARNAIS.index('if [ "$MODE" = "--integrite" ]')` sans garde : S6, qui retire le mode, levait `ValueError` — et **un plantage n'imprime aucun `✗`**. Le refus était muet, donc on ne voyait mordre **ni ㊽ ni ㊾**, c'est-à-dire précisément les deux gardes que ce sabotage devait prouver. **C'est la leçon écrite ce matin même — « un sabotage qui fait planter sa cible masque le garde qu'il teste » — repayée dans le témoin l'après-midi.**
+
+⚠️ **Et un sabotage a dû être refait** : mon premier S2 posait `LIVRABLES='^.*'`, ce qui vidait `_hors` et faisait **sauter une assertion préexistante** (la prémisse de ㉜, « aucun chemin suivi sans catégorie : la borne passerait sur du vide »). Refusé par plantage, donc sans valeur : refait en élargissement **réaliste** — trois répertoires hors publication entrent dans la catégorie —, où ㊻ mord **seule**, 48/49.
+
+**⚠️ Ce que la catégorie ne ferme pas, et c'est dit.** Un livrable abîmé **avant** son commit reste invisible (le contrôle compare au dépôt, pas à la vérité) ; une amputation de moins de **20 %**, ou de n'importe quelle taille dans un `.pptx` ou un `.xlsx`, l'est aussi — le plancher n'est mesuré que sur les `.docx`. Et le mode ne tourne **pas** sur un push qui ne porte **aucun** livrable : la corruption d'une fiche publiée attend alors le prochain push de livrable, ou un lancement à la main.
+
+**🔌 Câblage.** `hooks/pre-push` et `non_regression.sh` sont dans `SURVEILLES`, `categories_hook.py` par le motif de répertoire, `controle_integrite_livrables.py` nommément : le push qui porte ce travail déclenche le mode **défaut**, qui joue les 49 bornes.
