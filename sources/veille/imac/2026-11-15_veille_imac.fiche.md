@@ -4,7 +4,7 @@ source: 2026-11-15_veille_imac.docx
 date_creation: 2026-11-15
 date_veille: 2026-11-15
 veille: imac
-statut: non-corrigee
+statut: corrigee
 tags:
   - veille/imac
   - registre/perso
@@ -98,6 +98,28 @@ Pages aspirées : les **6** du document (les 4 consomac, MacRumors 06/11, 9to5Ma
 | `2031` · `Windows 11` dans le `.docx` du jour | **0 occurrence** — la rubrique qui portait le chiffre faux a disparu de l'édition |
 
 ⚠️ **Ce qui n'a pas été interrogé** : aucune page Intel, HP, Lenovo, Darty, Fnac ou Boulanger — la note n'en liste aucune, donc il n'y avait rien à aspirer ; le reconditionné Apple, injoignable aux trois mesures du jour ; et les configurations 32 Go de l'Apple Store, que la note déclare elle-même non lisibles en headless.
+
+## Correction du livrable — 15/11/2026
+
+**Trois refus pesaient sur ce document, et c'est l'ensemble qui bloquait tous les pushs du dépôt.** ㊳ le refusait (run mort, aucune déclaration), `controle_attributions.py` sortait en **1** sur `darty.com`, `controle_decompte.py` en **1** sur un décompte INCOHÉRENT. Les trois sont levés, et aucun chiffre de la déclaration n'a été écrit avant d'avoir été mesuré.
+
+| Ce qui a été corrigé | Avant | Après |
+|---|---|---|
+| **4 dates `JJ/MM`** — `9to5Mac 27/10`, `code HH10, 10/11`, `200 €, 11/11`, `MacRumors 06/11` | `controle_decompte.py` **exit 1**, `INCOHÉRENT` : il prenait `11/11` et `6/11` pour des **ratios annoncés** | **exit 0, COHÉRENT** — liste 8/3/1 pour 8, 3 et 1 annoncés |
+| **attribution `darty.com`** — nommé comme source sans qu'aucune page du site soit listée, alors que rien n'en est tiré | `controle_attributions.py` **exit 1**, `INTERDIT darty.com` | **exit 0, 0 bloquant** |
+| **déclaration ㊳** absente | ⛔ `le document ne DÉCLARE pas l'échec de son exécution ni sa relecture hors du job` | ✓ `Accepté — la trace est dans le livrable` |
+
+🟢 **Le run mourant faisait déjà le bon geste, et c'est mesuré.** L'exécution de 14h06 a reformaté **une vingtaine** de dates et **dénuméroté** la liste des sources — ce qui a réparé **3 des 4 bloquants d'attribution** (`apple.com/refurbished`, `fnac.com`, `hp.com`, `lenovo.com`) — avant de mourir sur son plafond à **5,0728 $ / 5,00 $ (101 %)**, 60 tours. Il restait `darty.com` et **4 dates**. La correction **finit son geste**, elle ne le remplace pas.
+
+🔴 **Et le mécanisme de l'accusation `darty.com` est un saignement d'une ligne à l'autre.** La passe A lit l'attribution dans une fenêtre de **80 caractères avant le domaine** ; la ligne de `fnac.com` qui précède finit par *« issus de WebSearch »*, donc le mot-clé d'attribution appartenait à **une autre ligne** — l'aplatissement des runs de `extract_docx.py` ne porte aucune frontière de paragraphe. ⚠️ **La conclusion restait juste** (règle ⑭ : un site nommé comme source doit avoir une page), **son déclenchement était fortuit** : `cdiscount.com`, dans la même situation, n'était **pas** accusé, son contexte de ±120 caractères attrapant le `curl` de la ligne `apple.com` qui l'exempte. 📌 C'est la **troisième** passe du dépôt touchée par cette ambiguïté d'aplatissement, après `controle_decompte.py` et `controle_noms_propres.py`. Non corrigé, non ordonné : le remède est celui déjà consigné — faire émettre une **marque de fin de `<w:p>`** par `extract_docx.py`.
+
+⚠️ **Et la déclaration ㊳ dit ce que CHACUN des quatre contrôles a cherché, pas un « 0 bloquant » global** — c'est la leçon de la veille ai-act du 13/11, appliquée le jour même. Mesures inscrites dans le livrable : `controle_attributions.py` exit 0, **6 pages listées dont 5 lues**, 4 passes inertes, 1 citation à relire ; `controle_decompte.py` exit 0 ; `controle_noms_propres.py` exit 0 **mais 5 noms interrogés pour 3 non retrouvés et 1 page sur 6 non lue** ; `controle_edition_precedente.py` exit 0 sur ses trois axes (18 citations de la fiche N-1 examinées, 10 voisines d'un mot de faute, 0 rejeu).
+
+🔴 **Le défaut de fond que la mesure a mis au jour, et il n'est PAS corrigé.** La page non lue est **`hp.com`**, qui rend **40 caractères utiles pour 76 599 octets** — une **façade** —, et c'est sur elle et sur `WebSearch` que reposent les trois noms non retrouvés, « Core Ultra », « Intel Core Ultra » et « Lenovo IdeaCentre AIO ». **Les prix des PC Windows de cette note ne sont vérifiables sur aucune page lue**, et `controle_attributions.py` rend quand même `0 bloquant` parce que la règle ⑭ est satisfaite à la lettre : une page **est** listée. ⛔ C'est la classe « un 200 ne prouve pas qu'une page existe », et le livrable le **dit** désormais au lieu de la taire — mais le chiffre, lui, reste non sourcé.
+
+🧪 **Gardes du patch.** Sauvegarde **avant** chaque passe, sha256 vérifié des deux côtés avant écriture ; édits **par position, de la fin vers le début** ; marqueur en **fin de paragraphe**, hors de tout hyperlien (vérifié : ce `w:p` n'en contient aucun), et il **ne nomme pas** la section du journal (règle du 04/11) ; **garde par soustraction dans l'espace XML** ; et une comparaison **de la liste des runs** — pas d'un joint par espaces. Gate `--docs` sur les deux documents : **exit 0, zéro ✗**.
+
+🔴 **Un défaut à moi, trouvé par le garde et non par la relecture.** Mon premier contrôle du texte visible comparait `" ".join(runs)` avant et après : un **run neuf ajoute forcément un séparateur**, donc il accusait un patch juste — **une espace** d'écart, à l'offset 35007, mesurée et non supposée. C'est « comparer dans le même espace de représentation » (01/11) enfreint par moi dans le garde même qui applique cette règle. Rien n'avait été écrit : le sens d'échec était bon.
 
 ## Notes liées
 
