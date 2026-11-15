@@ -88,7 +88,7 @@ Pages aspirées : les **4** lisibles parmi les 8 citées — IAPP DFA (10 125 ca
 | `curl` sur `euronews.com/.../first-ai-summit` | **HTTP 406, exit 0** — refus d'automate, faisceau compris |
 | `curl` sur `presscorner/.../IP_26_2407` | **HTTP 200, exit 0** · 22 235 octets · **40 caractères utiles** |
 | relations externes de `document.xml.rels`, 3 éditions | **24 → 17 → 0** |
-| tête de `controle_ai_act.py` **extraite** et exécutée, 3 éditions | **18/11 → 15/10 → 0/0** ¶ porteurs de lien / urls |
+| tête de `controle_ai_act.py` **extraite** et exécutée, 3 éditions | ¶ porteurs de lien / urls : **18 et 11** (30/10) → **15 et 10** (06/11) → **0 et 0** (13/11) |
 | `edps` · `consilium` · `Omnibus` · `Sparrentak` dans les deux éditions | **15→0 · 4→0 · 6→0 · 0→1** |
 | volume de texte des 5 dernières éditions | **7 438 · 16 120 · 18 273 · 11 371 · 5 316** |
 
