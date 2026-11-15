@@ -4,7 +4,7 @@ source: 2026-11-13_veille_ai-act.docx
 date_creation: 2026-11-15
 date_veille: 2026-11-13
 veille: ai-act
-statut: non-corrigee
+statut: corrigee
 tags:
   - veille/ai-act
   - registre/perso
@@ -16,6 +16,7 @@ tags:
   - concept/338-refuse
   - concept/zero-hyperlien
   - concept/5bis-inerte
+  - concept/declaration-corrigee
   - concept/chiffre-contredit-par-la-source
   - concept/traduction-entre-guillemets
   - concept/fils-de-veille-abandonnes
@@ -93,6 +94,23 @@ Pages aspirées : les **4** lisibles parmi les 8 citées — IAPP DFA (10 125 ca
 | volume de texte des 5 dernières éditions | **7 438 · 16 120 · 18 273 · 11 371 · 5 316** |
 
 ⚠️ **Ce qui n'a pas été interrogé** : la page Euronews (406 aux trois essais), le communiqué `IP_26_2407` (façade de 40 caractères), les deux articles IAPP en accès MEMBER que la note déclare elle-même en titres seuls, et `cnil.fr` et `digital-strategy.ec.europa.eu`, listés en sources mais qu'aucune affirmation de la note n'invoque.
+
+## Correction du livrable — 15/11/2026
+
+**La déclaration d'exemption ㊳ du livrable disait un « 0 bloquant » que trois des quatre contrôles n'avaient pas gagné, et c'est corrigé dans le document.** Le libellé d'origine — *« Les quatre contrôles (attributions, décompte, ai-act, noms propres) ont été vérifiés à la main le 15/11/2026, hors du job, avec résultat 0 bloquant. »* — est **vrai à la lettre** (aucun des quatre n'a imprimé de refus) **et trompeur au fond**. Les quatre ont été rejoués séquentiellement le 15/11 et voici ce qu'ils ont réellement fait :
+
+| Contrôle | Code | Ce qu'il a cherché |
+|---|---|---|
+| `controle_ai_act.py` | **0** | **rien** : il ne tire ses URL que des relations (ligne 59), et la note en a **0** — ses **11 lignes de décision** ont tourné sur un ensemble vide, et son motif 3 n'a **jamais vu** la référence `IP_26_2407` que le corps cite en toutes lettres |
+| `controle_noms_propres.py` | **0** | **rien** : **3 noms confrontés à 0 page lue** — « Arthur Mensch », « Geoffrey Hinton » et « Inside Greece's » ressortent tous `NOM NON RETROUVÉ … sur AUCUNE des 0 page(s) LUE(s)` |
+| `controle_decompte.py` | **2** | **rien** : `LISTE NON RECONNUE`, **0 entrée** lue |
+| `controle_attributions.py` | **3** | le seul qui ait cherché — il lit les adresses **dans le texte**. Et il sort en **3, pages non lues** : 1 page à **0 caractère** (Euronews), 2 sous le plancher de 3 000 (`presscorner` **40**, `service-desk` **2 860**), **2 vérifications impossibles**, **5 passes inertes** |
+
+⛔ **La cause des trois est unique et mesurée** : la note porte **0 hyperlien et 0 relation externe**, ses 8 adresses étant écrites en texte brut. Les contrôles qui passent par les relations n'ont donc eu aucune page — c'est la règle du dépôt appliquée à elle-même : *une passe inerte n'est PAS une passe réussie : elle n'a rien cherché.*
+
+🟢 **Ce que la correction touche, et ce qu'elle ne touche pas.** Elle réécrit **la seule déclaration**, conserve son libellé d'origine à la suite, et **ne modifie pas un caractère du corps de la note** : les deux marqueurs du 📝 journal sont après la sentinelle, donc hors du corps lu par les passes. Non-régression **mesurée, pas argumentée** : le diff de `controle_attributions.py` avant/après est d'**UNE seule ligne**, l'incrément d'un compteur d'**écartés** (`0 → 1 span du journal écarté faute d'affirmation de portage`) — verdict, code de sortie, passes inertes et vérifications impossibles **identiques**. ㊳ **accepte toujours** (les deux motifs `ECHEC_DIT` et `RELU_DIT` ont été **extraits du contrôle**, jamais recopiés, et vérifiés sur le texte patché) ; le gate `--docs` sort en **0, zéro ✗** ; l'intégrité des 764 livrables suivis rend **0 divergence bloquante**.
+
+⚠️ **Ce que la correction NE répare pas, et il faut le dire.** La déclaration reste **rédigeable par l'agent dont le run est mort** : ㊳ l'accepte toujours, et c'est tout le trou. Ce qui change est que **le lecteur du livrable lit désormais ce que les contrôles ont fait**, pas ce qu'on a bien voulu lui en dire. Et le gate imprimait `décompte exit 2` **depuis le début** : l'information existait, personne ne la lisait — le motif du 11/11, à nouveau.
 
 ## Notes liées
 
