@@ -1,0 +1,29 @@
+# ⛔ LOG TÉMOIN FIGÉ — IL N'EST PAS LA TRACE D'UNE EXÉCUTION, IL EST RECONSTRUIT. Figé le
+#    16/11/2026 parce que le log RÉEL du créneau du 16/10/2026 a été purgé : run_job.sh
+#    efface les logs à 30 jours (`find "$LOG_DIR" -name "*.log" -mtime +30 -delete`), et
+#    16/10 + 30 = 15/11/2026. Les deux témoins de ㊳ s'ancrent sur le livrable de ce
+#    créneau ; sans log, le contrôle ne peut plus attribuer le run, il rend une sortie VIDE
+#    et exit 0 — donc les DEUX sens tombaient pour une seule cause, et le harnais refusait
+#    tous les pushs du dépôt. Ce fichier rend le témoin indépendant de l'horloge de purge.
+#
+#    CE QUI EST RECONSTRUIT, ET D'OÙ : toutes les valeurs ci-dessous sont celles consignées
+#    pour ce créneau — JOBS.md:3168 et JOBS.md:5718 (3,2339 $ / 3,00 $ · 108 % · 34 tours ·
+#    out 72 205 · cache-read 1 986 128), JOBS.md:1366 (is_error, subtype, stop_reason), et
+#    JOBS.md:1494 qui cite mot pour mot la sortie du contrôle sur ce run, « contrôles
+#    tracés : 0 — AUCUN ». Aucun chiffre n'est inventé.
+#    CE QUI EST ABSENT PARCE QU'INCONNU : la durée en ms, le compteur « in » et le
+#    cache-write, qui n'ont été consignés nulle part. Ils sont OMIS, pas devinés.
+#    ⚠️ ET CE FICHIER NE DOIT PORTER AUCUNE TRACE DE CONTRÔLE : le contrôle compte les
+#    occurrences de ses propres noms de scripts dans le log pour dire combien de contrôles
+#    ont tourné. Le run réel n'en a lancé aucun ; en nommer un ici falsifierait le témoin.
+=========================================================
+>>> 2026-10-16 09:03:00 — Démarrage du job : ai-act-veille
+=========================================================
+[auth] Jeton longue durée chargé depuis claude_auth.env.
+[budget] Plafond de coût pour ai-act-veille : 3.00 $
+--- Tentative 1/3 — 09:03:01 ---
+[diagnostic] is_error=True | subtype=error_max_budget_usd | stop_reason=tool_use
+[mesure] coût réel 3.2339 $ / plafond 3.00 $ (108 % du plafond) | 34 tours | out 72205 · cache-read 1986128
+[budget] ⛔ PLAFOND DE COÛT DÉPASSÉ (3.00 $) — arrêt des tentatives : rejouer à l'identique échouerait pareil.
+<<< 2026-10-16 09:xx:xx — Fin du job ai-act-veille (code de sortie : 1, tentatives : 1)
+[git] Job en erreur (exit 1) — pas de commit.

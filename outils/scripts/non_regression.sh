@@ -2192,15 +2192,35 @@ fi
 #    La copie figée réutilisée est celle de temoins_ai_act_blocs, qui date d'AVANT la
 #    correction du 16/10 — elle n'a donc aucun journal, donc aucune déclaration. Aucun
 #    nouveau témoin n'est figé pour cela.
+# 🔴 16/11/2026 — ET CES DEUX TÉMOINS ONT BLOQUÉ TOUS LES PUSHS DU DÉPÔT, POUR UNE CAUSE QUI
+#    N'EST NI LE CONTRÔLE NI LES DOCUMENTS : LE LOG DU 16/10 A ÉTÉ PURGÉ. run_job.sh:535
+#    efface les logs à 30 jours, et 16/10 + 30 = 15/11. Mesuré : 0 log 20261016, le plus
+#    ancien survivant est du 23/10. Sans log, verdict() rend None — SORTIE VIDE, exit 0 —
+#    donc le sens acceptant ne trouvait plus sa ligne et le sens refus obtenait 0 au lieu de
+#    1 : LES DEUX SENS TOMBAIENT POUR UNE SEULE CAUSE. Septième « témoin VIVANT périmé tout
+#    seul » du dépôt (15, 22, 23/10, 04/11, 11/11), et le PREMIER dont l'horloge est une
+#    purge du dépôt lui-même : les commentaires de ce bloc raisonnaient sur le CONTENU du
+#    document figé, jamais sur la survie de son log.
+# 🟢 Le log est donc FIGÉ dans non_regression/temoins_logs/, reconstruit des mesures
+#    consignées (JOBS.md:1366, :1494, :3168, :5718) et non inventé — la preuve est que la
+#    sortie du contrôle sur ce log est IDENTIQUE à celle que JOBS.md:1494 cite du log réel.
+#    Le contrôle reçoit --logs, un drapeau que la production ne passe jamais.
+# ⛔ AUCUNE BORNE DE PLUS N'EST AJOUTÉE, ET C'EST MESURÉ : un log vidé, tronqué, ou un
+#    --logs retiré redonnent tous une sortie vide, donc les deux exigences de ligne qui
+#    suivent (« DÉCLARÉ par le document » et « REFUSÉ ») les attrapent déjà. Ce sont elles
+#    qui ont attrapé la purge.
 if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/controle_livrable_du_job.py" ]; then
   echo "▶ Témoins de ㊳ (livrable d'un run échoué : refusé, sauf s'il le déclare)"
   LJ_KO=0
   LJ_VIVANT="$ROOT/sources/veille/ai-act/2026-10-16_veille_ai-act.docx"
   LJ_FIGE="$ROOT/outils/scripts/non_regression/temoins_ai_act_blocs/2026-10-16_veille_ai-act_blocs.docx"
-  if [ -f "$LJ_VIVANT" ] && [ -f "$LJ_FIGE" ]; then
+  LJ_LOGS="$ROOT/outils/scripts/non_regression/temoins_logs"
+  LJ_LOG="$LJ_LOGS/ai-act-veille_20261016_090301.log"
+  if [ -f "$LJ_VIVANT" ] && [ -f "$LJ_FIGE" ] && [ -f "$LJ_LOG" ]; then
     # sens ACCEPTANT : le document corrigé DÉCLARE son échec et sa relecture
     LJ_A="$CUR/lj_accepte.txt"
-    if env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" "$LJ_VIVANT" > "$LJ_A" 2>&1 \
+    if env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" --logs "$LJ_LOGS" \
+         "$LJ_VIVANT" > "$LJ_A" 2>&1 \
        && grep -q "DÉCLARÉ par le document" "$LJ_A"; then
       echo "  ✓ sens acceptant : le livrable qui DÉCLARE son échec et sa relecture passe"
     else
@@ -2213,7 +2233,7 @@ if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/controle_livrable_du_jo
     mkdir -p "$LJ_T"
     cp "$LJ_FIGE" "$LJ_T/2026-10-16_veille_ai-act.docx"
     LJ_R="$CUR/lj_refuse.txt"
-    if env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" \
+    if env -i $PY "$ROOT/outils/scripts/controle_livrable_du_job.py" --logs "$LJ_LOGS" \
          "$LJ_T/2026-10-16_veille_ai-act.docx" > "$LJ_R" 2>&1; then
       echo "  ✗ sens refus : un livrable d'un run ÉCHOUÉ sans aucune déclaration PASSE —"
       echo "    ㊳ ne mord plus, et rien n'empêche de publier ce que personne n'a vérifié."
@@ -2227,7 +2247,9 @@ if [ "$MODE" != "--docs" ] && [ -x "$ROOT/outils/scripts/controle_livrable_du_jo
     fi
     [ "$LJ_KO" = 1 ] && STATUT=1
   else
-    echo "  ✗ témoin(s) absent(s) — le vivant ou la copie figée manque"
+    echo "  ✗ témoin(s) absent(s) — le vivant, la copie figée ou le LOG FIGÉ manque"
+    echo "    (le log du 16/10 est purgé depuis le 15/11/2026 : sans la copie figée de"
+    echo "     temoins_logs/, le contrôle ne peut plus attribuer le run, et il se TAIT.)"
     STATUT=1
   fi
 fi

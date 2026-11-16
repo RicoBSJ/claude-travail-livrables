@@ -32,7 +32,7 @@ motif a tourné en avertissement UNE journée, sur UN cas. Ce qui borne le risqu
 pas l'observation mais l'exemption : un faux refus se lève en écrivant une phrase dans le
 livrable, pas en modifiant un contrôle.
 
-Usage : controle_livrable_du_job.py <doc.docx> [...]
+Usage : controle_livrable_du_job.py [--logs <dossier>] <doc.docx> [...]
         controle_livrable_du_job.py --table [<racine> <logs>]
 Rend 1 s'il reste un document issu d'un run échoué SANS déclaration, 0 sinon. Sortie vide si
 tous viennent d'un run réussi, ou si aucun log ne correspond (un document écrit à la main
@@ -330,6 +330,19 @@ def autotest():
 
 
 if __name__ == "__main__":
+    # 🔁 --logs <dossier> — AJOUTÉ LE 16/11/2026, ET C'EST LA PURGE DES LOGS QUI L'EXIGE.
+    #    run_du_jour() lisait LOGS, constante déduite de __file__ : aucun appelant ne pouvait
+    #    donc faire juger un document sur un log FIGÉ. Or les deux témoins de ㊳ s'ancrent sur
+    #    le créneau du 16/10/2026, et run_job.sh purge les logs à 30 jours — 16/10 + 30 =
+    #    15/11/2026. Sans log, verdict() rend None : SORTIE VIDE et exit 0, donc le sens
+    #    acceptant ne trouvait plus sa ligne et le sens refus obtenait 0 au lieu de 1. LES DEUX
+    #    SENS TOMBAIENT POUR UNE SEULE CAUSE, et le harnais refusait tous les pushs du dépôt.
+    #    ⛔ LE DRAPEAU N'EST JAMAIS PASSÉ EN PRODUCTION : le hook et run_job.sh appellent le
+    #    contrôle sans lui, donc il ne déplace le défaut nulle part — il n'existe que pour
+    #    qu'un témoin figé puisse exercer ce contrôle sans dépendre d'une horloge.
+    if len(sys.argv) > 2 and sys.argv[1] == "--logs":
+        LOGS = os.path.abspath(sys.argv[2])
+        del sys.argv[1:3]
     if len(sys.argv) < 2:
         sys.exit(__doc__)
     if sys.argv[1] == "--autotest":
