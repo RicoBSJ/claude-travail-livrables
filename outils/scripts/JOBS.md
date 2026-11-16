@@ -7830,3 +7830,36 @@ Une catégorie bornée aux **fiches** aurait fermé 322 orphelins et laissé **1
 📊 **Non-régression : harnais mode défaut `exit 0`, zéro `✗`, 3 min 22 s, `28 script(s) RÉELLEMENT lancé(s) · 0 orphelin(s) de catégorie`** — le garde de câblage du 11-12/11 reste vert malgré l'alternative ajoutée à `SURVEILLES`.
 
 ⚠️ **CE QUE CE GESTE NE FERME PAS, ET IL FAUT LE DIRE.** ① La **portée réelle** de ㊳ continue de fondre avec la purge : le 24/10 elle était de **51 documents sur 294**, dont 20 par déduction depuis les logs ; chaque jour qui passe en retire. Figer un log répare **le témoin**, pas la couverture. ② Les autres témoins du dépôt n'ont pas été audités pour cette dépendance — **aucun autre ne lit `logs/`** à ma connaissance, mais je ne l'ai pas mesuré, et c'est exactement le genre d'affirmation que ce dépôt sanctionne. 📌 Piste bornée, non faite : passer `scripts_executes` sur le harnais pour recenser **tout** ce qu'un témoin ouvre en dehors de son propre dossier.
+
+---
+
+## 16/11/2026 — `run_job.sh` consigné : deux relèvements à 101 %, et l'un des deux n'a PAS tenu quatre heures
+
+🔴 **LES DEUX RELÈVEMENTS DU 15/11 ÉTAIENT SUR LE DISQUE SANS ÊTRE PUBLIÉS, ET LA JUSTIFICATION D'UN PLAFOND EST LA SEULE TRACE DE SA MESURE.** `imac-veille` **4 → 5 $** et `ai-act-veille` **5 → 6 $**, les deux après un dépassement à **101 %**, les deux morts en `stop_reason=tool_use` — donc **en pleine vérification**, après un livrable complet qu'aucun contrôle n'a vu. Cumul **mesuré en exécutant le vrai bloc `case` : 27,00 → 29,00 $/semaine pour 6 jobs**.
+
+📊 **LES DEUX TRAJECTOIRES, LUES DANS `mesures_couts.csv` ET NON ESTIMÉES.**
+
+| Créneau | `imac-veille` | | Créneau | `ai-act-veille` |
+|---|---|---|---|---|
+| 04/10 | 3,1472 $ / 4 — **79 %**, exit 0 | | 24/10 | 3,0604 $ / 5 — 61 %, exit 0 |
+| 11/10 | 2,2517 $ — 56 %, exit 0 | | 30/10 | 3,2958 $ — 66 %, exit 0, **2 tours** |
+| 18/10 | 2,3130 $ — 58 %, exit 0 | | 06/11 | 4,6189 $ — **92 %**, exit 0, **2 tours** |
+| 25/10 | 2,9938 $ — **75 %**, exit 0 | | 13/11 | 5,0444 $ — **101 %**, exit 1, 78 tours |
+| 01/11 | 2,5460 $ — 64 %, exit 0 | | **15/11 14h00** | **4,5363 $ / 6 — 76 %, exit 0** |
+| 08/11 | 4,0233 $ — **101 %**, exit 1, **1 tour / 4 ms** | | | |
+| 15/11 08h17 | 4,0230 $ — **101 %**, exit 1, 35 tours | | | |
+| **15/11 14h30** | **5,0728 $ / 5 — 101 %, exit 1**, 60 tours | | | |
+
+🔴 **ET LE RELÈVEMENT D'`imac` N'A PAS TENU — MESURÉ QUATRE HEURES PLUS TARD, LE JOUR MÊME.** Le rattrapage de 14h30 a crevé le plafond **neuf** à son tour : **5,0728 $ pour 5,00 $, 101 % de nouveau**, 60 tours, 23,8 min, `tool_use`. **Le coût suit le plafond.** ⚠️ **Et ma justification d'origine, écrite dans le `case` le 15/11, annonçait « un plafond de 5 $ donne 24 % de marge sur le coût observé » : elle est FAUSSE**, démentie dans l'après-midi, et c'est la mesure qui l'a dit — pas ma relecture. Elle est corrigée dans le commentaire. **Ce que 5,00 $ achète n'est pas une garantie d'aboutir, c'est une tentative qui va plus loin** : la contrainte qui mord n'est pas le budget.
+
+🟢 **CELUI D'`ai-act` A TENU, ET IL FAUT LE DIRE AUSSI** : le rattrapage du 15/11 à 14h00 rend **4,5363 $ pour 6,00 $, soit 76 %, exit 0**. Deux relèvements le même jour, deux sorts opposés — ce qui interdit de conclure quoi que ce soit de général sur « relever suffit ».
+
+🔴 **ET LES COMPTEURS DU `[mesure]` NE PRÉDISENT PAS LE COÛT : CETTE FOIS LA MESURE EST ÉCRASANTE.** Le run `ai-act` du **06/11** a coûté **4,6189 $ en 2 TOURS** — out 3 482, cache-read 118 049 — et celui du **13/11** **5,0444 $ en 78 tours** — cache-read 10 597 955. **Même coût à 9 % près pour un cache-read dans un rapport de 90.** Aucun des quatre compteurs du `[mesure]` ne discrimine ces deux runs ; ce qui paie est ce que le log **ne porte pas** — appels d'outils et de recherche. C'est la conclusion du 11/11 sur serafin, en bien plus net, et elle a une conséquence pratique : **on ne peut pas dimensionner un plafond à partir du log**, on ne peut que lire le taux d'usage et réagir.
+
+⚠️ **ET LE 101 % DU 08/11 POUR `imac` N'EST PAS UN RUN COMPARABLE, il faut le retirer de la trajectoire au lieu de le compter** : **1 tour, 4 ms, `in`/`out`/`cache` à ZÉRO, `stop_reason=None`** pour **4,0233 $** — un coût sans un seul jeton compté, donc une anomalie de facturation ou de retour d'API, pas une dérive de consommation. Ma première rédaction du commentaire l'alignait avec les deux autres 101 % et en faisait un « deuxième dépassement de suite » : c'était faux. **Le seul vrai avertissement préalable est le 75 % du 25/10.**
+
+🟢 **DÉFAUT DE FORME CORRIGÉ DANS LE MÊME GESTE : MES DEUX LIGNES PORTAIENT DEUX BLOCS `#`.** La justification neuve était suivie, sur la même ligne, de l'ancien commentaire intact — **1 575 et 2 341 octets, deux `#` chacun**. C'est la forme exacte du défaut consigné le 11/11 (« la ligne serafin NUE et son historique collé en queue de la ligne neuro »), en moins grave puisque le texte collé décrivait **le bon job**. Les deux lignes portent désormais **un seul `#`**, l'ancien texte sous `HISTORIQUE :`, comme la ligne `serafin-ph-veille`.
+
+🧪 **GARDES, ET LE PREMIER EST UNE SOUSTRACTION.** ① **Le CODE est intact** : `sed 's/#.*//'` sur la version de `HEAD` et sur celle du disque ne diffère que sur **deux lignes**, `BUDGET="4.00"→"5.00"` et `BUDGET="5.00"→"6.00"` — aucune autre ligne de code n'a bougé, et réécrire 3 916 octets de commentaires ne pouvait pas le prouver autrement. ② **Les plafonds sont lus en exécutant le vrai bloc `case`**, jamais au `grep` : 5 · 5 · 5 · 6 · 4 · 4 = **29,00 $**. ③ `bash -n` propre. ④ Témoins du runner **15/15** et mutations **21/21**, `--desarmement` et `--consignes` **exit 0**.
+
+📌 **CE QUI N'EST PAS FAIT, ET QUI EST SIGNALÉ PLUTÔT QUE DÉCIDÉ** : `imac-veille` est **déjà crevé à son nouveau plafond** (101 % le 15/11 après-midi). Le relever encore serait répéter un geste que la mesure vient de montrer sans effet sur l'aboutissement ; la piste utile est ailleurs — ce job a dépensé 60 tours et 23,8 min, et son prompt fait 47 506 octets. **Décision du propriétaire, non prise ici.** Le tableau des plafonds en tête de ce fichier reste à l'état « 42 $ / 12 jobs » : il est explicitement un reflet, `run_job.sh` est la source de vérité, et le remettre à jour est un geste à part.
