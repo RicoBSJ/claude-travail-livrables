@@ -27,6 +27,7 @@
 """
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -63,9 +64,19 @@ def joue(racine):
     return r.returncode, r.stdout + r.stderr
 
 
+# 🔴 17/11/2026 — ET MON TÉMOIN FUYAIT. Mesuré après le premier push : **330 dossiers
+#    `/tmp/coffre_*`, 2,86 Mo**, neuf par passage, jamais retirés — et ce témoin tourne à
+#    CHAQUE push qui touche un contrôle. « Fichiers intermédiaires oubliés » est le reproche
+#    que le propriétaire écrit noir sur blanc, et `/tmp` n'est même pas le scratchpad autorisé.
+#    La borne ㉓ nettoie puis EXIGE qu'il ne reste rien : sans elle, le nettoyage se perdrait
+#    au premier remaniement sans que rien ne le dise.
+CREES = []
+
+
 def coffre(liens_a, extras=None, source_a="a.docx", controles=None):
     """Un coffre minimal : deux fiches de leçon, leurs deux .docx, et les liens demandés."""
     d = tempfile.mkdtemp(prefix="coffre_")
+    CREES.append(d)
     lec = os.path.join(d, "livrables", "lecons", "essai")
     os.makedirs(lec)
     os.makedirs(os.path.join(d, "sources", "veille", "serie"))
@@ -259,6 +270,17 @@ def autotest():
     if vu != DETAIL.strip():
         ko.append("㉒ le motif de remontée apparie la ligne qui NOMME le lien — vu=%r : le "
                   "bloc imprimerait un décompte sans dire QUEL lien est cassé" % vu[:60])
+
+    # ㉓ LE TÉMOIN NE LAISSE RIEN DERRIÈRE LUI. On nettoie, PUIS on exige que rien ne reste :
+    #    une borne posée avant le nettoyage ne garderait que l'intention.
+    for d in CREES:
+        shutil.rmtree(d, ignore_errors=True)
+    jouees.append("㉓ aucun coffre fabriqué ne survit au témoin")
+    restants = [d for d in CREES if os.path.exists(d)]
+    if len(CREES) < 5 or restants:
+        ko.append("㉓ aucun coffre fabriqué ne survit au témoin — %d créé(s), %d restant(s) : "
+                  "un témoin qui tourne à chaque push ne laisse pas de dossiers dans /tmp"
+                  % (len(CREES), len(restants)))
 
     for x in ko:
         print("  ✗ " + x)

@@ -7912,7 +7912,7 @@ La piste disait : *« un mode `--coffre` sur le modèle de `--consignes` (0,7 s)
 
 **② `c9` lit le CODE DE SORTIE de `git`, pas seulement sa sortie.** 🔴 Mesuré : sur un coffre qui n'est pas un dépôt, `git` répond **128**, `stdout` est **vide**, donc `pb` était vide et le contrôle imprimait **`✓ Aucune fiche ne partirait à l'auto-push (0 fichier(s) en attente de publication)`** — *un vert sur une question qu'il n'avait pas pu poser*. Prouvé dans les deux sens en rejouant la version d'avant sur le même coffre fabriqué. **C'est la classe exacte du témoin de `supprimer_job.sh` (27/10, « les deux photos sont vides, donc égales ») et du garde `$SEMENCE non vide` du runner** : un garde satisfait par un état cassé. Non bloquant, comme la branche d'exception juste au-dessus : il **dit** `○ non vérifiable (git a répondu 128)` et ne tranche pas.
 
-### 🔴 Trois défauts à moi, et aucun trouvé par la relecture
+### 🔴 Quatre défauts à moi, et aucun trouvé par la relecture
 
 **① Le bloc imprimait le décompte SANS le lien fautif.** Mon motif de remontée n'appariait que les lignes à **deux** espaces, or l'audit imprime le détail **six** espaces plus loin : le push aurait dit *« 1 problème(s) »* sans dire lequel — **le reproche exact que la borne ④ de mon propre témoin fait au contrôle**. Trouvé en lisant la sortie du sens « abîmé », pas en relisant le code. La borne **㉒** lit désormais le motif **DANS le harnais** et l'applique à la ligne de détail que l'audit imprime **réellement** ; le sabotage S5 la fait mordre avec `vu=''`.
 
@@ -7928,7 +7928,9 @@ C'est la découverte de forme de la séance : **ce n'étaient pas les invariants
 - **㊼ — la fenêtre était cherchée dans le TEXTE BRUT du hook.** Un **commentaire** qui nomme `--integrite` déplaçait sa fenêtre de 500 caractères et la faisait tomber sur un hook juste. C'est *« un recensement textuel n'est pas un recensement d'appels »* (27/10) **appliqué à ma propre borne**, et c'est mon commentaire `(6 bis)` qui l'a montré. 🟢 Elle lit `code_seul()`.
 - **㊽ — une fenêtre de 200 caractères EN DUR.** Deux lignes de commentaire ajoutées **dans** le mode `--integrite` la faisaient tomber sur un mode parfaitement juste. 🟢 Elle lit le **bloc entier**, jusqu'à son `fi` : *une borne juge ce que le mode fait, pas sa longueur.*
 
-### 🧪 Quinze sabotages, quinze refus
+**④ ET MON TÉMOIN FUYAIT — mesuré APRÈS le premier push, donc après avoir annoncé qu'il était propre.** `tempfile.mkdtemp` sans nettoyage : **330 dossiers `/tmp/coffre_*`, 2,86 Mo**, neuf par passage, et ce témoin tourne à **chaque** push qui touche un contrôle. ⚠️ Deux choses l'aggravent : *« fichiers intermédiaires oubliés »* est un reproche que le propriétaire écrit **noir sur blanc**, et `/tmp` n'est même pas le scratchpad autorisé. 🟢 Inventaire vérifié **avant** de supprimer — exclusivement mes fixtures (`a.md`, `b.md`, `a.docx`, `b.docx`, `note-de-controle.md`), toutes créées entre 23:33 et 23:49 ce soir —, puis nettoyage, puis la borne **㉓** qui nettoie **et exige qu'il ne reste rien** : une borne posée avant le nettoyage ne garderait que l'intention. `ATTENDU_CF` **22 → 23**. Sabotage S16 (nettoyage retiré) → `✗ ㉓ … 6 créé(s), 6 restant(s)`, **exit 1**, fichier restauré au **sha256 identique**.
+
+### 🧪 Seize sabotages, seize refus
 
 Chacun **prouve d'abord qu'il a modifié le fichier** (sha256 avant → après, leçon du 26/10), nomme **sa** borne, et le fichier est restauré au **sha256 identique** :
 
@@ -7949,6 +7951,7 @@ Chacun **prouve d'abord qu'il a modifié le fichier** (sha256 avant → après, 
 | S13 | `LIVRABLES` perd `livrables/controles` | ⑲ **seule** |
 | S14 | `LIVRABLES` devient une **liste de séries** | ⑳ **seule** |
 | S15 | le mode `--coffre` cesse d'appeler le bloc | ⑯ **seule** |
+| S16 | le nettoyage des coffres fabriqués retiré | ㉓, `6 créé(s), 6 restant(s)` |
 
 ⚠️ **ET S15 DIT QUELQUE CHOSE QU'IL FAUT ÉCRIRE : un mode vidé ne s'attrape pas en lançant CE mode.** `--coffre` saboté rend **exit 0** quand on lance `--coffre` — évidemment, puisqu'il ne joue plus rien. Ce qui l'attrape est `--integrite`, **exit 1**, c'est-à-dire ce qu'un vrai push lance. Mesuré, pas supposé : aucun mode n'est aveugle à son propre sabotage **en production**.
 

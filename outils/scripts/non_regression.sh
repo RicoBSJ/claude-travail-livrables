@@ -392,7 +392,7 @@ bloc_integrite () {
 #    quiz, un classeur) — et les bornes ⑲ et ⑳ du témoin gardent ce fait, lu dans le hook.
 bloc_coffre () {
   local OUT="$CUR/coffre_avertissement.txt" CF_KO=0 LU
-  local ATTENDU_CF=22        # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  local ATTENDU_CF=23        # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
   echo "▶ Le coffre Obsidian est-il relu au moment du push ? (coffre fabriqué, aucun réseau, 1,2 s)"
   if env -i $PY "$ROOT/outils/scripts/non_regression/coffre_avertissement.py" > "$OUT" 2>&1; then
     tail -1 "$OUT"
