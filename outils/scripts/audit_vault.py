@@ -27,7 +27,19 @@ import subprocess
 import sys
 from pathlib import Path
 
-RACINE = Path(__file__).resolve().parents[2]
+# 🆕 17/11/2026 — `--racine <chemin>` : LA PRODUCTION NE LE PASSE JAMAIS (run_job.sh:434 et
+#    le harnais appellent ce script sans argument, mesuré). Il n'existe que pour qu'un témoin
+#    figé puisse jouer le VRAI Audit sur un coffre FABRIQUÉ en tempfile, au lieu d'en recopier
+#    la logique — « un test qui teste une COPIE de la logique ne garde rien » (15/10). C'est la
+#    piste bornée du 23/10, payée pour controle_livrable_du_job.py le 16/11 et reprise ici le
+#    lendemain : un témoin dépend de tout ce que le contrôle OUVRE, pas de ce qu'on lui passe.
+def _racine():
+    if "--racine" in sys.argv:
+        return Path(sys.argv[sys.argv.index("--racine") + 1]).resolve()
+    return Path(__file__).resolve().parents[2]
+
+
+RACINE = _racine()
 LECONS = RACINE / "livrables" / "lecons"
 VEILLE = RACINE / "sources" / "veille"
 
@@ -174,10 +186,21 @@ class Audit:
                ":(exclude)livrables/lecons/*.md",
                ":(exclude)sources/veille/*.fiche.md"]
         try:
-            out = subprocess.run(cmd, capture_output=True, text=True, timeout=30).stdout
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
         except (OSError, subprocess.SubprocessError) as e:
             print(f"  {JAUNE}○{RAZ} Portée de l'auto-push — non vérifiable ({e})")
             return
+        # 🔴 17/11/2026 — LE CODE DE SORTIE, PAS SEULEMENT LA SORTIE. Un `git` qui échoue rend
+        #    un stdout VIDE : `pb` était alors vide, `attente` à 0, et ce contrôle imprimait un
+        #    ✓ sur une question qu'il n'avait PAS PU POSER. C'est la classe exacte du témoin de
+        #    supprimer_job.sh (27/10 : « les deux photos sont vides, donc égales ») et du garde
+        #    « $SEMENCE non vide » du runner — un garde satisfait par un état cassé. Non
+        #    bloquant, comme la branche d'exception juste au-dessus : on le DIT, on ne tranche pas.
+        if r.returncode != 0:
+            print(f"  {JAUNE}○{RAZ} Portée de l'auto-push — non vérifiable "
+                  f"(git a répondu {r.returncode})")
+            return
+        out = r.stdout
         pb = [l.strip() for l in out.splitlines()
               if ".fiche.md" in l or re.search(r"lecons/.*\.md'", l)]
         attente = len([l for l in out.splitlines() if l.strip()])

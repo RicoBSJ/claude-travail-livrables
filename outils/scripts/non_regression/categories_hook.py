@@ -196,12 +196,20 @@ borne("⑬ TOUT script que le harnais exécute est déclenché par le hook", not
 # ⑭ LA BORNE QUI DOIT ÊTRE ACCEPTÉE : une référence posée EN COMMENTAIRE n'est pas une
 #    exécution, donc elle n'exige rien. Sans elle, rien n'empêche de réélargir demain et de
 #    faire câbler un script que le harnais ne lance pas (leçon du 27/10).
+# 🔴 17/11/2026 — LE SPÉCIMEN DE CETTE PAIRE ÉTAIT VIVANT, DONC IL A PÉRIMÉ. Il était
+#    `audit_vault.py`, choisi le 11/11 parce que le harnais ne le mentionnait QU'EN COMMENTAIRE
+#    (le hook l'écrit encore, ligne « audit_vault.py — une seule mention … EN COMMENTAIRE »).
+#    Le 17/11, `bloc_coffre` l'EXÉCUTE pour de bon : ⑭ était alors satisfaite par la mauvaise
+#    chose — le script est dans l'ensemble quoi qu'on ajoute — et elle TOMBAIT. C'est la classe
+#    « un témoin vivant qui annote une propriété volatile périme tout seul » (15, 22 et 23/10),
+#    et ici la propriété volatile était « ce script n'est pas encore exécuté ».
+#    🟢 Le spécimen est désormais FABRIQUÉ et le MÊME pour les deux sens : il ne peut pas
+#    devenir vrai, et la paire reste la seule chose qui sépare un appel d'un commentaire.
+_FAB_EXEC = "outils/scripts/jamais_lance_temoin_fabrique.py"
 borne("⑭ une reference EN COMMENTAIRE n'exige rien — recensement d'APPELS, pas textuel (ACCEPTEE)",
-      "outils/scripts/audit_vault.py" not in
-      scripts_executes(HARNAIS + '\n#   "$ROOT/outils/scripts/audit_vault.py"\n'))
+      _FAB_EXEC not in scripts_executes(HARNAIS + '\n#   "$ROOT/%s"\n' % _FAB_EXEC))
 borne("⑮ et une reference RÉELLE, elle, est bien recensée (sans quoi ⑭ passerait sur du vide)",
-      "outils/scripts/audit_vault.py" in
-      scripts_executes(HARNAIS + '\nenv -i $PY "$ROOT/outils/scripts/audit_vault.py"\n'))
+      _FAB_EXEC in scripts_executes(HARNAIS + '\nenv -i $PY "$ROOT/%s"\n' % _FAB_EXEC))
 # ⑯ la forme PYTHON d'un appel est reconnue : c'est le faux négatif mesuré le 11/11, et la
 #    borne nomme le script qui le révélait, pas un fabriqué — il est dans le harnais pour de bon.
 borne("⑯ la forme PYTHON « racine + \"/outils/… » est reconnue comme un appel",
@@ -448,15 +456,27 @@ _cats_fab = [n for n in categories(_FABLIV)]
 _dispatch = []
 for _n in _cats_fab:
     _mf = re.search(r'grep -Eq "\$%s" && ([a-z_]+)=1' % _n, _src_h)
-    if not _mf or "--integrite" not in _src_h:
+    # 🔴 17/11/2026 — DANS LE CODE SEUL, PAS DANS LE TEXTE BRUT. Un commentaire du hook qui
+    #    NOMME `--integrite` déplaçait cette fenêtre de 500 caractères et faisait tomber la
+    #    borne sur un hook juste : c'est « un recensement textuel n'est pas un recensement
+    #    d'appels » (27/10) appliqué à ma propre borne, et c'est le commentaire (6 bis) du
+    #    17/11 qui l'a montré, pas la relecture.
+    _hc = code_seul(_src_h)
+    if not _mf or "--integrite" not in _hc:
         continue
-    _k = _src_h.index("--integrite")
-    if '"$%s"' % _mf.group(1) in _src_h[max(0, _k - 500):_k]:
+    _k = _hc.index("--integrite")
+    if '"$%s"' % _mf.group(1) in _hc[max(0, _k - 500):_k]:
         _dispatch.append((_n, _mf.group(1)))
 borne("㊼ la categorie du livrable FUTUR pose un drapeau que le hook teste pour lancer --integrite",
       bool(_dispatch))
-_int = HARNAIS[HARNAIS.index('if [ "$MODE" = "--integrite" ]'):][:200] \
-       if 'if [ "$MODE" = "--integrite" ]' in HARNAIS else ""
+# 🔴 17/11/2026 — LA FENÊTRE ÉTAIT DE 200 CARACTÈRES EN DUR, donc deux lignes de commentaire
+#    ajoutées DANS le mode la faisaient tomber sur un mode parfaitement juste. On lit le BLOC
+#    entier, jusqu'à son `fi` : la borne juge ce que le mode fait, pas sa longueur.
+_int = ""
+if 'if [ "$MODE" = "--integrite" ]' in HARNAIS:
+    _d = HARNAIS.index('if [ "$MODE" = "--integrite" ]')
+    _f = HARNAIS.find("\nfi\n", _d)
+    _int = HARNAIS[_d:_f if _f > 0 else _d + 400]
 borne("㊽ le mode --integrite joue bloc_integrite — le temoin ET le verdict reel",
       "bloc_integrite" in _int)
 # ㊾ EN SHELL, UNE FONCTION APPELÉE AVANT SA DÉFINITION N'EXISTE PAS. Défaut corrigé le 12/11

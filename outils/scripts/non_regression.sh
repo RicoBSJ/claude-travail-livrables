@@ -366,6 +366,87 @@ bloc_integrite () {
   return $INT_KO
 }
 
+# ── LE COFFRE OBSIDIAN EST-IL RELU AU MOMENT DU PUSH ? (17/11/2026)
+#    La fiche has-actualite du 16/11 portait QUATRE wikiliens écrits `[[…fiche.md]]` là où la
+#    règle du coffre veut `[[…fiche]]`. Les quatre cibles EXISTAIENT sur le disque : le défaut
+#    était le suffixe, pas la cible. `audit_vault.py` l'a dit, exactement, le 17/11 à 08:11, en
+#    nommant les quatre liens — et RIEN n'a pu refuser, parce qu'il est lancé 0 fois par ce
+#    harnais (sa seule mention y était un commentaire), 0 fois par le hook, et 3 fois par
+#    run_job.sh:433, APRÈS `EXIT=0`, dans une branche qui imprime « l'audit n'interrompt rien ».
+#    Il EST dans SURVEILLES, mais c'est un DÉCLENCHEMENT, pas une COUVERTURE — la distinction
+#    du 11/11, dont la pire lecture est « 0 orphelin » = « tout est testé ». La faute du 16/11
+#    a donc vécu jusqu'au lendemain, nommée par une ligne de log qui annonce qu'elle n'arrête rien.
+# ⛔ LE VERDICT EST UN AVERTISSEMENT, ET C'EST LA MOITIÉ QUI COMPTE : un lien cassé dans une
+#    fiche n'est pas une régression du dépôt, et refuser le push punirait le livrable qui passe
+#    (règle du 14/10 ; un balayage rétrospectif ne valide pas un motif bloquant). En production
+#    un faux refus coûte un livrable non publié, un vrai manqué coûte une relecture.
+# ⛔ DEUX CHOSES RESTENT BLOQUANTES, et elles ne jugent AUCUN contenu : le témoin figé, et le
+#    fait que l'audit AIT PARLÉ des liens. Un détecteur muet rend indiscernables « le coffre va
+#    bien » et « personne n'a regardé » — même famille que le bloc 0 nonies (26/10) et
+#    corps_tronque.py (04/11), tous deux bloquants dès le premier jour pour cette raison.
+# 📊 MESURÉ le 17/11, et c'est ce qui décide du câblage : les 651 fichiers du coffre suivis par
+#    git (.md et .docx de livrables/lecons, sources/veille, livrables/controles) sont TOUS dans
+#    la catégorie LIVRABLES du hook — 651 sur 651, 312 aussi dans DOCS, 0 dehors. Une catégorie
+#    COFFRE dédiée serait donc du CODE MORT : la couverture est portée par les deux appels de
+#    ce bloc — le chemin commun (touche=1 et --docs) et le mode --integrite (une fiche, un
+#    quiz, un classeur) — et les bornes ⑲ et ⑳ du témoin gardent ce fait, lu dans le hook.
+bloc_coffre () {
+  local OUT="$CUR/coffre_avertissement.txt" CF_KO=0 LU
+  local ATTENDU_CF=22        # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
+  echo "▶ Le coffre Obsidian est-il relu au moment du push ? (coffre fabriqué, aucun réseau, 1,2 s)"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/coffre_avertissement.py" > "$OUT" 2>&1; then
+    tail -1 "$OUT"
+    LU=$(sed -n 's/^[[:space:]]*[0-9]\{1,\}\/\([0-9]\{1,\}\) bornes du coffre.*/\1/p' "$OUT")
+    if [ "${LU:-0}" != "$ATTENDU_CF" ]; then
+      echo "  ✗ ${LU:-0} borne(s) jouée(s), $ATTENDU_CF attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_CF à jour en disant pourquoi."
+      CF_KO=1
+    fi
+  else
+    grep '✗' "$OUT" | head -10
+    echo "  ✗ LA GARDE DU COFFRE NE TIENT PLUS. Soit le contrôle des liens wiki ne mord plus —"
+    echo "    et un [[…fiche.md]] dont la cible existe repasse au vert, le défaut du 16/11 —,"
+    echo "    soit ce bloc ne REMONTE plus ce que l'audit dit, soit il s'est mis à REFUSER le"
+    echo "    push : cinq bornes doivent être ACCEPTÉES et gardent ces deux directions."
+    CF_KO=1
+  fi
+  # ── ET LE VERDICT RÉEL SUR LE COFFRE VIVANT, parce qu'une alerte que personne ne lit n'existe
+  #    pas (27/10) : c'est lui qui aurait nommé les quatre liens AU PUSH du 16/11, et non douze
+  #    heures plus tard dans le log d'un job. 0,4 s mesuré, aucun réseau.
+  local VOUT="$CUR/coffre_verdict.txt"
+  env -i $PY "$ROOT/outils/scripts/audit_vault.py" > "$VOUT" 2>&1
+  local VCODE=$?
+  # 🔴 LE DÉTAIL INDENTÉ AUSSI, ET C'ÉTAIT MON PREMIER DÉFAUT, trouvé par la mesure et non par
+  # la relecture : mon motif n'appariait que les lignes à DEUX espaces, donc il remontait
+  # « ✗ Liens wiki résolus — 1 problème(s) » SANS le lien fautif, que l'audit imprime six
+  # espaces plus loin. Un décompte sans le lien n'est pas actionnable — c'est le reproche
+  # exact que la borne ④ de mon propre témoin fait au contrôle. La borne ㉒ apparie désormais
+  # ce motif-ci, LU ICI, à la ligne de détail que l'audit imprime réellement.
+  grep -E '^  (✗|○|✓ Liens wiki)|^ {4,}\S' "$VOUT" | head -20
+  if ! grep -q "Liens wiki résolus" "$VOUT"; then
+    echo "  ✗ L'AUDIT DU COFFRE N'A RIEN DIT DES LIENS WIKI — un détecteur muet ne distingue pas"
+    echo "    « le coffre va bien » de « personne n'a regardé ». Ce refus-ci ne juge aucun"
+    echo "    contenu : il dit que la question n'a pas été posée."
+    CF_KO=1
+  fi
+  if [ "$VCODE" != "0" ]; then
+    echo "  ⚠️  AVERTISSEMENT — le coffre porte une anomalie, ET LE PUSH N'EST PAS REFUSÉ."
+    echo "     Un lien cassé ou une fiche mal nommée n'est pas une régression du dépôt ; le"
+    echo "     refuser punirait le livrable qui passe. Détail : audit_vault.py --verbeux"
+  fi
+  return $CF_KO
+}
+
+# ── mode --coffre : le chemin le moins cher — 1,73 · 1,74 · 2,00 s mesurés sur trois passages,
+#    dont 1,25 s de témoin et 0,37 s d'audit réel. Pour la main : le hook ne le lance PAS, et
+#    c'est une mesure qui le décide (voir le commentaire 6 bis du hook). Il APPELLE bloc_coffre,
+#    il ne recopie rien (règle du 15/10) : témoin figé ET verdict réel y sont joués comme dans
+#    le mode normal.
+if [ "$MODE" = "--coffre" ]; then
+  bloc_coffre
+  exit $?
+fi
+
 # ── mode --integrite : ce que le hook lance quand un push ne porte QUE des livrables publiés
 #    qui ne sont pas des .docx de lecons/ ou de veille/ — une fiche .md, un quiz .pptx, un
 #    classeur .xlsx. Mesuré le 12/11 : 451 des 758 livrables suivis n'appartenaient à AUCUNE
@@ -373,12 +454,17 @@ bloc_integrite () {
 #    11/11 parce que kDrive avait abîmé trois livrables PUBLIÉS, dont un .md de fiche — ne
 #    tournait pas sur le seul push capable de charrier la corruption qu'il cherche.
 #    ⛔ Le mode APPELLE bloc_integrite, il ne recopie rien (règle du 15/10) : le témoin et le
-#    verdict réel y sont joués comme dans le mode normal, pour 1,2 s au lieu de 160.
+#    verdict réel y sont joués comme dans le mode normal, pour 2,9 s MESURÉ au lieu de 190
+#    — 1,2 s d'intégrité plus 1,7 s de coffre depuis le 17/11, les deux sur le même push.
 #    ⚠️ La fonction est déplacée JUSTE AU-DESSUS pour cette raison : en shell, une fonction
 #    appelée avant sa définition n'existe pas — défaut corrigé le 12/11 pour bloc_categories.
 if [ "$MODE" = "--integrite" ]; then
-  bloc_integrite
-  exit $?
+  # ET le coffre : mesuré le 17/11, les 651 fichiers du coffre sont tous dans LIVRABLES, donc
+  # c'est CE mode que déclenche le push d'une fiche — celui du 16/11 n'a rien lancé sur le coffre.
+  INT_MODE_KO=0
+  bloc_integrite || INT_MODE_KO=1
+  bloc_coffre    || INT_MODE_KO=1
+  exit $INT_MODE_KO
 fi
 
 # Effectif ATTENDU de chaque lot de témoins (23/09/2026). Les trois boucles de témoins contrôlaient ce
@@ -1350,6 +1436,7 @@ bloc_coherence_skill || exit 1
 bloc_publication || exit 1
 
 bloc_integrite || exit 1
+bloc_coffre || exit 1
 bloc_categories || exit 1
 
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence

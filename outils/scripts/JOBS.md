@@ -7881,3 +7881,86 @@ Une catégorie bornée aux **fiches** aurait fermé 322 orphelins et laissé **1
 🔴 **ET LE VRAI DÉFAUT N'EST PAS LES QUATRE LIENS, C'EST QU'AUCUN PUSH NE POUVAIT LES REFUSER — MESURÉ, PAS SUPPOSÉ.** Recensement d'appels, lignes commentées retirées : `audit_vault.py` est lancé **0 fois par `non_regression.sh`** (sa seule mention y est **en commentaire**, ligne 2436), **0 fois par le hook** (sa seule mention y est le commentaire de la ligne 57, qui le dit déjà), et **3 fois par `run_job.sh`** — à la ligne 433, **après `EXIT=0`**, dans une branche qui imprime d'elle-même *« Le livrable a bien été produit ; l'audit n'interrompt rien. »* Il **est** dans `SURVEILLES`, mais c'est un **déclenchement** : toucher le *script* déclenche le harnais, qui ne l'**exécute** pas — exactement la distinction écrite le 11/11 pour les cinq scripts de premier niveau, et la raison pour laquelle lire « 0 orphelin » comme « tout est testé » serait la pire erreur. **Ma faute a donc vécu du 16/11 au 17/11, et la seule chose qui l'a dite est une ligne de log qui annonce elle-même qu'elle n'interrompt rien.** C'est la classe « une alerte que personne ne lit n'existe pas » (27/10) sous sa forme la plus gênante : l'alerte **était imprimée**, à l'heure, avec le nom des quatre liens.
 
 📌 **NON FAIT, NON ORDONNÉ, ET LE COÛT EST DIT.** Rendre le contrôle des liens wiki bloquant au push serait un motif bloquant validé par **balayage rétrospectif**, ce que la règle du 14/10 interdit ; et il refuserait la publication d'un **livrable conforme** pour un lien cassé dans une fiche, alors qu'en production un faux refus coûte un livrable non publié. La piste bornée est un mode `--coffre` sur le modèle de `--consignes` (0,7 s), câblé sur la catégorie `LIVRABLES`, **en avertissement d'abord**. Décision du propriétaire.
+
+---
+
+## 17/11/2026 — Le mode `--coffre`, en avertissement : le coffre est enfin relu AU MOMENT DU PUSH, et la mesure a refusé le câblage que j'avais annoncé
+
+**Ordre reçu** : *« fais le mode --coffre, en avertissement d'abord »*. C'est la piste bornée écrite une heure plus tôt, à la fin de la fiche précédente.
+
+### Ce qui était ouvert, et que la mesure a déjà corrigé dans ma propre piste
+
+La piste disait : *« un mode `--coffre` sur le modèle de `--consignes` (0,7 s), **câblé sur la catégorie `LIVRABLES`** »*. La première moitié est juste, **la seconde est fausse, et c'est un recensement qui le dit** : les **651** fichiers du coffre suivis par git — les `.md` et `.docx` de `livrables/lecons`, `sources/veille` et `livrables/controles` — sont **tous déjà** dans `LIVRABLES`. **651 sur 651, dont 312 aussi dans `DOCS`, 0 dehors.** Une catégorie `COFFRE` dédiée n'aurait donc jamais pu se déclencher : **du code mort**, et une branche de hook morte est pire qu'absente, puisqu'elle se lit comme une couverture.
+
+🟢 **Le câblage retenu est donc ailleurs** : `bloc_coffre` est appelé par le **chemin commun** du harnais (ce que déclenchent `touche=1` et `--docs`) **et** par le mode **`--integrite`** — le seul mode qu'un push de fiche déclenche, c'est-à-dire exactement le push du 16/11 qui n'a rien lancé sur le coffre. Le mode `--coffre` existe pour la main, et le hook ne le lance pas **par cette mesure**, ce que son commentaire `(6 bis)` écrit noir sur blanc.
+
+⛔ **Et ce fait est GARDÉ, pas seulement consigné** : les bornes ⑲ et ⑳ du témoin **lisent le motif `LIVRABLES` dans le hook** et exigent que chaque fichier du coffre — **plus un nom de fiche FABRIQUÉ qui n'existe pas** — y soit couvert. Resserrer `LIVRABLES` refuse le push ; en faire une **liste de séries** refuse aussi. *Un motif, jamais une liste* (11/11).
+
+### Ce qui est bloquant, ce qui ne l'est pas, et pourquoi la frontière tombe là
+
+| | |
+|---|---|
+| **Le verdict sur le coffre** | **AVERTISSEMENT.** Un lien cassé dans une fiche n'est pas une régression du dépôt, et refuser le push **punirait le livrable qui passe** (règle du 14/10 ; un balayage rétrospectif ne valide pas un motif bloquant). En production, un faux refus coûte un livrable non publié ; un vrai manqué coûte une relecture |
+| **Le témoin figé** | **BLOQUANT**, comme tous les autres : si le détecteur cesse de mordre, c'est bien le dépôt qui régresse |
+| **« l'audit a-t-il PARLÉ des liens ? »** | **BLOQUANT**, et cela ne juge **aucun contenu** : un détecteur muet rend indiscernables *« le coffre va bien »* et *« personne n'a regardé »*. Même famille que le bloc `0 nonies` (26/10) et `corps_tronque.py` (04/11), tous deux bloquants dès le premier jour pour cette raison exacte |
+
+🧪 **Les deux sens, sur le coffre RÉEL, pas sur un témoin** : coffre sain → `✓ Liens wiki résolus (règle Obsidian) (1475 liens)`, **exit 0** ; un des quatre liens du 16/11 recassé → `✗ Liens wiki résolus — 1 problème(s)`, **la ligne qui NOMME le lien**, puis `⚠️ AVERTISSEMENT — le coffre porte une anomalie, ET LE PUSH N'EST PAS REFUSÉ`, **exit 0** ; fichier restauré au **sha256 identique** (`bbb632c9f6a3fc97`), `git status` vide.
+
+### Deux changements bornés à `audit_vault.py`, mesurés dans les deux sens
+
+**① `--racine <chemin>`, et la production ne le passe JAMAIS** — mesuré sur `run_job.sh:434`, qui l'appelle sans argument. Il n'existe que pour que le témoin joue le **VRAI** `Audit` sur un coffre **fabriqué en `tempfile`**, au lieu d'en recopier la logique (15/10). C'est la **piste bornée du 23/10**, payée pour `controle_livrable_du_job.py` le 16/11 et reprise ici le lendemain. Sortie sur le coffre réel **identique à l'octet** avant et après.
+
+**② `c9` lit le CODE DE SORTIE de `git`, pas seulement sa sortie.** 🔴 Mesuré : sur un coffre qui n'est pas un dépôt, `git` répond **128**, `stdout` est **vide**, donc `pb` était vide et le contrôle imprimait **`✓ Aucune fiche ne partirait à l'auto-push (0 fichier(s) en attente de publication)`** — *un vert sur une question qu'il n'avait pas pu poser*. Prouvé dans les deux sens en rejouant la version d'avant sur le même coffre fabriqué. **C'est la classe exacte du témoin de `supprimer_job.sh` (27/10, « les deux photos sont vides, donc égales ») et du garde `$SEMENCE non vide` du runner** : un garde satisfait par un état cassé. Non bloquant, comme la branche d'exception juste au-dessus : il **dit** `○ non vérifiable (git a répondu 128)` et ne tranche pas.
+
+### 🔴 Trois défauts à moi, et aucun trouvé par la relecture
+
+**① Le bloc imprimait le décompte SANS le lien fautif.** Mon motif de remontée n'appariait que les lignes à **deux** espaces, or l'audit imprime le détail **six** espaces plus loin : le push aurait dit *« 1 problème(s) »* sans dire lequel — **le reproche exact que la borne ④ de mon propre témoin fait au contrôle**. Trouvé en lisant la sortie du sens « abîmé », pas en relisant le code. La borne **㉒** lit désormais le motif **DANS le harnais** et l'applique à la ligne de détail que l'audit imprime **réellement** ; le sabotage S5 la fait mordre avec `vu=''`.
+
+**② Ma borne ⑯ était un COMPTE GLOBAL, donc elle tombait avec ⑰.** Elle exigeait « au moins 4 occurrences de `bloc_coffre` » : retirer un appel **ailleurs** la faisait tomber aussi, et **deux bornes qui tombent ensemble n'en font qu'une** (26/10). Portée au **bloc de son propre mode**, elle est désormais la seule que S15 fait tomber, et S1/S2 ne font plus tomber que ⑰.
+
+**③ Les trois durées que j'avais écrites étaient ESTIMÉES** — « 0,3 s », « 0,6 s ». Mesuré : témoin **1,25 s**, mode **1,73 · 1,74 · 2,00 s** sur trois passages, audit réel **0,37 s**, et `--integrite` passe de **1,2 à 2,9 s**. Corrigées. *Ne jamais écrire un chiffre qu'on n'a pas mesuré*, y compris une durée qui n'a l'air de rien.
+
+### 🔴 Et TROIS bornes de `categories_hook.py` sont tombées — aucune pour un invariant faux
+
+C'est la découverte de forme de la séance : **ce n'étaient pas les invariants qui étaient faux, c'étaient les SPÉCIMENS et les FENÊTRES des bornes.**
+
+- **⑭/⑮ — le spécimen était VIVANT, donc il a périmé.** Il était `audit_vault.py`, choisi le 11/11 **précisément parce que le harnais ne le mentionnait qu'en commentaire** (le hook l'écrit encore). Le 17/11, `bloc_coffre` l'**exécute** pour de bon : ⑭, qui doit être ACCEPTÉE, était alors **satisfaite par la mauvaise chose** — le script est dans l'ensemble quoi qu'on ajoute — et elle **tombait**. C'est *« un témoin vivant qui annote une propriété volatile périme tout seul »* (15, 22 et 23/10), et ici la propriété volatile était **« ce script n'est pas encore exécuté »**. 🟢 Spécimen désormais **FABRIQUÉ** et **le même pour les deux sens**.
+- **㊼ — la fenêtre était cherchée dans le TEXTE BRUT du hook.** Un **commentaire** qui nomme `--integrite` déplaçait sa fenêtre de 500 caractères et la faisait tomber sur un hook juste. C'est *« un recensement textuel n'est pas un recensement d'appels »* (27/10) **appliqué à ma propre borne**, et c'est mon commentaire `(6 bis)` qui l'a montré. 🟢 Elle lit `code_seul()`.
+- **㊽ — une fenêtre de 200 caractères EN DUR.** Deux lignes de commentaire ajoutées **dans** le mode `--integrite` la faisaient tomber sur un mode parfaitement juste. 🟢 Elle lit le **bloc entier**, jusqu'à son `fi` : *une borne juge ce que le mode fait, pas sa longueur.*
+
+### 🧪 Quinze sabotages, quinze refus
+
+Chacun **prouve d'abord qu'il a modifié le fichier** (sha256 avant → après, leçon du 26/10), nomme **sa** borne, et le fichier est restauré au **sha256 identique** :
+
+| | Sabotage | Borne qui mord |
+|---|---|---|
+| S1 | appel de `bloc_coffre` retiré du mode `--integrite` | ⑰ **seule** |
+| S2 | appel retiré du chemin COMMUN | ⑰ **seule** |
+| S3 | `CF_KO=1` posé dans la branche du verdict — **fin de l'avertissement** | ⑭ |
+| S4 | l'exigence « l'audit a parlé des liens » retirée | ⑮ |
+| S5 | remontée rognée aux lignes à deux espaces (**mon premier défaut**) | ㉒, `vu=''` |
+| S6 | dérive du libellé lu par le `sed` du harnais | ㉑, `lu=''` |
+| S7 | le contrôle accepte un suffixe `.md` — **le défaut du 16/11 rouvert** | ③ ④ ⑤ |
+| S8 | `c9` cesse de lire le code de sortie de `git` | ⑩ |
+| S9 | `LIVRABLES` resserré : `sources/veille` sort | ⑲ ⑳ |
+| S10 | `LIVRABLES` réduit à une forme **datée** | ⑲ ⑳ |
+| S11 | une borne retirée du lot | `ATTENDU_CF` : auto-test **seul exit 0** en lisant « 21/21 », harnais **exit 1** |
+| S12 | l'appel à `audit_vault.py` retiré du bloc | ⑫, **et** le bloc dit `N'A RIEN DIT DES LIENS WIKI` |
+| S13 | `LIVRABLES` perd `livrables/controles` | ⑲ **seule** |
+| S14 | `LIVRABLES` devient une **liste de séries** | ⑳ **seule** |
+| S15 | le mode `--coffre` cesse d'appeler le bloc | ⑯ **seule** |
+
+⚠️ **ET S15 DIT QUELQUE CHOSE QU'IL FAUT ÉCRIRE : un mode vidé ne s'attrape pas en lançant CE mode.** `--coffre` saboté rend **exit 0** quand on lance `--coffre` — évidemment, puisqu'il ne joue plus rien. Ce qui l'attrape est `--integrite`, **exit 1**, c'est-à-dire ce qu'un vrai push lance. Mesuré, pas supposé : aucun mode n'est aveugle à son propre sabotage **en production**.
+
+### 📊 Non-régression
+
+Mode **défaut : 3 min 12 s, exit 0, zéro `✗`** · `--docs` **exit 0** sur la leçon neuro n°02 · `--consignes` **exit 0** · `--integrite` **exit 0** · `--coffre` **exit 0**. Recensement de câblage : témoins **14 → 15**, scripts exécutés par le harnais **32 → 34**, livrables publiés **769**, **0 orphelin** partout ; journal d'exécution **27 → 30 scripts réellement lancés, 0 orphelin**. Garde par **soustraction** sur les quatre fichiers : retirer exactement ce qui a été ajouté rend chacun **à l'octet** (`assert sha256 == avant` dans chaque patch).
+
+### ⚠️ Ce que cela NE ferme pas, et c'est dit
+
+- **Le mode est un avertissement : un lien cassé se publie toujours.** Ce qui change est qu'il est **nommé au moment du push**, et non douze heures plus tard dans le log d'un job qui annonce qu'il n'interrompt rien.
+- **Le CONTENU d'une fiche n'est gardé par aucun contrôle** — citations, degrés, chiffres. `--docs` ne voit que les `.docx`, et l'audit du coffre ne juge que le nommage et les liens. Limite structurelle, inchangée.
+- **La couverture repose sur `LIVRABLES`**, donc sur un motif qui pourrait être resserré demain. Les bornes ⑲ et ⑳ refusent alors le push — c'est le seul filet, et il est textuel.
+- **Et `audit_vault.py` reste lancé par `run_job.sh` APRÈS `EXIT=0`** : un run qui échoue ne voit toujours pas son coffre. Non ordonné.
+
+**Avocat du diable** : le gain réel de ce mode est **conditionnel à ce que quelqu'un lise la sortie du push**. Un avertissement imprimé au milieu de 30 lignes de harnais vert est exactement la forme que prenait déjà la ligne du log du job — et elle n'a pas été lue le 16/11. Ce qui a changé n'est donc pas la visibilité en soi, c'est **le moment** : au push, la correction coûte une seconde ; douze heures plus tard, elle coûte un commit, un hook et un cycle complet. Si l'avertissement est ignoré deux fois de suite, la bonne réponse ne sera pas de crier plus fort mais de le rendre bloquant **sur la seule classe mesurée sans faux positif** — le suffixe `.md` sur un lien dont la cible existe, qui est un défaut d'écriture et jamais un jugement de contenu.

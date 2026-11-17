@@ -117,6 +117,19 @@ DESARMEMENT='^outils/scripts/(run_job\.sh|non_regression_runner\.sh|hooks/pre-pu
 # categories_hook.py LIT ce tuple et exige que cette catégorie le couvre — ajouter un dossier à
 # BLANCHE sans l'ajouter ici refuse. Déclencheur SÉPARÉ : toucher un livrable n'oblige pas à
 # rejouer les 250 documents, et le mode dédié coûte 1,2 s.
+# (6 bis) LE COFFRE OBSIDIAN (17/11/2026) — ET IL N'A VOLONTAIREMENT PAS DE CATÉGORIE À LUI.
+# Les quatre wikiliens fautifs de la fiche du 16/11 ont vécu jusqu'au lendemain : audit_vault.py
+# les nommait exactement, mais il est lancé 0 fois par le harnais, 0 fois par ce hook, et 3 fois
+# par run_job.sh:433 — APRÈS EXIT=0, dans une branche qui imprime « l'audit n'interrompt rien ».
+# Il EST dans SURVEILLES ci-dessus, mais c'est un DÉCLENCHEMENT, pas une COUVERTURE (11/11).
+# ⛔ POURQUOI PAS DE CATÉGORIE COFFRE : MESURÉ le 17/11, les 651 fichiers du coffre suivis par git
+# (.md et .docx de livrables/lecons, sources/veille, livrables/controles) sont TOUS dans LIVRABLES
+# — 651 sur 651, dont 312 aussi dans DOCS, 0 dehors. Une catégorie dédiée serait du CODE MORT, et
+# sa branche ne pourrait jamais se déclencher. La couverture est donc portée par les DEUX appels
+# de bloc_coffre dans le harnais — le chemin commun (touche=1, --docs) et le mode --integrite —
+# et les bornes ⑲ ⑳ de non_regression/coffre_avertissement.py LISENT ce motif-ci pour exiger que
+# chaque fichier du coffre, plus un nom FABRIQUÉ, y soit couvert : resserrer LIVRABLES refuse.
+# ⚠️ Le mode --coffre (1,7 s mesuré) existe pour la main ; le hook ne le lance pas, par cette mesure.
 LIVRABLES='^(sources/veille|livrables/(lecons|quiz|infographies|projets|controles|documents))/'
 touche=0; complet=0; runner=0; consignes=0; desarm=0; livrables=0; docs=()
 while read -r local_ref local_sha remote_ref remote_sha; do
