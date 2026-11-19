@@ -4,7 +4,8 @@ source: 2026-11-18_veille_SERAFIN-PH.docx
 date_creation: 2026-11-19
 date_veille: 2026-11-18
 veille: serafin-ph
-statut: veille-active
+statut: corrigee
+date_correction: 2026-11-19
 tags:
   - veille/serafin-ph
   - registre/pro
@@ -20,6 +21,7 @@ tags:
   - theme/facade-js-93-caracteres
   - theme/mur-marque-coche-sans-compte
   - theme/attribution-deplacee-vers-la-mauvaise-source
+  - theme/correction-des-attributions
   - theme/date-inferee-donnee-pour-lue
   - theme/recapitulatif-qui-decrit-d-autres-pages
   - theme/recapitulatif-qui-rapporte-la-conclusion
@@ -59,6 +61,23 @@ Document source : [[2026-11-18_veille_SERAFIN-PH.docx]]
 
 **Les quatre défauts ne changent aucune décision d'un chef de service, et c'est précisément ce qui les rend durables.** Un directeur qui lit cette note retient trois choses — vérifier ses données PH 2026 avant la fin de l'automne, former son référent à SIDOBA, préparer la gouvernance pour le 1er janvier 2027 — et les trois sont **justes**. Rien dans le livrable ne sera jamais contredit par la réalité : la correction d'une attribution ne produit pas de bénéfice visible, donc elle ne sera jamais priorisée, et la note suivante héritera des mêmes formes. ⚠️ **Et l'erreur « dotation globale » est la seule des quatre qui puisse mordre pour de vrai** : un établissement qui prépare sa phase 2 en croyant qu'elle mesure sa dotation globale regarde les mauvais indicateurs. C'est aussi la seule qui ne se répare pas en déplaçant une ligne : il faut relire la source.
 
+### Correction du 19/11/2026
+
+**Les quatre défauts sont corrigés dans le `.docx`, et le contrôle qui ne pouvait pas voir le défaut valide deux des quatre corrections.** `controle_attributions.py` était INERTE sur le corps faute de citation ; mais depuis le 03/11 sa passe B-FR lit **aussi le 📝 Journal des corrections**, où une formulation citée avec un verbe de portage au présent *est* confrontée à sa page. Les deux libellés rétablis y reviennent donc en `JOURNAL OK` : *« les indicateurs visant à la modulation de l'activité »* contre la page CNSA, *« Depuis fin 2014, la Direction générale de la cohésion sociale (DGCS) et la Caisse nationale de solidarité pour l'autonomie (CNSA) conduisent les travaux »* contre la page ATIH. **La correction d'une attribution en style indirect devient vérifiable par le dépôt au moment où elle est consignée** — c'est le journal qui donne la prise que le corps ne donnait pas.
+
+| ¶ | Ce que la note écrivait | Ce qu'elle écrit maintenant | La preuve |
+|---|---|---|---|
+| Calendrier, ligne 2 | *« les indicateurs visant **la dotation globale** »* | *« les indicateurs visant **la modulation de l'activité** »* | citation de la page au **degré ① LITTÉRAL** · « globale » **0 occurrence** sur 8 741 car. |
+| Calendrier, ligne 3 | *« **Automne 2026** — Vérification et validation … »*, rangé sous la CNSA du 17/12/2025 | la même échéance, le verbe de sa source (*« fiabiliser »*) et **la source nommée** : le communiqué du 27/03/2026 | « automne » **0 occurrence** sur la page CNSA, qui n'annonce que **deux** phases, et dont l'unique *« validation »* porte sur la CNIL |
+| Section ATIH, ligne 1 | *« **L'ATIH co-pilote** la documentation … **depuis fin 2014** »* | *« Depuis fin 2014, **la DGCS et la CNSA conduisent les travaux** … ; l'ATIH en assure l'appui méthodologique et technique »* | citation de la page au **degré ①** · la formulation reprise est celle du **tableau des acteurs de la note elle-même** |
+| Ligne de source institutionnelle | *« Réunion du 23 mars 2026. »* | *« Communiqué publié le 27/03/2026, qui situe la réunion au lundi précédent — soit le 23 mars 2026, **date déduite et non écrite sur la page** »* | « 23 mars » **0 occurrence** · *« Ce lundi »* + publication un **vendredi** → la date est juste, son statut manquait |
+
+**Ce qui n'a PAS été corrigé, et ce sont des décisions.** Les deux défauts du **log** restent : sa liste de sources décrit d'autres pages que le livrable, et sa ligne `👤` écrit `0 non retrouvé` là où le contrôle dit l'inverse. Les corriger reviendrait à **réécrire la trace d'une exécution**, ce qui n'est pas permis — ils sont consignés ici et dans `JOBS.md`. La date du 23 mars est **conservée partout ailleurs** (tableau des sources, titre de section, tableau des acteurs) : elle hérite de la ligne corrigée, que son marqueur nomme. Et la question de fond laissée ouverte par l'audit — *« modulation de l'activité » et « dotation globale » désignent-ils la même enveloppe ?* — **n'est toujours pas tranchée**, parce qu'aucune des trois pages lues ne définit les deux termes côte à côte : la correction rétablit donc **le libellé de la source**, geste qui est juste dans les deux hypothèses, et le journal dit explicitement qu'aucune équivalence n'est supposée.
+
+**Mesures de la correction.** `word/document.xml` **63 093 → 74 209 octets**, texte visible **37 705 → 45 121 caractères** — **ajouts seuls, aucun retrait** —, **4 marqueurs** gris italiques datés, **journal de 8 paragraphes** inséré avant `<w:sectPr>`, **4 tableaux** inchangés (plancher 3), marge d'intégrité **107 → 115**, conteneur reconstruit à **19 entrées, CRC OK, ordre identique**. Contrôles rejoués un par un, sans parallélisme : attributions **0 bloquant** (2 citations du journal, **les deux `JOURNAL OK`**), décompte **`COHÉRENT 3/4`**, édition précédente **`OK`** sur ses quatre axes, ㊳ **`exit 0`** avec `5 testés · 4 retenus · 1 écarté (404×1)`, intégrité des publiés **`DIVERGENT` non bloquant** — l'état exact d'une correction en cours —, et `non_regression.sh --docs` **exit 0, zéro `✗`**. ⚠️ `controle_noms_propres.py` rend **le même verdict qu'avant** (`NOM NON RETROUVÉ` + `1/3 page NON LUE`) et c'est normal : le nom est sur la page que le dépôt ne sait pas lire. Le journal porte désormais **la route qui le lit**, ce qui est la seule réponse possible à ce signalement.
+
+**🔴 Deux défauts à moi, et le premier a été trouvé par le contrôle, pas par ma relecture.** ① Mon premier journal citait `« 0 non retrouvé »` entre guillemets pour dénoncer la ligne du log : B-FR l'a aussitôt lu comme une **citation attribuée à `cnsa.fr`** et l'a classée `JOURNAL A RELIRE` — *« le journal affirme qu'une page la porte, et aucune page lue ne la porte »*. **La mesure que j'écrivais créait, dans le document même qui la consigne, le faux positif qu'elle décrivait** : c'est la leçon du 31/10 (« un chiffre d'instrumentation posé dans un ¶ qui porte un lien devient une taille annoncée ») par l'autre bout. Reformulé sans guillemets, le signalement disparaît et il ne reste que les deux `JOURNAL OK`. ② J'avais oublié de consigner que le **nom de la ministre** avait été lu, lui aussi, sur la page rendue — c'est-à-dire la réponse au seul signalement que la note conserve. 🟢 **Les deux fois, le document a été restauré depuis la sauvegarde au sha256 identique, puis repatché EN ENTIER depuis la source intacte**, jamais rattrapé par-dessus : *une correction partielle est pire qu'un échec* (25/10).
+
 ### Mesures du job
 
 | | |
@@ -92,7 +111,7 @@ Document source : [[2026-11-18_veille_SERAFIN-PH.docx]]
 - **Le fond SERAFIN-PH lui-même.** Que « modulation de l'activité » et « dotation globale » soient deux composants distincts du modèle est l'état de ma connaissance du dispositif, **pas une mesure** : aucune des trois pages lues ne définit les deux termes côte à côte. Si les deux désignaient la même enveloppe, le premier défaut tomberait — c'est la vérification à faire avant toute correction du document.
 - **La page `atih.sante.fr/recueil-national-ph-2026`**, qui rend 404 : la note en conclut *« page non encore publiée »*, ce qui est **une interprétation** — un 404 ne distingue pas une page jamais publiée d'une page déplacée. Aucune recherche d'URL de remplacement n'a été faite.
 - **Les deux URL `handicap.gouv.fr` du log** (`/serafin-ph`, `/comites-strategiques-serafin-ph`) rendent **200** et n'ont **pas** été lues : si l'une d'elles porte une actualité de la fenêtre 11–18/11, la « semaine creuse » serait à revoir. C'est la vérification la plus rentable pour l'édition suivante.
-- **Rien n'a été corrigé** : cette fiche mesure, elle ne touche pas au `.docx`.
+- **Ce que la correction du 19/11 ne ferme pas** : la question de fond ci-dessus reste ouverte, les deux défauts du log restent dans le log, et les deux URL `handicap.gouv.fr` à 200 n'ont toujours pas été lues. Le `.docx`, lui, est corrigé — voir la section dédiée.
 
 ## Notes liées
 
