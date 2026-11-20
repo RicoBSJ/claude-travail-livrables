@@ -108,9 +108,46 @@ def utiles(brut, ctype, code, rc):
     return len(unicodedata.normalize("NFC", aplati(brut.decode("utf-8", "replace"))))
 
 
-def classe(code, rc=0, car=None):
-    """(code HTTP, code de sortie curl, caractères utiles ou None) → un verdict qui ne
-    confond pas ces situations. `car=None` = page non mesurée : jamais une façade."""
+# ── « MUR ? » : un gabarit anti-automate masque le CODE de la page (20/11/2026) ───────
+# MESURÉ, PAS SUPPOSÉ : `handicap.gouv.fr/comites-strategiques-serafin-ph` est un 404
+# — « Page non trouvée » dans un navigateur — et rend `HTTP 200` à curl, parce que le mur
+# est servi AVANT le routage. `/serafin-ph`, du même hôte, rend 200 pour une page qui
+# existe. Les deux corps font 5 695 octets et ne diffèrent qu'à l'octet 574 (l'identifiant
+# de support) : c'est le même gabarit, pas deux pages.
+#
+# ⛔ POURQUOI « FACADE » NE SUFFISAIT PAS, et ce n'est pas une nuance : les deux verdicts
+#    commandent des gestes OPPOSÉS. Une façade (gabarit de parking, page rendue en JS) se
+#    RELIT dans un navigateur et l'adresse est souvent bonne ; un mur, lui, ne dit rien du
+#    tout — l'adresse derrière peut être MORTE, et c'est le seul cas du dépôt où un `200`
+#    masque un code d'ERREUR et non une page vide.
+#
+# ⛔ DEUX FRAGMENTS EXIGÉS ENSEMBLE, et la borne qui doit être ACCEPTÉE l'épingle : une
+#    page légitime peut dire « enable JavaScript » dans un <noscript> sans être un mur.
+#    C'est la conjonction avec l'identifiant de support qui fait le gabarit.
+# ⚠️ ET LA SIGNATURE S'ARRÊTE AVANT LE POINT : mesuré le 20/11, une balise intercalée
+#    (« view the <b>page content</b>. ») fait rendre « page content . » à l'aplatissement.
+MUR_GABARITS = (
+    ("enable javascript to view the page content", "your support id is"),   # Radware
+)
+
+
+def gabarit_de_mur(brut, ctype, code, rc):
+    """-> True quand le corps EST un gabarit de mur, None quand la page n'a PAS ÉTÉ MESURÉE.
+
+    Les quatre bornes de mesure ne sont pas recopiées : on APPELLE `utiles()`, qui les
+    porte (règle du 15/10/2026 — un test qui teste une copie de la logique ne garde rien).
+    Et le test porte sur le texte APLATI, le même que compte `utiles()`, jamais sur le
+    HTML : un gabarit coupe ses phrases par des balises."""
+    if utiles(brut, ctype, code, rc) is None:
+        return None                     # non mesurée : on ne sait pas, on n'invente pas
+    t = unicodedata.normalize("NFC", aplati(brut.decode("utf-8", "replace"))).lower()
+    return any(all(f in t for f in g) for g in MUR_GABARITS)
+
+
+def classe(code, rc=0, car=None, mur=False):
+    """(code HTTP, code de sortie curl, caractères utiles ou None, corps = un mur ?) → un
+    verdict qui ne confond pas ces situations. `car=None` = page non mesurée : jamais une
+    façade, jamais un mur. `mur=False` par défaut, donc tout appel existant est INCHANGÉ."""
     if code in ("404", "410"):
         return "MORTE"
     if code in ("", "000"):
@@ -133,13 +170,17 @@ def classe(code, rc=0, car=None):
         # minuscule. `utiles()` le rend None de son côté ; ici on refuse de l'accuser même
         # si un appelant passait un compte à la main — une exigence trop lâche rend un garde
         # redondant sans le dire (leçon du 26/10/2026), donc chaque couche exige la sienne.
+        # ⚠️ AVANT le plancher, et c'est voulu : un mur qui servirait 10 000 caractères de
+        # son propre gabarit reste un mur, et son code resterait inobservable.
+        if mur and car is not None and code[:1] == "2":
+            return "MUR"          # le code HTTP ne dit RIEN de la page : à lire, voire morte
         if car is not None and code[:1] == "2" and car < PLANCHER_LISIBLE:
-            return "FACADE"       # 200 et muette : gabarit de parking, mur, ou rendu en JS
+            return "FACADE"       # 200 et muette : gabarit de parking, ou rendu en JS
         return "VIVANTE"
     return "AUTRE"
 
 
-CONCLUANT = ("VIVANTE", "FACADE", "MORTE", "REFUS")   # on ne rejoue que ce qui peut être
+CONCLUANT = ("VIVANTE", "FACADE", "MUR", "MORTE", "REFUS")   # on ne rejoue que ce qui peut être
 # passager — une façade est un 2xx stable, la rejouer coûterait deux requêtes pour rien
 
 
@@ -214,7 +255,7 @@ def tourniquet(urls):
 
 
 def sonde(u, ca):
-    """(code, code de sortie curl, caractères utiles ou None).
+    """(code, code de sortie curl, caractères utiles ou None, corps = un mur ? ou None).
 
     UNE SEULE REQUÊTE, la même qu'avant : `-o /dev/null` téléchargeait déjà le corps
     entier pour le jeter — on change sa DESTINATION, pas le trafic. Le fichier est
@@ -242,7 +283,8 @@ def sonde(u, ca):
         brut = b""
     if os.path.exists(tmp):
         os.remove(tmp)
-    return code, r.returncode, utiles(brut, ctype, code, r.returncode)
+    return (code, r.returncode, utiles(brut, ctype, code, r.returncode),
+            gabarit_de_mur(brut, ctype, code, r.returncode))
 
 
 def balaye(limite=0, essais=3, sortie=None, seulement=None):
@@ -282,9 +324,9 @@ def balaye(limite=0, essais=3, sortie=None, seulement=None):
         for u in douteux:
             codes[u] = sonde(u, ca)
             time.sleep(PAUSE)
-    lignes = [(classe(c, rc, car), "%s/%d" % (c, rc), u, ",".join(par_doc[u]),
+    lignes = [(classe(c, rc, car, mr), "%s/%d" % (c, rc), u, ",".join(par_doc[u]),
                "" if car is None else str(car))
-              for u, (c, rc, car) in codes.items()]
+              for u, (c, rc, car, mr) in codes.items()]
     if sortie:
         with open(sortie, "w", encoding="utf-8") as f:
             for v, c, u, d, car in sorted(lignes):
@@ -296,15 +338,22 @@ def balaye(limite=0, essais=3, sortie=None, seulement=None):
     for v, _, _, _, _ in lignes:
         tot[v] += 1
     print("\n── verdict du balayage, %.0f s ──" % (time.time() - t0))
-    for v in ("VIVANTE", "FACADE", "REFUS", "PANNE", "DELAI", "TLS", "CONNEXION",
+    for v in ("VIVANTE", "FACADE", "MUR", "REFUS", "PANNE", "DELAI", "TLS", "CONNEXION",
               "INJOIGNABLE", "DNS", "MORTE", "AUTRE"):
         if tot[v]:
             print("  %-12s %4d" % (v, tot[v]))
-    for v in ("MORTE", "DNS", "TLS", "DELAI", "CONNEXION", "INJOIGNABLE", "PANNE", "FACADE"):
+    for v in ("MORTE", "DNS", "TLS", "DELAI", "CONNEXION", "INJOIGNABLE", "PANNE", "MUR",
+              "FACADE"):
         pour = [(c, u, par_doc[u], car) for vv, c, u, _, car in sorted(lignes) if vv == v]
         if not pour:
             continue
-        if v == "FACADE":
+        if v == "MUR":
+            print("\n%s ? — %d adresse(s) : le corps est le GABARIT D'UN MUR ANTI-AUTOMATE,"
+                  " servi AVANT le routage — donc le code HTTP ne dit RIEN de la page."
+                  " Mesuré le 20/11/2026 sur handicap.gouv.fr : un 404 répondait 200 derrière"
+                  " ce mur. À LIRE DANS UN NAVIGATEUR — une de ces adresses peut être MORTE."
+                  % (v, len(pour)))
+        elif v == "FACADE":
             print("\n%s ? — %d adresse(s) : un 2xx SOUS %d caractères utiles. Ni morte ni"
                   " vivante : gabarit de parking, mur anti-automate, ou page rendue en"
                   " JavaScript — et une page rendue en JS est muette pour curl et riche pour"
@@ -417,6 +466,49 @@ def autotest():
             print("  ✗ %s/%d · %r car. → %s, attendu %s"
                   % (code, rc, car, classe(code, rc, car), attendu)); ko += 1
 
+    # ── « MUR ? » : le gabarit masque le CODE, pas seulement le contenu (20/11/2026) ──
+    # ⚠️ CINQ de ces bornes doivent être ACCEPTÉES : le motif RESSERRE encore VIVANTE et
+    # FACADE, donc sans elles rien n'empêche de le réélargir demain (convention du dépôt).
+    mur_cas = [
+        ("200", 0, 93, True, "MUR"),        # le cas MESURÉ du 20/11/2026
+        ("200", 0, 50000, True, "MUR"),     # un mur BAVARD reste un mur : interdit de nicher
+                                            # le test DANS la branche du plancher. ⚠️ Elle ne garde
+                                            # PAS l'ordre des deux tests — mesuré le 20/11 : les
+                                            # deux ordres la satisfont, c'est la borne à 93 qui
+                                            # l'impose. Contribution mesurée séparément (12/11).
+        ("200", 0, 93, False, "FACADE"),    # ACCEPTÉE : sans gabarit, le verdict d'avant est INCHANGÉ
+        ("200", 0, 9999, False, "VIVANTE"), # ACCEPTÉE : idem au-dessus du plancher
+        ("404", 0, 93, True, "MORTE"),      # ACCEPTÉE : un code d'erreur REÇU l'emporte sur le mur
+        ("403", 0, 93, True, "REFUS"),      # ACCEPTÉE : un automate écarté n'est pas un mur
+        ("200", 0, None, True, "VIVANTE"),  # ACCEPTÉE : non mesurée ≠ mur (règle du 12/10)
+    ]
+    for code, rc, car, mr, attendu in mur_cas:
+        if classe(code, rc, car, mr) != attendu:
+            print("  ✗ %s/%d · %r car. · mur=%s → %s, attendu %s"
+                  % (code, rc, car, mr, classe(code, rc, car, mr), attendu)); ko += 1
+
+    # ── gabarit_de_mur() exercée POUR DE VRAI, sur le corps MESURÉ le 20/11/2026 ──────
+    MUR_VRAI = (b'<html><head><script>window["bobcmn"]="101111";</script></head><body>'
+                b'<div>Please enable JavaScript to view the <b>page content</b>. Your '
+                b'support ID is: 6852908805849036771.</div></body></html>')
+    BREF = b"<html><body>" + b"mot " * 10 + b"</body></html>"
+    NOSCRIPT = (b"<html><body><noscript>Please enable JavaScript to view the page content."
+                b"</noscript>" + b"phrase " * 900 + b"</body></html>")
+    gabarit_cas = [
+        # (corps, type, code, rc, attendu)
+        (MUR_VRAI, "text/html", "200", 0, True),    # balises INTERCALÉES : l'aplatissement les traverse
+        (NOSCRIPT, "text/html", "200", 0, False),   # ACCEPTÉE : un seul fragment ne fait pas un mur
+        (BREF, "text/html", "200", 0, False),       # ACCEPTÉE : une page brève n'est pas un mur
+        (MUR_VRAI, "text/html", "404", 0, None),    # ACCEPTÉE : non mesurée, donc on ne sait pas
+        (MUR_VRAI, "application/pdf", "200", 0, None),   # ACCEPTÉE : borne ③ d'utiles()
+        (b"", "text/html", "200", 0, None),         # ACCEPTÉE : rien reçu n'est pas un mur
+    ]
+    for brut, ctype, code, rc, attendu in gabarit_cas:
+        if gabarit_de_mur(brut, ctype, code, rc) is not attendu:
+            print("  ✗ gabarit_de_mur(%d octets, %r, %s/%d) → %r, attendu %r"
+                  % (len(brut), ctype, code, rc,
+                     gabarit_de_mur(brut, ctype, code, rc), attendu)); ko += 1
+
     # ── utiles() exercée POUR DE VRAI : c'est elle qui décide si l'on a MESURÉ ────────
     HTM = b"<html><body>" + b"mot " * 10 + b"</body></html>"        # bien sous le plancher
     GROS = b"<html><body>" + b"mot " * 2000 + b"</body></html>"     # bien au-dessus
@@ -466,7 +558,8 @@ def autotest():
     # parce qu'une fonction juste mais jamais appelée n'écrit dans aucun log (27/10/2026).
     import contextlib, http.server, io, threading
     CORPS = {"/facade": b"<html><body>Parked Domain name</body></html>",
-             "/riche": b"<html><body>" + b"phrase " * 900 + b"</body></html>"}
+             "/riche": b"<html><body>" + b"phrase " * 900 + b"</body></html>",
+             "/mur": MUR_VRAI}
 
     class Main(http.server.BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.0"
@@ -514,10 +607,11 @@ def autotest():
                 globals()["RACINE"] = vieille
             return rc, tampon.getvalue()
 
-    rc_vf, sortie_vf = balaye_sur(["/facade", "/riche"])
+    rc_vf, sortie_vf = balaye_sur(["/facade", "/riche", "/mur"])
     rc_m, _ = balaye_sur(["/mort"])
     srv.shutdown()
     lignes_f = [l for l in sortie_vf.splitlines() if "/facade" in l]
+    lignes_m = [l for l in sortie_vf.splitlines() if "/mur" in l]
     # le récapitulatif s'imprime "  %-12s %4d" : deux jetons par ligne, verdict puis compte
     recap = dict(tuple(l.split()) for l in sortie_vf.splitlines()
                  if len(l.split()) == 2 and l.split()[1].isdigit())
@@ -528,6 +622,13 @@ def autotest():
          bool(lignes_f) and any("car." in l for l in lignes_f)),
         ("la page riche reste VIVANTE", recap.get("VIVANTE") == "1"),
         ("un 404 CONDAMNE toujours — le code de sortie n'a pas été affaibli", rc_m == 1),
+        ("le récapitulatif COMPTE le mur, et SÉPARÉMENT de la façade",
+         recap.get("MUR") == "1" and recap.get("FACADE") == "1"),
+        ("le détail NOMME l'adresse murée et dit d'aller la LIRE : une alerte que personne"
+         " ne lit n'existe pas (27/10)",
+         bool(lignes_m) and any("NAVIGATEUR" in l for l in sortie_vf.splitlines())),
+        ("un mur ne CONDAMNE pas : on ne sait pas, et un verdict de plus ne durcit pas"
+         " le code de sortie", rc_vf == 0),
     ]
     for libelle, ok in bout:
         if not ok:
@@ -539,6 +640,10 @@ def autotest():
          aplati is not None and getattr(aplati, "__module__", "") == "aspirer"),
         ("FACADE est CONCLUANT : un 2xx stable ne se rejoue pas, cela coûterait 2 requêtes",
          "FACADE" in CONCLUANT),
+        ("MUR est CONCLUANT pour la même raison — un gabarit est stable",
+         "MUR" in CONCLUANT),
+        ("le gabarit exige DEUX fragments : un seul suffirait à accuser un <noscript>",
+         all(len(g) >= 2 for g in MUR_GABARITS)),
     ]
     for libelle, ok in structure:
         if not ok:
@@ -546,13 +651,15 @@ def autotest():
 
     total = (len(cas) + len(SORTIES_TLS) + 2 + len(rejeux)
              + 2 * len(orphelins_attendus) + 1
-             + len(facade_cas) + len(utiles_cas) + len(planchers)
+             + len(facade_cas) + len(mur_cas) + len(gabarit_cas)
+             + len(utiles_cas) + len(planchers)
              + len(bout) + len(structure))
     if ko:
         print("  ✗ %d/%d borne(s) de balayer_adresses.py en échec" % (ko, total)); return 1
     print("  ✓ %d/%d bornes de balayer_adresses.py — un 403 n'est pas un lien mort, un défaut de"
-          " TLS non plus, un rel orphelin n'est pas une adresse cliquable, et un 200 muet"
-          " n'est pas une page vivante" % (total, total))
+          " TLS non plus, un rel orphelin n'est pas une adresse cliquable, un 200 muet"
+          " n'est pas une page vivante, et un 200 derrière un mur ne dit RIEN de la page"
+          % (total, total))
     return 0
 
 

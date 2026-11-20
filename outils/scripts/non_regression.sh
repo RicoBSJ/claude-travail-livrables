@@ -1107,7 +1107,11 @@ if [ -x "$ROOT/outils/scripts/balayer_adresses.py" ]; then
     # ne peut pas périmer sur la panne d'un site, contrairement aux trois témoins qui ont bloqué
     # TOUS les pushs du dépôt les 15, 22 et 23/10). Et le sed lit désormais le DÉNOMINATEUR,
     # règle du 26/10 : un garde de compte doit lire les bornes JOUÉES, pas les réussies.
-    ATTENDU_BAL=72
+    # 🆕 20/11/2026 : 72 -> 90 avec le verdict « MUR ? » (18 bornes neuves, dont 11 qui doivent
+    # être ACCEPTÉES et 3 de bout en bout sur le même serveur LOCAL). Mesuré ce jour-là :
+    # handicap.gouv.fr sert son mur anti-automate AVANT le routage, donc un 404 répond 200 à
+    # curl — « FACADE ? » le disait muet, il ne pouvait pas le dire MORT.
+    ATTENDU_BAL=90
     LU_BAL=$(sed -n 's/.* \([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes de balayer_adresses.*/\2/p' "$BAL_OUT")
     if [ "$LU_BAL" != "$ATTENDU_BAL" ]; then
       echo "  ✗ ${LU_BAL:-0} borne(s) de classification jouée(s), $ATTENDU_BAL attendue(s) — un lot"
