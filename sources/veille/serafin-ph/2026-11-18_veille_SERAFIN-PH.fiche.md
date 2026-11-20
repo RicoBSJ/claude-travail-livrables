@@ -6,6 +6,7 @@ date_veille: 2026-11-18
 veille: serafin-ph
 statut: corrigee
 date_correction: 2026-11-19
+date_relecture_sources: 2026-11-20
 tags:
   - veille/serafin-ph
   - registre/pro
@@ -27,6 +28,7 @@ tags:
   - theme/recapitulatif-qui-rapporte-la-conclusion
   - theme/passes-inertes-sur-une-note-sans-citation
   - theme/route-de-lecture-perdue
+  - theme/mur-waf-qui-repond-200-sur-un-404
 ---
 
 # 2026-11-18_veille_SERAFIN-PH
@@ -78,6 +80,23 @@ Document source : [[2026-11-18_veille_SERAFIN-PH.docx]]
 
 **🔴 Deux défauts à moi, et le premier a été trouvé par le contrôle, pas par ma relecture.** ① Mon premier journal citait `« 0 non retrouvé »` entre guillemets pour dénoncer la ligne du log : B-FR l'a aussitôt lu comme une **citation attribuée à `cnsa.fr`** et l'a classée `JOURNAL A RELIRE` — *« le journal affirme qu'une page la porte, et aucune page lue ne la porte »*. **La mesure que j'écrivais créait, dans le document même qui la consigne, le faux positif qu'elle décrivait** : c'est la leçon du 31/10 (« un chiffre d'instrumentation posé dans un ¶ qui porte un lien devient une taille annoncée ») par l'autre bout. Reformulé sans guillemets, le signalement disparaît et il ne reste que les deux `JOURNAL OK`. ② J'avais oublié de consigner que le **nom de la ministre** avait été lu, lui aussi, sur la page rendue — c'est-à-dire la réponse au seul signalement que la note conserve. 🟢 **Les deux fois, le document a été restauré depuis la sauvegarde au sha256 identique, puis repatché EN ENTIER depuis la source intacte**, jamais rattrapé par-dessus : *une correction partielle est pire qu'un échec* (25/10).
 
+### Lecture du 20/11/2026 — les deux URL du log
+
+**Les deux adresses que le log crédite de son contenu ont été lues : l'une est une archive de 2017, l'autre n'existe pas — et `curl` répond `200` aux deux.**
+
+| URL du log | `curl` + faisceau | Navigateur intégré | Ce qu'elle porte |
+|---|---|---|---|
+| `handicap.gouv.fr/serafin-ph` | **200** · 93 car. | **200** · **17 805 car.** | **« Publié le 23/06/2017 »**, section « Les chantiers **2018-2019** », ENC 2018/2019 ; dernière date citée **10 janvier 2019** |
+| `handicap.gouv.fr/comites-strategiques-serafin-ph` | **200** · 93 car. | 🔴 **404 — « Page non trouvée »** | rien : la page n'existe pas |
+
+🔴 **Le fait de forme, et il touche tout l'appareil de test du dépôt : un mur WAF qui répond `200` masque un `404`.** Le mur — `Please enable JavaScript to view the page content. Your support ID is: …`, **5 695 octets**, **même gabarit aux deux URL** (elles ne diffèrent qu'à l'octet 574, l'identifiant de support) — est servi **avant le routage** : `curl` ne voit jamais le code de la page. Donc `balayer_adresses.py` classe cette adresse morte en `FACADE ?`, ce qui est le bon degré de prudence, mais **aucun outil du dépôt ne peut dire qu'elle est morte**, et la ligne `🔗 5 testés · 4 retenus · 1 écarté (codes : 404×1)` du log compte son unique 404 ailleurs (ATIH). *Un `200` ne prouve pas qu'une page existe* (25/10) — ici c'est un cran plus grave, parce que le `200` masque un **code d'erreur réel** et non une page vide.
+
+🟢 **Et la lecture tranche la question de fond que la correction du 19/11 avait laissée ouverte : « dotation globale » et « modulation » ne sont PAS la même chose.** La page que le document cite vraiment (`…14e-reunion-du-comite-strategique`, **publiée le 27/03/2026**) porte les deux et les distingue : *« intégrer notamment la question du financement des transports dans **la dotation globale** »* — l'enveloppe — contre *« des groupes de travail dédiés aux **modulations de financement** »* — les paramètres. La correction ① n'était donc pas seulement fidèle à sa source : **le libellé d'origine était un vrai défaut de fond.**
+
+🟢 **Deux corrections du 19/11 sont confirmées par une page que je n'avais pas lue.** ② au mot, **degré ①** : *« Les établissements et les agences régionales de santé seront mobilisés jusqu'à l'automne 2026 pour **fiabiliser les données** »*, et la même page porte *« Cabinet de Mme. **Camille Galliard-Minier** »*, ce que le journal du document consigne. ③ par l'archive de 2017, qui écrit *« L'équipe projet SERAFIN-PH (**DGCS-CNSA**) travaille en concertation et co-construction… »*, l'ATIH n'y apparaissant que comme co-publicateur des études de coûts.
+
+⚠️ **Et le `4 600` de cette fiche est le bon chiffre, mesuré de nouveau le 20/11** : `body` **4 600** (ce qu'aplatit `aspirer.py`), `main` **2 839**, `article` **2 656**. Comparer le plancher de 3 000 au `main` aurait inversé la conclusion — *une borne qui compare deux découpages différents ne compare rien* (31/10). Le faux négatif du plancher tient donc.
+
 ### Mesures du job
 
 | | |
@@ -110,15 +129,15 @@ Document source : [[2026-11-18_veille_SERAFIN-PH.docx]]
 - **Les quatre engagements du communiqué un par un.** J'ai vérifié les trois qui portent une date ou une échéance ; le quatrième — *« Poursuite des travaux des groupes techniques en 2026 »* — n'a pas été confronté à la page.
 - **Le fond SERAFIN-PH lui-même.** Que « modulation de l'activité » et « dotation globale » soient deux composants distincts du modèle est l'état de ma connaissance du dispositif, **pas une mesure** : aucune des trois pages lues ne définit les deux termes côte à côte. Si les deux désignaient la même enveloppe, le premier défaut tomberait — c'est la vérification à faire avant toute correction du document.
 - **La page `atih.sante.fr/recueil-national-ph-2026`**, qui rend 404 : la note en conclut *« page non encore publiée »*, ce qui est **une interprétation** — un 404 ne distingue pas une page jamais publiée d'une page déplacée. Aucune recherche d'URL de remplacement n'a été faite.
-- **Les deux URL `handicap.gouv.fr` du log** (`/serafin-ph`, `/comites-strategiques-serafin-ph`) rendent **200** et n'ont **pas** été lues : si l'une d'elles porte une actualité de la fenêtre 11–18/11, la « semaine creuse » serait à revoir. C'est la vérification la plus rentable pour l'édition suivante.
-- **Ce que la correction du 19/11 ne ferme pas** : la question de fond ci-dessus reste ouverte, les deux défauts du log restent dans le log, et les deux URL `handicap.gouv.fr` à 200 n'ont toujours pas été lues. Le `.docx`, lui, est corrigé — voir la section dédiée.
+- ✅ **Les deux URL `handicap.gouv.fr` du log** (`/serafin-ph`, `/comites-strategiques-serafin-ph`) **ont été lues le 20/11/2026** — voir la section « Lecture du 20/11/2026 » ci-dessus. *Libellé du 19/11, conservé : « rendent **200** et n'ont **pas** été lues : si l'une d'elles porte une actualité de la fenêtre 11–18/11, la « semaine creuse » serait à revoir. C'est la vérification la plus rentable pour l'édition suivante. »* — elle l'était, mais pas pour la raison annoncée : **aucune actualité**, et un défaut de l'appareil de test.
+- **Ce que les deux interventions ne ferment pas** : la question de fond ci-dessus reste ouverte, et les deux défauts du **log** restent dans le log. Le `.docx` est corrigé le **19/11** et les deux URL du log sont lues le **20/11**. *Libellé du 19/11, conservé : « les deux URL `handicap.gouv.fr` à 200 n'ont toujours pas été lues ».*
 
 ## Notes liées
 
 - ⬅️ **Précédente** — [[2026-11-11_veille_SERAFIN-PH.fiche]]
   **elle avait ouvert la route de lecture que cette édition a reperdue, et elle n'en avait pas gardé l'adresse.** Ses six énoncés prouvés au degré ① sur un instantané d'archive (`5 761 car. utiles`) sont exactement ceux que la note du 18/11 reprend de la page murée — et ma lecture de la page rendue les redémontre **tous**, sept jours plus tard, par une troisième route. 🟢 Sa mesure la plus utile tient toujours : le plafond relevé à 5 $ après son dépassement à 101 % rend **64 %** cette semaine. ⚠️ Et son marquage `⚠️ JS` + « 93 car. utiles » était la **forme honnête** que cette édition abandonne
 - ➡️ **Suivante** — édition du **mercredi 25/11/2026 à 8h03**
-  **quatre vérifications, dont deux neuves.** ① lire les **deux URL `handicap.gouv.fr` du log** qui rendent 200 et que personne n'a ouvertes — une actualité de la fenêtre y invaliderait la semaine creuse ; ② la page `atih.sante.fr/recueil-national-ph-2026` est-elle publiée, et si elle reste en 404, **chercher l'URL de remplacement** au lieu de conclure à la non-publication ; ③ 🔴 **ne pas reprendre « la dotation globale »** pour la phase 2 du recueil : la source écrit *« à la modulation de l'activité »* ; ④ si la page du 14e comité est toujours murée, **la marquer `⚠` avec son compte** comme le 11/11, et non `✅`
+  **quatre vérifications, dont deux neuves.** ① ~~lire les **deux URL `handicap.gouv.fr` du log** qui rendent 200 et que personne n'a ouvertes — une actualité de la fenêtre y invaliderait la semaine creuse~~ → **FAIT le 20/11** : archive de 2017 et **404**, aucune actualité, la semaine creuse tient ; ce qui en reste pour l'édition suivante est de **ne plus citer ces deux adresses** et de savoir qu'un `200` de cet hôte ne prouve rien ; ② la page `atih.sante.fr/recueil-national-ph-2026` est-elle publiée, et si elle reste en 404, **chercher l'URL de remplacement** au lieu de conclure à la non-publication ; ③ 🔴 **ne pas reprendre « la dotation globale »** pour la phase 2 du recueil : la source écrit *« à la modulation de l'activité »* ; ④ si la page du 14e comité est toujours murée, **la marquer `⚠` avec son compte** comme le 11/11, et non `✅`
 - 🔗 **Pont** — [[2026-11-16_veille_has-actualite.fiche]]
   **le même mécanisme, nommé là-bas et subi ici : le job relit la note, jamais la fiche.** La route d'archive mesurée le 11/11 était dans une fiche, donc hors de portée de l'édition du 18/11 — et le travail a été refait. 🔗 Et les deux séries partagent la **même cécité au mur** : là-bas une source inerte comptée parmi les `✅ exploitées`, ici un mur à 93 caractères marqué `✅`
 - 🔗 **Pont** — [[2026-11-15_veille_imac.fiche]]
