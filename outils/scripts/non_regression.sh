@@ -1111,7 +1111,10 @@ if [ -x "$ROOT/outils/scripts/balayer_adresses.py" ]; then
     # être ACCEPTÉES et 3 de bout en bout sur le même serveur LOCAL). Mesuré ce jour-là :
     # handicap.gouv.fr sert son mur anti-automate AVANT le routage, donc un 404 répond 200 à
     # curl — « FACADE ? » le disait muet, il ne pouvait pas le dire MORT.
-    ATTENDU_BAL=90
+    # 🆕 20/11/2026, même jour : 90 -> 96 avec le JOURNAL AU FIL DES SONDES. Né de deux morts
+    # silencieuses du balayage (200 puis 300 sondes sur 1 378, aucune exception au log) : le .tsv
+    # ne s'écrivait QU'À LA FIN, donc 26 min de réseau étaient perdues en entier.
+    ATTENDU_BAL=96
     LU_BAL=$(sed -n 's/.* \([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes de balayer_adresses.*/\2/p' "$BAL_OUT")
     if [ "$LU_BAL" != "$ATTENDU_BAL" ]; then
       echo "  ✗ ${LU_BAL:-0} borne(s) de classification jouée(s), $ATTENDU_BAL attendue(s) — un lot"

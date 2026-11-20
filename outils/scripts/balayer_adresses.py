@@ -184,6 +184,22 @@ CONCLUANT = ("VIVANTE", "FACADE", "MUR", "MORTE", "REFUS")   # on ne rejoue que 
 # passager — une façade est un 2xx stable, la rejouer coûterait deux requêtes pour rien
 
 
+def tuple_tsv(verdict, code, rc, url, docs, car):
+    """Les 5 colonnes du .tsv, construites À UN SEUL ENDROIT.
+
+    ⚠️ LE JOURNAL AU FIL DES SONDES ET LE FICHIER FINAL PASSENT TOUS DEUX PAR ICI : une
+    salvage qui ne se relit pas comme le fichier final serait pire que pas de salvage, et
+    deux constructions jumelles divergeraient en silence (règle du 15/10/2026 — une logique
+    copiée ne garde rien). La 5e colonne est AJOUTÉE : les quatre premières gardent leur
+    ordre, pour qu'un balayage du 25/10 et un du 20/11 se relisent côte à côte."""
+    return (verdict, "%s/%d" % (code, rc), url, ",".join(docs),
+            "" if car is None else str(car))
+
+
+def ligne_tsv(t):
+    return "%s\t%s\t%s\t%s\t%s\n" % t
+
+
 def faisceau():
     try:
         sys.path.insert(0, os.path.join(RACINE, "outils", "scripts"))
@@ -307,9 +323,34 @@ def balaye(limite=0, essais=3, sortie=None, seulement=None):
               % (len(orphelines), len({d for v in orphelines.values() for d in v})))
         for u in sorted(orphelines):
             print("    %s  [%s]" % (u, ", ".join(orphelines[u])))
+    # ── LE JOURNAL AU FIL DES SONDES (20/11/2026) ───────────────────────────────────
+    # Né de DEUX morts silencieuses le même jour : le balayage s'est arrêté à 200 puis
+    # 300 sondes sur 1 378, sans exception au log (stderr y est redirigé) — donc tué de
+    # l'extérieur —, et comme le .tsv ne s'écrivait QU'À LA FIN, les 26 minutes de réseau
+    # étaient perdues en entier. Un travail de 26 minutes ne doit pas tenir à ce qu'un
+    # processus survive : il écrit au fur et à mesure, et `flush` + `fsync` à chaque sonde
+    # parce qu'un tampon non vidé est exactement ce qu'un SIGKILL emporte.
+    part = (sortie + ".partiel") if sortie else None
+    if part and os.path.exists(part):
+        n = sum(1 for _ in open(part, encoding="utf-8"))
+        print("↯ un passage précédent est mort ici : %s porte %d ligne(s) — ÉCRASÉ par "
+              "celui-ci. Copie-le d'abord si tu en veux les sondes." % (part, n))
+    fpart = open(part, "w", encoding="utf-8") if part else None
+
+    def journalise(u, trio):
+        """⚠️ un rejeu réécrit la MÊME adresse : le journal est un journal, la DERNIÈRE
+        ligne d'une adresse gagne — c'est ce que la concordance finale vérifie."""
+        if fpart is None:
+            return
+        c, rc, car, mr = trio
+        fpart.write(ligne_tsv(tuple_tsv(classe(c, rc, car, mr), c, rc, u, par_doc[u], car)))
+        fpart.flush()
+        os.fsync(fpart.fileno())
+
     codes, t0 = {}, time.time()
     for i, u in enumerate(liste, 1):
         codes[u] = sonde(u, ca)
+        journalise(u, codes[u])
         if i % 50 == 0 or i == len(liste):
             print("  … %d/%d · %.0f s écoulées" % (i, len(liste), time.time() - t0), flush=True)
         time.sleep(PAUSE)
@@ -323,17 +364,38 @@ def balaye(limite=0, essais=3, sortie=None, seulement=None):
         time.sleep(ENTRE_ESSAIS)
         for u in douteux:
             codes[u] = sonde(u, ca)
+            journalise(u, codes[u])
             time.sleep(PAUSE)
-    lignes = [(classe(c, rc, car, mr), "%s/%d" % (c, rc), u, ",".join(par_doc[u]),
-               "" if car is None else str(car))
+    lignes = [tuple_tsv(classe(c, rc, car, mr), c, rc, u, par_doc[u], car)
               for u, (c, rc, car, mr) in codes.items()]
     if sortie:
         with open(sortie, "w", encoding="utf-8") as f:
-            for v, c, u, d, car in sorted(lignes):
-                # la 5e colonne est AJOUTÉE : les quatre premières gardent leur ordre, pour
-                # qu'un balayage du 25/10 et un du 05/11 se relisent côte à côte
-                f.write("%s\t%s\t%s\t%s\t%s\n" % (v, c, u, d, car))
+            for t in sorted(lignes):
+                f.write(ligne_tsv(t))
         print("écrit : %s" % sortie)
+    if fpart is not None:
+        fpart.close()
+        # ⛔ ON NE SUPPRIME LE JOURNAL QU'APRÈS AVOIR PROUVÉ QU'IL DIT LA MÊME CHOSE : un
+        # fichier de secours qu'on n'a jamais comparé au fichier final est une promesse,
+        # pas une garantie. La dernière ligne d'une adresse gagne (un rejeu l'a réécrite).
+        brut_j = open(part, encoding="utf-8").readlines()
+        der = {}
+        for l in brut_j:
+            der[l.split("\t")[2]] = l
+        # ⚠️ ON RELIT LE FICHIER SUR LE DISQUE, PAS LES LIGNES EN MÉMOIRE : comparer le
+        # journal à `lignes` ne prouverait QUE l'accord de deux variables — pas que le
+        # journal, trié, SOIT le fichier final, qui est tout ce qu'on veut savoir. Mesuré
+        # le 20/11 : avec la comparaison en mémoire, un écrivain final saboté (4 colonnes
+        # au lieu de 5) ou NON TRIÉ laissait le lot vert.
+        attendu = sorted(der.values())
+        ecrit = open(sortie, encoding="utf-8").readlines()
+        concorde = ecrit == attendu
+        print("journal au fil des sondes : %d ligne(s) · le journal TRIÉ est le fichier "
+              "final : %s" % (len(brut_j), "oui" if concorde else "⚠️ NON"))
+        if concorde:
+            os.remove(part)
+        else:
+            print("  ↯ le journal est CONSERVÉ pour examen : %s" % part)
     tot = defaultdict(int)
     for v, _, _, _, _ in lignes:
         tot[v] += 1
@@ -533,6 +595,22 @@ def autotest():
             print("  ✗ utiles(%d octets, %r, %s/%d) → %r, attendu %s"
                   % (len(brut), ctype, code, rc, n, attendu)); ko += 1
 
+    # ── le journal au fil des sondes : la MÊME ligne que le fichier final (20/11/2026) ─
+    tsv_cas = [
+        # (verdict, code, rc, url, docs, car, colonnes attendues)
+        ("MUR", "200", 0, "https://a.fr/p", ["d1.docx"], 93,
+         ["MUR", "200/0", "https://a.fr/p", "d1.docx", "93"]),
+        ("VIVANTE", "200", 0, "https://a.fr/p", ["d1.docx", "d2.docx"], None,
+         ["VIVANTE", "200/0", "https://a.fr/p", "d1.docx,d2.docx", ""]),   # None → colonne VIDE
+        ("TLS", "000", 60, "https://a.fr/p", [], None,
+         ["TLS", "000/60", "https://a.fr/p", "", ""]),
+    ]
+    for v, code, rc, u, docs, car, attendu in tsv_cas:
+        l = ligne_tsv(tuple_tsv(v, code, rc, u, docs, car))
+        if not l.endswith("\n") or l[:-1].split("\t") != attendu:
+            print("  ✗ ligne_tsv(tuple_tsv(%s…)) → %r, attendu %r"
+                  % (v, l, "\t".join(attendu) + "\n")); ko += 1
+
     # ── le plancher est à QUATRE endroits du dépôt : ils doivent concorder ───────────
     # Aucun n'importe celui d'un autre, donc une divergence serait SILENCIEUSE : un même
     # « sous le plancher » voudrait dire deux choses selon l'outil qui le dit.
@@ -558,7 +636,12 @@ def autotest():
     # parce qu'une fonction juste mais jamais appelée n'écrit dans aucun log (27/10/2026).
     import contextlib, http.server, io, threading
     CORPS = {"/facade": b"<html><body>Parked Domain name</body></html>",
-             "/riche": b"<html><body>" + b"phrase " * 900 + b"</body></html>",
+             # ⚠️ « aaa » N'EST PAS DÉCORATIF : `tourniquet()` fait `sorted(urls)`, donc sur un
+             # hôte unique l'ordre des sondes EST l'ordre alphabétique des URL. Avec « /riche »
+             # cet ordre coïncidait avec l'ordre des verdicts, et retirer le `sorted()` de
+             # l'écrivain final produisait le MÊME fichier : aucun sabotage du tri n'était
+             # exhibable. L'URL la plus petite porte maintenant le verdict le plus grand.
+             "/aaa-riche": b"<html><body>" + b"phrase " * 900 + b"</body></html>",
              "/mur": MUR_VRAI}
 
     class Main(http.server.BaseHTTPRequestHandler):
@@ -566,6 +649,17 @@ def autotest():
         def log_message(self, *a):
             pass
         def do_GET(self):
+            # ⚠️ /refus EXISTE POUR DÉSORDONNER : sans elle l'ordre des sondes du témoin est
+            # déjà trié, donc retirer le `sorted()` de l'écrivain final produisait le MÊME
+            # fichier et aucun sabotage du tri ne pouvait être exhibé (26/10 : une borne qui
+            # ne peut pas échouer n'est pas une borne). REFUS ne condamne pas : rc reste 0.
+            if self.path == "/refus":
+                self.send_response(403)
+                self.send_header("Content-Type", "text/html")
+                self.send_header("Content-Length", "2")
+                self.end_headers()
+                self.wfile.write(b"no")
+                return
             c = CORPS.get(self.path)
             self.send_response(200 if c else 404)
             c = c or b"<html>rien</html>"
@@ -578,7 +672,7 @@ def autotest():
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     base = "http://127.0.0.1:%d" % srv.server_port
 
-    def balaye_sur(chemins):
+    def balaye_sur(chemins, tsv=None):
         """fabrique un .docx qui cite ces chemins, puis lance le VRAI balaye()."""
         with tempfile.TemporaryDirectory() as d:
             os.makedirs(os.path.join(d, "livrables", "lecons"))
@@ -602,12 +696,15 @@ def autotest():
             tampon = io.StringIO()
             try:
                 with contextlib.redirect_stdout(tampon):
-                    rc = balaye(essais=1)
+                    rc = balaye(essais=1, sortie=tsv or "")
             finally:
                 globals()["RACINE"] = vieille
             return rc, tampon.getvalue()
 
-    rc_vf, sortie_vf = balaye_sur(["/facade", "/riche", "/mur"])
+    import tempfile as _tf
+    _d = _tf.mkdtemp()
+    _tsv = os.path.join(_d, "b.tsv")
+    rc_vf, sortie_vf = balaye_sur(["/facade", "/aaa-riche", "/mur", "/refus"], _tsv)
     rc_m, _ = balaye_sur(["/mort"])
     srv.shutdown()
     lignes_f = [l for l in sortie_vf.splitlines() if "/facade" in l]
@@ -629,6 +726,16 @@ def autotest():
          bool(lignes_m) and any("NAVIGATEUR" in l for l in sortie_vf.splitlines())),
         ("un mur ne CONDAMNE pas : on ne sait pas, et un verdict de plus ne durcit pas"
          " le code de sortie", rc_vf == 0),
+        # ── le journal au fil des sondes, exercé par le VRAI balaye() ────────────────
+        # ⚠️ PAS de borne « le fichier est trié » : sur ce témoin l'ordre des sondes est
+        # DÉJÀ trié, donc elle ne pouvait pas échouer (26/10). C'est la concordance
+        # ci-dessous qui porte le tri, parce qu'elle compare au journal TRIÉ.
+        ("le fichier final est écrit, une ligne par adresse sondée",
+         os.path.exists(_tsv) and len(open(_tsv, encoding="utf-8").readlines()) == 4),
+        ("le journal TRIÉ EST le fichier final relu sur le disque, et le balayage le DIT",
+         "le journal TRIÉ est le fichier final : oui" in sortie_vf),
+        ("le journal n'est retiré qu'APRÈS cette preuve — et il l'est",
+         not os.path.exists(_tsv + ".partiel")),
     ]
     for libelle, ok in bout:
         if not ok:
@@ -652,7 +759,7 @@ def autotest():
     total = (len(cas) + len(SORTIES_TLS) + 2 + len(rejeux)
              + 2 * len(orphelins_attendus) + 1
              + len(facade_cas) + len(mur_cas) + len(gabarit_cas)
-             + len(utiles_cas) + len(planchers)
+             + len(tsv_cas) + len(utiles_cas) + len(planchers)
              + len(bout) + len(structure))
     if ko:
         print("  ✗ %d/%d borne(s) de balayer_adresses.py en échec" % (ko, total)); return 1
