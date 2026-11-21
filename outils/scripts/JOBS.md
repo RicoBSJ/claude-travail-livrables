@@ -8229,3 +8229,60 @@ annonce ressemble à une borne qui ne mord pas* (05/11), ici dans la borne elle-
 6,00 $, marge 0,1739 $) et ce bloc ajoute **+0,32 %** sans prescrire de tour — le relever à 7,00 $
 est une ligne dans `run_job.sh`, mais cela change le cumul hebdomadaire, qui est une décision du
 propriétaire.
+
+### 21/11/2026 — Le plafond d'`ai-act-veille` passe de 6 à 7 $, après un avertissement à 97 % et AVANT le dépassement
+
+**L'ordre** : « relève le plafond d'ai-act à 7 $ ».
+
+**La trajectoire, mesurée sur les `[mesure]` des logs présents** :
+
+| Créneau | Coût | Plafond | Taux | Tours | cache-read | Sortie |
+|---|---|---|---|---|---|---|
+| 24/10 (rattrapage) | 3,0604 $ | 5,00 $ | 61 % | 90 | 5 615 780 | exit 0 |
+| 30/10 | 3,2958 $ | 5,00 $ | 66 % | 2 | 99 766 | exit 0 |
+| 06/11 | 4,6189 $ | 5,00 $ | **92 %** | 2 | 118 049 | exit 0 — *laissé sans suite* |
+| 13/11 | 5,0444 $ | 5,00 $ | **101 %** | 78 | 10 597 955 | `tool_use` |
+| 15/11 (rattrapage) | 4,5363 $ | 6,00 $ | 76 % | 2 | 137 749 | exit 0 |
+| **20/11** | **5,8261 $** | 6,00 $ | **97 %** | 68 | 9 268 406 | exit 0 |
+
+🔴 **Le premier run COMPLET après le relèvement du 15/11 a reparcouru 97 % de la marge neuve**, et
+il ne restait que **0,1739 $**. Le précédent interdit d'attendre : le 92 % du 06/11 n'a rien
+déclenché, et le 13/11 a crevé le plafond en `stop_reason=tool_use`. **Ce job a crevé trois
+plafonds** — 104 % le 02/10, 108 % le 16/10, 101 % le 13/11 — et les trois fois **en pleine
+vérification, après avoir écrit un livrable complet qu'aucun contrôle n'a vu**.
+
+🔴 **Ce que 7 $ achète n'est pas une garantie d'aboutir : c'est une tentative qui va plus loin.
+Le coût suit le plafond**, et c'est mesuré, pas craint — imac, relevé de 4 à 5 $ le matin du 15/11,
+a crevé son plafond **neuf** à 101 % quatre heures plus tard. Celui d'ai-act a tenu ce jour-là
+(76 %), mais sur un run à **2 tours**, pas sur un run complet. La justification reste donc la règle
+du 16/10 — plafond **par tentative**, fail-fast qui coupe les tentatives, donc relever ne multiplie
+pas la dépense, cela évite de perdre le créneau — et **non une cause élucidée**.
+
+⚠️ **Le durcissement du 21/11 ne l'explique pas, il le suit.** Le bloc des lettres de l'article 5
+§1 versé au prompt le matin même ajoute **1 732 octets** (53 960 → 55 690), soit ~433 jetons × 68
+tours = **+0,32 %** du cache-read, et il ne prescrit **aucun tour** : il retire ~0,02 $ des
+0,1739 $ qui restaient. Le 97 % **précède** le durcissement.
+
+🔴 **Et la série démolit un peu plus les compteurs du `[mesure]`** : **90 tours / 5,6 M de
+cache-read → 3,0604 $** (23/10), **2 tours / 118 k → 4,6189 $** (06/11), **68 tours → 5,8261 $**
+(20/11). Un rapport de **47** sur le cache-read pour un rapport de **1,3** sur le coût. Ce qui paie
+est ce que le log ne porte pas (appels d'outils et de recherche) — même conclusion que serafin le
+11/11 et qu'imac le 15/11.
+
+**Le geste** : une seule ligne du bloc `case "$JOB_ID"` de `run_job.sh`, `6.00` → `7.00`, et sa
+justification écrite devant, l'ancienne conservée en `HISTORIQUE`.
+
+- **1 ligne modifiée sur 537**, fichier **537 → 537 lignes**, +2 566 octets ;
+- garde par **soustraction** : remettre `6.00` et le commentaire d'avant rend le fichier **à
+  l'octet** ;
+- **cumul mesuré EN EXÉCUTANT le vrai bloc `case`**, job par job depuis `jobs_config.json`, jamais
+  par arithmétique sur une lecture : `imac 5,00 · serafin-ph 5,00 · rbpp 5,00 · controle-livrables
+  4,00 · ai-act 7,00 · neuropsychologie 4,00` = **30,00 $ pour 6 jobs** (29,00 → 30,00), et un id
+  inconnu retombe bien sur le défaut de **2,00 $**.
+
+**Non-régression** (`run_job.sh` est dans `RUNNER_RE` et `DESARMEMENT`, pas dans `SURVEILLES`) :
+**15/15 témoins + 21/21 mutations** du runner, `--desarmement` **exit 0** (13/13 désarmement git,
+**49/49** `categories_hook`, qui compte désormais 16 témoins et 6 scripts lancés par `run_job.sh`,
+0 orphelin). Aucun reload launchd : un plafond vit dans `run_job.sh`, pas dans un `.plist`.
+
+**POUR ANNULER : remettre `6.00` dans `run_job.sh`, rien d'autre.**
