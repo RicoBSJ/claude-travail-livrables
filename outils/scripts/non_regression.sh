@@ -901,6 +901,74 @@ PYASP
   if [ "$rc" != "0" ]; then exit 1; fi
 fi
 
+# ---- LES LETTRES DE L'ARTICLE 5 §1 SONT-ELLES VERSÉES AU PROMPT, ET BIEN APPARIÉES ? (21/11/2026)
+# Deux éditions de la série ai-act s'y sont trompées. Le 13/11/2026 écrivait « lit. h » et
+# « lit. i », faux ET inversés. Le 15/11/2026 les avait justes et sa fiche demandait noir sur blanc
+# de les reconduire. Le 20/11/2026 a produit un tableau de dix interdictions dont SEPT bases
+# légales étaient fausses — une chaîne inventée « d · e · e bis · e ter · e quater », puis « f » et
+# « g » donnés aux deux interdictions du 2 décembre 2026, lettres que l'article attribue à la
+# reconnaissance des émotions au travail et à la classification biométrique. Le document a été
+# corrigé le 21/11/2026 ; ce bloc est ce qui évite la troisième occurrence.
+# ⛔ ET AUCUN CONTRÔLE DU DÉPÔT NE VOIT LA CLASSE : les trois axes de
+#    controle_edition_precedente.py surveillent un défaut CORRIGÉ QUI REVIENT, jamais une
+#    formulation JUSTE REMPLACÉE PAR UNE FAUSSE. Une consigne écrite dans une fiche n'est pas un
+#    garde — c'est exactement ce que le 20/11 a démontré, la fiche du 15/11 ayant été ignorée.
+# ⛔ LE PRÉDICAT EST STRUCTUREL, PAS UN ID NI UN COMPTE : « les prompts qui parlent de l'AI Act ET
+#    de ses pratiques interdites ». Un id figé périme à la première suppression de job, ce qui a
+#    bloqué TOUS les pushs les 15, 22 et 23/10. Aujourd'hui 1 prompt sur 6, et les deux chaînes du
+#    prédicat PRÉEXISTAIENT au bloc versé — mesuré, donc le prédicat n'est pas satisfait par lui.
+# ⛔ LES EXIGENCES SONT POSITIVES. On ne teste PAS l'absence de « e bis » : le prompt, le témoin et
+#    la consignation écrivent tous les trois cette chaîne pour en parler, et un garde négatif se
+#    mord lui-même — le défaut du 17/10 sur « run: new TextRun », corrigé ce jour-là en exigeant la
+#    PRÉSENCE de la bonne forme, qui n'a aucune surface de faux positif.
+# ⛔ ON EXIGE LE LITTÉRAL, ET C'EST DIT : prouver l'EFFET demanderait de lancer le job — claude -p,
+#    du réseau, et un plafond déjà à 97 %. Même parti que le garde (2) de l'assertion de tableau
+#    ci-dessous et que desarmement_git.py (27/10).
+# 🧪 DEUX APPELS, ET LE SECOND N'EST PAS DÉCORATIF : le VERDICT RÉEL sur jobs_config.json — une
+#    alerte que personne ne lit n'existe pas (27/10) — ET le témoin figé, dont les bornes jouent
+#    sur des prompts FABRIQUÉS (aucune propriété vivante dans le verdict, leçon du 17/11).
+if [ -f "$ROOT/jobs_config.json" ] && [ -f "$ROOT/outils/scripts/non_regression/lettres_article5.py" ]; then
+  echo "▶ Lettres de l'article 5 §1 versées au prompt ai-act (aucun réseau, 0,3 s)"
+  A5_OUT="$CUR/lettres_article5.txt"
+  # ① LE VERDICT RÉEL, sur la config du dépôt, et sa ligne est REMONTÉE.
+  if env -i $PY "$ROOT/outils/scripts/non_regression/lettres_article5.py" --verdict \
+       "$ROOT/jobs_config.json" > "$A5_OUT" 2>&1; then
+    grep 'LETTRES DE L ARTICLE 5' "$A5_OUT"
+  else
+    cat "$A5_OUT"
+    echo "  ✗ LES LETTRES DE L'ARTICLE 5 §1 NE SONT PLUS VERSÉES AU PROMPT, OU PLUS BIEN APPARIÉES."
+    echo "    Le 20/11/2026 ce job a écrit SEPT bases légales fausses sur dix, dont la paire de sa"
+    echo "    ligne d'action urgente : « f+g » désigne la reconnaissance des émotions et la"
+    echo "    classification biométrique, applicables depuis le 2 février 2025, et non les deux"
+    echo "    interdictions du 2 décembre 2026, qui sont (ba) et (bb). Mesuré au degré ① sur"
+    echo "    artificialintelligenceact.eu/prohibited-ai-practices/, qui numérote lui-même sa liste."
+    exit 1
+  fi
+  # ② LE TÉMOIN FIGÉ, et son garde de compte lit le DÉNOMINATEUR (bornes JOUÉES) — règle du 26/10.
+  if env -i $PY "$ROOT/outils/scripts/non_regression/lettres_article5.py" >> "$A5_OUT" 2>&1; then
+    tail -1 "$A5_OUT"
+    ATTENDU_A5=15
+    # ⚠️ ANCRE ROBUSTE À LA COLONNE ET SANS ACCENT : la dérive d'un libellé accentué a fait refuser
+    #    TOUS les pushs le 04/11, et un motif exigeant « un caractère PUIS une espace » rendait
+    #    LU vide sur une ligne commençant en colonne 1. La borne ⑮ du témoin applique CE motif,
+    #    lu dans CE fichier, à la ligne qu'il imprime RÉELLEMENT.
+    LU_A5=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes des lettres de l article 5.*/\2/p" "$A5_OUT")
+    if [ "$LU_A5" != "$ATTENDU_A5" ]; then
+      echo "  ✗ ${LU_A5:-0} borne(s) jouée(s), $ATTENDU_A5 attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_A5 à jour en disant pourquoi."
+      exit 1
+    fi
+  else
+    grep '✗' "$A5_OUT" | head -9
+    echo "  ✗ LE TÉMOIN DES LETTRES DE L'ARTICLE 5 NE TIENT PLUS. Ce qu'il garde : la table mesurée"
+    echo "    (a à h, puis ba et bb), l'appariement de CHAQUE lettre à son sujet ENTRE sa propre"
+    echo "    désignation et la suivante — la présence des deux chaînes quelque part ne prouve aucun"
+    echo "    appariement —, la section lue en premier comme emplacement, et le fait que cette"
+    echo "    section reste un FAIT et non une PROCÉDURE : un tour de plus coûte ~3,3 % sur ce job."
+    exit 1
+  fi
+fi
+
 # ---- LES ASSERTIONS DE TABLEAU DES PROMPTS, ET LA PREUVE QU'ELLES MORDENT (18/10/2026) ----
 # Le 18/10/2026 la veille iMac a livré ZÉRO tableau Word pour 38 lignes à barres verticales : ses
 # trois tableaux de prix étaient des paragraphes séparés par « | ». Le contrôle d'intégrité que le

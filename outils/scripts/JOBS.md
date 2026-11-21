@@ -8114,3 +8114,118 @@ Mode **défaut : 3 min 12 s, exit 0, zéro `✗`** · `--docs` **exit 0** sur la
 🔴 **ET LA CAUSE N'EST PAS CORRIGÉE : LE DOCUMENT EST RÉPARÉ, LE PROMPT DU JOB NE L'EST PAS.** C'est la **deuxième** fois que cette série se trompe sur ces lettres — le 13/11 écrivait `lit. h` et `lit. i`, également faux et **inversés sur le contenu** — et la **première** fois qu'elle se trompe **après l'avoir eu juste** (15/11 : `lit. ba/bb`). La fiche du 15/11 demandait noir sur blanc de les reconduire. Rien n'empêche une troisième occurrence, et **aucun contrôle ne la verra** : les trois axes de `controle_edition_precedente.py` surveillent un défaut *corrigé qui revient*, jamais une formulation *juste remplacée par une fausse*. 📌 **Piste bornée, non faite, non ordonnée** : verser les lettres au prompt d'`ai-act-veille` comme fait acquis, sur le modèle des blocs de faits que portent déjà les cinq prompts — ce serait un geste sur la config, et l'ordre était de corriger le document.
 
 📊 **VÉRIFICATIONS.** Zip sain, 17 entrées · `document.xml` **52 100 → 59 053** octets · paragraphes **216 → 222** · `rels` **inchangés à l'octet** · **5** relations externes, **5** servies, **0 orpheline** · **0** marqueur suivi de texte dans son ¶ · première occurrence de « Journal des corrections » **hors marqueur**. Contrôles rejoués séquentiellement après coup, ~18 s entre deux sondes : `--docs` **exit 0** (`0 bloquant(s)`, décompte exit 2, aucun rejeu d'édition, 49/49 bornes de câblage, 774 livrables suivis) · `controle_attributions.py` **0 bloquant** · `controle_ai_act.py` 5 bis **OK, exit 0** · `controle_noms_propres.py` **exit 0**, les deux mêmes noms internes (`RBPP Bientraitance`, `Impacts ESSMS`). `controle_integrite_livrables.py` rend la seule divergence attendue, **`DIVERGENT` non bloquante** — 17 388 o sur disque contre 15 841 à HEAD, *« correction en cours ou corruption, ce contrôle ne tranche pas »*, ce qui est exactement son office.
+
+### 21/11/2026 — Les lettres de l'article 5 §1 sont versées au prompt du job ai-act, et un garde vérifie leur APPARIEMENT
+
+**L'ordre** : « verse les lettres au prompt du job », après la correction du document du 20/11 (`4122aad`).
+
+**Pourquoi un fait versé et pas une consigne.** Trois éditions, trois états :
+
+| Édition | Ce qu'elle a écrit | Ce qui l'a vue |
+|---|---|---|
+| 13/11/2026 | « lit. h » et « lit. i » — faux **et** inversés | rien |
+| 15/11/2026 | « lit. ba / bb » — **justes**, et sa fiche demandait de les reconduire | — |
+| 20/11/2026 | dix interdictions, **sept bases légales fausses** : `d · e · e bis · e ter · e quater`, puis `f`/`g` donnés aux deux interdictions du 2 décembre | rien — tous les contrôles verts, 5 bis `✅ OK` |
+
+🔴 **La cécité est structurelle, pas accidentelle.** Les trois axes de `controle_edition_precedente.py`
+surveillent un défaut **corrigé qui revient** (① le journal de N-1, ①bis jusqu'à N-4, ② les
+formulations de la fiche). Une formulation **juste remplacée par une fausse** n'est vue par aucun
+d'eux : entre « le défaut persiste » et « le défaut revient » il existait un troisième état, *« le
+juste se défait »*. Et la fiche du 15/11 prouve qu'une consigne écrite dans un livrable n'arrête
+rien — elle a été ignorée cinq jours plus tard.
+
+**La table, mesurée au degré ① le 21/11/2026** sur `artificialintelligenceact.eu/prohibited-ai-practices/`,
+qui numérote lui-même sa liste (« article 5, paragraphe 1, point h) ») et écrit « Le point (ba)
+interdit les systèmes » puis « Le point (bb) interdit les systèmes » :
+
+| Lettre | Interdiction | Applicable depuis |
+|---|---|---|
+| a) | manipulation subliminale ou trompeuse | 2 février 2025 |
+| b) | exploitation de vulnérabilités | 2 février 2025 |
+| c) | notation sociale | 2 février 2025 |
+| d) | prévision des infractions commises par des individus | 2 février 2025 |
+| e) | collecte non ciblée d'images faciales | 2 février 2025 |
+| f) | reconnaissance des émotions au travail et dans l'enseignement | 2 février 2025 |
+| g) | classification biométrique fondée sur des caractéristiques sensibles | 2 février 2025 |
+| h) | identification biométrique à distance en temps réel | 2 février 2025 |
+| **(ba)** | hypertrucages sexuels non consentis | **2 décembre 2026** |
+| **(bb)** | contenus pédocriminels | **2 décembre 2026** |
+
+**Le geste sur le prompt.** Deux puces insérées **textuellement** (jamais par `json.dump`, qui
+reformaterait le fichier) après l'ancre unique `hypertrucages sexuels non consentis et du CSAM.\n`,
+donc **dans la section `## ⚠️ ÉTAT DU DOSSIER AU 30/08/2026 — À LIRE AVANT TOUT`**. Mesures :
+
+- garde par **soustraction** (règle du 26/10) : retirer exactement le bloc inséré rend le fichier
+  d'avant **à l'octet** — `jobs_config.json` **n'a donc pas été reformaté** ;
+- **lignes 56 → 56**, octets **300 949 → 302 681 (+1 732)**, prompt ai-act **53 960 → 55 690** ;
+- aucun autre champ, aucune clé, aucun id modifié.
+
+⚠️ **Le coût est mesuré, pas estimé** : cache-read / tours du créneau du 20/11 = 9 268 406 / 68 =
+**136 300 jetons par tour**, donc +1 732 octets (~433 jetons) coûtent **+0,32 %** du cache-read,
+quand **un tour supplémentaire coûte ~3,3 %**. Le bloc énonce un **fait** et ne prescrit **aucun
+travail** : c'est pourquoi la borne ⑪ du témoin refuse qu'un appel d'outil entre dans cette section.
+
+**Le garde : `non_regression/lettres_article5.py`, 15 bornes, aucun réseau, aucun tiers, 0,3 s.**
+
+- ⛔ **Prédicat STRUCTUREL** : « les prompts qui parlent de l'AI Act **et** de ses pratiques
+  interdites » — 1 sur 6 aujourd'hui, et les **deux chaînes préexistaient** au bloc versé (mesuré),
+  donc le prédicat n'est pas satisfait par son propre objet. Un id figé périme à la première
+  suppression de job, ce qui a bloqué TOUS les pushs les 15, 22 et 23/10.
+- ⛔ **Fenêtre STRUCTURELLE** : du titre de la section au prochain `## `. Une fenêtre en dur est
+  tombée le 17/11 sur deux lignes de commentaire ajoutées.
+- ⛔ **Exigences POSITIVES** : on ne teste **pas** l'absence de « e bis » — le prompt, le témoin et
+  les consignations l'écrivent tous pour en parler, donc un garde négatif **se mord lui-même**
+  (défaut du 17/10 sur `run: new TextRun`).
+- 🟢 **Le discriminant est l'APPARIEMENT, pas la présence** : le sujet doit vivre **entre sa propre
+  désignation et la suivante**. « Les deux chaînes sont quelque part dans la section » est satisfait
+  par l'incident lui-même, qui portait toutes les bonnes chaînes dans le mauvais ordre.
+- ⛔ **On exige le LITTÉRAL** : prouver l'**effet** demanderait `claude -p`, du réseau et un plafond
+  déjà à **97 %** — même parti que le garde ② de l'assertion de tableau (18/10) et que
+  `desarmement_git.py` (27/10).
+- 🧪 **Quatre bornes doivent être ACCEPTÉES** (prose intercalaire, prompt hors prédicat, table
+  juste, verdict réel sur config fabriquée), **deux jouent le VRAI `verdict()` de bout en bout** sur
+  des configs fabriquées en `tempfile`, et le harnais **appelle le verdict RÉEL** sur
+  `jobs_config.json` **en plus** du témoin — *une alerte que personne ne lit n'existe pas* (27/10).
+- 🔌 Câblé parmi les gardes de prompt, atteint par le mode **défaut** (que déclenche
+  `jobs_config.json`, déjà dans `SURVEILLES`) et par `--docs` ; `ATTENDU_A5=15` lit le
+  **dénominateur**, et la borne ⑮ applique le `sed` **lu dans `non_regression.sh`** à la ligne que le
+  témoin imprime **réellement**, ancre **ASCII sans accent** (la dérive d'un libellé accentué a fait
+  refuser tous les pushs le 04/11). Le témoin est couvert par le **motif de répertoire** de
+  `categories_hook.py`, donc aucune liste à tenir à jour.
+
+**Huit sabotages, huit refus**, chacun nommant **sa** borne, prouvant d'abord qu'il a modifié le
+fichier (sha256 avant → après) et restauré au **sha256 identique** :
+
+| Sabotage | Ce qui mord |
+|---|---|
+| S1 `d` et `h` échangés dans le prompt **réel** | le verdict réel nomme **d)** et **h)**, harnais exit 1 |
+| S2 le bloc posé **hors** de la section lue en premier | 10 désignations absentes |
+| S3 un `chercher.py` ajouté dans la section | la section redevient une **procédure** |
+| S4 une borne retirée du lot | témoin **seul exit 0** en lisant « 14/14 », harnais **exit 1** sur `ATTENDU_A5` |
+| S5 le libellé de la ligne dérive (apostrophe) | ⑮, avec `lu=''` |
+| S6 appariement relâché : le sujet n'importe où | ④, ⑦ et ⑭ |
+| S7 fenêtre bornée à 2 000 caractères | ② et ⑨ |
+| S8 plage portée jusqu'à la fin de la section | ④, ⑦ et ⑭ |
+
+🔴 **ET LA MESURE DIT QUE MA BORNE ⑦ N'EST PAS SÉPARABLE.** Les **deux** relâchements de
+l'appariement que j'ai pu construire (S6 et S8) font tomber **④, ⑦ et ⑭ ensemble** : **④ attrape
+tout ce qu'attrape ⑦**. Elle est conservée parce que son message nomme le mécanisme et que sa
+fabrication est d'une autre forme — chaînes présentes mais **mal ordonnées**, et non échangées —
+**pas parce qu'elle serait prouvée nécessaire**. C'est la règle du 12/11 (mesurer la contribution de
+chaque borne séparément) appliquée contre moi, le lendemain du jour où le 20/11 m'avait déjà pris à
+justifier une borne par ce qu'elle ne garde pas.
+
+🔴 **Deux défauts à moi, aucun trouvé par la relecture.** ① L'aiguillage `--verdict` était placé
+**après** les bornes, or les bornes ⑬ et ⑭ relancent le fichier en sous-processus : chaque
+sous-processus rejouait tout le lot — une **récursion sans fin**, vue au premier essai et non à la
+lecture. ② Ma borne ⑦ plaçait le sujet déplacé **avant** la désignation suivante et non après, donc
+elle décrivait un appariement **correct** : *un sabotage qui n'implémente pas la sémantique qu'il
+annonce ressemble à une borne qui ne mord pas* (05/11), ici dans la borne elle-même.
+
+**Non-régression** : harnais mode **défaut exit 0, zéro ✗, 3 min 28 s** ; `zsh -n` propre
+(`bash -n` ne vaut rien sur ce fichier) ; `--docs` atteint le bloc en 33 s.
+
+📌 **Signalé, non fait, non ordonné** : le plafond d'`ai-act-veille` est à **97 %** (5,8261 $ pour
+6,00 $, marge 0,1739 $) et ce bloc ajoute **+0,32 %** sans prescrire de tour — le relever à 7,00 $
+est une ligne dans `run_job.sh`, mais cela change le cumul hebdomadaire, qui est une décision du
+propriétaire.
