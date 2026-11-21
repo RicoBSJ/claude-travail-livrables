@@ -3,12 +3,14 @@ type: fiche-document
 source: 2026-11-20_veille_ai-act.docx
 date_creation: 2026-11-21
 date_veille: 2026-11-20
+date_correction: 2026-11-21
 veille: ai-act
 statut: veille-archive
 tags:
   - veille/ai-act
   - registre/perso
   - concept/lettres-article-5
+  - concept/lettres-corrigees-le-21-11
   - concept/regression-contre-n-1
   - concept/date-de-consultation-confondue
   - concept/secteur-non-source
@@ -121,11 +123,36 @@ Document source : [[2026-11-20_veille_ai-act.docx]]
 - **Le texte du règlement lui-même** : les lettres `(ba)` / `(bb)` sont prouvées sur la page d'`artificialintelligenceact.eu`, pas sur le texte officiel. Un tiers qui résume, même juste, reste un tiers.
 - **Les bornes d'une correction** : rien n'est corrigé ici. Cette fiche est un audit, pas un patch.
 
+## Correction du 21/11/2026 — les lettres de l'article 5
+
+**Les neuf mentions fautives sont corrigées dans le `.docx` ; le constat ci-dessus n'est pas retouché, c'est la trace.** Les sept bases légales du tableau des interdictions et les deux mentions `Art. 5§1 f+g` — tableau des échéances et ligne 🔴 Urgent — portent désormais les lettres que la page citée écrit elle-même.
+
+| Interdiction | Avant | Après |
+|---|---|---|
+| Identification biométrique en temps réel | `Art. 5§1 d` | **`Art. 5§1 h`** |
+| Évaluation du risque de récidive | `Art. 5§1 e` | **`Art. 5§1 d`** |
+| Bases de données faciales par scraping | `Art. 5§1 e bis` | **`Art. 5§1 e`** |
+| Inférence des émotions | `Art. 5§1 e ter` | **`Art. 5§1 f`** |
+| Catégorisation biométrique sensible | `Art. 5§1 e quater` | **`Art. 5§1 g`** |
+| Deepfakes sexuels non consentis | `Art. 5§1 f (Omnibus)` | **`Art. 5§1 ba (Omnibus)`** |
+| Matériel pédopornographique (CSAM) | `Art. 5§1 g (Omnibus)` | **`Art. 5§1 bb (Omnibus)`** |
+| Tableau des échéances · ligne 🔴 Urgent | `Art. 5§1 f+g` ×2 | **`Art. 5§1 ba+bb` ×2** |
+
+`Art. 5§1 a`, `b` et `c` étaient justes et ne sont pas touchés. **Trois marqueurs** gris italiques datés, chacun en **fin de son paragraphe et hors de tout hyperlien** : l'intertitre du tableau (¶77), la cellule des échéances (¶32), la cellule 🔴 Urgent (¶134). **Un 📝 Journal des corrections du 21 novembre 2026** en fin de document, cinq paragraphes : les libellés d'origine, ce que la page écrit au mot, la correspondance ligne à ligne, ce qui n'est **pas** corrigé, et la réserve de lecture.
+
+⚠️ **Ce que la correction ne fait PAS, et c'est écrit dans le document.** ① Les lignes gardent leur ordre de publication, donc la colonne des bases légales ne se lit plus dans l'ordre alphabétique — quatrième ligne `h`, cinquième `d` : remettre les lignes dans l'ordre de l'article serait une **restructuration du tableau**, pas une correction de lettres. ② Les **cinq autres défauts mesurés** de cette édition — clôture de la consultation FRIA, secteurs de l'appel EoI, « 2 500 en ligne », « 15-30 ans », transition art. 50 §2 — ne sont **pas** corrigés : l'ordre portait sur les lettres. ③ Les lettres sont prouvées sur la page d'un **tiers qui résume** les lignes directrices, pas sur le texte du règlement : la note déclare EUR-Lex non lu (HTTP 202), et le JO n'a pas été consulté pour cette correction.
+
+🟢 **Et un contrôle du dépôt a confirmé la correction tout seul, sans qu'on le lui demande.** B-FR lit le corps **et** le journal depuis le 03/11 : il a retenu la citation du journal, est allé sur la page, et rend **`JOURNAL OK  Le point (bb) interdit les systèmes → artificialintelligenceact.eu/prohibited-ai-practices/ — le journal dit vrai sur ce que porte cette page`**. Six autres spans du journal sont écartés faute d'affirmation de portage, et **0 citation de marqueur n'a été cherchée** — l'exemption des marqueurs fonctionne. ⚠️ Les fragments cités ont été choisis **sans apostrophe** : une citation qui mêle un chiffre et une apostrophe ne se prouve qu'au degré ① et la graphie typographique de cette page est mélangée (règle du 03/11).
+
+📊 **Vérifications** : zip sain, 17 entrées · `document.xml` **52 100 → 59 053** octets · paragraphes **216 → 222** · `rels` **inchangés à l'octet** · **5** relations externes, **5** servies, **0 orpheline** · **0** marqueur suivi de texte dans son paragraphe · première occurrence de « Journal des corrections » **hors marqueur** (garde du 04/11). Contrôles rejoués après coup, séquentiellement : `--docs` **exit 0** (`0 bloquant(s)`, décompte exit 2, aucun rejeu d'édition) · `attributions` **0 bloquant** · `5 bis` **OK, exit 0** · `noms_propres` **exit 0**, les deux mêmes noms internes. `controle_integrite_livrables.py` rend la seule divergence attendue, **`DIVERGENT` non bloquante** — *« correction en cours ou corruption, ce contrôle ne tranche pas »*, ce qui est exactement son office.
+
+🔴 **Et une erreur à moi, dans le garde et non dans le patch.** Mon premier garde d'idempotence testait « la cible n'est pas déjà présente » : il a **refusé un patch juste**, parce que `Art. 5§1 e` est **contenu dans** `Art. 5§1 e bis` — un test de sous-chaîne pris pour un test d'état. Rien n'a été écrit, l'assertion précédant l'écriture, donc le sens d'échec était bon ; mais **un garde faux ressemble à un patch faux**, et seule la lecture du message les a séparés. Le garde compare désormais le **texte visible entier** du paragraphe, dans le **même espace de représentation** que l'extraction — entités XML comprises (règle du 01/11).
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-11-15_veille_ai-act.fiche]]
   **elle demandait cinq choses ; quatre sont rendues, et la cinquième — la plus facile — est retournée en régression.** 🟢 ① Les **conclusions EYCS du 19/11** sont instruites, avec leur référence de document, qui résout au registre. 🟢 ② Le **2 décembre** reçoit un tableau de textes au lieu d'un compte à rebours, ce qu'elle réclamait. 🔴 ③ Les lettres **`ba` / `bb`**, qu'elle demandait « à écrire telles quelles », sont remplacées par `f` / `g` et une chaîne `e bis · e ter · e quater` absente de la page — **sept bases légales fausses sur dix**. 🔴 ④ La **reprise du trilogue** n'est pas traitée : `trilogue` 0, `section B` 0. 🟠 ⑤ Sa question sur le format a sa réponse, et elle est **nuancée** : le `Article N — ` n'est **pas** revenu, mais le 5 bis mord quand même — ce sont les **guillemets** et les **tailles annoncées** qui l'ont réveillé, avec **moins** d'hyperliens qu'elle. ⚠️ Et son fil 🟢 `EN 18286` meurt ici, à 0 occurrence.
-- **➡️ Suivante** · édition du **vendredi 27/11/2026 à 9h03** — six points, et le premier n'est pas négociable. ① **Les lettres de l'article 5** : `(ba)` et `(bb)` pour les deux interdictions du 2 décembre, `a)` à `h)` pour les huit initiales — c'est la **deuxième** fois que cette série se trompe dessus (13/11, puis 20/11), et la **première** fois qu'elle se trompe après l'avoir eu juste. ② **La consultation FRIA ferme le 15 janvier 2027**, pas le 2 décembre 2027 ; et l'appel aux déployeurs testeurs se fermait le **4 décembre 2026** — à dire s'il est encore ouvert. ③ **L'appel EoI ferme le 17 décembre 2026**, et il s'adresse aux **fournisseurs** : si une opportunité ESSMS est annoncée, elle doit citer la phrase de la page qui la porte. ④ **Les liens doivent pointer les pages lues**, pas la racine du site : quatre URL pour dix sources annoncées est le plus bas compte non nul de la série. ⑤ **Le 2 décembre sera J-5** : c'est le dernier créneau avant l'échéance, donc le moment des lignes directrices de l'Office de l'IA, que cette note annonce elle-même. ⑥ Et **le plafond est à 97 %** : si le créneau le crève, le livrable sortira sans qu'aucun contrôle l'ait vu, comme le 13/11.
+- **➡️ Suivante** · édition du **vendredi 27/11/2026 à 9h03** — six points, et le premier n'est pas négociable. ① **Les lettres de l'article 5** : `(ba)` et `(bb)` pour les deux interdictions du 2 décembre, `a)` à `h)` pour les huit initiales — c'est la **deuxième** fois que cette série se trompe dessus (13/11, puis 20/11), et la **première** fois qu'elle se trompe après l'avoir eu juste. ⚠️ **Le document du 20/11 est corrigé le 21/11, le prompt du job ne l'est pas** : rien n'empêche la troisième occurrence, et aucun contrôle ne la verra. ② **La consultation FRIA ferme le 15 janvier 2027**, pas le 2 décembre 2027 ; et l'appel aux déployeurs testeurs se fermait le **4 décembre 2026** — à dire s'il est encore ouvert. ③ **L'appel EoI ferme le 17 décembre 2026**, et il s'adresse aux **fournisseurs** : si une opportunité ESSMS est annoncée, elle doit citer la phrase de la page qui la porte. ④ **Les liens doivent pointer les pages lues**, pas la racine du site : quatre URL pour dix sources annoncées est le plus bas compte non nul de la série. ⑤ **Le 2 décembre sera J-5** : c'est le dernier créneau avant l'échéance, donc le moment des lignes directrices de l'Office de l'IA, que cette note annonce elle-même. ⑥ Et **le plafond est à 97 %** : si le créneau le crève, le livrable sortira sans qu'aucun contrôle l'ait vu, comme le 13/11.
 - **🔗 Pont** · [[2026-07-09_veille_rbpp_vie-quotidienne-enfants-3-11-ans-pe.fiche]]
   **la correction de la veille et cette note portent la même classe de défaut, par les deux bouts, et c'est instructif.** Là-bas, le libellé était juste et la cible morte : un lien vers une page de collection qui rend 404 derrière un mur anti-automate, corrigé le 20/11 en repointant le PDF. Ici, les cibles sont **vivantes et lues** — 5 276 et 9 579 caractères, exacts au caractère — et ce sont **les liens qui ne les désignent pas** : deux hyperliens sur la racine du site. **Dans les deux cas le lecteur n'atteint pas ce que le document a lu**, et dans les deux cas aucun contrôle bloquant ne le dit : `balayer_adresses.py` sonde la racine et la trouve vivante, la passe A se contente d'une ligne non bloquante. 📌 La piste bornée est la même qu'hier : *un 200 ne prouve pas qu'une page est la bonne page*.
 - **🗂️ Dossier** · [[AI-Act_dossier.fiche]]
