@@ -636,6 +636,48 @@ if [ -x "$ROOT/outils/scripts/controle_livrable_du_job.py" ]; then
   fi
 fi
 
+# ── 0 quater bis. LE RENDEMENT D'UN RUN (㊳ ter, 21/11/2026)
+# Le 13/11/2026 le job ai-act a dépensé 5,0444 $ en 78 tours pour 5 316 caractères utiles — la plus
+# petite note de sa série depuis le 17/10 — et ZÉRO hyperlien, ce qui rend son propre contrôle
+# d'étape 5 bis INERTE. Le run a réussi au sens de ses contrôles, le document a été publié, et rien
+# ne rapprochait le coût de ce qui avait été produit : ㊳ juge si le run a ÉCHOUÉ, ㊳ bis compte les
+# liens que le récapitulatif ANNONCE, le [mesure] donne le COÛT. Entre « le run a échoué » et « le
+# run a produit peu » il existait un troisième état que personne ne regardait — même forme que « un
+# log n'est pas un run » (23/10) et « un run n'est pas une publication » (06/11).
+# ⛔ NON BLOQUANT : il juge un CONTENU (règle du 14/10) et une semaine creuse rend légitimement une
+#    note brève. Il se garde donc par des EXIGENCES DE LIGNE et par la borne ⑯, qui exige que le
+#    code de sortie du vrai contrôle reste 0.
+# ⛔ RIEN DE VIVANT DANS LE VERDICT : série FABRIQUÉE en tempfile et datée 2099 (leçon du 22/10).
+# ⛔ ET LA BASE DE COMPARAISON EST DÉRIVÉE DU DISQUE, jamais écrite en dur : une bande chiffrée
+#    figée périmerait au premier durcissement de prompt (leçon du 17/11), et la purge des logs à
+#    30 jours borne le travail d'elle-même — 6 documents sur 27 aujourd'hui pour la série ai-act.
+if [ -x "$ROOT/outils/scripts/non_regression/rendement_run.py" ]; then
+  echo "▶ Rendement d'un run — le coût rapporté à ce qui a été produit (㊳ ter, aucun réseau, 11 s)"
+  REND_OUT="$CUR/rendement_run.txt"
+  if env -i $PY "$ROOT/outils/scripts/non_regression/rendement_run.py" > "$REND_OUT" 2>&1; then
+    tail -1 "$REND_OUT"
+    # ⚠️ LE GARDE LIT LE DÉNOMINATEUR (bornes JOUÉES), jamais le numérateur — règle du 26/10.
+    #    Ancre ROBUSTE À LA COLONNE et ASCII SANS ACCENT : la dérive d'un libellé accentué a fait
+    #    refuser tous les pushs le 04/11. La borne ⑲ du témoin applique CE motif, lu dans CE
+    #    fichier, à la ligne qu'il imprime RÉELLEMENT.
+    ATTENDU_REND=24
+    LU_REND=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes du rendement d un run.*/\2/p" "$REND_OUT")
+    if [ "$LU_REND" != "$ATTENDU_REND" ]; then
+      echo "  ✗ ${LU_REND:-0} borne(s) jouée(s), $ATTENDU_REND attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_REND à jour en disant pourquoi."
+      exit 1
+    fi
+  else
+    grep '✗' "$REND_OUT" | head -9
+    echo "  ✗ LE RENDEMENT D'UN RUN N'EST PLUS MESURÉ, OU PLUS DIT. Ce qu'il garde : le coût par"
+    echo "    1 000 caractères utiles, le rang parmi les runs ENCORE MESURABLES de la série (dérivé"
+    echo "    du disque), le fait que ZÉRO hyperlien rend l'étape 5 bis du job INERTE, et que le"
+    echo "    rendement d'un document CORRIGÉ n'est pas celui de son run (+32 % mesuré le 13/11)."
+    echo "    DÉTECTION POSITIVE : sans log, il le DIT et n'accuse rien."
+    exit 1
+  fi
+fi
+
 # ── 0 quinquies. LA TABLE DOSSIER → JOB VOIT-ELLE LES JOBS SUPPRIMÉS ? (24/10/2026)
 # ㊳ lie un livrable au run qui l'a produit par le DOSSIER de ce livrable. Cette table venait de
 # jobs_config.json seule, donc SUPPRIMER UN JOB rendait ses livrables invisibles — pas refusés,

@@ -38,7 +38,7 @@ Rend 1 s'il reste un document issu d'un run échoué SANS déclaration, 0 sinon.
 tous viennent d'un run réussi, ou si aucun log ne correspond (un document écrit à la main
 n'est pas en cause).
 """
-import glob, json, os, re, subprocess, sys, unicodedata
+import glob, json, os, re, subprocess, sys, unicodedata, zipfile
 
 RACINE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LOGS = os.path.join(RACINE, "outils", "scripts", "logs")
@@ -260,6 +260,105 @@ def declaration(f):
     return bool(ECHEC_DIT.search(t)), bool(RELU_DIT.search(t))
 
 
+# ══════════════════════════════════════════════════════════════════════════════════════════════
+# ㊳ ter — LE RENDEMENT D'UN RUN, NON BLOQUANT (21/11/2026)
+# ──────────────────────────────────────────────────────────────────────────────────────────────
+# POURQUOI. Le 13/11/2026 le job ai-act a dépensé 5,0444 $ en 78 tours pour la plus petite note
+# de sa série depuis le 17/10 — 5 316 caractères utiles TELS QUE PRODUITS — et ZÉRO hyperlien,
+# ce qui rend son propre contrôle d'étape 5 bis INERTE (0 ¶ porteur de lien, aucune url à
+# sonder). Rien dans le dépôt ne regardait cela : ㊳ juge si le run a ÉCHOUÉ, ㊳ bis compte les
+# LIENS TESTÉS que le récapitulatif annonce, le [mesure] donne le COÛT — et personne ne
+# rapprochait le coût de ce qui a été produit. Un run peut donc réussir, publier, passer tous
+# les contrôles, et avoir rendu trois fois moins de texte pour deux fois plus d'argent.
+# ⛔ NON BLOQUANT, ET PAS PAR PRUDENCE VAGUE : le rendement juge un CONTENU (règle du 14/10), il
+#    dépend de la semaine — une semaine creuse rend légitimement une note brève —, et en
+#    production un faux refus coûte un livrable non publié.
+# ⛔ DÉTECTION POSITIVE, JAMAIS PAR ABSENCE : on ne dit un rendement que si le coût ET le compte
+#    de caractères ont été LUS. Sans log — la purge à 30 jours de run_job.sh — on le DIT et on
+#    n'accuse rien. Un garde satisfait par un état cassé est le défaut qui revient le plus ici.
+# ⛔ ET LA BASE DE COMPARAISON EST DÉRIVÉE DU DISQUE, JAMAIS ÉCRITE EN DUR : une bande chiffrée
+#    figée périmerait au premier durcissement de prompt, et une borne dont le spécimen est une
+#    propriété vivante périme toute seule (leçon du 17/11). On compare aux runs ENCORE
+#    MESURABLES de la même série, et on DIT combien ils sont — un rang sur 2 ne vaut pas un rang
+#    sur 20. La purge borne donc le travail d'elle-même : 6 documents sur 27 aujourd'hui.
+# 🔴 ET LE RENDEMENT D'UN DOCUMENT CORRIGÉ N'EST PAS CELUI DE SON RUN : mesuré le 21/11/2026 sur
+#    la note du 13/11, corrigée le 15/11 — elle lit 7 010 caractères aujourd'hui pour 5 316
+#    produits, soit +32 % de rendement APPARENT, et c'est le run qui en avait le plus besoin qui
+#    en profite le plus. Un journal des corrections ajoute du texte que le run n'a pas écrit : le
+#    verdict le DIT et marque la mesure « corrigé » au lieu de la taire ou de la truquer.
+MESURE = re.compile(r"co[ûu]t r[ée]el ([\d.,]+) \$ / plafond ([\d.,]+) \$ "
+                    r"\((\d+) %[^|]*\| (\d+) tours")
+CORRIGE = re.compile(r"Journal des corrections|\[\s*(?:Corrig|Précis|Precis|Ajout)", re.I)
+
+
+def texte(f):
+    """Le texte du .docx, par le MÊME chemin que declaration() — jamais une seconde lecture."""
+    try:
+        return subprocess.run([sys.executable, os.path.join(RACINE, "outils", "scripts",
+                                                            "extract_docx.py"), f],
+                              capture_output=True, text=True, env={}).stdout
+    except OSError:
+        return ""
+
+
+def utiles(t):
+    """Le compte de caractères utiles QU'ANNONCE extract_docx.py — on ne le recalcule pas."""
+    m = re.search(r"TEXTE COMPLET \((\d+)", t)
+    return int(m.group(1)) if m else None
+
+
+def liens_servis(f):
+    """Les relations externes RÉELLEMENT servies dans le corps — un rel orphelin n'est pas un
+    lien cliquable (règle du 25/10), et c'est ce compte que le 5 bis peut sonder."""
+    try:
+        with zipfile.ZipFile(f) as z:
+            rels = z.read("word/_rels/document.xml.rels").decode("utf-8", "replace")
+            xml = z.read("word/document.xml").decode("utf-8", "replace")
+    except (OSError, KeyError, zipfile.BadZipFile):
+        return None
+    ext = re.findall(r'Id="([^"]+)"[^>]*TargetMode="External"', rels)
+    return sum(1 for i in ext if ('r:id="%s"' % i) in xml)
+
+
+def rendement(f):
+    """Le coût du run rapporté à ce qu'il a produit. None si le document n'est pas attribuable."""
+    base = os.path.basename(f)
+    m = re.match(r"(\d{4}-\d{2}-\d{2})_", base)
+    job = job_du_document(f)
+    if not m or not job:
+        return None
+    d = {"doc": base, "job": job, "jour": m.group(1)}
+    logs = run_du_jour(job, m.group(1))
+    if not logs:
+        d["sans_log"] = True
+        return d
+    d["sans_log"] = False
+    mes = MESURE.search(open(logs[-1], encoding="utf-8", errors="replace").read())
+    t = unicodedata.normalize("NFC", texte(f))
+    car = utiles(t)
+    d.update(car=car, liens=liens_servis(f), corrige=bool(CORRIGE.search(t)))
+    if mes and car:
+        d.update(cout=float(mes.group(1).replace(",", ".")), tours=int(mes.group(4)),
+                 pct=int(mes.group(3)))
+        d["par_mille"] = d["cout"] * 1000.0 / car
+    return d
+
+
+def comparables(f):
+    """La base de comparaison, DÉRIVÉE DU DISQUE : les runs de la même série encore mesurables.
+    On n'ouvre que les documents dont un log survit — la purge borne le travail d'elle-même."""
+    out = []
+    for g in sorted(glob.glob(os.path.join(os.path.dirname(os.path.abspath(f)), "*.docx"))):
+        mm = re.match(r"(\d{4}-\d{2}-\d{2})_", os.path.basename(g))
+        job = job_du_document(g)
+        if not mm or not job or not run_du_jour(job, mm.group(1)):
+            continue
+        r = rendement(g)
+        if r and "par_mille" in r:
+            out.append(r)
+    return out
+
+
 def verdict(f):
     base = os.path.basename(f)
     m = re.match(r"(\d{4}-\d{2}-\d{2})_", base)
@@ -271,7 +370,7 @@ def verdict(f):
         return None                      # aucun run ce jour-là : document écrit autrement
     txt = open(logs[-1], encoding="utf-8", errors="replace").read()
     err = re.search(r"is_error=(\w+).*?subtype=(\S+)", txt)
-    mes = re.search(r"co[ûu]t r[ée]el ([\d.,]+) \$ / plafond ([\d.,]+) \$ \((\d+) %[^|]*\| (\d+) tours", txt)
+    mes = MESURE.search(txt)
     ctrl = len(re.findall(r"controle_attributions|controle_decompte|VERDICT|non_regression", txt))
     if not err or err.group(1) != "True":
         return None                      # run réussi : rien à dire
@@ -374,6 +473,56 @@ if __name__ == "__main__":
             print("      Relancer le job est la voie sûre. Si le travail doit être repris à la")
             print("      main, le livrable doit le DIRE — une phrase dans son journal des")
             print("      corrections suffit, et elle restera lisible par qui le relira.")
+    # 📐 LE RENDEMENT — informatif, il ne compte JAMAIS dans le code de sortie (㊳ ter, 21/11)
+    for chemin in sys.argv[1:]:
+        r = rendement(chemin)
+        if not r:
+            continue
+        if r["sans_log"]:
+            print("  📐 %s : rendement NON MESURABLE — aucun log du %s (purge à 30 jours)"
+                  % (r["doc"], r["jour"]))
+            continue
+        if "par_mille" not in r:
+            manque = []
+            if r.get("car") is None:   manque.append("le compte de caractères")
+            if "cout" not in r:        manque.append("la ligne [mesure] du log")
+            print("  📐 %s : rendement NON MESURABLE — %s" % (r["doc"], " et ".join(manque)))
+            continue
+        base = [c for c in comparables(chemin) if c["doc"] != r["doc"]]
+        rang = 1 + sum(1 for c in base if c["par_mille"] < r["par_mille"])
+        print("  📐 %s : %.3f $ / 1 000 car. utiles (%s $ · %d car. · %d tours · %d %% du plafond)"
+              % (r["doc"], r["par_mille"], ("%.4f" % r["cout"]), r["car"], r["tours"], r["pct"]))
+        if base:
+            med = sorted(c["par_mille"] for c in base)[len(base) // 2]
+            print("      rang %d/%d des runs encore mesurables de cette série (médiane des autres"
+                  " : %.3f)" % (rang, len(base) + 1, med))
+            # 🔴 LE DISCRIMINANT N'EST PAS « LE PIRE DE LA SÉRIE » : MESURÉ LE 21/11/2026, CE
+            #    DRAPEAU SE LEVAIT SUR 6 DOCUMENTS — un par série, PAR CONSTRUCTION, puisque le
+            #    pire d'une série existe toujours. Il criait donc juste assez pour qu'on cesse de
+            #    le lire : c'est la leçon du 27/10 (« alerte quand les exemptions passent à
+            #    100 % » était déjà un état légitime du corpus). LE SIGNAL EST « LE PIRE *ET* LE
+            #    PLUS RÉCENT » — autrement dit « le rendement vient de se dégrader », qui est la
+            #    seule question qu'on pose à un créneau neuf. Mesuré après bornage : 0 sur 341.
+            #    ET LE DÉNOMINATEUR A UN PLANCHER, pour la même raison : « pire de 2 » a une
+            #    chance sur deux d'être vrai par hasard. Mesuré : le plancher à 3 autres runs
+            #    retire le seul 2/2 du corpus — le bilan d'hypnose du 27/10, dont le parcours est
+            #    CLOS et le job supprimé, donc il n'y a rien à surveiller — et garde les deux
+            #    signalements qui ont un sens (has-actualite 16/11, imac 15/11). Le rang reste
+            #    IMPRIMÉ dans tous les cas : c'est l'ALERTE qui est bornée, pas l'information.
+            recent = max(c["jour"] for c in base + [r])
+            if rang == len(base) + 1 and r["jour"] == recent and len(base) >= 3:
+                print("      ⚠ LE RUN LE PLUS RÉCENT DE CETTE SÉRIE EN EST LE PIRE RENDEMENT"
+                      " MESURABLE. Le plafond n'est peut-être plus la bonne variable :"
+                      " regarder ce que le run a produit.")
+        else:
+            print("      aucun autre run de cette série n'est encore mesurable : pas de rang")
+        if r["liens"] == 0:
+            print("      ⚠ ZÉRO HYPERLIEN SERVI : le contrôle d'étape 5 bis de ce job est INERTE"
+                  " (aucun ¶ porteur de lien, aucune url à sonder) — c'est l'état du 13/11/2026.")
+        if r["corrige"]:
+            print("      ⓘ document CORRIGÉ depuis le run : ce rendement n'est PAS celui du"
+                  " run — un journal ajoute du texte que le run n'a pas écrit, et l'écart mesuré"
+                  " sur le cas du 13/11 était de +32 %. Le chiffre de CE document est inconnu.")
     # 🔗 le décompte des liens — informatif, il ne compte JAMAIS dans le code de sortie
     for l in (liens(f) for f in sys.argv[1:]):
         if not l:

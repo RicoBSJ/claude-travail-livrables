@@ -8286,3 +8286,124 @@ justification écrite devant, l'ancienne conservée en `HISTORIQUE`.
 0 orphelin). Aucun reload launchd : un plafond vit dans `run_job.sh`, pas dans un `.plist`.
 
 **POUR ANNULER : remettre `6.00` dans `run_job.sh`, rien d'autre.**
+
+### 21/11/2026 — ㊳ ter : le rendement d'un run est mesuré et dit, et il n'attend rien du prompt
+
+**L'ordre** : « surveille le rendement au prochain créneau ». Le prochain créneau d'`ai-act-veille`
+est le **vendredi 27/11 à 09h03**, dans six jours : aucune session ne tient jusque-là, et le dépôt
+a déjà payé cette classe de tâche — la 11ᵉ leçon de `revenus-passifs` avait été **prédite par
+écrit, avec sa date**, dans ce fichier, et le livrable est sorti quand même. On donne donc au
+pipeline un **détecteur**, pas une note.
+
+**Ce qui n'était vu par personne.** ㊳ juge si le run a **échoué**, ㊳ bis compte les liens que le
+récapitulatif **annonce**, le `[mesure]` donne le **coût**. Personne ne rapprochait le coût de ce
+qui avait été **produit** : entre « le run a échoué » et « le run a produit peu » il existait un
+troisième état — même forme que *« un log n'est pas un run »* (23/10) et *« un run n'est pas une
+publication »* (06/11). Le cas qui le fonde est le run du **13/11** : **5,0444 $, 78 tours, 5 316
+caractères utiles, ZÉRO hyperlien** — et zéro hyperlien rend le contrôle d'étape 5 bis de ce job
+**inerte**, faute de ¶ porteur de lien.
+
+**La série, mesurée sur les 6 runs dont le log survit à la purge** :
+
+| Créneau | coût | car. utiles | liens servis | tours | **$ / 1 000 car.** |
+|---|---|---|---|---|---|
+| 24/10 | 3,0604 $ | 16 120 | 18 | 90 | 0,190 |
+| 30/10 | 3,2958 $ | 18 273 | 24 | 2 | **0,180** |
+| 06/11 | 4,6189 $ | 11 371 | 17 | 2 | 0,406 |
+| 13/11 | 5,0444 $ | 7 010 *(corrigé ; 5 316 produits)* | **0** | 78 | **0,720** |
+| 15/11 | 4,5363 $ | 9 054 | 12 | 2 | 0,501 |
+| 20/11 | 5,8261 $ | 15 488 | 5 | 68 | 0,376 |
+
+⚠️ **Et cela corrige ma ligne d'avocat du diable d'hier** : le run du 20/11, le plus cher de la
+série, a un rendement **médian** (rang 3/6) — il a produit 15 488 caractères. Le mauvais rendement
+est celui du **13/11**, et il est le pire des six.
+
+🟢 **Le détecteur n'attend RIEN du prompt : zéro octet, zéro tour.** C'est décisif avec un plafond
+à 97 % : le coût et les tours sont dans le **log**, les caractères et les liens dans le **`.docx`**.
+Aucune consigne n'est ajoutée, donc aucun tour supplémentaire à ~3,3 %.
+
+🔴 **ET LE DISCRIMINANT A ÉTÉ FAUX DEUX FOIS, CORRIGÉ PAR LA MESURE.**
+
+1. « **le pire de la série** » → **6 signalements sur 341 documents, un par série, PAR
+   CONSTRUCTION** : une série a toujours un pire. Un superlatif est vrai par définition, donc il
+   crie juste assez pour qu'on cesse de le lire — la forme exacte de l'alerte à 100 % d'exemptions
+   du 27/10, qui existait déjà sur un document conforme.
+2. « **le pire ET le plus récent** » → **3**, dont un **rang 2/2** : le bilan d'`hypnose` du 27/10,
+   parcours **clos** et job supprimé, donc rien à surveiller.
+3. **Plancher de 3 autres runs** → **2**, parce que *« pire de 2 » est vrai une fois sur deux par
+   hasard*.
+
+⚠️ **Le rang reste IMPRIMÉ dans les trois cas : on borne l'ALERTE, jamais l'INFORMATION.**
+
+📊 **Les deux rescapés sont réels, et le second est une corroboration** : `has-actualite` du 16/11
+(**0,502** contre une médiane de 0,314) et **`imac` du 15/11 — 5,0728 $ à 101 % du plafond**,
+c'est-à-dire exactement le run dont le plafond **neuf** a été crevé quatre heures après son
+relèvement. **Le détecteur retrouve seul le cas que `CLAUDE.md` décrit à la main depuis le 15/11.**
+
+🔴 **ET LE RENDEMENT D'UN DOCUMENT CORRIGÉ N'EST PAS CELUI DE SON RUN** : la note du 13/11,
+corrigée le 15/11, lit **7 010** caractères aujourd'hui pour **5 316** produits — **+32 % de
+rendement apparent**, et c'est le run qui en avait le plus besoin qui en profite le plus. Le
+verdict le **dit** (14 documents du corpus portent la mention) au lieu de le taire ou de le truquer.
+
+**Bornes et parti pris** :
+
+- ⛔ **NON BLOQUANT** : il juge un **contenu** (règle du 14/10) et une semaine creuse rend
+  légitimement une note brève. D'où **4 exigences de ligne** et la borne ⑯, qui exige **exit 0 même
+  quand il alerte**.
+- ⛔ **Détection POSITIVE** : sans log — la purge à 30 jours — il **dit** « non mesurable »
+  (165 cas sur 341) et n'accuse rien ; `utiles()` rend **None et non 0**, un 0 donnant un rendement
+  infini ; `liens_servis()` rend **None** sur un fichier illisible, pas « zéro lien ».
+- ⛔ **Base de comparaison DÉRIVÉE DU DISQUE**, jamais écrite en dur : une bande chiffrée figée
+  périmerait au premier durcissement de prompt (17/11), et la purge borne le travail d'elle-même.
+- ⛔ **Un rel ORPHELIN n'est pas un lien cliquable** (règle du 25/10) : on compte les relations
+  externes **réellement servies** dans le corps.
+
+🧪 **Témoin `non_regression/rendement_run.py` : 24 bornes, aucun réseau, aucun tiers, 11 s
+mesurées** (11,61 · 11,46 · 11,32), sur **quatre séries fabriquées en `tempfile` et datées 2099**,
+le contrôle **importé** et non recopié (règle du 15/10), **huit lancements du VRAI contrôle** en
+sous-processus avec `--logs`. Les trois séries de conjonction vivent dans des dossiers **vierges** :
+au premier essai elles partageaient `ai-act`, déjà peuplé par les bornes unitaires, et son
+dénominateur n'était pas celui qu'on borne (**6 et non 4**).
+
+📊 **Non-régression PROUVÉE** : les **341 documents** rejoués avec la version d'avant **et** celle
+d'après, strictement séquentiellement, le contrôle joué **en place** — **0 code de sortie divergent,
+0 ligne PERDUE, 238 ajoutées** (191 📐, 165 « non mesurable », 14 « corrigé », 2 ⚠ pire, 1 ⚠ inerte).
+Harnais mode **défaut exit 0, zéro ✗, 3 min 37 s**.
+
+**Onze sabotages, onze refus**, chacun nommant **sa** borne, prouvant d'abord qu'il a modifié le
+fichier (sha256 avant → après) et restauré au **sha256 identique** :
+
+| Sabotage | Ce qui mord |
+|---|---|
+| S1 « le plus récent » retiré | ⑱ **seule** |
+| S2 le plancher du dénominateur retiré | ⑱ bis **seule** |
+| S3 le rang n'est plus imprimé | ⑰ bis, ⑱, ⑱ bis |
+| S4 le rendement touche le code de sortie | ⑯ |
+| S5 `utiles()` rend 0 au lieu de None | ④ |
+| S6 tous les rels comptés, servis ou non | ⑤ et ⑥ |
+| S7 un rendement rendu SANS log | ⑫ |
+| S8 la ligne INERTE retirée | ⑱ ter |
+| S9 une borne retirée du lot | témoin **seul exit 0** en lisant « 23/23 », harnais **exit 1** |
+| S10 le libellé de la ligne dérive | ⑲, avec `lu=''` |
+| S11 `comparables()` devient une liste en dur | ⑮ et quatre autres |
+
+🟢 **S1 et S2 font tomber chacun une borne ACCEPTÉE DIFFÉRENTE, donc leurs contributions sont
+SÉPARABLES** — ce que la règle du 12/11 demande, et que ma borne ⑦ des lettres de l'article 5, le
+matin même, n'a pas obtenu.
+
+🔴 **Trois défauts à moi, aucun trouvé par la relecture.**
+
+1. **Mon balayage avant/après lançait les deux versions depuis le scratchpad**, donc leur `RACINE`
+   pointait à côté : **0 ligne des deux côtés, exit 0 partout** — un vert sur rien, et le défaut de
+   `RACINE` du dépôt repayé une **quatrième** fois (`tolerance_page_morte` 23/10, `coherence_skill`
+   27/10, `controle_integrite_livrables` 11/11). C'est l'**impossibilité du chiffre** qui l'a dit,
+   pas la relecture. Refait par **échange du fichier en place**, sha256 vérifié dans les deux sens.
+2. **Ma borne du pire rendement devinait les comptes de caractères** — « d11 ≈0,38 contre d15
+   ≈0,15 » — et accusait un code juste : d11 était en fait le **meilleur** (rang 1/2). Elle **mesure**
+   désormais lequel est le pire avant d'exiger quoi que ce soit.
+3. **J'ai annoncé « 3 s » dans le bloc du harnais sans l'avoir mesuré** : il en coûte **11**.
+
+📌 **Ce que cela ne ferme pas, et c'est dit** : le rendement n'est mesurable que tant que le log
+survit (**30 jours**), il se calcule sur le document **tel qu'il est sur le disque** (donc faussé à
+la hausse par une correction, ce qu'il dit), et il ne juge **pas la qualité** — une note dense et
+fausse a un excellent rendement.
