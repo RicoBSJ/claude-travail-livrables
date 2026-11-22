@@ -8510,3 +8510,149 @@ garde d'**appariement** sur le modèle de `non_regression/lettres_article5.py`.
    montré en une commande : seul le `.docx` serait pris.
 3. **J'ai lu `exit=0` sur un `controle_attributions.py` tuyauté dans `tail`** — le code lu était celui de
    `tail`. Sans tuyau : **exit 1**. La règle du 15/10, enfreinte encore.
+
+---
+
+## 22/11/2026 — cinq faits acquis versés au prompt `imac-veille`, avec un garde d'appariement, et le plafond passe de 7 à 8 $
+
+> Ordre : « verse les quatre faits au prompt imac avec un garde d'appariement ». Cinq faits ont été
+> versés et non quatre : le quatrième (les deux adresses d'articles) et le cinquième (aucun débit en
+> TOPS) sont deux défauts distincts du document du jour, et les séparer coûte une ligne.
+
+### Ce que l'incident était, mesuré
+
+Deux faits **justes** se sont défaits dans la même journée, sur la même série, et dans les deux sens
+de la journée :
+
+| Fait | État au 15/11 ou à 8h03 | État publié | Mesure |
+|---|---|---|---|
+| Prix US de lancement | `$1,499` — degré ①, fiche du 15/11 | **`1 299 $`** au créneau de 8h03 | `1,299` à **zéro occurrence** sur les deux articles ; l'article 9to5Mac du 27/10 ne contient qu'**un seul `$`**, qui est `1,499` |
+| Référence à 2 219 € | **juste** à 8h03 : 256 Go · 4 ports · nano-texturé | **512 Go** au rattrapage de 14h10 | le comparateur écrit **34 fois** `M6 12 cœurs, 16 Go, SSD 256 Go, 4 ports USB` à ce prix |
+| Sources des spécifications | les deux **articles** datés, le 15/11 | `macrumors.com` et `9to5mac.com` **tout court** | une page d'accueil du jour ne porte pas un fait publié trois semaines plus tôt — c'est la cause commune des noms non retrouvés du matin |
+
+⛔ **Et la cécité est structurelle, pas accidentelle.** Les trois axes de
+`controle_edition_precedente.py` surveillent un **défaut corrigé qui revient**, jamais une
+**justesse qui se défait**. Entre « le défaut persiste » et « le défaut revient » il existait un
+troisième état que personne ne regardait, et c'est la deuxième fois en deux jours qu'il mord : le
+20/11 sur les lettres de l'article 5 d'ai-act, le 22/11 sur les prix d'imac. **Une consigne écrite
+dans une fiche n'est pas un garde** — la fiche du 15/11 demandait noir sur blanc de reconduire
+`$1,499`, et elle a été ignorée.
+
+### Le bloc versé
+
+`## ⚠️ FAITS ACQUIS AU 22/11/2026 — À LIRE AVANT TOUT`, inséré **avant** `## Étape 1 — Vérification
+des doublons (hebdomadaire)`, donc dans la première section `##` du prompt. **+1 922 octets**
+(47 507 → 49 429), `jobs_config.json` 302 681 → 304 615 octets, **lignes inchangées** — le fichier a
+été édité **textuellement**, jamais par `json.dump`, qui l'aurait reformaté en entier.
+
+🟢 **Garde par SOUSTRACTION** (règle du 26/10) : retirer exactement le texte inséré rend le fichier
+d'avant **à l'octet**, et le fichier parse toujours. Une inclusion ne dirait pas **où** l'on a
+inséré.
+
+### Le garde : `outils/scripts/non_regression/faits_imac.py`
+
+**18 bornes, aucun réseau, aucun tiers, 0,7 s mesurées** (le bloc du harnais, verdict réel compris,
+coûte **0,93 · 0,90 · 0,90 s** sur trois mesures). Les prompts des bornes sont **fabriqués** :
+aucune propriété vivante dans le verdict, leçon du 17/11.
+
+- ⛔ **Le discriminant qui porte tout est l'APPARIEMENT, pas la présence.** Le sujet doit vivre
+  **entre sa propre désignation et la suivante** : « les deux chaînes sont quelque part dans la
+  section » est satisfait par l'incident lui-même. Le sabotage S2 fait tomber ⑤, ⑦ **et** ⑮.
+- ⛔ **La fenêtre est STRUCTURELLE** — du titre au prochain `## `, jamais un nombre de caractères :
+  une fenêtre en dur est tombée le 17/11 sur deux lignes de commentaire ajoutées.
+- ⛔ **Le prédicat est structurel** : `"iMac" in p and "tout-en-un" in p`, **1 prompt sur 6**, et les
+  deux chaînes **préexistent** au bloc versé (première phrase du prompt) — donc le prédicat n'est
+  **pas satisfait par lui**, c'est mesuré. Un id figé périme à la première suppression de job, ce
+  qui a bloqué TOUS les pushs les 15, 22 et 23/10.
+- ⛔ **Les exigences sont POSITIVES.** On ne teste **pas** l'absence de « 1 299 $ » ni celle de
+  « 512 Go » : le prompt, le témoin et cette consignation les écrivent tous les trois pour en
+  parler, donc un garde négatif **se mord lui-même** — le défaut du 17/10 sur `run: new TextRun`.
+  Le piège du 512 Go est attrapé par l'appariement de `2 219 €` à « nano-texturé ».
+- ⛔ **On exige le LITTÉRAL** : prouver l'EFFET demanderait `claude -p`, du réseau et un plafond
+  consommé à **99 %** le jour même.
+- 🧪 **Sept bornes doivent être ACCEPTÉES** : ② un prompt hors prédicat, ④ le bloc juste, ⑧ de la
+  prose intercalaire entre une désignation et son sujet, ⑬ le **vrai** `verdict()` sur une config
+  fabriquée juste, ⑱ une config sans aucun prompt concerné — qui le **DIT** au lieu de rendre un
+  vert muet —, plus ① (le prédicat tient sans le bloc) et ⑫ (pas de section → `None`, pas un
+  plantage).
+- 🧪 **⑩ garde que la section reste un FAIT et non une PROCÉDURE** : un appel d'outil y est refusé,
+  parce qu'un tour de plus coûte **~1,5 %** sur ce job. Et c'est cette borne qui a mordu la
+  première rédaction du bloc, où je citais `controle_edition_precedente.py` — la chaîne
+  `controle_` est dans `OUTILS`. La mention est partie dans la consignation, à sa place.
+
+### Validation dans les deux sens, sur le fichier réel
+
+| Mesure | Avant | Après |
+|---|---|---|
+| `faits_imac.py --verdict jobs_config.json` | **exit 1** — `aucune section « ## ⚠️ FAITS ACQUIS »` | **exit 0** — `1 prompt(s) concerné(s) · 0 écart(s)` |
+| Témoin figé | — | **18/18**, exit 0 |
+| `non_regression.sh` mode défaut | — | **exit 0, zéro `✗`, 239 s** |
+| `categories_hook.py` | témoins 16 | **témoins 17 dont 0 orphelin**, 49/49 — le motif de répertoire a couvert le témoin neuf **sans qu'une ligne du hook change** |
+
+**Neuf sabotages, neuf refus**, chacun nommant **sa** borne, prouvant d'abord qu'il a modifié le
+fichier (sha256 avant → après) et restauré au **sha256 identique** :
+
+| # | Sabotage | Ce qui mord |
+|---|---|---|
+| S1 | l'**appel** de la borne ⑯ retiré | auto-test seul **exit 0** en lisant « 17/17 », harnais **exit 1** sur `ATTENDU_FI` |
+| S2 | sujet cherché **partout** dans la fenêtre | ⑤, ⑦ et ⑮ |
+| S3 | fenêtre jusqu'à la fin du prompt | ③ et ⑪ |
+| S4 | `PHRASES` **réellement** vidée | ⑨ |
+| S5 | `OUTILS` vidé | ⑩ |
+| S6 | une paire de `TABLE` retirée | ⑯, qui **nomme** l'article absent |
+| S7 | dérive de libellé de la ligne du témoin | ⑰, avec `lu=''` |
+| S8 | lot amputé, **au harnais** | `✗ 17 borne(s) jouée(s), 18 attendue(s)` |
+| S9 | **le prompt RÉEL** : `2 219 €` réapparié à « 512 Go » | le **verdict réel** du harnais, `✗ imac-veille : **2 219 €** n'est pas apparié à « nano-texturé »` |
+
+### 🔴 Deux de mes sabotages n'ont rien prouvé au premier jet
+
+1. **Remplacer `borne(` par un nom inexistant a fait PLANTER le témoin.** Refus obtenu — mais sans
+   un seul `✗` et **sans la ligne de compte**, donc ni `ATTENDU_FI` ni l'exigence de ligne ne se
+   voyaient mordre, c'est-à-dire exactement les deux gardes que ce sabotage devait prouver. C'est la
+   leçon du 12/11 (« un sabotage qui fait planter la cible masque le garde qu'il teste »), repayée.
+   Refait en **retirant l'appel entier**.
+2. **`PHRASES = [] or [...]` ne vide rien** — le `or` rend la liste non vide. Le lot restait **vert
+   à 18/18** et j'ai failli consigner que la borne ⑨ était décorative : *un sabotage qui
+   n'implémente pas la sémantique qu'il annonce ressemble à une borne qui ne mord pas* (05/11).
+
+### Le plafond, dans le même geste : 7 → 8 $
+
+Règle du 16/10 — **un durcissement de prompt se paie, et le plafond doit suivre dans le même
+geste**. C'est la première fois sur ce job que c'est le **durcissement** qui déclenche, et non un
+dépassement.
+
+⚠️ **Et le calcul dit que le bloc n'est PAS ce qui force le relèvement, il faut le dire** :
++1 922 octets ≈ **480 jetons** × 67 tours = **+0,35 %** du cache-read — 9 231 624 / 67 =
+**137 785 jetons par tour**, mesuré sur le rattrapage du jour —, et le bloc ne prescrit **aucun
+tour**.
+
+🔴 **Ce qui force le relèvement est que 1,1 % de marge est sous la variance propre de ce job.** Le
+rattrapage a rendu **6,9201 $ pour 7,00 $, soit 99 %** (67 tours, 1 321 430 ms, out 36 268,
+cache-read 9 231 624, exit 0), donc **0,0799 $** de marge, quand les neuf dernières mesures du job
+vont de **64 à 105 %** : 79 · 56 · 58 · 75 · 64 · 101 · 101 · 101 · 105.
+
+⚠️ **Contre-argument, mesuré deux fois sur ce job même : LE COÛT SUIT LE PLAFOND.** Le 5,00 $ posé
+le 15/11 a été crevé **quatre heures** plus tard ; le 7,00 $ posé ce matin a été consommé à **99 %**
+le même jour. Ce que 8 $ achète n'est pas une garantie d'aboutir, c'est une tentative qui va plus
+loin.
+
+🟢 **Et la mesure dit l'autre moitié** : au plafond de 5 $ le run a été **coupé à 105 %** et a publié
+un document plus pauvre — **5 056 caractères, 0 hyperlien**, grille de prix hors de portée de la
+passe D — là où le run à 7 $ est allé au bout et a produit 7 261 caractères avec ses sources.
+
+🟢 Garde par **soustraction** sur `run_job.sh` : **537 → 537 lignes**, +1 434 octets, et retirer le
+texte inséré rend le fichier d'avant à l'octet. **Pour annuler : remettre `7.00`, rien d'autre.**
+Cumul **mesuré en exécutant le vrai bloc `case` : 6 jobs · 33,00 $**, et un id inconnu retombe bien
+sur le défaut de **2,00 $**.
+
+### 📌 Ce que ce garde ne ferme pas
+
+- Il garde que les faits sont **présents, placés et appariés** dans le prompt. Il ne garde pas que
+  le job les **recopie** : prouver l'effet demande un créneau.
+- La série imac a produit **deux autres défauts** le 22/11 que ce bloc ne couvre pas — un relevé
+  annoncé à `05:16-05:20` quand le log donne 14:08, et un « 17 838 car. » dont l'origine reste
+  **inexpliquée** (le cache d'aspiration est daté 14:21:54 et la page porte 13:19–13:26, donc la
+  piste du cache est **démentie**, pas confirmée).
+- 📌 Piste bornée, non faite : `controle_livrable_du_job.py` est aveugle à
+  `livrables/controles/`, et son motif `CORRIGE` rend un **faux positif** sur un
+  `📝 Journal des corrections` qui dit « Aucune correction à ce jour ».

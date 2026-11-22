@@ -1011,6 +1011,78 @@ if [ -f "$ROOT/jobs_config.json" ] && [ -f "$ROOT/outils/scripts/non_regression/
   fi
 fi
 
+# ---- LES FAITS ACQUIS DE LA SÉRIE iMac SONT-ILS VERSÉS AU PROMPT, ET BIEN APPARIÉS ? (22/11/2026)
+# Le 22/11/2026, DEUX faits justes se sont défaits dans la même journée, sur la même série.
+# ① Le prix US de lancement : la fiche du 15/11 portait « $1,499 » au degré ① (MacRumors 06/11) ;
+#    le document du créneau de 8h03 a écrit « 1 299 $ », chiffre ABSENT des deux articles — mesuré,
+#    `1,299` à zéro occurrence, et l'article 9to5Mac du 27/10 ne contient qu'UN SEUL « $ », 1,499.
+# ② La référence à 2 219 € : le document de 8h03 l'avait JUSTE (256 Go, 4 ports, nano-texturé) ; le
+#    rattrapage de 14h10 l'a republiée en « 512 Go », quand le comparateur écrit 34 FOIS
+#    « M6 12 cœurs, 16 Go, SSD 256 Go, 4 ports USB » à ce prix. Ce qui distingue cette référence
+#    n'est pas le stockage, c'est le verre nano-texturé.
+# ③ Et la cause commune des noms non retrouvés du matin est la RACINE DE SITE : l'édition du 15/11
+#    citait les deux ARTICLES, celle du 22/11 a cité « macrumors.com » et « 9to5mac.com » tout
+#    court — une page d'accueil du jour ne porte pas un fait publié trois semaines plus tôt.
+# ⛔ ET AUCUN CONTRÔLE DU DÉPÔT NE VOIT LA CLASSE : les trois axes de
+#    controle_edition_precedente.py surveillent un défaut CORRIGÉ QUI REVIENT, jamais une justesse
+#    QUI SE DÉFAIT. Une consigne écrite dans une fiche n'est pas un garde — leçon du 20/11 sur
+#    ai-act, payée une seconde fois le 22/11 sur imac, deux jours plus tard.
+# ⛔ LE PRÉDICAT EST STRUCTUREL, PAS UN ID NI UN COMPTE : « les prompts qui suivent l'iMac ET les
+#    tout-en-un ». Un id figé périme à la première suppression de job, ce qui a bloqué TOUS les
+#    pushs les 15, 22 et 23/10. Aujourd'hui 1 prompt sur 6, et les deux chaînes du prédicat
+#    PRÉEXISTAIENT au bloc versé (première phrase du prompt) — le prédicat n'est pas satisfait
+#    par lui, c'est mesuré.
+# ⛔ LES EXIGENCES SONT POSITIVES. On ne teste PAS l'absence de « 1 299 $ » ni celle de « 512 Go » :
+#    le prompt, le témoin et la consignation écrivent tous les trois ces chaînes pour en parler, et
+#    un garde négatif se mord lui-même (défaut du 17/10 sur « run: new TextRun »). Le piège du
+#    512 Go est donc attrapé par l'APPARIEMENT de 2 219 € à « nano-texturé », pas par une absence.
+# ⛔ ON EXIGE LE LITTÉRAL, ET C'EST DIT : prouver l'EFFET demanderait de lancer le job — claude -p,
+#    du réseau, et un plafond consommé à 99 % le jour même. Même parti que le garde (2) de
+#    l'assertion de tableau ci-dessous, que desarmement_git.py (27/10) et que lettres_article5.py.
+# 🧪 DEUX APPELS, ET LE SECOND N'EST PAS DÉCORATIF : le VERDICT RÉEL sur jobs_config.json — une
+#    alerte que personne ne lit n'existe pas (27/10) — ET le témoin figé, dont les bornes jouent
+#    sur des prompts FABRIQUÉS (aucune propriété vivante dans le verdict, leçon du 17/11).
+if [ -f "$ROOT/jobs_config.json" ] && [ -f "$ROOT/outils/scripts/non_regression/faits_imac.py" ]; then
+  echo "▶ Faits acquis de la série iMac versés au prompt (aucun réseau, 1,0 s)"
+  FI_OUT="$CUR/faits_imac.txt"
+  # ① LE VERDICT RÉEL, sur la config du dépôt, et sa ligne est REMONTÉE.
+  if env -i $PY "$ROOT/outils/scripts/non_regression/faits_imac.py" --verdict \
+       "$ROOT/jobs_config.json" > "$FI_OUT" 2>&1; then
+    grep 'FAITS ACQUIS DE LA SERIE IMAC' "$FI_OUT"
+  else
+    cat "$FI_OUT"
+    echo "  ✗ LES FAITS ACQUIS DE LA SÉRIE iMac NE SONT PLUS VERSÉS AU PROMPT, OU PLUS APPARIÉS."
+    echo "    Mesuré au degré ① le 22/11/2026 : \$1,499 = 10 cœurs · \$1,699 = 12 cœurs ·"
+    echo "    \$1,449 = éducation · 1 799 € = 10c/10c · 2 219 € = verre NANO-TEXTURÉ, SSD 256 Go."
+    echo "    Les deux faits ci-dessus ont été écrits justes puis refaits faux le même jour, et"
+    echo "    la relecture d'édition ne voit pas une justesse qui se défait."
+    exit 1
+  fi
+  # ② LE TÉMOIN FIGÉ, et son garde de compte lit le DÉNOMINATEUR (bornes JOUÉES) — règle du 26/10.
+  if env -i $PY "$ROOT/outils/scripts/non_regression/faits_imac.py" >> "$FI_OUT" 2>&1; then
+    tail -1 "$FI_OUT"
+    ATTENDU_FI=18
+    # ⚠️ ANCRE ROBUSTE À LA COLONNE ET SANS ACCENT : la dérive d'un libellé accentué a fait refuser
+    #    TOUS les pushs le 04/11. La borne ⑰ du témoin applique CE motif, lu dans CE fichier, à la
+    #    ligne qu'il imprime RÉELLEMENT — jamais une copie des deux côtés (règle du 15/10).
+    LU_FI=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes des faits acquis de la serie imac.*/\2/p" "$FI_OUT")
+    if [ "$LU_FI" != "$ATTENDU_FI" ]; then
+      echo "  ✗ ${LU_FI:-0} borne(s) jouée(s), $ATTENDU_FI attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_FI à jour en disant pourquoi."
+      exit 1
+    fi
+  else
+    grep '✗' "$FI_OUT" | head -9
+    echo "  ✗ LE TÉMOIN DES FAITS ACQUIS DE LA SÉRIE iMac NE TIENT PLUS. Ce qu'il garde : les cinq"
+    echo "    faits mesurés, l'appariement de CHAQUE désignation à son sujet ENTRE sa propre"
+    echo "    désignation et la suivante — la présence des deux chaînes quelque part ne prouve"
+    echo "    aucun appariement —, la section lue en premier comme emplacement, les deux ARTICLES"
+    echo "    datés au lieu des racines de site, et le fait que cette section reste un FAIT et non"
+    echo "    une PROCÉDURE : un tour de plus coûte ~1,5 % sur ce job, à 99 % de son plafond."
+    exit 1
+  fi
+fi
+
 # ---- LES ASSERTIONS DE TABLEAU DES PROMPTS, ET LA PREUVE QU'ELLES MORDENT (18/10/2026) ----
 # Le 18/10/2026 la veille iMac a livré ZÉRO tableau Word pour 38 lignes à barres verticales : ses
 # trois tableaux de prix étaient des paragraphes séparés par « | ». Le contrôle d'intégrité que le
