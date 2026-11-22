@@ -8407,3 +8407,106 @@ matin même, n'a pas obtenu.
 survit (**30 jours**), il se calcule sur le document **tel qu'il est sur le disque** (donc faussé à
 la hausse par une correction, ce qu'il dit), et il ne juge **pas la qualité** — une note dense et
 fausse a un excellent rendement.
+
+---
+
+## 22/11/2026 — `imac-veille` : plafond 5 → 7 $, et les deux jobs du dimanche sont morts sur leur plafond
+
+### Ce qui s'est passé
+
+Les **deux** créneaux du 22/11 sont morts en `error_max_budget_usd` / `stop_reason=tool_use`, c'est-à-dire
+**en pleine vérification, après avoir écrit un livrable complet** :
+
+| Job | Coût / plafond | Tours | Durée | exit | Publication |
+|---|---|---|---|---|---|
+| `imac-veille` 08:03 | **5,2747 $ / 5,00 $ — 105 %** | 66 | 784 760 ms | 1 | `pas de commit` |
+| `controle-livrables` 11:03 | **4,0446 $ / 4,00 $ — 101 %** | 59 | 764 537 ms | 1 | `pas de commit` |
+
+⚠️ **Et la note de contrôle EST commitée malgré cela** : `b92a8ea`, horodaté **11:15:54**, soit **une seconde
+avant** la ligne de fin du job — c'est l'agent du run qui a commité lui-même, puis il est mort, et rien n'a
+été poussé. Le local est donc resté **en avance d'un commit** sur `origin/main`.
+⛔ **Et ㊳ est structurellement muet sur ce livrable, mesuré** : sa table n'attribue que **8 dossiers**
+(`imac`, `serafin-ph`, `rbpp`, `has-actualite`, `ai-act`, `neuropsychologie`, `hypnose`,
+`placement-financier`) — **`livrables/controles/` n'y figure pas**, donc le contrôle qui juge les livrables
+des autres n'est jugé par personne. 📌 Piste bornée, non ordonnée : l'ajouter à la table, ou le faire
+déduire du champ `livrable` de la config comme les autres.
+
+### Le relèvement, et pourquoi la cause évidente est fausse
+
+`run_job.sh` : `imac-veille) BUDGET="5.00"` → **`"7.00"`**. Neuf mesures, le rattrapage du 15/11 compris :
+**79 · 56 · 58 · 75 · 64 · 101 · 101 · 101 · 105 %**.
+
+🔴 **LE PROMPT N'EST PAS EN CAUSE, ET C'EST MESURÉ SUR LES CINQ DERNIERS LOGS** — `47 506` octets aux cinq,
+**identique à l'octet depuis le 01/11**, pendant que le coût passait de **2,5460 à 5,2747 $** :
+
+| Créneau | Prompt (o) | Coût / plafond | Tours | cache-read | $/tour |
+|---|---|---|---|---|---|
+| 25/10 | 45 037 | 2,9938 / 4,00 — 75 % | 76 | 5 693 927 | 0,0394 |
+| 01/11 | 47 506 | 2,5460 / 4,00 — 64 % | 24 | 2 618 467 | 0,1061 |
+| 08/11 | 47 506 | 4,0233 / 4,00 — 101 % | **1** | **0** | — (anomalie) |
+| 15/11 créneau | 47 506 | 4,0230 / 4,00 — 101 % | 35 | 4 047 698 | 0,1149 |
+| 15/11 rattrapage | 47 506 | 5,0728 / 5,00 — 101 % | 60 | 6 379 799 | 0,0845 |
+| 22/11 | 47 506 | **5,2747 / 5,00 — 105 %** | 66 | 8 939 989 | 0,0799 |
+
+Donc **aucun durcissement à payer**, contrairement aux relèvements du 16/10 et du 19/10. Ce qui monte est le
+**nombre de tours** (24 → 66) et le **cache-read** (2,6 → 8,9 M) ; le **coût par tour BAISSE**. Ce qui paie est
+ce que le log ne porte pas — appels d'outils et de recherche. **Même conclusion que serafin le 11/11, imac le
+15/11 et ai-act le 21/11**, pour la quatrième fois.
+
+🔴 **ET LE BESOIN RÉEL EST INCONNU** : les **trois** derniers runs ont été **coupés par leur plafond**, donc
+4,02 · 5,07 · 5,27 mesurent le **plafond**, pas le **besoin**. Le dernier run **complet** date du **01/11**
+(2,5460 $, 24 tours, 64 %).
+
+⛔ **Pourquoi +2 $ et non le pas habituel de +1** : le pas de +1 $ a **déjà échoué deux fois sur ce job** —
+plafond neuf crevé **quatre heures** après le relèvement du 15/11, puis crevé de nouveau à **105 %** une
+semaine plus tard. 7,00 $ est le plafond d'`ai-act`, dont le relèvement a produit un run **complet** à **76 %**
+(4,5363 $ pour 6,00 $ le 15/11). ⚠️ Et ce que 7 $ achète n'est **toujours pas** une garantie d'aboutir :
+*le coût suit le plafond*, mesuré deux fois sur ce job même.
+
+🟢 **Garde par SOUSTRACTION** : retirer exactement le texte inséré rend le fichier d'avant **au sha256
+identique**, **537 → 537 lignes**, **+2 028 octets**. Cumul **mesuré en exécutant le vrai bloc `case` :
+6 jobs · 32,00 $**. **Pour annuler : remettre `5.00`, rien d'autre.**
+
+### Le rattrapage a été refusé par DEUX garde-fous, et les deux avaient raison
+
+Premier lancement, 14:08:09, plafond 7,00 $ bien chargé : le job s'est arrêté **à l'Étape 1**, la
+vérification anti-doublon (`ls -t | grep veille_imac`), parce que le `.docx` du matin **était encore sur le
+disque** — 5 tours, 0,6887 $ (10 %), `is_error=False`. `TOURS_MINI=7` a alors refusé de publier ce faux
+succès : **exit 7**, `⛔ PAS DE PUBLICATION`. **Les deux garde-fous ont fonctionné comme prévu** : le premier
+a empêché un doublon, le second a empêché qu'un arrêt sur garde-fou passe pour un succès.
+
+⚠️ **Et le garde anti-doublon apparie `veille_imac`, pas `.docx`** : la **fiche**
+`2026-11-22_veille_imac.fiche.md` porte la même date et le même motif, donc **la laisser en place aurait fait
+retomber le job dans le même arrêt**. Mesuré sur le prompt, pas supposé. Les deux fichiers ont été écartés
+vers le scratchpad après vérification de leur **sha256 à l'identique** (`11c00287…` pour le `.docx`), tous
+deux **non suivis par git** — rien de publié n'a été touché —, puis le rattrapage relancé à 14:10:02.
+
+### Ce que l'audit du document écarté avait mesuré
+
+Fiche écrite avant le rattrapage (sauvegardée au scratchpad). Neuf défauts, dont trois décisifs :
+**`1 299 $` est faux** — MacRumors 06/11 au degré ① : `The iMac with M6 starts at $1,499 for the model with a
+10-core CPU and 10-core GPU` ; `1,299` est **absent des deux articles**, et la fiche du **15/11 avait `$1,499`
+au degré ①**. **Le `Dual` du Neural Engine a disparu**, ce qui donne au M6 le chiffre du M4. **Les heures de
+relevé sont impossibles** : la note écrit `05h15` / `05h18 CET` quand le run a tourné de **08:03 à 08:16** et
+que les pages s'horodatent elles-mêmes à `08:06 / 08:07 / 08:08`. Plus un **récapitulatif fabriqué**
+(`0 · 0 · 0` annoncés contre **5 · 4 · 2/7** mesurés sous `env -i`) et une **régression de traçabilité** : la
+note a remplacé les **articles** que citait N-1 par les **racines de site**, ce qui rend ses spécifications
+invérifiables sur ses propres sources.
+
+⛔ **Deux faits établis au degré ① en N-1 se sont défaits en N** — c'est la classe fermée pour `ai-act` le
+21/11 (*« une consigne écrite dans une fiche n'est pas un garde »*), **reproduite dans une seconde série deux
+jours plus tard**. 📌 Piste bornée, non ordonnée : verser au prompt `imac-veille` le prix de lancement, la
+configuration d'entrée, les deux adresses d'articles et la graphie du Neural Engine — quatre faits, et un
+garde d'**appariement** sur le modèle de `non_regression/lettres_article5.py`.
+
+### Mes erreurs
+
+1. **J'ai extrait le bloc `case` sans la ligne `BUDGET_DEFAULT="2.00"` qui le précède**, donc un id inconnu
+   rendait une chaîne **vide** et j'ai failli consigner une régression. Rejoué avec la ligne : **2,00 $**.
+   *Avant d'accuser un fichier, relire l'invocation qui le mesure* (25/10).
+2. **J'ai raisonné sur la portée de l'auto-push au lieu de la mesurer** : j'ai écarté la fiche de
+   `sources/veille/` de peur qu'elle soit publiée, alors que le `git add` de `run_job.sh:476` porte
+   `':(exclude)sources/veille/*.fiche.md'` et que ce motif **franchit le `/`**. Un `git add --dry-run` l'a
+   montré en une commande : seul le `.docx` serait pris.
+3. **J'ai lu `exit=0` sur un `controle_attributions.py` tuyauté dans `tail`** — le code lu était celui de
+   `tail`. Sans tuyau : **exit 1**. La règle du 15/10, enfreinte encore.
