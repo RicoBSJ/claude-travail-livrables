@@ -95,7 +95,20 @@ sep = t.index("=== TEXTE COMPLET")
 entete, corps = t[:sep], t[sep:]
 # le journal des corrections cite VOLONTAIREMENT les formulations d'origine : on l'exclut
 # des passes qui lisent « corps ». ⚠️ SAUF B-FR DEPUIS LE 03/11/2026 — voir CIT_SRC.
-jrn = corps.find("Journal des corrections")
+# 🔴 LA SENTINELLE EST LE TITRE, JAMAIS LA PHRASE NUE — 22/11/2026, et la mesure l'impose.
+#    La coupe prenait la premiere occurrence de la PHRASE NUE « Journal des corrections ». Une note
+#    qui PARLE du journal d'un AUTRE document — ce que fait par genre une note controle-livrables —
+#    place donc la sentinelle dans son propre corps, et toutes les passes s'arretent la.
+#    📊 MESURE SUR LES 344 DOCUMENTS, pas supposee : la phrase nue est dans 204 documents, le titre
+#    dans 202, et les DEUX ou la phrase nue precede sans titre sont des notes controle-livrables qui
+#    n'ont AUCUN journal — 2026-10-18 lue a 7 559 caracteres sur 12 313 (38,6 % hors de portee) et
+#    2026-11-08 a 3 728 sur 7 789 (52,1 %). Meme defaut que le marqueur du 04/11, autre porteur.
+#    ⚠️ ET LE CORPS NE BOUGE PAS AILLEURS : sur les 202 documents a titre il raccourcit de 2
+#    caracteres — l'emoji et son espace, qui ne portent ni adresse, ni citation, ni nombre — et
+#    AUCUN verdict A/A2/A3/A4 ne change. Les deux seuls qui changent sont ces deux notes, et elles
+#    sont HORS du gate --docs comme du corpus de reference (livrables/lecons + sources/veille).
+SENTINELLE_JRN = "\U0001F4DD Journal des corrections"
+jrn = corps.find(SENTINELLE_JRN)
 journal = corps[jrn:] if jrn != -1 else ""
 # 04/11/2026 — LE CORPS COMPLET EST GARDE AVANT LA COUPE. L'ordre est la moitie de la garde :
 #    capture APRES la coupe, « corps_plein » serait deja tronque, spans_de() rendrait [] et la
@@ -186,11 +199,27 @@ SPANS = spans_de(corps)
 #    📊 PORTEE MESUREE SUR LES 328 DOCUMENTS : 116 portent un marqueur, 196 un journal, et 0 a sa
 #    premiere occurrence DANS un marqueur — donc zero faux refus, et zero verdict change.
 if jrn != -1 and any(a_ <= jrn < b_ for a_, b_ in spans_de(corps_plein)):
-    sys.exit("CORPS TRONQUE PAR UN MARQUEUR DE CORRECTION : la chaine « Journal des corrections »"
+    sys.exit("CORPS TRONQUE PAR UN MARQUEUR DE CORRECTION : le titre « %s »"
              " apparait dans un marqueur (index %d) AVANT toute vraie section de journal, donc les"
              " passes ne liraient que %d caracteres sur %d et le verdict serait un VERT sur ce"
-             " qu'elles n'ont pas lu. Retire cette chaine du marqueur (dis « conserve en fin de"
-             " document ») : %s" % (jrn, len(corps), len(corps_plein), DOCX))
+             " qu'elles n'ont pas lu. Retire ce titre du marqueur (dis « conserve en fin de"
+             " document ») : %s" % (SENTINELLE_JRN, jrn, len(corps), len(corps_plein), DOCX))
+# 🔔 MENTION DU JOURNAL SANS SON TITRE — NON BLOQUANT, et 2 documents l'exercent aujourd'hui.
+#    Depuis que la sentinelle est le titre, un journal dont le TITRE serait mal forme n'est plus
+#    trouve : « jrn » vaut -1, le corps est lu EN ENTIER, et ses libelles d'origine — conserves
+#    par doctrine, donc exactement ceux qu'une correction a denonces — deviennent des affirmations
+#    du corps, que B-FR peut BLOQUER. Un detecteur muet rendrait indiscernables « ce document n'a
+#    pas de journal » et « son journal n'a pas ete reconnu » : on le DIT.
+#    ⛔ DETECTION POSITIVE : rien n'est imprime quand rien n'est mentionne. Et NON BLOQUANT, parce
+#    que les deux cas du corpus sont LEGITIMES — des notes qui parlent du journal d'un autre
+#    document — et qu'un refus punirait un document conforme (regle du 14/10).
+_mentions_nues = corps_plein.count("Journal des corrections") - corps_plein.count(SENTINELLE_JRN)
+if jrn == -1 and _mentions_nues > 0:
+    print("MENTION DU JOURNAL SANS SON TITRE (non bloquant) : la chaine « Journal des corrections »"
+          " apparait %d fois SANS le titre « %s », donc rien n'est tronque et le corps est lu EN"
+          " ENTIER (%d caracteres). Si ce document a bien un journal, son titre est mal forme et"
+          " ses libelles d'origine sont lus comme des affirmations du corps." % (
+              _mentions_nues, SENTINELLE_JRN, len(corps)))
 def dans_marqueur(i, spans=None):
     """i tombe-t-il dans un marqueur de correction ? (la trace n'est pas une attribution)"""
     return any(a <= i < b for a, b in (SPANS if spans is None else spans))
@@ -221,11 +250,20 @@ avant_res = corps[:res] if res != -1 else corps
 #    ⚠️ B, B-FR, B-NOM et D écartent ces marqueurs depuis le 26/09 et le 11/10 ; la passe A ne le
 #    faisait pas, et la ligne de CLAUDE.md qui disait le contraire était vraie pour les autres et
 #    FAUSSE pour celle-ci. Ce n'est pas une exemption nouvelle, c'est la même, enfin appliquée ici.
-#    LA BORNE : on ne touche QUE la collecte d'adresses, le motif de l'incident. A2 (autorité
-#    nommée sans adresse), A3 (identifiants) et A4 (lignes « Source : ») lisent toujours
-#    « avant_res » marqueurs compris — aucun incident ne les a touchés, et un recensement des 294
-#    documents ne fait bouger aucun de leurs verdicts (ils sont tous à 0 aujourd'hui), donc rien
-#    ne serait mesurable. Les étendre serait un portage préventif, à faire quand un cas le montre.
+#    🟢 ET A2, A3 ET A4 LISENT LE CORPS SANS MARQUEURS DEPUIS LE 22/11/2026 — la ligne qui
+#    precedait disait « à faire quand un cas le montre », et les TROIS sont BLOQUANTES :
+#    « sans_adresse » (A2), « mal_formes » (A3) et « src_sans_adresse » (A4) entrent toutes dans
+#    « pb ». Un marqueur qui conserve, comme la doctrine l'exige, un nom d'autorite fautif, un
+#    identifiant mal forme ou une ligne « Source : » fautive ROUVRAIT donc le motif bloquant que
+#    la correction venait de fermer — l'incident du 23/10 sur la passe A, a trois passes de plus.
+#    📊 MESURE SUR LES 344 DOCUMENTS : UN SEUL verdict change, la lecon hypnose n°18, dont deux
+#    identifiants « PMC » vivent dans un marqueur et quittent l'inventaire A3 — ils etaient « ok »,
+#    donc « pb » ne bouge sur AUCUN document. ⚠️ ET C'EST A DIRE : le cas mesure montre que
+#    l'exemption AGIT, pas qu'un refus fautif existait. Ce qui la justifie est le mecanisme, deja
+#    paye sur la passe A, et le SENS de l'erreur : avant_res_hm etant avant_res prive de son texte
+#    de marqueur, le portage ne peut QUE retirer des signalements, jamais en ajouter — un faux
+#    refus est impossible par construction, et le seul risque est de taire un defaut qui vit dans
+#    un marqueur, c'est-a-dire un libelle d'origine conserve a dessein.
 #    corps_hm remplace chaque marqueur par des blancs DE MÊME LONGUEUR : les indices restent
 #    alignés, donc la coupe à « res », calculée sur corps, reste valide — même argument qu'en D.
 avant_res_hm = corps_hm[:res] if res != -1 else corps_hm
@@ -342,12 +380,12 @@ IDENT = re.compile(r"\b(ISBN[\s:]?[\d-]{10,17}[\dXx]?|doi[\s:]?10\.\d{4,9}/[^\s,
 sans_adresse = set()
 section_res = corps[res:] if res != -1 else ""
 couverture = re.sub(r"[^A-Za-z0-9]", "", (section_res + " " + " ".join(urls))).lower()
-for m in NOMS.finditer(avant_res):
+for m in NOMS.finditer(avant_res_hm):
     nom = re.sub(r"\s+", " ", m.group(1))
     if re.sub(r"[^A-Za-z0-9]", "", nom).lower() not in couverture:
         sans_adresse.add(nom)
 identifiants, mal_formes = set(), set()
-for m in IDENT.finditer(avant_res):
+for m in IDENT.finditer(avant_res_hm):
     ident = re.sub(r"\s+", " ", m.group(1)).strip()
     ok = cle_isbn(ident) if ident.lower().startswith("isbn") else None
     if ok is False:
@@ -407,7 +445,7 @@ def apparie(nom, adresse):
     if any(w in a_ for w in mots):
         return True
     return any(al in a_ for al in ALIAS.get(n, ()) + sum((ALIAS.get(w, ()) for w in mots), ()))
-lignes = avant_res.split("\n")
+lignes = avant_res_hm.split("\n")
 src_sans_adresse = []
 for idx, l in enumerate(lignes):
     # « Sources de données : … » (nocode-ia n°16) n'est pas une reference : seuls les

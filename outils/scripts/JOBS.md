@@ -8867,3 +8867,106 @@ Prix US, degré ① : `The iMac with M6 starts at $1,499 for the model with a 10
 ⚠️ **Ce que la correction ne ferme pas** : le contrôle compare des **chiffres** à une grille, donc il ne voit ni l'affirmation corrigée dans le 22/11 (une assertion sur l'édition précédente), ni une grille Apple qui changerait — il accuserait alors un document juste jusqu'à ce qu'on remesure. Et le tableau du 22/11 met **chaque champ dans sa propre cellule**, donc **aucune de ses lignes de grille n'est lue** : les deux lignes comptées sur ce document sont de la prose.
 
 ⚠️ **Coquille de date** : les deux rangées de `CLAUDE.md` écrites la veille portent **23/11/2026** alors qu'elles datent du **22**. Laissée en place, signalée dans la rangée — la réécrire en silence effacerait la trace.
+
+---
+
+## 22/11/2026 (soir, 2) — L'exemption de marqueur portée à `controle_attributions.py` : DEUX portages, et le premier faisait lire 38 % et 52 % de deux notes publiées
+
+**Ordre** : « porte la même exemption de marqueur à `controle_attributions.py` ».
+
+L'exemption construite le matin dans `controle_faits_imac.py` (`corps_runs()`) fait **deux** choses : elle retire les marqueurs, **et** elle tronque sur le **TITRE** du journal et non sur la phrase nue. Les deux manquaient ici, à des endroits différents. Mesurés séparément, portés séparément.
+
+### ① La sentinelle : la phrase nue devient le TITRE
+
+`controle_attributions.py:98` faisait `jrn = corps.find("Journal des corrections")`. Une note qui **parle** du journal d'un **autre** document plante donc la sentinelle dans son propre corps.
+
+**Mesure sur les 344 documents** (`find livrables sources -name "*.docx"`), source exécutée jusqu'au marqueur `# ── aspiration`, **aucun réseau** :
+
+| | phrase nue | titre `📝 …` |
+|---|---|---|
+| documents porteurs | **204** | **202** |
+
+Les **deux** où la phrase nue précède sans titre sont des notes `controle-livrables` qui n'ont **aucun** journal :
+
+| document | corps lu | corps réel | hors de portée |
+|---|---|---|---|
+| `2026-10-18_controle-livrables.docx` | 7 559 | 12 313 | **38,6 %** |
+| `2026-11-08_controle-livrables.docx` | 3 728 | 7 789 | **52,1 %** |
+
+**Portage** : `SENTINELLE_JRN = "📝 Journal des corrections"` déclarée au littéral (ligne 110), `jrn = corps.find(SENTINELLE_JRN)`. Le message de la garde du 04/11 nomme désormais le titre. Garde par **soustraction** : retirer exactement le texte inséré rend le fichier d'avant au **sha256 `c5836dba0772ed2c`**.
+
+**Non-régression prouvée, pas argumentée** — les 344 documents rejoués avec la version d'avant **et** celle d'après, strictement séquentiellement :
+
+```
+corpus : 344 documents
+=== sorties DIFFERENTES : 3 document(s) ===
+=== lignes AJOUTEES : 11 · lignes RETIREES : 6 ===
+=== codes de sortie DIFFERENTS : 0 ===
+```
+
+Sur les **202** documents à titre, `corps` raccourcit de **exactement 2 caractères** (l'emoji et son espace) et **aucun verdict ne change** — vérifié ligne à ligne, pas déduit.
+
+### Ce que le portage fait apparaître, et c'est bloquant
+
+Rejoué **avec le réseau**, un document à la fois, 15 s d'intervalle, faisceau vérifié présent :
+
+| note | avant | après | ce qui apparaît |
+|---|---|---|---|
+| `2026-10-18` | 1 bloquant | **2** | `lafinancepourtous.com` cité sans page listée |
+| `2026-11-08` | 0 bloquant | **4** | `cnsa.fr/actualites/serafin-ph-un-recueil-de-donnees-obligatoire`, `cnsa.fr/recueil`, `consomac.fr/comparateur/mac/imac-m6`, `ai-act-service-desk.ec.europa.eu` |
+
+**Ces cinq ne se lisent pas en bloc.** `consomac.fr/comparateur/mac/imac-m6` est écrit « (source : …, relevé 08/11/2026) » pour les **chiffres propres de la note** : c'est un **vrai défaut**. Les quatre autres sont des adresses **rapportées** comme étant celles d'autres documents (« SERAFIN-PH : 8 URLs testées — 7×200, 1×403 (cnsa.fr/…) »), donc formellement orphelines et substantiellement le **sujet** du rapport. Racine mesurée : **2 des 16 notes `controle-livrables`** seulement portent une rubrique Ressources.
+
+**Le risque que j'avais identifié ne s'est pas matérialisé, et c'est mesuré.** Le texte qui vivait dans `journal` — jamais bloquant — passe dans `corps`, où **B-FR peut bloquer**. Ses citations passent de 2 à **5** sur le 08/11, et **les cinq** sortent en `A RELIRE (non bloquant)` : **0 bloquant B-FR ajouté**.
+
+**Aucun push ne change aujourd'hui** : le gate `--docs` (`^(livrables/lecons|sources/veille)/.*\.docx$`) et le corpus de référence (`find livrables/lecons sources/veille`) valent le **même** périmètre ; les 16 notes de `livrables/controles/` sont **hors des deux**, donc la référence ne bouge pas.
+
+⚠️ **Non corrigé, non ordonné** : les 5 bloquants vivent dans deux notes **publiées** que rien ne fait lire. Le portage déplace donc le défaut de « un vert sur la moitié d'un document » à « un refus que personne ne voit ». Si `livrables/controles/` entrait un jour au gate — piste consignée la veille pour ㊳ — ils refuseraient tout push qui les touche.
+
+### La ligne non bloquante qui naît du portage
+
+`MENTION DU JOURNAL SANS SON TITRE`. Un journal dont le **titre** serait mal formé (sélecteur de variation, espace insécable, emoji oublié) n'est plus trouvé : `jrn` vaut −1, le corps est lu **en entier**, et ses libellés d'origine — conservés par doctrine, donc exactement ceux qu'une correction a dénoncés — deviennent des affirmations du corps que B-FR **peut** bloquer. Un détecteur muet rendrait indiscernables « ce document n'a pas de journal » et « son journal n'a pas été reconnu ».
+
+**Détection positive**, **non bloquante** (les deux cas du corpus sont légitimes), et **2 documents l'exercent** — donc pas préventive. Mesuré au passage : **0 forme variante du titre** sur les 344.
+
+### ② A2, A3 et A4 lisent enfin `avant_res_hm`
+
+La ligne du 25/10 disait « à faire quand un cas le montre ». **Ce qu'elle ne disait pas, c'est que les trois sont BLOQUANTES** : `sans_adresse` (A2), `mal_formes` (A3) et `src_sans_adresse` (A4) entrent toutes dans `pb` (ligne 1561). Un marqueur qui conserve, comme la doctrine l'exige, un nom d'autorité fautif, un identifiant mal formé ou une ligne « Source : » fautive **rouvrait** le motif bloquant que la correction venait de fermer — l'incident du 23/10 sur la passe A, à trois passes de plus.
+
+**Mesure sur les 344 : UN SEUL verdict change** — `2026-10-13_lecon-hypnose_18`, dont deux identifiants `PMC` vivent dans un marqueur et quittent l'inventaire A3. Ils étaient **`ok`**, donc **`pb` ne bouge sur aucun document**.
+
+⚠️ **Le cas mesuré montre que l'exemption AGIT, pas qu'un refus fautif existait.** Ce qui la justifie est le mécanisme, déjà payé sur la passe A, et le **sens de l'erreur** : `avant_res_hm` étant `avant_res` privé de son texte de marqueur, le portage ne peut **que retirer** des signalements — un faux refus est **impossible par construction**, et le seul risque est de **taire** un défaut qui vit dans un marqueur, c'est-à-dire un libellé conservé à dessein.
+
+**Borné** : `avant_res` nu reste lu **5 fois** dans le code (définition, trois fois en passe C, une fois dans le décompte des marqueurs de D). Garde par soustraction : +872 octets, retrait exact = état d'avant.
+
+### Témoin et sabotages
+
+`non_regression/corps_tronque.py` **15 → 30 bornes**, `ATTENDU_CT` **15 → 30**, aucun réseau, aucun tiers, `.docx` fabriqués en `tempfile`.
+
+| sabotage | borne(s) qui mord(ent) |
+|---|---|
+| S1 sentinelle ramenée à la phrase nue | ⑨ ⑯ ⑲ ㉒ |
+| S2 `SENTINELLE_JRN` renommée | la borne d'extraction, `0/1`, exit 1 |
+| S3 la ligne `MENTION` retirée | ㉒ |
+| S4 A2 → `avant_res` | ㉓ (nomme A2) |
+| S5 A3 → `avant_res` | ㉓ (nomme A3) **et** ㉕ |
+| S6 A4 → `avant_res` | ㉓ (nomme A4) |
+| S7 branche de la mention rendue inconditionnelle | **㉖ seule** |
+| S8 lot amputé | auto-test seul **exit 0** en lisant « 27/27 », harnais **exit 1** sur `ATTENDU_CT` |
+| S9 libellé de la ligne dérivé | ⑮ dans le témoin, harnais **exit 1** |
+| S10 sentinelle dérivée dans `controle_faits_imac.py` | ㉗ **seule**, en nommant le fichier |
+
+Dix sabotages, dix refus. Chacun prouve d'abord qu'il a modifié le fichier (sha256 avant → après) et restaure au **sha256 identique**.
+
+### Un trou trouvé en consignant : la sentinelle est portée par TROIS fichiers
+
+`controle_attributions.py` (`SENTINELLE_JRN`), `controle_faits_imac.py` (`SENTINELLE`) et `controle_noms_propres.py` (littéral en ligne, `split("📝 Journal des corrections")`). **Aucun n'importe celle d'un autre** : une dérive serait **silencieuse** — même classe que le plancher de 3 000 caractères porté par cinq fichiers. Deux bornes de **concordance** (㉗) lisent la sentinelle du contrôle et l'exigent **là où les deux autres s'en servent vraiment**, jamais dans un commentaire. Le sabotage **S10** le prouve : la borne mord **seule**, en nommant le fichier.
+
+⚠️ Et `controle_astrologie_karmique.py` la cite **dans sa docstring seulement** — recensé, non exigé : un recensement textuel n'est pas un recensement d'usages (27/10).
+
+### Quatre défauts à moi, aucun trouvé par la relecture
+
+1. **Le témoin RECOPIAIT la sentinelle** (`PHRASE = "Journal des corrections"`). Le jour où le contrôle a changé la sienne, les bornes auraient continué à mesurer l'ancienne et **le lot serait resté vert sur un invariant devenu faux** — « un test qui teste une COPIE de la logique ne garde rien » (15/10). Elle est désormais **lue** dans le contrôle (`SENTINELLE_JRN` par motif puis `ast.literal_eval`), et la phrase nue en est **dérivée** (`TITRE.split(" ", 1)[1]`), la borne ⑯ vérifiant la dérivation.
+2. Mon `assert m_sent` au niveau du module **faisait planter** le témoin. **Un plantage n'imprime aucun `✗`** : ni le détail ni le compte ne se voyaient mordre (règle du 12/11, payée le lendemain du jour où je l'ai écrite). Remplacé par une borne qui imprime, compte, et sort en 1.
+3. Ma borne ㉔ s'écrivait `A and B or C` avec un `C` presque toujours vrai : **elle ne pouvait pas échouer** (26/10). Elle compte désormais les lectures nues d'`avant_res` dans le **code**, commentaires retirés.
+4. Ma borne ㉑ était **satisfaite par son propre commentaire** : `MENTION in SRC` restait vrai quand le `print` disparaissait, le commentaire au-dessus portant la même chaîne — **le piège du 27/10, la coquille citée qui s'immunise elle-même**. Et elle n'était **pas séparable** de ㉒ : S3 faisait tomber les deux. Elle s'ancre sur `print("…`, et une borne **㉖** garde ce que ㉒ ne peut pas voir, la **détection positive** ; S7 la fait tomber **seule**.

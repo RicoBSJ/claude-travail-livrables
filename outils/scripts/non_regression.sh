@@ -1504,7 +1504,7 @@ if [ -f "$ROOT/outils/scripts/non_regression/corps_tronque.py" ]; then
   if env -i $PY "$ROOT/outils/scripts/non_regression/corps_tronque.py" > "$CT_OUT" 2>&1; then
     tail -1 "$CT_OUT"
     # ⚠️ LE GARDE LIT LE DÉNOMINATEUR (bornes JOUÉES), jamais le numérateur — règle du 26/10.
-    ATTENDU_CT=15
+    ATTENDU_CT=30
     # ⚠️ ANCRE ROBUSTE À LA COLONNE. Écrit « .* » devant, le motif exigeait un caractère PUIS une
     #    espace : la ligne du témoin commençant en colonne 1, LU_CT était VIDE et le garde
     #    refusait TOUS les pushs (mesuré le 04/11/2026, avant commit). La borne ⑮ du témoin
