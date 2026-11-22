@@ -8794,3 +8794,76 @@ où on écrit le fichier : *un script neuf se rattache dans le même geste que s
 - Et le 22/11 porte une **troisième** erreur, d'un autre genre : il affirme que la configuration à
   2 219 € « n'avait pas été relevée le 15/11 », alors que le tableau du 15/11 la porte. Hors de
   portée du contrôle, qui compare des chiffres à une grille, pas des affirmations à une édition.
+
+---
+
+## 22/11/2026 (soir) — Les deux éditions imac corrigées, et la mesure a démenti ma grille de la veille
+
+**Ordre reçu** : `corrige les deux éditions`. Les deux `.docx` publiés (15/11 et 22/11) portaient des chiffres faux, relevés la veille par le balayage de la série.
+
+### Ce qui a été mesuré AVANT de patcher, et ce que la mesure a renversé
+
+Doctrine : une correction qui écrit des chiffres dans un livrable publié ne se fonde pas sur la mesure de la veille. Les trois pages ont donc été aspirées de nouveau, **une par une, séquentiellement, 15 s d'intervalle** :
+
+| Page | Mesure du 22/11/2026 |
+|---|---|
+| `consomac.fr/comparateur/mac/imac-m6` | HTTP 200 · 150 671 o bruts · **17 762 car. utiles** |
+| `macrumors.com/2026/11/06/…` | HTTP 200 · 161 311 o · **13 863 car. utiles** |
+| `9to5mac.com/2026/10/27/…` | HTTP 200 · 166 079 o · **4 201 car. utiles** |
+
+🔴 **Et l'extraction des 14 références Apple du comparateur, une par une, a démenti la grille écrite la veille.**
+
+| Prix | RAM | SSD | Verre | Références |
+|---|---|---|---|---|
+| `1 799,00 €` | 16 Go | 256 Go | standard | 2 (`MH0A4FN/A`…) |
+| `1 999,00 €` | 16 Go | 256 Go | standard | 4 (`MH114FN/A`…) |
+| **`2 219,00 €`** | 16 Go | **256 Go** | **nano-texturé** | **1** (`MH2U4FN/A`) |
+| **`2 219,00 €`** | 16 Go | **512 Go** | standard | **4** (`MH154FN/A`, `MH1J4FN/A`, `MH1Q4FN/A`, `MH1F4FN/A`) |
+| `2 439,00 €` | 24 Go | 512 Go | standard | 3 (`MH164FN/A`…) |
+
+**`2 219 €` couvre DEUX configurations**, chaque option valant **+220 €** sur la base de 1 999 €, et **aucune référence ne les cumule**. Donc : la ligne du 22/11 (`512 Go · 4 ports → 2 219 €`) était **JUSTE**, le défaut du 15/11 est le **cumul** `512 Go + nano-texturé`, et **ma grille `2 219 → 256 Go` accusait une ligne juste dans les deux éditions**.
+
+Prix US, degré ① : `The iMac with M6 starts at $1,499 for the model with a 10-core CPU and 10-core GPU, while the version with a 12-core CPU and 12-core GPU starts at $1,699. Education pricing starts at $1,449.` (MacRumors) et `The M6 iMac starts at $1,499, the same price as before.` (9to5Mac, **un seul `$` dans tout l'article**). `1,299` : **0 occurrence** sur les deux.
+
+### Les cinq corrections
+
+| Document | Avant | Après |
+|---|---|---|
+| 15/11, corps | `Prix US au lancement : 1 299 $` | `1 499 $` |
+| 15/11, liste des sources sous `✅ HTTP 200` | `prix US 1 299 $` | `1 499 $` |
+| 15/11, cellule de grille | `M6 · 12c CPU/GPU · 16 Go · 512 Go + nano-texturé` | `512 Go · 4 ports USB` |
+| 22/11, annonce de nouveauté | `n'avait pas été relevée la semaine précédente` | `figurait déjà dans l'édition du 15 novembre 2026` |
+| 22/11, point de vigilance | `non relevée le 15/11 — tableau complet désormais` | `déjà relevée à ce prix dans l'édition du 15 novembre 2026` |
+
+**Aucune cellule du tableau du 22/11 n'a été touchée** : son prix et sa capacité sont justes.
+
+🧪 **Gardes du patch** : sauvegarde au scratchpad d'abord (sha256 relevé puis revérifié) · édits **par position, de la fin vers le début** · **garde par soustraction dans l'espace XML** (retirer exactement l'inséré rend le fichier d'avant) · marqueurs en **fin de paragraphe**, hors hyperlien (les 5 `w:p` visés n'en portent aucun), **aucun ne nomme la section du journal** (04/11) · section de journal **datée**, celle du 15/11 intacte (25/10) · `testzip()` · les 3 libellés d'origine **tous en marqueur ou au journal, zéro dans le corps**, vérifié occurrence par occurrence. XML : 70 069 → 77 148 o et 58 570 → 63 455 o.
+
+### Le contrôle corrigé, et trois faux positifs que la série ne pouvait pas montrer
+
+🔴 **`controle_faits_imac.py` avait trois défauts, tous trouvés par le balayage des 342 documents, aucun par la relecture.**
+
+1. **Grille par capacité seule** → devient une table de variantes `(stockage, verre)`, le **verre** étant le discriminant à 2 219 €.
+2. **Fuite de fenêtre** : la note `controle-livrables` du 08/11 porte trois lignes de puces dont chacune a **son** prix, et chacune se voyait confrontée au prix des deux autres (2 faux positifs) ; la veille du 18/10 empruntait le `2 219 €` du **paragraphe suivant** (1 faux positif). → Le prix doit appartenir à **la même ligne** : si le libellé porte un prix de la grille c'est le sien, sinon seule une cellule qui n'est **rien d'autre** qu'un prix compte.
+3. **« lancement » sans la machine** : une leçon `revenus-passifs` écrivant « données de lancement … `<1 000 $/mois` » était lue comme un prix US d'iMac. → Conjonction `LANCEMENT ∧ MACHINE`. ⚠️ Les deux resserrements possibles rendent des **verdicts identiques** sur le corpus : ce n'est pas la mesure qui tranche, c'est l'argument — garder « lancement » comme déclencheur — et une borne **fabriquée** l'épingle.
+
+🔴 **Et il lisait marqueurs et journal : la correction du jour a produit 4 accusations portées par le texte que je venais d'écrire.** `corps_runs()` retire les marqueurs — `_hors_marqueur` **extrait** de `controle_decompte.py`, jamais recopié — et tronque au **titre** du journal.
+
+🔴 **Ma première sentinelle a refait le défaut du 04/11.** Tronquer sur la phrase nue « Journal des corrections » coupait la note `controle-livrables` du 08/11 à son run **76** sur 99, et le contrôle rendait **« 0 ligne lue »** sur un document qui en porte trois. Mesure sur **343 documents** : phrase nue dans **204**, forme titre `📝 Journal des corrections` dans **202**, et les **2** seuls où la phrase nue précède sont des notes `controle-livrables` qui **parlent** du journal d'un autre document. → **0 troncature fautive** avec le titre. ⚠️ `controle_attributions.py:98` tronque sur la phrase nue : ces deux notes y seraient coupées de même. **Mesuré, non corrigé, non ordonné.**
+
+### Mesures finales
+
+| | |
+|---|---|
+| Témoin du livrable | **18 → 27 bornes** (9 neuves, 6 à ACCEPTER) · `ATTENDU_FL` 18 → **27** |
+| Témoin du prompt | **18 → 19 bornes** · `ATTENDU_FI` 18 → **19** · verdict réel **0 écart, exit 0** |
+| Prompt imac | 49 429 → **49 889** octets (+460) · `jobs_config.json` **56 → 56 lignes** · soustraction au sha256 identique (`91903c2e1a1f4ce5`) |
+| Sabotages | **7 / 7 refus** · S2 → ㉓ seule · S5 → ㉔ seule · S6 au harnais (auto-test « 26/26 » exit 0, harnais exit 1) |
+| Les deux sens sur l'incident réel | sauvegardes non corrigées → **3 contradictions**, les trois réelles, le verre nommé · documents corrigés → **0**, pour 4 lignes et 2 prix lus |
+| Balayage final | **342 documents · 0 contradiction · 0 code de sortie non nul** |
+| Gate `--docs` | **exit 0, zéro ✗** sur les deux documents · décompte **inchangé** (15/11 exit 0, 22/11 exit 2 **préexistant**) |
+| `--consignes` | exit 0 |
+
+⚠️ **Ce que la correction ne ferme pas** : le contrôle compare des **chiffres** à une grille, donc il ne voit ni l'affirmation corrigée dans le 22/11 (une assertion sur l'édition précédente), ni une grille Apple qui changerait — il accuserait alors un document juste jusqu'à ce qu'on remesure. Et le tableau du 22/11 met **chaque champ dans sa propre cellule**, donc **aucune de ses lignes de grille n'est lue** : les deux lignes comptées sur ce document sont de la prose.
+
+⚠️ **Coquille de date** : les deux rangées de `CLAUDE.md` écrites la veille portent **23/11/2026** alors qu'elles datent du **22**. Laissée en place, signalée dans la rangée — la réécrire en silence effacerait la trace.

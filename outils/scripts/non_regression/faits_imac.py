@@ -62,10 +62,11 @@ TABLE = [("**$1,499**",  "10 cœurs"),
          ("**$1,449**",  "éducation"),
          ("**1 799 €**", "10c / 10c"),
          ("**2 219 €**", "nano-texturé"),
+         ("**512 Go**", "verre standard"),
          (ART_MR,        "06/11/2026"),
          (ART_95,        "27/10/2026")]
 PHRASES = ["La configuration d'entrée de gamme France est en 10 cœurs CPU et 10 cœurs GPU",
-           "La référence à 2 219 € est la variante à VERRE NANO-TEXTURÉ, SSD 256 Go",
+           "2 219 € désigne DEUX configurations, et ce qui les distingue est le VERRE",
            "cite l'ARTICLE daté, jamais la racine du site"]
 OUTILS = ["chercher.py", "aspirer.py", "lire_page.py", "WebSearch", "WebFetch", "curl ",
           "controle_"]
@@ -161,8 +162,9 @@ def bloc_juste():
         "**$1,449** en tarif éducation.\n"
         "- **La configuration d'entrée de gamme France est en 10 cœurs CPU et 10 cœurs GPU** : "
         "**1 799 €** = M6 10c / 10c · 16 Go · 256 Go · 2 ports USB.\n"
-        "- **La référence à 2 219 € est la variante à VERRE NANO-TEXTURÉ, SSD 256 Go** : "
-        "**2 219 €** = M6 12c/12c · 16 Go · 256 Go · 4 ports USB · verre nano-texturé.\n"
+        "- **2 219 € désigne DEUX configurations, et ce qui les distingue est le VERRE** : "
+        "**2 219 €** = M6 12c/12c · 16 Go · SSD 256 Go · 4 ports USB · verre nano-texturé, "
+        "OU BIEN M6 12c/12c · 16 Go · SSD **512 Go** · 4 ports USB · verre standard.\n"
         "- Pour les spécifications de la puce M6, cite l'ARTICLE daté, jamais la racine du site :\n"
         "  %s (06/11/2026)\n  %s (27/10/2026)\n" % (ART_MR, ART_95))
 
@@ -220,7 +222,7 @@ borne("⑥ désignation absente nommée", any("$1,449" in x and "absente" in x f
       "manques=%r" % (m6,))
 # ⑦ le sujet deplace APRES la designation suivante ne compte pas.
 dep = bloc_juste().replace("**1 799 €** = M6 10c / 10c · 16 Go", "**1 799 €** = M6 · 16 Go")
-dep = dep.replace("verre nano-texturé.", "verre nano-texturé, à comparer au 10c / 10c.")
+dep = dep.replace("verre standard.", "verre standard, à comparer au 10c / 10c.")
 m7 = manques(fenetre(prompt_fab(dep)))
 borne("⑦ sujet déplacé après la désignation suivante → refus",
       any("1 799 €" in x and "apparié" in x for x in m7), "manques=%r" % (m7,))
@@ -253,15 +255,25 @@ cfg2 = config_fab(prompt_fab(bloc_juste().replace("**2 219 €**", "2 219 euros"
 rc2, out2 = joue_verdict(cfg2)
 borne("⑭ verdict réel sur config cassée → 1 et nomme le job",
       rc2 == 1 and "imac-veille" in out2 and "2 219 €" in out2, "rc=%d out=%r" % (rc2, out2[-200:]))
-# ⑮ LE PIEGE DU 22/11 : 2 219 € apparie a « 512 Go » au lieu du verre nano-texture.
-#    C'est l'APPARIEMENT qui l'attrape, pas l'absence de « 512 Go » (exigence POSITIVE).
-p512 = bloc_juste().replace("**2 219 €** = M6 12c/12c · 16 Go · 256 Go · 4 ports USB · verre "
-                            "nano-texturé.", "**2 219 €** = M6 12c/12c · 16 Go · 512 Go · "
-                            "4 ports USB.")
+# ⑮ LE PIEGE DU 22/11, REFORMULE LE 22/11 AU SOIR : « 512 Go a 2 219 € » est une variante
+#    LEGITIME — mesure des 14 references Apple —, donc le piege n'est PAS d'ecrire 512 Go, c'est
+#    de perdre la variante a VERRE NANO-TEXTURE et de ne laisser qu'une seule configuration a ce
+#    prix. C'est l'APPARIEMENT qui l'attrape (exigence POSITIVE).
+p512 = bloc_juste().replace(
+    "**2 219 €** = M6 12c/12c · 16 Go · SSD 256 Go · 4 ports USB · verre nano-texturé, "
+    "OU BIEN M6 12c/12c · 16 Go · SSD **512 Go** · 4 ports USB · verre standard.",
+    "**2 219 €** = M6 12c/12c · 16 Go · SSD **512 Go** · 4 ports USB · verre standard.")
 m15 = manques(fenetre(prompt_fab(p512)))
-borne("⑮ piège 512 Go → refus par appariement",
+borne("⑮ variante nano-texturé perdue → refus par appariement",
       any("2 219 €" in x and "nano-texturé" in x and "apparié" in x for x in m15),
       "manques=%r" % (m15,))
+# ⑮bis LE PIEGE SYMETRIQUE : la variante 512 Go perdue, c'est-a-dire l'etat du prompt du
+#    22/11 AVANT ce soir — celui qui aurait fait « corriger » une ligne JUSTE.
+p256 = bloc_juste().replace(
+    ", OU BIEN M6 12c/12c · 16 Go · SSD **512 Go** · 4 ports USB · verre standard.", ".")
+m15b = manques(fenetre(prompt_fab(p256)))
+borne("⑮bis variante 512 Go perdue → refus nommant la désignation",
+      any("**512 Go**" in x and "absente" in x for x in m15b), "manques=%r" % (m15b,))
 # ⑯ LE PIEGE DES RACINES : citer macrumors.com et 9to5mac.com tout court est refuse, et le
 #    message nomme l'ARTICLE attendu.
 rac = bloc_juste().replace(ART_MR, "https://www.macrumors.com").replace(
@@ -277,10 +289,10 @@ borne("⑯ racines de site → refus nommant l'article",
 m_sed = re.search(r'LU_FI=\$\(sed -n "([^"]+)"', open(NR_SH, encoding="utf-8").read())
 lu = ""
 if m_sed:
-    lu = subprocess.run(["sed", "-n", m_sed.group(1)], input=LIGNE % (17, 18),
+    lu = subprocess.run(["sed", "-n", m_sed.group(1)], input=LIGNE % (18, 19),
                         capture_output=True, text=True).stdout.strip()
 borne("⑰ le motif du harnais, appliqué à la ligne que ce témoin imprime, rend le DÉNOMINATEUR",
-      bool(m_sed) and lu == "18", "motif=%s · lu=%r (18 attendu)" % (bool(m_sed), lu))
+      bool(m_sed) and lu == "19", "motif=%s · lu=%r (19 attendu)" % (bool(m_sed), lu))
 # ⑱ ACCEPTEE : la config sans aucun prompt concerne le DIT, au lieu de rendre un vert muet.
 cfg3 = config_fab("Veille sans rapport avec le matériel.")
 rc3, out3 = joue_verdict(cfg3)

@@ -121,6 +121,24 @@ Pages aspirées : les **6** du document (les 4 consomac, MacRumors 06/11, 9to5Ma
 
 🔴 **Un défaut à moi, trouvé par le garde et non par la relecture.** Mon premier contrôle du texte visible comparait `" ".join(runs)` avant et après : un **run neuf ajoute forcément un séparateur**, donc il accusait un patch juste — **une espace** d'écart, à l'offset 35007, mesurée et non supposée. C'est « comparer dans le même espace de représentation » (01/11) enfreint par moi dans le garde même qui applique cette règle. Rien n'avait été écrit : le sens d'échec était bon.
 
+## Correction du livrable — 22/11/2026
+
+**Deux défauts de FAIT, et ils vivaient dans ce document depuis sa publication sans qu'aucun contrôle ne les voie.** Ce ne sont pas des défauts de forme comme ceux du 15/11 : ce sont deux chiffres faux, publiés et jamais corrigés — l'état que les trois axes de `controle_edition_precedente.py` sont structurellement incapables de voir, puisqu'ils partent du **journal des corrections de N-1** et qu'un faux jamais corrigé n'offre rien à comparer.
+
+| Ce qui a été corrigé | Avant | Après, mesuré au degré ① |
+|---|---|---|
+| **prix US de lancement**, dans le corps | `1 299 $ pour l'entrée de gamme (source 9to5Mac 27 octobre 2026)` | `1 499 $` — l'article 9to5Mac ne porte **qu'un seul `$`** dans ses 4 201 car. utiles, et c'est `The M6 iMac starts at $1,499, the same price as before.` ; `1,299` y est à **0 occurrence** |
+| **prix US**, dans la liste des sources sous un `✅ HTTP 200` | `prix US 1 299 $ (HTTP 200)` | `1 499 $` — un chiffre faux présenté comme relevé sur une page lue |
+| **cellule de la grille M6 à 2 219 €** | `M6 · 12c CPU/GPU · 16 Go · 512 Go + nano-texturé` | `512 Go · 4 ports USB` — le `+` cumulait deux options que ce prix n'additionne pas |
+
+🔴 **Et la mesure a démenti MA PROPRE grille, écrite la veille : `2 219 €` désigne DEUX configurations.** Les 14 références Apple du comparateur consomac extraites une à une le 22/11/2026 : `1 799 €` = 16 Go/256 Go verre standard · `1 999 €` = idem en 12 cœurs et 4 ports · **`2 219 €` = 16 Go/256 Go verre nano-texturé (une seule référence, `MH2U4FN/A`) OU 16 Go/512 Go verre standard (quatre coloris, `MH154FN/A`, `MH1J4FN/A`, `MH1Q4FN/A`, `MH1F4FN/A`)** · `2 439 €` = 24 Go/512 Go. Chaque option vaut **+220 €** sur la base de 1 999 € et **aucune référence ne les cumule**. Le défaut de cette cellule n'est donc pas d'avoir écrit 512 Go — c'est d'avoir écrit 512 Go **et** nano-texturé.
+
+⚠️ **Conséquence pour l'outillage, et elle est à mon débit** : `controle_faits_imac.py`, écrit le 22/11 avec une grille par **capacité seule** (`2 219 → 256 Go`), accusait donc une ligne **juste** — ici, et dans l'édition du 22/11. La grille devient une table de variantes `(stockage, verre)` et le **verre** est le discriminant à ce prix. Sa consignation annonçait « 0 faux positif » : c'était mesuré sur les **24 éditions de la série**, pas sur le corpus — le balayage des **342 documents** en a trouvé **trois**.
+
+🧪 **Gardes du patch.** Sauvegarde au scratchpad **avant** tout geste, sha256 des deux fichiers relevé puis revérifié ; édits **par position, de la fin vers le début** ; **garde par soustraction dans l'espace XML** — retirer exactement ce qui a été inséré rend le fichier d'avant, vérifié ; marqueurs en **fin de paragraphe**, hors de tout hyperlien (les cinq `w:p` visés n'en portent aucun), et **aucun ne nomme la section du journal** (règle du 04/11) ; section de journal **datée du 22 novembre 2026**, celle du 15/11 intacte (règle du 25/10 : ce qui doit être unique est la section **du jour**) ; `zipfile.testzip()` sur les deux fichiers. Les trois libellés d'origine sont conservés, **zéro dans le corps** : vérifié occurrence par occurrence, chacune en marqueur ou au journal.
+
+🔴 **Les deux sens sont prouvés sur l'incident réel.** Contrôle corrigé sur les **sauvegardes non corrigées** : **3 contradictions**, exactement les trois corrigées ici, dont le message nomme le verre (`512 Go en verre nano`). Sur les documents corrigés : **0**, pour **4 lignes de grille et 2 prix en dollars lus** — le dénominateur reste non nul, donc le motif n'est pas devenu muet.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-11-08_veille_imac.fiche]]

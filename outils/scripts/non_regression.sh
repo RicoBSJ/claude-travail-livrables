@@ -1061,7 +1061,7 @@ if [ -f "$ROOT/jobs_config.json" ] && [ -f "$ROOT/outils/scripts/non_regression/
   # ② LE TÉMOIN FIGÉ, et son garde de compte lit le DÉNOMINATEUR (bornes JOUÉES) — règle du 26/10.
   if env -i $PY "$ROOT/outils/scripts/non_regression/faits_imac.py" >> "$FI_OUT" 2>&1; then
     tail -1 "$FI_OUT"
-    ATTENDU_FI=18
+    ATTENDU_FI=19
     # ⚠️ ANCRE ROBUSTE À LA COLONNE ET SANS ACCENT : la dérive d'un libellé accentué a fait refuser
     #    TOUS les pushs le 04/11. La borne ⑰ du témoin applique CE motif, lu dans CE fichier, à la
     #    ligne qu'il imprime RÉELLEMENT — jamais une copie des deux côtés (règle du 15/10).
@@ -1120,7 +1120,7 @@ if [ -d "$ROOT/sources/veille/imac" ] && [ -f "$ROOT/outils/scripts/controle_fai
   # ② LE TÉMOIN FIGÉ, et son garde de compte lit le DÉNOMINATEUR (bornes JOUÉES) — règle du 26/10.
   if env -i $PY "$ROOT/outils/scripts/non_regression/faits_livrable_imac.py" >> "$FL_OUT" 2>&1; then
     tail -1 "$FL_OUT"
-    ATTENDU_FL=18
+    ATTENDU_FL=27
     LU_FL=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes des faits acquis dans le livrable imac.*/\2/p" "$FL_OUT")
     if [ "$LU_FL" != "$ATTENDU_FL" ]; then
       echo "  ✗ ${LU_FL:-0} borne(s) jouée(s), $ATTENDU_FL attendue(s) — un lot amputé ne prouve rien :"

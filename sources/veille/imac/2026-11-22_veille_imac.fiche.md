@@ -83,6 +83,25 @@ Document source : [[2026-11-22_veille_imac.docx]]
 | `mtime` de la page en cache | **14:21:54** — le cache d'`aspirer.py` est écarté comme explication |
 | `TOPS` · `$1,499` · `Neural Engine` sur le guide MacRumors | **0** · **3** · **4** |
 
+## Correction du livrable — 22/11/2026 (soir)
+
+🔴 **Cette fiche accusait un document qui avait raison, et c'est la mesure qui l'a dit.** Elle écrivait que la ligne « M6 12c · 16 Go · **512 Go** à 2 219 € » était **FAUSSE** et qu'elle ne devait pas être versée au dossier. Les 14 références Apple du comparateur consomac, extraites une à une le 22/11/2026 : **`2 219 €` désigne DEUX configurations** — 16 Go/**256 Go** à verre nano-texturé (`MH2U4FN/A`, une référence) **ou** 16 Go/**512 Go** à verre standard (`MH154FN/A`, `MH1J4FN/A`, `MH1Q4FN/A`, `MH1F4FN/A`, quatre coloris) —, chaque option valant **+220 €** sur la base de 1 999 €. **Le prix et la capacité de la ligne de tableau étaient justes ; aucune cellule n'a été touchée.**
+
+| Ce qui a été corrigé | Avant | Après |
+|---|---|---|
+| **annonce de nouveauté**, en tête | `la configuration intermédiaire M6 12c · 16 Go · 512 Go à 2 219 € n'avait pas été relevée la semaine précédente` | `figurait déjà dans l'édition du 15 novembre 2026, à ce prix et à cette capacité` |
+| **point de vigilance** | `⚠ Config M6 2 219 € (12c · 16Go · 512Go) : non relevée le 15/11 — tableau complet désormais` | `déjà relevée à ce prix dans l'édition du 15 novembre 2026` |
+
+⚠️ **Le seul défaut réel de ce document était donc l'affirmation sur l'édition précédente, énoncée deux fois.** L'édition du 15/11 porte bien cette configuration à ce prix ; ce qu'elle écrivait de travers est la mention du **verre** (`512 Go + nano-texturé`, qui cumule les deux options), corrigée le même jour dans l'édition concernée.
+
+🔴 **Et ma consignation de la veille était fausse sur sa prémisse.** J'avais écrit que deux faits avaient été « **justes puis défaits dans la même journée** ». Mesuré sur les 24 éditions : les **deux étaient déjà faux dans l'édition PUBLIÉE du 15/11**. Le document de 8h03 n'a rien défait — il a **reconduit** le `1 299 $` et **corrigé** la capacité ; c'est le rattrapage de 14h10 qui est revenu au `512 Go` de N-1 en y perdant « nano-texturé », et ce 512 Go n'était pas faux. **J'avais lu la fiche du 15/11, qui portait `$1,499` au degré ①, et j'en avais conclu que le document le portait aussi : une fiche n'est pas son document.**
+
+🟢 **Quatrième état, après « le défaut revient » et « le juste se défait » : un faux jamais corrigé se reconduit.** Les trois axes de `controle_edition_precedente.py` partent du journal des corrections de N-1, et le 15/11 n'avait **jamais** été corrigé : il n'y avait aucune correction à voir se défaire. Un contrôle qui part d'une **correction** ne voit que les défauts déjà vus ; pour voir un faux jamais vu, il faut une référence **extérieure au corpus** — ici la grille mesurée au degré ①.
+
+⚠️ **Ce que la correction ne ferme pas.** `controle_faits_imac.py` compare des **chiffres** à une grille : il ne voit **ni** l'affirmation corrigée ici (une assertion sur l'édition précédente), **ni** une grille Apple qui changerait, auquel cas il accuserait un document juste jusqu'à ce qu'on remesure. Mesuré : il rend **0 contradiction sur ce document, avant comme après** la correction.
+
+🧪 **Gardes du patch** : identiques à ceux du 15/11 — sauvegarde d'abord, édits de la fin vers le début, **garde par soustraction dans l'espace XML**, marqueurs en fin de paragraphe hors hyperlien et ne nommant pas la section du journal, `testzip()`. Gate `--docs` sur les deux documents : **exit 0, zéro ✗**.
+
 ## Notes liées
 
 - **⬅️ Précédente** · [[2026-11-15_veille_imac.fiche]]
