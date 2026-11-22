@@ -8970,3 +8970,20 @@ Dix sabotages, dix refus. Chacun prouve d'abord qu'il a modifié le fichier (sha
 2. Mon `assert m_sent` au niveau du module **faisait planter** le témoin. **Un plantage n'imprime aucun `✗`** : ni le détail ni le compte ne se voyaient mordre (règle du 12/11, payée le lendemain du jour où je l'ai écrite). Remplacé par une borne qui imprime, compte, et sort en 1.
 3. Ma borne ㉔ s'écrivait `A and B or C` avec un `C` presque toujours vrai : **elle ne pouvait pas échouer** (26/10). Elle compte désormais les lectures nues d'`avant_res` dans le **code**, commentaires retirés.
 4. Ma borne ㉑ était **satisfaite par son propre commentaire** : `MENTION in SRC` restait vrai quand le `print` disparaissait, le commentaire au-dessus portant la même chaîne — **le piège du 27/10, la coquille citée qui s'immunise elle-même**. Et elle n'était **pas séparable** de ㉒ : S3 faisait tomber les deux. Elle s'ancre sur `print("…`, et une borne **㉖** garde ce que ㉒ ne peut pas voir, la **détection positive** ; S7 la fait tomber **seule**.
+
+### Pourquoi ce push est parti en `SKIP_NR=1`, et ce n'est PAS un échec de transport
+
+Le hook déclenche `--complet` dès qu'un contrôle à aspiration est dans le push (`ASPIRATION='^outils/scripts/(controle_attributions\.py|extract_docx\.py)$'`). Lancé à la main, `--complet` sort en **1** avec **5 ✗**, et les deux causes sont **tierces et antérieures à ce commit** — mesuré, pas raisonné :
+
+| cause | mesure du jour | preuve qu'elle est antérieure |
+|---|---|---|
+| `capsurvous.com` **ne résout plus** | `dig +short` vide, `curl` **exit 6**, HTTP 000 | la version d'AVANT le portage, rejouée sur le même témoin figé, rend **le même unique bloquant** (`㉞`, exit 1, 23,4 s) |
+| témoin `ai-act` : page d'article rétrécie **18 111 → 16 369 car.** (−9,6 % pour 2 % de tolérance) ; et `Legifrance.gouv.fr` rend **44 caractères** derrière un mur JS (¶65 hérité sans source) | `controle_ai_act.py` rejoué seul : `NOTE REFUSÉE — ¶65 hérité sans source` | `controle_ai_act.py` **n'importe pas** `controle_attributions.py` (3 mentions, toutes en commentaire), et ses deux entrées — le contrôle et le `.docx` figé — sont **identiques à l'octet** avant/après le commit |
+
+**Ce que mon changement ne cause pas, et c'est mesuré séparément** : le portage a été censé sur **les 57 `.docx` figés de `outils/scripts/`** — un périmètre que ma première censure, bornée à `livrables` + `sources`, **avait oublié** — et il y rend **0 sortie différente, 0 code de sortie différent**. C'est un défaut de ma censure, pas du portage : *la règle du 15/10 dit « tout le corpus », et les témoins figés sont aussi des entrées de passes bloquantes.*
+
+**Modes qui jugent ce commit, tous verts** : défaut **exit 0 / 0 ✗** · `--docs` **exit 0** (y compris sur `hypnose_18`, le seul document du corpus de référence dont la sortie change) · `--consignes` **exit 0** · intégrité **777 livrables, 0 divergence**.
+
+⛔ **Et il faut le dire franchement : `SKIP_NR=1` est réservé par la doctrine du dépôt à un échec de TRANSPORT, et ce n'en est pas un.** C'est un refus **exact** du harnais, lu comme ce qu'il n'est pas : la régression de ce dépôt. Décision du propriétaire, prise sur les mesures ci-dessus.
+
+📌 **QUATRIÈME FOIS QU'UN TIERS VIVANT BLOQUE LE DÉPÔT** — après le motif ⑩ (15/10), le témoin de `supprimer_job.sh` (22/10) et `promenade.imcce.fr` (23/10). Le remède structurel existe déjà pour les duos 5 bis : `tolerance_page_morte.py`, qui n'excuse un refus que si le harnais **mesure lui-même** que la page ne répond pas. **Piste bornée, non faite, non ordonnée** : l'étendre à `temoins_attributions_conformes` (où la propriété volatile est l'**existence d'un domaine**) et au motif ⑩ (où c'est la **taille d'une page d'article**). Tant qu'elle n'est pas faite, toute modification d'un contrôle à aspiration demandera la même décision.
