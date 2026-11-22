@@ -1083,6 +1083,62 @@ if [ -f "$ROOT/jobs_config.json" ] && [ -f "$ROOT/outils/scripts/non_regression/
   fi
 fi
 
+# ---- LES FAITS ACQUIS SONT-ILS RECOPIÉS JUSTES DANS LE LIVRABLE ? (22/11/2026) --------------
+# `faits_imac.py`, écrit le matin, garde que les faits mesurés sont VERSÉS AU PROMPT. Sa propre
+# consignation dit ce qu'il ne peut pas garder : « il garde que les faits sont présents, placés et
+# appariés dans le prompt ; il ne garde pas que le job les RECOPIE ». Ce bloc ferme l'autre moitié.
+# 🔴 ET LE BALAYAGE DU CORPUS A CORRIGÉ MA CONSIGNATION DU MATIN MÊME : j'avais écrit que les deux
+#    faits étaient « justes puis défaits dans la même journée ». Mesuré sur les 24 éditions : les
+#    DEUX vivaient déjà FAUX dans l'édition PUBLIÉE du 15/11 — « M6 · 12c · 16 Go · 512 Go +
+#    nano-texturé → 2 219 € », et « Prix US au lancement : 1 299 $ » DEUX FOIS, attribué à 9to5Mac
+#    et marqué « ✅ HTTP 200 ». Le document de 8h03 n'a donc rien défait : il a RECONDUIT le premier
+#    et CORRIGÉ le second ; c'est le rattrapage de 14h10 qui est revenu au 512 Go de N-1.
+# ⛔ ET AUCUN AXE DE controle_edition_precedente.py NE POUVAIT PARLER : ses trois axes partent du
+#    JOURNAL DES CORRECTIONS de N-1, et le 15/11 n'a jamais été corrigé — il n'y avait aucune
+#    correction à voir se défaire. C'est « le juste se défait » (21/11) d'un cran en arrière : un
+#    FAUX QUI N'A JAMAIS ÉTÉ CORRIGÉ se reconduit sans que rien ne le dise.
+# ⛔ NON BLOQUANT, et pas par prudence vague : le motif juge un CONTENU (14/10), et les deux
+#    éditions qu'il signale sont PUBLIÉES et non corrigées — bloquant, il refuserait tout push qui
+#    les touche. D'où DEUX exigences de ligne et une borne qui exige exit 0 même quand il alerte.
+# ⛔ LE DISCRIMINANT « M6 DANS LE LIBELLÉ » EST MESURÉ NÉCESSAIRE : la grille M4 porte LÉGITIMEMENT
+#    512 Go à 2 219 €, et l'édition du 15/11 l'écrit juste. La borne ② l'épingle.
+# 📊 BALAYAGE DES 24 ÉDITIONS : 15 lignes de grille M6 lues, 3 signalées · 2 prix en dollars lus,
+#    2 signalés · 0 FAUX POSITIF. Les cinq signalements sont des défauts RÉELS, dont trois dans une
+#    édition publiée le 15/11 et deux dans celle du 22/11.
+# 🧪 DEUX APPELS : le VERDICT RÉEL sur le corpus imac — une alerte que personne ne lit n'existe pas
+#    (27/10) — ET le témoin figé, dont les `.docx` sont FABRIQUÉS (rien de vivant dans le verdict :
+#    les 5 signalements disparaîtraient à la première correction, et un compte attendu sur le dépôt
+#    périmerait tout seul en bloquant TOUS les pushs, ce qui est arrivé les 15, 22, 23/10 et 04/11).
+if [ -d "$ROOT/sources/veille/imac" ] && [ -f "$ROOT/outils/scripts/controle_faits_imac.py" ]; then
+  echo "▶ Faits acquis recopiés dans les livrables iMac (aucun réseau, 6 s)"
+  FL_OUT="$CUR/faits_livrable.txt"
+  # ① LE VERDICT RÉEL sur le corpus, et ses lignes sont REMONTÉES. Il sort toujours en 0.
+  env -i $PY "$ROOT/outils/scripts/controle_faits_imac.py" "$ROOT"/sources/veille/imac/*.docx(N) \
+       > "$FL_OUT" 2>&1
+  grep 'FAIT ACQUIS CONTREDIT' "$FL_OUT" | sed 's/^/  ⚠/'
+  grep 'FAITS ACQUIS DANS LE LIVRABLE' "$FL_OUT"
+  # ② LE TÉMOIN FIGÉ, et son garde de compte lit le DÉNOMINATEUR (bornes JOUÉES) — règle du 26/10.
+  if env -i $PY "$ROOT/outils/scripts/non_regression/faits_livrable_imac.py" >> "$FL_OUT" 2>&1; then
+    tail -1 "$FL_OUT"
+    ATTENDU_FL=18
+    LU_FL=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes des faits acquis dans le livrable imac.*/\2/p" "$FL_OUT")
+    if [ "$LU_FL" != "$ATTENDU_FL" ]; then
+      echo "  ✗ ${LU_FL:-0} borne(s) jouée(s), $ATTENDU_FL attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_FL à jour en disant pourquoi."
+      exit 1
+    fi
+  else
+    grep '✗' "$FL_OUT" | head -9
+    echo "  ✗ LE TÉMOIN DES FAITS ACQUIS DANS LE LIVRABLE NE TIENT PLUS. Ce qu'il garde : la grille"
+    echo "    M6 mesurée au ① (2 439 € est la SEULE référence à 512 Go, et elle porte 24 Go), les"
+    echo "    trois prix US de lancement, le discriminant « M6 dans le libellé » — sans lequel la"
+    echo "    ligne M4 à 2 219 € / 512 Go, qui est JUSTE, serait accusée —, le stockage lu dans le"
+    echo "    libellé SEUL, le fait que le motif reste NON BLOQUANT, et la concordance entre la"
+    echo "    grille du contrôle et les faits versés au prompt, qui ne s'importent pas l'un l'autre."
+    exit 1
+  fi
+fi
+
 # ---- LES ASSERTIONS DE TABLEAU DES PROMPTS, ET LA PREUVE QU'ELLES MORDENT (18/10/2026) ----
 # Le 18/10/2026 la veille iMac a livré ZÉRO tableau Word pour 38 lignes à barres verticales : ses
 # trois tableaux de prix étaient des paragraphes séparés par « | ». Le contrôle d'intégrité que le

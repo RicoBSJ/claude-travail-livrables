@@ -8656,3 +8656,141 @@ sur le défaut de **2,00 $**.
 - 📌 Piste bornée, non faite : `controle_livrable_du_job.py` est aveugle à
   `livrables/controles/`, et son motif `CORRIGE` rend un **faux positif** sur un
   `📝 Journal des corrections` qui dit « Aucune correction à ce jour ».
+
+---
+
+## 23/11/2026 — surveiller le prochain créneau imac : ce qui parlera tout seul, et les deux défauts que le balayage a trouvés en chemin
+
+> Ordre : « surveille le prochain créneau imac ». Le créneau est le **dimanche 29/11/2026 à 08:03**,
+> sept jours après. On ne surveille pas une semaine en restant éveillé : on **câble ce qui parlera**.
+
+### Le créneau, mesuré
+
+| Mesure | Valeur |
+|---|---|
+| `cron` dans `jobs_config.json` | `3 8 * * 0` → **dimanche 08:03** |
+| `StartCalendarInterval` du `.plist` | Weekday **0** · Hour **8** · Minute **3** — concordant |
+| `launchctl list` | `com.claudetravail.imac-veille` **chargé** (dernier code de sortie : 1, celui du créneau de 8h03 du 22/11) |
+| Plafond | **8,00 $** (relevé de 7 à 8 $ le 22/11, dans le geste du versement des faits) |
+| Marque d'échec | **levée** — le `exit 0` du rattrapage de 14h10 l'a retirée, comme la doctrine le prévoit (« seul un exit 0 franc la lève ») |
+| Garde anti-doublon de l'Étape 1 | **bornée à la date du jour** (« Si un fichier veille_imac existe DÉJÀ **pour la date du jour** ») — les fichiers du 22/11 ne bloqueront donc pas le run du 29/11 |
+
+### 🔴 Ce que le balayage du corpus a trouvé, et qui corrige ma consignation de la veille
+
+Pour savoir ce qu'il fallait surveiller, j'ai mesuré les **24 éditions** de la série. Résultat :
+
+1. **`1 299 $` n'est pas « le défaut du matin » : il est PUBLIÉ dans l'édition du 15/11, deux fois**,
+   une fois dans le corps (*« Prix US au lancement : 1 299 $ pour l'entrée de gamme (source 9to5Mac
+   27 octobre 2026) »*) et une fois dans la liste des sources, **marqué `✅ … (HTTP 200)`**.
+2. **Le couple `2 219 € = 512 Go` est PUBLIÉ dans l'édition du 15/11** : *« M6 · 12c CPU/GPU ·
+   16 Go · **512 Go** + nano-texturé → 2 219 € »*. Le document de 8h03 du 22/11 l'avait **corrigé**
+   en 256 Go ; c'est le **rattrapage de 14h10** qui est revenu au 512 Go de N-1 et y a perdu
+   « nano-texturé ».
+3. **Et l'édition du 22/11 affirme deux fois que cette configuration « n'avait pas été relevée le
+   15/11 »** — faux : le tableau de prix du 15/11 la porte, à 2 219 €.
+
+⚠️ **Donc ma phrase d'hier — « deux faits JUSTES qui se sont défaits dans la même journée » — est
+fausse pour les deux.** Ce que j'avais mesuré était juste (`1,299` à zéro occurrence sur les
+articles) ; ce que j'en avais **déduit** ne l'était pas : j'ai lu la **fiche** du 15/11, qui portait
+`$1,499` au degré ①, et j'en ai conclu que le **document** du 15/11 le portait aussi. **Une fiche
+n'est pas son document.** La justesse qui s'est défaite n'a vécu que dans un document **jamais
+publié**, et l'origine des deux défauts est le **15/11**.
+
+⛔ **Et la cécité des contrôles est d'un cran plus large que ce que j'avais écrit** : les trois axes
+de `controle_edition_precedente.py` partent du **journal des corrections de N-1**, et le 15/11
+**n'a jamais été corrigé** — il n'y avait donc aucune correction à voir se défaire. Entre « le défaut
+revient » et « le juste se défait » il existe **un quatrième état** : *un faux jamais corrigé se
+reconduit*, et aucun axe ne peut le voir, par construction.
+
+### Le remède : `controle_faits_imac.py`, l'autre moitié de `faits_imac.py`
+
+Le garde du 22/11 vérifie que les faits sont **versés au prompt**. Sa consignation disait elle-même
+ce qu'il ne peut pas garder : *« il ne garde pas que le job les RECOPIE »*. Celui-ci confronte le
+**livrable** à la grille mesurée au degré ①.
+
+```
+GRILLE_M6 = {"1 799": "256", "1 999": "256", "2 219": "256", "2 439": "512"}
+PRIX_US   = {"1 499": "10 cœurs", "1 699": "12 cœurs", "1 449": "éducation"}
+```
+
+📊 **Balayage des 24 éditions : 15 lignes de grille M6 lues, 3 signalées · 2 prix en dollars lus,
+2 signalés · 0 FAUX POSITIF.** Les cinq signalements sont des défauts **réels**.
+
+- ⛔ **Le discriminant « M6 dans le libellé » est mesuré nécessaire** : la grille **M4** porte
+  **légitimement** `512 Go à 2 219 €`, et le 15/11 l'écrit juste. Borne ② (ACCEPTÉE), sabotage S2.
+- ⛔ **Le prix doit appartenir à la grille**, sinon `Mac mini M6 à 1 049 € (16 Go/256 Go)` serait
+  confronté à une grille d'iMac : 6 lignes du corpus sont dans ce cas, aucune n'est accusée.
+- ⛔ **Le stockage est lu dans le libellé SEUL, le prix dans le libellé ou les deux runs suivants** :
+  `extract_docx.py` joint chaque `<w:t>` par un saut de ligne, donc une **ligne** de tableau est
+  **plusieurs runs**. C'est l'ambiguïté d'aplatissement qui coûte huit faux positifs à
+  `controle_decompte.py` et son séparateur à `controle_noms_propres.py` — **troisième contrôle
+  qu'elle touche**. Bornes ⑤ et ⑥, sabotage S4 (qui fait tomber ⑥ **seule**).
+- ⛔ **Aucune exemption non mesurée** : un libellé à **deux** stockages serait accusé — **zéro
+  occurrence** sur les 15 lignes, donc l'exempter serait une exemption que rien ne mesure, dans la
+  direction d'erreur la plus coûteuse (le silence).
+- ⛔ **NON BLOQUANT** : il juge un contenu (14/10) et les deux éditions signalées sont **publiées et
+  non corrigées** — bloquant, il refuserait **tout push qui les touche**. Borne ⑭ : **exit 0 même
+  quand il alerte**, et le harnais **remonte** ses cinq lignes.
+
+### Le témoin : 18 bornes, aucun réseau, aucun tiers, 6 s mesurées
+
+`.docx` **fabriqués en tempfile** : les cinq signalements disparaîtraient à la première correction,
+donc un compte attendu sur le dépôt périmerait tout seul en bloquant TOUS les pushs — ce qui est
+arrivé les 15, 22, 23/10 et le 04/11. Le fabricateur de `.docx` est **extrait de `murs_lus.py`** et
+`signale()` **extrait du contrôle** : rien n'est recopié (15/10). **Sept bornes doivent être
+ACCEPTÉES.**
+
+🟢 **La borne ⑯ est celle qui tient l'ensemble** : la grille du contrôle et les faits versés au
+prompt doivent dire la **même chose**, dans les deux sens, sans que l'un importe l'autre — même
+classe que le plancher de 3 000 porté par cinq fichiers, où une dérive serait **silencieuse**.
+
+| # | Sabotage | Ce qui mord |
+|---|---|---|
+| S1 | l'appel de la borne ② retiré | auto-test seul **exit 0** à « 17/17 » |
+| S2 | discriminant « M6 » retiré | ② et ⑥ |
+| S3 | prix hors grille confronté quand même | ④ **seule** |
+| S4 | stockage lu dans la fenêtre | ⑥ **seule** |
+| S5 | grille altérée (`2 219 → 512`) | ①, ⑤, ⑪, ⑬, ⑮ **et ⑯**, qui nomme *« le prompt n'apparie pas 2 219 à 512 Go »* |
+| S6 | motif rendu bloquant | ⑭ |
+| S7 | contexte de lancement rendu universel | ⑨ **seule** |
+| S8 | dérive de libellé de la ligne | ⑰, avec `lu=''` |
+| S9 | dénominateurs retirés du verdict | ⑮ |
+| S10 | lot amputé, **au harnais** | `✗ 17 borne(s) jouée(s), 18 attendue(s)` |
+
+### 🔴 Deux de mes sabotages ont fait PLANTER la cible au premier jet
+
+`KeyError: '1 049'` et une `IndentationError` : refus obtenus, mais **sans un seul `✗`**, donc les
+bornes ④ et ⑨ ne se voyaient **pas** mordre. *Un sabotage qui fait planter la cible masque le garde
+qu'il teste* — règle écrite le 12/11, repayée **le lendemain du jour où je l'ai réécrite** pour
+`faits_imac.py`. Refaits sans plantage (`GRILLE_M6.get(p, "256")`, et `LANCEMENT` rendu universel au
+lieu d'être supprimé), les deux mordent, **chacune seule**.
+
+### 🔴 Et le garde des catégories a déclaré « 0 orphelin » sur un script qu'il ne voyait pas
+
+`categories_hook.py` énumère les scripts **depuis git** — c'est voulu, il n'a aucun compte en dur.
+Conséquence jamais dite : un script de premier niveau **non suivi** est **invisible**, et le garde
+imprimait `premier niveau : 30 dont 0 sans catégorie` alors que `controle_faits_imac.py`, déjà
+**exécuté par le harnais**, n'appartenait à **aucune** catégorie. Mesuré dans les deux sens : avant
+le `git add`, **49/49** ; après, **47/49** avec les bornes **⑬ et ⑱** nommées ; rattaché à
+`SURVEILLES`, de nouveau **49/49**. C'est assez tôt — le push n'a pas eu lieu — mais pas au moment
+où on écrit le fichier : *un script neuf se rattache dans le même geste que son `git add`*.
+
+### Ce qui parlera le 29/11 sans que personne ne regarde
+
+| Quand | Quoi | Ce qu'il dit |
+|---|---|---|
+| pendant le run | `run_job.sh` | `[budget]` (plafond 8,00 $), `[mesure]` (coût, tours, ms, cache), `[diagnostic]`, `[trace]` |
+| au push du job | hook → `--docs` | attributions (passes A à D), décompte, relecture d'édition (3 axes + ①bis profondeur 4), ㊳ / ㊳ bis / ㊳ ter |
+| au push du job | **`controle_faits_imac.py`** | **les cinq faits confrontés au livrable**, en avertissement remonté |
+| à tout push | `faits_imac.py` | les faits sont-ils toujours **versés et appariés** dans le prompt |
+| après coup | `rattrapage_jobs.sh --manques` | créneau **tracé**, **interrompu**, **manqué** ou **non publié** |
+
+### 📌 Ce qui reste, et qui demande un ordre
+
+- **Les éditions du 15/11 et du 22/11 sont publiées avec des chiffres faux**, et le contrôle les
+  nomme à chaque push. Les corriger relève de l'ordre « corrige X » : marqueur daté en fin de
+  paragraphe, libellé d'origine au 📝 Journal des corrections, fiche, `JOBS.md`, commit, push. **Non
+  fait, non ordonné.**
+- Et le 22/11 porte une **troisième** erreur, d'un autre genre : il affirme que la configuration à
+  2 219 € « n'avait pas été relevée le 15/11 », alors que le tableau du 15/11 la porte. Hors de
+  portée du contrôle, qui compare des chiffres à une grille, pas des affirmations à une édition.
