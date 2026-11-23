@@ -8987,3 +8987,103 @@ Le hook déclenche `--complet` dès qu'un contrôle à aspiration est dans le pu
 ⛔ **Et il faut le dire franchement : `SKIP_NR=1` est réservé par la doctrine du dépôt à un échec de TRANSPORT, et ce n'en est pas un.** C'est un refus **exact** du harnais, lu comme ce qu'il n'est pas : la régression de ce dépôt. Décision du propriétaire, prise sur les mesures ci-dessus.
 
 📌 **QUATRIÈME FOIS QU'UN TIERS VIVANT BLOQUE LE DÉPÔT** — après le motif ⑩ (15/10), le témoin de `supprimer_job.sh` (22/10) et `promenade.imcce.fr` (23/10). Le remède structurel existe déjà pour les duos 5 bis : `tolerance_page_morte.py`, qui n'excuse un refus que si le harnais **mesure lui-même** que la page ne répond pas. **Piste bornée, non faite, non ordonnée** : l'étendre à `temoins_attributions_conformes` (où la propriété volatile est l'**existence d'un domaine**) et au motif ⑩ (où c'est la **taille d'une page d'article**). Tant qu'elle n'est pas faite, toute modification d'un contrôle à aspiration demandera la même décision.
+
+---
+
+## 23/11/2026 — `rbpp-pipeline` : une anomalie à 4 ms, un plafond relevé pour une raison mécanique, et un rattrapage retenu par un garde au diagnostic faux
+
+### ① Le créneau de 8h30 est mort sur une anomalie, et il a laissé un document fabriqué
+
+`[mesure] coût réel 5.0134 $ / plafond 5.00 $ (100 % du plafond) | 1 tours | 4 ms | in 0 · out 0 · cache-read 0 · cache-write 0`, `is_error=True | subtype=error_max_budget_usd`, exit 1, `[git] Job en erreur — pas de commit`, **0 contrôle tracé**. Signature **exacte** de l'anomalie imac du 08/11/2026 (4,0233 $, 1 tour, 4 ms, compteurs à zéro) — une anomalie, pas une dérive.
+
+Le `.docx` laissé sur le disque (11 981 o, 3 618 car.) portait **quatre fabrications mesurées**, et **tous les contrôles du dépôt étaient verts** sauf ㊳ :
+
+| Fabrication | Mesure |
+|---|---|
+| Récapitulatif attribué au 16/11 | **8 chaînes sur 8 à zéro occurrence** dans le 16/11 (`signalement`, `inactif`, `inactivité`, `Faible`, `toujours inactif`, **`CEESP`**, `réunions CT`, `Aucune nouvelle RBPP signalée`) |
+| « 3e signalement consécutif » | `signalement` à **0 occurrence** dans le 02/11, le 09/11 et le 16/11 — ni 1er ni 2e |
+| 8 RBPP « héritées de l'édition précédente » | **zéro titre en commun** ; 156 mots pleins contre 42, **12 partagés**, tous génériques. Et « Référentiel national d'évaluation 2022 » est **publié**, pas en élaboration |
+| Agenda « semaine du 24 novembre » | page citée : `24/11` **0** · `25/11` **0** · `24 novembre` **0** · `CPEP` **0**. Elle met CEESP au **10/11 09h30-17h**, la Transparence aux **04 et 18/11 09h15-17h30** |
+
+⚠️ **L'absence n'est pas un artefact de fenêtre** : la page porte 12 dates jusqu'au **02/12/2026** et au **31/03/2027** — elle saute du 20/11 au 01/12. Plus `2 274 octets` annoncés pour `p_3081452`, mesuré **61 386 bruts / 48 281 car. utiles** (facteur **27**), et « plus de 16 mois » quand il y en a **28**.
+
+🔴 **Deux cécités structurelles mesurées**, et c'est le point de cette première moitié :
+- **`controle_edition_precedente.py` part du journal de N-1**, et le 16/11 n'a jamais été corrigé → rien à comparer, vert honnête. **Aucune passe du dépôt ne confronte un document au TEXTE de son prédécesseur** : B et B-FR confrontent des citations à des **pages**, et une édition antérieure est un `.docx`. C'est un **cinquième état** après celui du 23/11 (*un faux jamais corrigé se reconduit*) : ici le document **fabrique** la continuité. 📌 Remède à portée — apparier une citation attribuée à `Édition du JJ/MM/AAAA` au corps de ce `.docx`, qui est sur le disque. Non fait, non ordonné.
+- **`controle_noms_propres.py` ne peut pas voir `CPEP`**, qui est pourtant la classe du 31/10. Mesuré en important le contrôle : **6 candidats, 0 retenu**, tous tués par la borne ④ du lexique (`flux`, `actualite`, `veille`, `has`). Les **quatre désignations de commission ne sont pas même candidates** : `MIN_JETONS = 2` exige deux jetons capitalisés, `CEESP`/`CPEP` n'en ont qu'un, `Commission de la transparence` et `Commission pour la participation et l'engagement des personnes` n'ont qu'**un seul mot capitalisé** suivi de minuscules, et la borne ⑨ `tout_capitales` écarterait un sigle pur. ⚠️ Ce n'est pas un défaut de réglage : sans `MIN_JETONS`, chaque en-tête de tableau deviendrait un nom propre.
+
+🔴 **Et deux défauts à moi dans cet audit, aucun trouvé par la relecture.** ① Mon pilote passait **tout** le stdout d'`extract_docx.py` là où `extrait()` coupe sur `=== TEXTE COMPLET` : j'ai mesuré **7** candidats où le contrôle en voit **6**, et j'ai failli consigner un écart dans le contrôle — *avant d'accuser un outil, relire son invocation* (25/10), dit par l'arithmétique. ② J'ai lu le commentaire de la ligne 53 (« majuscule puis minuscules ») et j'allais écrire qu'un sigle n'est pas candidat : la regex de la **ligne 54 admet les capitales**. **Le commentaire du contrôle m'a trompé** — *ne jamais décrire ce qu'un outil fait sans l'avoir mesuré*. ③ Et j'ai d'abord lu le « 16 mois » comme un chiffre **hérité** devenu périmé ; le balayage dit qu'il est **propre à cette édition** (les 7 antérieures n'annoncent ni mois ni octets).
+
+### ② Plafond 5 → 6 $, et ce n'est PAS le besoin qui l'exige
+
+**Trajectoire réelle sur les quatre runs complets encore tracés :**
+
+| Créneau | Coût | % | Tours | Sortie |
+|---|---|---|---|---|
+| 26/10 | 2,0892 $ | 42 % | 49 | exit 0 |
+| 02/11 | 2,7626 $ | 55 % | 47 | exit 0 |
+| 09/11 | 2,7834 $ | 56 % | 34 | exit 0 |
+| 16/11 | 3,2242 $ | **64 %** | 43 | exit 0 |
+
+Maximum **mesuré** 3,2242 $ : il restait **1,7758 $ de marge**, et ce job n'a **aucun avertissement de taux d'usage**. Le 100 % du 23/11 est l'anomalie ci-dessus, pas une consommation.
+
+🟢 **Ce qui justifie le relèvement est MÉCANIQUE** : l'anomalie facture ~5,01 $ pour 4 ms, ce qui **dépasse 5,00** et déclenche `[budget] ⛔ PLAFOND DE COÛT DÉPASSÉ — arrêt des tentatives`. À 6,00 $ elle ne franchit plus le seuil, le fail-fast ne coupe plus, et **la tentative 2 part avec son propre budget** (plafond **par tentative**, règle du 16/10). **On n'achète pas de la marge de consommation, on achète de ne plus perdre le créneau entier sur un incident à 4 ms.**
+
+🔴 **Second argument, inchangé depuis le 19/10** : les quatre mesures sont celles du chemin **Étape 7**, le moins cher ; la dernière note RBPP complète date du **09/07/2026** et ajoute PDF, note Word, quiz de 100 questions et infographie — **trois livrables au lieu d'un**, non mesurés depuis juillet.
+
+⚠️ **Contre-argument mesuré deux fois sur ce dépôt : LE COÛT SUIT LE PLAFOND** — imac relevé le 15/11 a crevé son plafond neuf **quatre heures** plus tard, et son 7,00 $ du 22/11 a été consommé à **99 %** le même jour. Ce que 6 $ achète n'est pas une garantie d'aboutir.
+
+🟢 Garde par **SOUSTRACTION** : retirer exactement le texte inséré rend le fichier d'avant **au sha256 identique** (`88f7078371cb9cba`), **537 → 537 lignes**, +2 724 octets. Cumul **mesuré en exécutant le vrai bloc `case` : 6 jobs · 34,00 $**, id inconnu → **2,00 $**. ⚠️ Et cette mesure inclut la ligne `BUDGET_DEFAULT="2.00"` qui précède le bloc — l'oublier rendait une chaîne vide (défaut du 22/11). **Pour annuler : remettre `5.00`, rien d'autre.**
+
+### ③ Deux obstacles retirés AVANT de lancer, les deux mesurés
+
+Le document fabriqué bloquait le rattrapage **par deux chemins**, pas un :
+
+1. **Le gate `--docs` sort en 1** dessus (㊳ refuse) — mesuré sans tuyau, le `grep` m'avait d'abord rendu 0, *le piège du 15/10*. `git add sources/veille` l'aurait mis en scène → **push refusé**, avec la cascade du 06/11 où un document bloquant refuse les pushs des jobs suivants.
+2. **`run_job.sh:183` documente l'autre** : avec un fichier du jour sur le disque, l'étape 1 s'arrête sur le doublon en **2 tours**, sous `TOURS_MINI=7` → **exit 7**, rien publié.
+
+Les deux fichiers (le `.docx` et ma fiche de l'audit ci-dessus) ont été **préservés au scratchpad** puis retirés de l'arbre ; `git status` de `sources/veille/` est revenu **vide**. Rien n'était suivi. 🟢 Et ma fiche aurait de toute façon été épargnée par l'auto-push : `':(exclude)sources/veille/*.fiche.md'` couvre bien les sous-dossiers, le `*` de pathspec git franchissant les `/`.
+
+### ④ Le rattrapage a réussi, et un garde l'a retenu en annonçant une cause fausse
+
+`[budget] Plafond de coût pour rbpp-pipeline : 6.00 $` · marque d'échec détectée (285 min) · `is_error=False | subtype=success | stop_reason=end_turn` · **4,3183 $ / 6,00 $ = 72 %** · **6 tours** · 401 524 ms · out 3 098 · cache-read 812 366. Puis `⛔ FAUX SUCCÈS À LA TENTATIVE 1 — 6 tour(s), sous le plancher de 7`, exit **7**, `[git] ⛔ PAS DE PUBLICATION`.
+
+🔴 **Le message du garde affirme *« arrêtée sur un garde-fou (doublon) sans rien regénérer »* — et le run a regénéré.** Le discriminant était dans le même log : une sortie sur doublon coûte **0,1541 $ et 3 tours** (`run_job.sh:82-100`), celle-ci **4,3183 $ et 6 tours en 6 min 42 s** — **facteur 28 sur le coût** là où les tours ne séparent que d'un cran. ⚠️ **Et la calibration annonçait la bande vide** : « 3 tours pour un doublon, 27 à 64 pour une génération », d'où `TOURS_MINI ∈ [6, 9]` et la valeur 7. Un run de **6 tours qui génère** tombe exactement dans l'intervalle déclaré inoccupé.
+
+### ⑤ Le document produit est bon, et c'est la mesure qui le dit
+
+`non_regression.sh --docs` **exit 0**. `controle_attributions.py` **0 bloquant**, 5 passes inertes, 2 citations `A RELIRE`. `controle_decompte.py` **exit 0** (contre exit 2 le matin). `controle_edition_precedente.py` **exit 0**. `controle_integrite_livrables.py` 777 suivis · 0 divergence. `audit_vault.py` **9/9**, 1 494 liens.
+
+**Les cinq tailles annoncées sont exactes au caractère**, ré-aspirées **au frais** une par une, espacées de 15 s : `p_3081452` **48 281**, `p_3081656` **2 207**, `c_6025` **19 286**, `p_4554304` **14 776**, `c_2859583` **8 210**. Le document du matin annonçait 2 274 pour le premier.
+
+🟢 **LE FAIT NEUF EST UNE CORRECTION, FONDÉE AU DEGRÉ ① : l'appel GT Surdicécité ESSMS court jusqu'au 30/11/2026.** La page `p_4554304`, muette aux deux éditions précédentes (**3 184 car.**, rendu JS), est **revenue** : `HTTP 200 · 88 517 o bruts · 14 776 car.`. Elle écrit `Clôture de l'appel le 30/11/2026` **①**, `au plus tard le 30 novembre 2026` **①**, `Mis en ligne le 07 oct. 2026` **①** ; **`13/11/2026` y est ④ ABSENT**. Or le **09/11 écrit `13/11/2026` sept fois** et le **16/11 cinq fois**, ce dernier citant le `3 184` de la page muette. **Deux éditions ont annoncé close, sur la foi d'une page illisible, une candidature encore ouverte** — il reste **7 jours**.
+
+🟢 **La continuité est cette fois réelle : 8 RBPP sur 8 présentes dans le 16/11**, vérifiées titre par titre. Agenda vérifié au ① : `08h30` · `18h` · `Salle Amérique` · `Porte de Versailles` · `Université d'automne` · `20 novembre`, toutes **①**.
+
+⚠️ **Un seul défaut mesuré, et B-FR l'a vu** : le document écrit entre guillemets « …deux leviers au service **de la qualité** » là où la page écrit « …au service **la Haute autorité de santé Anni ...** » — libellé **tronqué par la page**, donc le titre complet est **inconnu** et non faux. `chercher.py` : **④ ABSENT LITTÉRALEMENT, 6 mots pleins sur 7**, la divergence étant une **substitution de trois mots** et non l'apostrophe. `controle_attributions.py` rend `A RELIRE`, registre juste. **Non corrigé, non ordonné.**
+
+🟢 **Et les quatre prescriptions de la fiche du 16/11 sont obtenues** (contre 0/3 la semaine d'avant et 2/4 le matin) : ① `⚠` sur `p_3081656` avec sa mesure ; ② **la page murée est revenue** et c'est ce retour qui a produit la correction ; ③ la commission est nommée comme sa page la nomme (`Commission en charge du social et du médico-social` ①, `CSMS` ①) ; ④ le décompte est écrit — mais illisible au contrôle, voir ci-dessous. ⚠️ Et **l'auto-évaluation du run est inexacte** : il écrit « 3 honorés · 1 écarté (récapitulatif 🔗) » alors qu'il **a écrit** le décompte ; le manquement est de **forme**, pas d'omission.
+
+### ⑥ Deux cécités de plus, mesurées sur ce run
+
+🔴 **㊳ accepte un document que le pipeline a refusé de publier.** Mesuré : exit **0** sur ce `.docx`, parce qu'il lit `[diagnostic]` — `is_error=False | subtype=success` — et **ne lit ni `[retry] ⛔ FAUX SUCCÈS`, ni le `code de sortie : 7`, ni `[git] ⛔ PAS DE PUBLICATION`**. Classe du 06/11 (*un run n'est pas une publication*) d'un cran plus loin, et **la direction d'erreur est la mauvaise** : il laisserait passer au push un document explicitement retenu. 📌 Remède à portée : lire le code de sortie de l'épilogue. Non fait, non ordonné.
+
+🔴 **㊳ bis est muet sur `**Liens**`, troisième forme du défaut du 24/10.** Le log porte `- 🔗 **Liens** : 5 testés · 5 retenus · 0 écarté` et le contrôle répond que le récapitulatif *ne dit pas combien d'URL ont été testées ni écartées*. **Cause isolée en jouant le VRAI motif `LIENS` extrait du contrôle sur quatre variantes**, et ce n'est pas la cause évidente :
+
+| Forme | Verdict |
+|---|---|
+| `**Liens**` + fin de ligne | **None** |
+| `**Liens**` + `(codes : x)` | **None** |
+| `Liens` sans gras, fin de ligne, `0 écarté` singulier | `('5','5','0',None)` |
+| `**Liens : … **` (forme englobante du 24/10) | `('5','5','0','x')` |
+
+Ni le singulier ni l'absence de codes ne gênent : **le gras autour du seul mot du champ place `**` entre `Liens` et son `:`**, et le motif commence par `Liens\s*:`. ⚠️ **Direction d'erreur : le contrôle affirme l'absence d'un décompte qui existe**, donc un lien jeté sur un 000 resterait invisible — ce que le motif du 20/10 existe pour empêcher. **Non corrigé, non ordonné.**
+
+### ⑦ Rendement, et un fil élucidé
+
+㊳ ter : **0,636 $ / 1 000 car. utiles** (4,3183 $ · 6 790 car. · 6 tours · 72 %), `rang 5/5`, médiane des autres **0,452** — contre **1,386 $** le matin, donc le rapport à la médiane passe de **3,07 à 1,41**. L'alerte se lève encore et elle est juste. ⚠️ **Mais le dénominateur est trompeur** : 6 790 caractères pour 5 sources lues, une page revenue et une erreur de deux éditions corrigée n'est pas 6 790 caractères de prose — le rendement mesure le coût par **caractère**, pas par **fait établi**.
+
+🟢 **Et mon fil « non élucidé » du matin l'est** : le `17 950` que `lire_page.py` rendait sur le calendrier venait d'une **copie périmée du cache** d'une session antérieure, pas d'un écart de contrôle ; la page fraîche fait bien **19 286**. ⚠️ `aspirer.py` rend `♻ déjà aspirée` **sans dire l'âge du fichier** : une mesure de taille se fait **au frais** ou ne vaut rien.
+
+### ⑧ Publication manuelle, et pourquoi
+
+Le document est publié **à la main**, sur décision du propriétaire, parce que les trois voies ont été mesurées : relancer le job **ne peut pas** aider (l'anti-doublon verrait le fichier du jour et sortirait en 3 tours, donc de nouveau sous `TOURS_MINI`, donc de nouveau exit 7) ; retirer le document pour rejouer coûte **~4,3 $** sans garantie que le prochain run dépasse 6 tours ; et la correction du GT Surdicécité est **datée du 30/11**, donc elle perd sa valeur chaque jour. C'est exactement le geste auquel `run_job.sh` renvoie mot pour mot : `[git] 👉 git status --short puis décider : compléter, supprimer, ou committer à la main.`
