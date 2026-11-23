@@ -9087,3 +9087,50 @@ Ni le singulier ni l'absence de codes ne gênent : **le gras autour du seul mot 
 ### ⑧ Publication manuelle, et pourquoi
 
 Le document est publié **à la main**, sur décision du propriétaire, parce que les trois voies ont été mesurées : relancer le job **ne peut pas** aider (l'anti-doublon verrait le fichier du jour et sortirait en 3 tours, donc de nouveau sous `TOURS_MINI`, donc de nouveau exit 7) ; retirer le document pour rejouer coûte **~4,3 $** sans garantie que le prochain run dépasse 6 tours ; et la correction du GT Surdicécité est **datée du 30/11**, donc elle perd sa valeur chaque jour. C'est exactement le geste auquel `run_job.sh` renvoie mot pour mot : `[git] 👉 git status --short puis décider : compléter, supprimer, ou committer à la main.`
+
+---
+
+## 23/11/2026 (soir) — La citation complétée corrigée : de ② à ①, et la soustraction porte sur une LIGNE
+
+### Le défaut
+
+La veille HAS du 23/11 écrivait **entre guillemets** « Du cahier des charges des SAD à l'évaluation HAS **: deux leviers au service de la qualité** ». La page du calendrier écrit « …deux leviers au service **la Haute autorité de santé Anni ...** » — un libellé que **la page tronque elle-même**. Les trois derniers mots n'étaient donc sur aucune page : `chercher.py` rendait **④ ABSENT LITTÉRALEMENT, 6 mots pleins sur 7**, et la divergence n'était **pas** l'apostrophe mais une **substitution de trois mots**. 🟢 `controle_attributions.py` le signalait `A RELIRE`, registre juste : la suite du titre est **inconnue**, pas fausse.
+
+### Le geste, et l'apostrophe entre dans le périmètre parce qu'elle est mesurée décisive
+
+| Forme | Degré sur la page |
+|---|---|
+| `…SAD à l'évaluation HAS` (apostrophe **droite**) | **② GRAPHIE** |
+| `…SAD à l’évaluation HAS` (apostrophe **courbe**) | **① LITTÉRAL** |
+
+Une citation entre guillemets se prouve au **①** (règle du 15/10), donc laisser l'apostrophe droite revenait à corriger la citation sans la prouver. La forme retenue est la courbe — c'est la règle du 03/11 appliquée : *taper la citation au copier-coller de la page aspirée*. ⚠️ Et ce n'est pas étranger au corpus : **22 des 316 documents** portent déjà une apostrophe courbe.
+
+Corps : `« Du cahier des charges des SAD à l’évaluation HAS » — le calendrier HAS tronque la suite du titre.` Marqueur gris italique daté (`<w:i/>`, `888888`, `sz 20`, trois espaces) en **dernier run du paragraphe, hors `<w:hyperlink>`**. Journal `📝 Journal des corrections — 23 novembre 2026` inséré avant `<w:sectPr>`, trois paragraphes : l'origine de la relecture, le libellé d'origine, et ce que la relecture **n'a pas** corrigé.
+
+⚠️ **Le marqueur ne porte AUCUN chiffre de taille, et c'est délibéré** : son paragraphe porte un hyperlien, et la règle du 31/10 a coûté un refus de note entière pour un « 697 caractères » posé dans un ¶ lié. ⚠️ Et il ne nomme pas la section (règle du 04/11) : il dit « conservé en fin de document ».
+
+### Mesures après coup
+
+`controle_attributions.py` **0 bloquant, exit 0** · les **deux** formes du titre en `OK` · `A RELIRE` **2 → 1**, le restant étant le gabarit `d'après l'édition du JJ/MM/AAAA`, faux positif connu depuis le 12/10 et consigné « non ordonné » le 01/11 · **B-FR sur le JOURNAL est INERTE**, `2 span(s) du journal écarté(s) faute d'affirmation de portage` — parce que l'entrée est écrite à l'**imparfait** (« la note écrivait »), le temps de la conservation (règle du 03/11) · gate `--docs` **exit 0** · `audit_vault.py` **9/9** · zip **17 → 17** entrées, `testzip()` propre.
+
+🟢 **Garde par SOUSTRACTION dans les DEUX espaces** : dans le **XML**, retirer exactement ce qui a été inséré rend le fichier d'avant au **sha256 identique** (`73039223962fa4cc`) ; sur le **texte visible**, la soustraction est une **égalité** (règle du 26/10), +1 703 caractères tous dans le journal et le marqueur.
+
+### 🔴 Et un défaut à moi, payé deux fois de suite : la soustraction porte sur une LIGNE, pas sur une chaîne
+
+`extract_docx.py` joint chaque `<w:t>` par un saut de ligne. Un marqueur posé **correctement** comme dernier run d'un paragraphe forme donc **sa propre ligne** dans le texte extrait, et non la queue de la ligne du libellé. Mesuré :
+
+| Forme de la soustraction | Résultat |
+|---|---|
+| `replace(MARQ, "")` | **+1 caractère** — un `\n` orphelin reste |
+| `.rstrip("\n").replace("\n" + MARQ, "")` | **−1 caractère** — un de trop retiré |
+| `replace("\n" + MARQ, "")` | **égalité exacte** ✓ |
+
+⚠️ **Et le corollaire est le vrai piège** : ma vérification « rien APRÈS le marqueur dans son paragraphe » était **satisfaite trivialement**, le marqueur étant seul sur sa ligne. La position en fin de paragraphe se prouve dans le **XML** — dernier run avant `</w:p>`, hors `<w:hyperlink>` — jamais sur le texte extrait. C'est la jumelle de la règle du 01/11 : *un garde se compare dans l'espace de représentation de ce qu'il surveille*. Consigné dans `CLAUDE.md` à la suite de la règle du 26/10.
+
+### ⚠️ Et la correction a déplacé un indicateur sans que le run change — le garde du 21/11 sur son premier cas réel
+
+㊳ ter passe de **0,636 à 0,508 $ / 1 000 car.** par le seul effet des 1 703 caractères ajoutés, et le contrôle **le dit de lui-même** : `ⓘ document CORRIGÉ depuis le run : ce rendement n'est PAS celui du run — un journal ajoute du texte que le run n'a pas écrit, et l'écart mesuré sur le cas du 13/11 était de +32 %. Le chiffre de CE document est inconnu.` L'alerte de rang 5/5 continue de se lever, à bon droit. **C'est exactement ce que le garde a été écrit pour dire, et c'est la première fois qu'il le dit sur une correction réelle.**
+
+### Ce que la correction ne résout pas
+
+La **suite du titre reste inconnue** : la page du calendrier se tronque elle-même, et elle n'a pas été cherchée ailleurs — le document ne cite que le calendrier pour cet événement. Le journal le dit dans son troisième paragraphe.
