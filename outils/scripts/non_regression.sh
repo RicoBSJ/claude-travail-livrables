@@ -1083,6 +1083,69 @@ if [ -f "$ROOT/jobs_config.json" ] && [ -f "$ROOT/outils/scripts/non_regression/
   fi
 fi
 
+# ---- LA ROUTE D'ARCHIVE DES DEUX PAGES MURÉES DE handicap.gouv.fr (28/11/2026) --------------
+# POURQUOI. `handicap.gouv.fr` sert un gabarit anti-automate AVANT le routage sur ses pages de
+#    comité : `curl` et `aspirer.py` y rendent HTTP 200 · 93 caractères utiles, et l'outil de
+#    récupération de page du job ne franchit pas davantage ce mur. L'étape 1 bis du prompt
+#    prescrit pourtant de récupérer « la page de la réunion la plus récente » : le job y récolte
+#    93 caractères, sans repli — et un 404 de cet hôte a répondu 200 derrière ce gabarit le 20/11.
+# ⛔ ET AUCUNE CONSIGNE N'A TENU, TROIS FOIS : la fiche du 11/11 avait trouvé la route d'archive,
+#    l'édition du 18/11 l'a reperdue, et celle du 25/11 — écrite à la main — a marqué le mur `✅`
+#    au lieu de `⚠` alors que la fiche du 18/11 le prescrivait noir sur blanc. Règle du 21/11 :
+#    une consigne écrite dans une fiche n'est pas un garde. Mécanisme nommé le 09/11 : le job
+#    relit la note, jamais la fiche.
+# 📊 LA ROUTE EST MESURÉE LE 28/11/2026 : les deux instantanés du 10/08/2026 rendent 5 861 et
+#    7 332 caractères utiles à `aspirer.py` — au-dessus du plancher de 3 000 — et les 18
+#    formulations lues au navigateur le 25/11 y reviennent TOUTES au degré ① ou ②.
+# ⛔ ON EXIGE LE LITTÉRAL : prouver l'EFFET demanderait `claude -p`, du réseau et un plafond à
+#    5 $. Même parti que le garde (2) de l'assertion de tableau (18/10), desarmement_git.py
+#    (27/10), lettres_article5.py (21/11) et faits_imac.py (22/11).
+# 🧪 DEUX APPELS, ET LE SECOND N'EST PAS DÉCORATIF : le VERDICT RÉEL sur jobs_config.json — une
+#    alerte que personne ne lit n'existe pas (27/10) — ET le témoin figé, dont les bornes jouent
+#    sur des prompts FABRIQUÉS (aucune propriété vivante dans le verdict, leçon du 17/11).
+if [ -f "$ROOT/jobs_config.json" ] && [ -f "$ROOT/outils/scripts/non_regression/route_murs_serafin.py" ]; then
+  echo "▶ Route d'archive des pages murées de handicap.gouv.fr (aucun réseau, 0,6 s)"
+  RM_OUT="$CUR/route_murs_serafin.txt"
+  # ① LE VERDICT RÉEL, sur la config du dépôt, et sa ligne est REMONTÉE.
+  if env -i $PY "$ROOT/outils/scripts/non_regression/route_murs_serafin.py" --verdict \
+       "$ROOT/jobs_config.json" > "$RM_OUT" 2>&1; then
+    grep 'ROUTE D ARCHIVE DES MURS SERAFIN' "$RM_OUT"
+  else
+    cat "$RM_OUT"
+    echo "  ✗ LA ROUTE D'ARCHIVE DES PAGES MURÉES N'EST PLUS VERSÉE AU PROMPT, OU PLUS APPARIÉE."
+    echo "    Mesuré le 28/11/2026 : l'instantané 20260810045044 est celui du 14e comité"
+    echo "    (5 861 car. utiles, « Camille Galliard-Minier »), le 20260810043921 celui du comité"
+    echo "    du 18/11/2025 (7 332 car. utiles, « Charlotte Parmentier-Lecocq » et les six"
+    echo "    critères). Sans cette route, le job récolte 93 caractères sur ses deux meilleures"
+    echo "    sources, et un 200 de cet hôte ne prouve rien."
+    exit 1
+  fi
+  # ② LE TÉMOIN FIGÉ, et son garde de compte lit le DÉNOMINATEUR (bornes JOUÉES) — règle du 26/10.
+  if env -i $PY "$ROOT/outils/scripts/non_regression/route_murs_serafin.py" >> "$RM_OUT" 2>&1; then
+    tail -1 "$RM_OUT"
+    ATTENDU_RM=21
+    # ⚠️ ANCRE ROBUSTE À LA COLONNE ET SANS ACCENT : la dérive d'un libellé accentué a fait refuser
+    #    TOUS les pushs le 04/11. La borne ⑰ du témoin applique CE motif, lu dans CE fichier, à la
+    #    ligne qu'il imprime RÉELLEMENT — jamais une copie des deux côtés (règle du 15/10).
+    LU_RM=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes de la route d archive des murs serafin.*/\2/p" "$RM_OUT")
+    if [ "$LU_RM" != "$ATTENDU_RM" ]; then
+      echo "  ✗ ${LU_RM:-0} borne(s) jouée(s), $ATTENDU_RM attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_RM à jour en disant pourquoi."
+      exit 1
+    fi
+  else
+    grep '✗' "$RM_OUT" | head -9
+    echo "  ✗ LE TÉMOIN DE LA ROUTE D'ARCHIVE NE TIENT PLUS. Ce qu'il garde : les deux URL"
+    echo "    d'archive au littéral, l'appariement de chaque titre à SON horodatage et de chaque"
+    echo "    compte à SON nom de ministre — les deux intitulés de portefeuille diffèrent et une"
+    echo "    présence des chaînes quelque part ne prouve aucun appariement —, la section lue en"
+    echo "    premier comme emplacement, la consigne de marquage « ⚠ jamais ✅ » que l'édition du"
+    echo "    25/11 a enfreinte, et le fait que cette section reste un FAIT et non une PROCÉDURE :"
+    echo "    un tour de plus coûte ~3,3 % sur ce job."
+    exit 1
+  fi
+fi
+
 # ---- LES FAITS ACQUIS SONT-ILS RECOPIÉS JUSTES DANS LE LIVRABLE ? (22/11/2026) --------------
 # `faits_imac.py`, écrit le matin, garde que les faits mesurés sont VERSÉS AU PROMPT. Sa propre
 # consignation dit ce qu'il ne peut pas garder : « il garde que les faits sont présents, placés et
