@@ -9272,3 +9272,125 @@ En voulant sonder la HAS, `aspirer.py` a rendu **`HTTP 000 · curl 60`** — la 
 🔴 **Un défaut à moi, trouvé en relisant** : ma première rédaction disait « ce que la ligne juste au-dessus de ce tableau dit déjà », alors que la cellule du groupe de travail est **dans** le tableau, lui-même au-dessus de la ligne barrée. Une description fausse de la mise en page du document qu'on corrige, dans la phrase qui justifie la correction.
 
 ⚠️ **Avocat du diable** : des trois corrections, **une seule** est vérifiée au degré ① contre une source — et c'est la plus faible, le titre iMac, dont la preuve est le document lui-même. Les deux échéances ne sont corrigées que par **arithmétique de calendrier** ; leurs états successeurs — l'appel Habitat volet 3, la fenêtre 2028 — restent **inconnus**, et le dossier le dit maintenant au lieu de les présenter comme vivants. **C'est un progrès d'honnêteté, pas un progrès d'information.**
+
+---
+
+## 28/11/2026 — `aspirer.py` sondait sans faisceau sous `python3 -I`, et le repli était muet
+
+**L'ordre** : « corrige le défaut de -I dans aspirer.py », après que la fiche de la veille l'avait
+signalé comme « remède à portée, non fait, non ordonné ».
+
+### Le défaut, mesuré avant tout geste
+
+`python3 -I` implique `-P` : le dossier du script **quitte `sys.path`**. Donc `import ca_bundle`
+lève `ModuleNotFoundError`, l'`except Exception: CA = []` l'avale, et `curl` part **sans
+`--cacert`** — c'est-à-dire un **faux verdict TLS** sur une page saine, et une source valide
+écartée en silence. Le défaut du 18/10 par une autre porte.
+
+Preuve de bout en bout sur `https://www.has-sante.fr/`, **les deux sondes sous `-I`** :
+
+| | verdict |
+|---|---|
+| version d'avant (sauvegarde) | `HTTP 000 · curl 60 · 3 essais · NON LUE` |
+| version corrigée, **rejouée seule** | `HTTP 200 · 90 998 octets bruts · 7 253 car. utiles` |
+
+⚠️ **Et le `curl 28` de la sonde intermédiaire était de ma main** : six requêtes en trente
+secondes sur le même hôte. Le diagnostic suivant, une seule requête avec le faisceau, rend
+**`HTTP 200` en 0,199 s** — *un verdict réseau ne vaut que rejoué seul* (12/10), payé une fois
+de plus, et `28` n'est pas `60` : un délai de réponse, pas un échec de chaîne.
+
+⛔ **Ce n'est pas un défaut de production** : **0** occurrence de `python3 -I` dans le hook, le
+harnais et `run_job.sh`, contre **50** `python3` nus. Il est atteignable **à la main**, et c'est
+la consigne d'isolation de la session qui prescrit `-I` pour tout Python lisant un fichier non
+fiable — autrement dit, la consigne qui protège est celle qui déclenche.
+
+### Le fond n'était pas le repli, c'était qu'il était indiscernable
+
+`args_curl()` **ne lève pas** : `chemin()` rattrape `OSError` et rend `None`, d'où `[]`. Mesuré
+en masquant `BREW` **et** `CA_DIR` : `args_curl() = []`, **aucune exception**. Donc cet `except`
+n'attrape **que l'import** — un `ca_bundle` absent du disque ou un `sys.path` perdu —, et le
+repli « machine sans brew » qu'il revendique passe **ailleurs**.
+
+Et la borne qui le gardait testait ce repli **comme une fonctionnalité** : `faisceau_5bis.py` ④
+rend `ca_bundle` inimportable et exige `CA == []`. Rien ne distinguait donc « pas de brew » de
+« voisin perdu ». 🔴 **La docstring de `faisceau_5bis.py` nomme donc mal le mécanisme** — sa
+borne ④ reste juste, c'est sa justification qui est fausse. **Non corrigé, non ordonné.**
+
+### Le correctif
+
+1. `sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))` **avant** le `try`, forme
+   reprise de `balayer_adresses.py:91` — pas une seconde.
+2. L'`except` **parle** : une ligne sur stderr qui nomme la cause.
+
+⛔ **L'insert en position 0 crée un risque** : masquer un module standard, c'est-à-dire le
+`json.py` planté que la consigne d'isolation veut écarter. Mesuré **nul** — 24 `.py` de
+`outils/scripts/` contre 232 modules standard, **0 collision**, et `ca_bundle` n'importe que
+`os, sys, tempfile`. La borne ⑧ garde que cela le reste.
+
+🟢 **Garde par soustraction** (26/10) : retirer exactement les deux textes insérés rend le
+fichier d'avant au **sha256 identique** (`ed00f492520098fe`) ; 105 → 124 lignes, +1 590 octets.
+
+### Le témoin — `non_regression/isolation_import.py`
+
+**9 bornes, aucun réseau, aucun tiers, 0,7 s mesurées** (0,70 · 0,65 · 0,65). La tête
+d'`aspirer.py` est **extraite** du fichier et exécutée dans de **vrais sous-processus**, avec
+`-I` et sans — jamais une copie de sa logique (15/10). Les sous-processus partent de la **racine
+du dépôt**, pour que le sens non isolé réussisse par la **ligne de réparation** et non par le
+cwd ; c'est ce qui fait tomber ④ aux sabotages S1 et S2.
+
+- ① les chemins sont rendus — **quatre** `dirname`, le bug à cinq occurrences
+- ② `aspirer.py` répare `sys.path` **avant** son `import ca_bundle` — l'**ordre** est la moitié
+  de la règle, comme le désarmement git du 27/10
+- ③ ④ sous un **vrai `-I`** et sans, `CA` est **non vide**
+- ⑤ ⑥ `ca_bundle` inimportable : `CA` retombe à `[]` **et** une ligne le **dit** sur stderr
+- ⑦ **ACCEPTÉE** : `args_curl()` ne lève pas — la **prémisse** de ⑥
+- ⑧ aucun `.py` de `outils/scripts/` ne masque un module standard
+- ⑨ aucun `-k`, aucun `--insecure`
+
+Plus un **recensement non bloquant** des scripts qui importent un voisin sans réparer
+`sys.path` : **4** aujourd'hui.
+
+**Dix sabotages, dix refus**, chacun nommant **sa** borne et prouvant d'abord qu'il a modifié le
+fichier (sha256 avant → après), fichiers restaurés au **sha256 identique**.
+
+| sabotage | borne qui mord |
+|---|---|
+| S1 la ligne de réparation retirée | ② ③ ④ |
+| S2 la réparation déplacée **après** l'import | ② ③ ④ |
+| S2bis `abspath` → `realpath`, forme **équivalente** | ② **seule** |
+| S3 le repli redevient **muet** (le `print` seul retiré) | ⑥ **seule** |
+| S4 un `-k` ajouté | ⑨ |
+| S5 `RACINE` du témoin à **trois** `dirname` | ① |
+| S6 un `wave.py` planté dans `outils/scripts/` | ⑧, qui le **nomme** |
+| S7 le lot amputé d'une borne | `ATTENDU_ISO` — auto-test seul **exit 0** en lisant « 8/8 », harnais **exit 1** |
+| S8 apostrophe droite → **typographique** dans l'ancre | `ATTENDU_ISO`, `0 borne(s) jouée(s)` |
+| S8bis un mot de l'ancre accentué | idem |
+
+🔴 **Deux de mes sabotages n'ont rien prouvé au premier jet, les deux pour la même cause.**
+Mon S3 cassait la structure au point que `CA` n'existait plus (`len(CA) = -1`), donc ⑤ tombait
+**aussi** quand j'annonçais « ⑥ seule ». Mon S8 ajoutait du texte **après** l'ancre, que le `.*`
+du `sed` absorbe **par construction** : le bloc sortait en **0** et j'ai failli consigner que
+l'ancre n'était pas lue. *Un sabotage qui n'implémente pas la sémantique qu'il annonce ressemble
+à une borne qui ne mord pas* (05/11), **deux fois dans la même séance**.
+
+🔴 **Et ma première mesure du défaut était fausse** : j'exécutais la tête extraite avec des
+globals **vides**, donc `__file__` n'existait pas → `NameError`, et mon `print` affichait
+`['A', '…']`, soit la **première lettre de la chaîne « ABSENT »**. *Avant d'accuser un outil,
+relire son invocation* (25/10).
+
+### Câblage
+
+Bloc `bloc_isolation_import` appelé au **chemin commun** du harnais — `aspirer.py` étant dans
+`SURVEILLES`, un push qui le touche déclenche le mode défaut. `ATTENDU_ISO=9` lit le
+**dénominateur**, et l'ancre du `sed` est **robuste à la colonne**.
+
+Aucun geste sur le hook : le **motif de répertoire** du 11/11 a pris le témoin neuf au
+`git add` — témoins **20 → 21 · 0 orphelin**. *Un motif, jamais une liste.*
+
+### Ce qui reste, et n'est pas ordonné
+
+Les **quatre** autres scripts qui importent un voisin sans réparer `sys.path` :
+`controle_ai_act.py`, `controle_astrologie_karmique.py`, **`controle_attributions.py` — qui
+porte les pushs** — et `controle_psychopathologie.py`. Le témoin les **recense et les imprime**,
+non bloquant. Les corriger demanderait de reprendre l'extraction de `faisceau_5bis.py`, ancrée
+sur `try:\n    import ca_bundle`.

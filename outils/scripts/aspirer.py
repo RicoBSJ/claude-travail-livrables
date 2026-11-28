@@ -24,10 +24,29 @@ même UA, trois essais (0 s, 5 s, 15 s), hors 2xx = page NON LUE (⑰, ㉑), pla
 façade à 3 000 caractères utiles, PDF non analysé.
 """
 import hashlib, html, os, re, subprocess, sys, time, unicodedata
+# ⚠️ 28/11/2026 — SANS CETTE LIGNE, `python3 -I` SONDE SANS FAISCEAU, EN SILENCE.
+#    `-I` implique `-P` : le dossier du script quitte sys.path, `import ca_bundle` lève
+#    ModuleNotFoundError, l'except ci-dessous l'avale, et curl part SANS --cacert — donc
+#    un `curl 60` sur une page qui répond 200, c'est-à-dire un FAUX verdict TLS, et une
+#    source valide écartée en silence (le défaut du 18/10, par une autre porte).
+#    Mesuré avant correctif : CA = [] sous -I, CA = ['--cacert', …] sans.
+#    Forme reprise de balayer_adresses.py:91 — pas une seconde.
+#    ⛔ L'insert en position 0 crée un risque de masquage d'un module standard : mesuré
+#    NUL aujourd'hui (24 .py de outils/scripts/ contre 232 modules standard, 0 collision),
+#    et c'est la borne ④ de non_regression/isolation_import.py qui garde que cela le reste.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
     import ca_bundle
     CA = ca_bundle.args_curl()      # ⚠️ 18/10/2026, voir ca/README.md : chaîne complète, rien n'est désactivé
-except Exception:
+except Exception as _e:
+    # ⛔ ET LE REPLI SE DIT, PARCE QU'IL ÉTAIT INDISCERNABLE D'UN ÉTAT CASSÉ.
+    #    `args_curl()` NE LÈVE PAS : `chemin()` rattrape OSError et rend None, d'où [] —
+    #    mesuré le 28/11 en masquant brew ET ca/. Cet except n'attrape donc QUE l'import,
+    #    c'est-à-dire un ca_bundle absent du disque ou un sys.path perdu. Muet, il rendait
+    #    ces deux états indiscernables du repli légitime : un garde satisfait par un état
+    #    cassé, le défaut qui revient le plus souvent ici.
+    print("⚠️ aspirer.py : ca_bundle non importé (%s) — sondes SANS faisceau de certificats"
+          % type(_e).__name__, file=sys.stderr)
     CA = []
 
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"

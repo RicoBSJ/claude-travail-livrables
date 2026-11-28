@@ -465,6 +465,39 @@ bloc_convention_fiches () {
   return $CVF_KO
 }
 
+bloc_isolation_import () {
+  local ISO_KO=0 ISO_OUT
+  [ -f "$ROOT/outils/scripts/non_regression/isolation_import.py" ] || return 0
+  echo "▶ Isolation des imports — aspirer.py sonde-t-il AVEC le faisceau sous -I ? (aucun réseau, 0,7 s)"   # 0,70 · 0,65 · 0,65 s MESURÉS
+  ISO_OUT="$CUR/isolation_import.txt"
+  # LE TÉMOIN. Ses bornes ③ ④ ⑤ ⑥ lancent de VRAIS sous-processus, avec -I et sans, sur la tête
+  # d'aspirer.py EXTRAITE du fichier — jamais une copie de sa logique (15/10). Le garde de compte
+  # lit le DÉNOMINATEUR (bornes JOUÉES) — règle du 26/10.
+  if env -i $PY "$ROOT/outils/scripts/non_regression/isolation_import.py" --autotest > "$ISO_OUT" 2>&1; then
+    tail -2 "$ISO_OUT"
+    ATTENDU_ISO=9
+    # ⚠️ ANCRE ROBUSTE À LA COLONNE ET SANS ACCENT : la dérive d'un libellé accentué a fait refuser
+    #    TOUS les pushs le 04/11.
+    LU_ISO=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes de l'isolation des imports.*/\2/p" "$ISO_OUT")
+    if [ "$LU_ISO" != "$ATTENDU_ISO" ]; then
+      echo "  ✗ ${LU_ISO:-0} borne(s) jouée(s), $ATTENDU_ISO attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_ISO à jour en disant pourquoi."
+      ISO_KO=1
+    fi
+  else
+    grep '✗' "$ISO_OUT" | head -9
+    echo "  ✗ LE TÉMOIN DE L'ISOLATION DES IMPORTS NE TIENT PLUS. Ce qu'il garde : qu'aspirer.py"
+    echo "    répare sys.path ET le fasse AVANT son import ca_bundle (l'ORDRE est la moitié de la"
+    echo "    règle, comme le désarmement git du 27/10), que la tête extraite rende un CA NON VIDE"
+    echo "    sous un VRAI -I, que le repli à [] SE DISE sur stderr — c'est le SILENCE qui était le"
+    echo "    défaut, pas le repli —, la borne ACCEPTÉE qui prouve que args_curl() NE LÈVE PAS et"
+    echo "    donc que cet except n'attrape QUE l'import, et qu'aucun .py de outils/scripts/ ne"
+    echo "    masque un module standard, qui est le risque que l'insert en position 0 CRÉE."
+    ISO_KO=1
+  fi
+  return $ISO_KO
+}
+
 bloc_coffre () {
   local OUT="$CUR/coffre_avertissement.txt" CF_KO=0 LU
   local ATTENDU_CF=23        # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
@@ -1822,6 +1855,7 @@ bloc_publication || exit 1
 bloc_integrite || exit 1
 bloc_coffre || exit 1
 bloc_convention_fiches || exit 1
+bloc_isolation_import || exit 1
 bloc_categories || exit 1
 
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
