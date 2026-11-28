@@ -390,6 +390,76 @@ bloc_integrite () {
 #    COFFRE dédiée serait donc du CODE MORT : la couverture est portée par les deux appels de
 #    ce bloc — le chemin commun (touche=1 et --docs) et le mode --integrite (une fiche, un
 #    quiz, un classeur) — et les bornes ⑲ et ⑳ du témoin gardent ce fait, lu dans le hook.
+# ---- LA CONVENTION DES FICHES .md — LA FORME D'UN AMENDEMENT EST-ELLE TENUE ? (28/11/2026) ----
+# POURQUOI. Le dépôt avait une convention écrite pour les `.docx` — marqueur gris daté en fin de
+#    paragraphe, libellé d'origine au 📝 Journal des corrections — et AUCUNE pour les fiches `.md`,
+#    alors qu'elles sont 329, publiées sur un dépôt public et lues dans Obsidian. Le 28/11, trois
+#    amendements de ma main ont EFFACÉ l'affirmation qu'ils corrigeaient : git tenait l'histoire,
+#    mais ce que le propriétaire lit est le fichier.
+# 📊 ET LA CONVENTION N'EST PAS INVENTÉE, ELLE EST MESURÉE SUR LE CORPUS : des 5 ratures
+#    préexistantes, le gras ouvre à **+3 caractères dans 5 cas sur 5** (` → ` ou ` — `), et la
+#    date vit DANS ce gras pour les 3 conformes. ⚠️ La borne « une date dans les 80 caractères
+#    qui suivent » aurait accepté la 5e — `**suivi**` puis « au 04/09/2026 » à +65 —, c'est-à-dire
+#    précisément une rature NON datée : c'est elle qui a décidé la forme du test.
+# ⛔ NON BLOQUANT, et pas par prudence vague : le motif juge un CONTENU (règle du 14/10) et les
+#    2 écarts du dépôt sont dans une fiche PUBLIÉE (`AI-Act_dossier.fiche.md`, 04/09) — bloquant,
+#    il refuserait tout push qui la touche, ce qui est le reproche consigné le 12/11 sur les
+#    5 attributions bloquantes des notes `controle-livrables`. D'où une EXIGENCE DE LIGNE.
+# ⛔ CE QU'IL NE FAIT PAS, ET LA MESURE QUI L'INTERDIT : il ne dit pas qu'un amendement AURAIT DÛ
+#    être marqué. 50 révisions de fiche suppriment de la prose, dont 31 à J+0 ou J+1 (la fiche est
+#    encore en train d'être écrite — bande vide MESURÉE à J+2 : 22 · 9 · ZÉRO · 1 à J+3) ; des 19
+#    restantes, les non marquées sont quatre formes légitimes — compte cumulatif d'un `_dossier`,
+#    référence prospective résolue en wikilien, suffixe ajouté à la même ligne, verbe passé à
+#    l'imparfait (03/11). Les séparer demanderait quatre exemptions calibrées sur 19 cas, dont
+#    deux que la mesure ne sépare pas : ce serait un motif qui crie (règle du 21/11).
+bloc_convention_fiches () {
+  local CVF_KO=0 CVF_OUT
+  [ -f "$ROOT/outils/scripts/controle_convention_fiches.py" ] || return 0
+  echo "▶ Convention des fiches .md (aucun réseau, aucun tiers, 0,5 s)"   # 0,50 · 0,48 · 0,48 s MESURÉS
+  CVF_OUT="$CUR/convention_fiches.txt"
+  # ① LE TÉMOIN, dont les bornes jouent sur des fiches FABRIQUÉES, plus deux bornes sur le corpus
+  #    réel. Le garde de compte lit le DÉNOMINATEUR (bornes JOUÉES) — règle du 26/10.
+  if env -i $PY "$ROOT/outils/scripts/controle_convention_fiches.py" --autotest > "$CVF_OUT" 2>&1; then
+    tail -1 "$CVF_OUT"
+    ATTENDU_CF=21
+    # ⚠️ ANCRE ROBUSTE À LA COLONNE ET SANS ACCENT : la dérive d'un libellé accentué a fait refuser
+    #    TOUS les pushs le 04/11.
+    LU_CF=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes de la convention des fiches.*/\2/p" "$CVF_OUT")
+    if [ "$LU_CF" != "$ATTENDU_CF" ]; then
+      echo "  ✗ ${LU_CF:-0} borne(s) jouée(s), $ATTENDU_CF attendue(s) — un lot amputé ne prouve rien :"
+      echo "    rétablis la borne retirée, ou mets ATTENDU_CF à jour en disant pourquoi."
+      CVF_KO=1
+    fi
+  else
+    grep '✗' "$CVF_OUT" | head -9
+    echo "  ✗ LE TÉMOIN DE LA CONVENTION DES FICHES NE TIENT PLUS. Ce qu'il garde : les trois"
+    echo "    formes conformes du corpus au littéral, le fait que la date doive vivre DANS le gras"
+    echo "    et le gras à moins de 6 caractères de la rature, le prédicat STRUCTUREL du"
+    echo "    frontmatter (jamais une liste de chemins — un nom de série FABRIQUÉ doit être"
+    echo "    couvert), les quatre formes qui doivent être ACCEPTÉES — dont la fiche qui RAPPORTE"
+    echo "    le journal de son .docx et celle qui CITE son marqueur entre crochets —, et un"
+    echo "    périmètre NON VIDE sur le dépôt : deux \`parent\` au lieu de trois rendaient un vert"
+    echo "    sur rien, cinquième occurrence du bug de RACINE."
+    CVF_KO=1
+  fi
+  # ② LE VERDICT RÉEL sur les 329 fiches, et sa ligne est REMONTÉE — une alerte que personne ne
+  #    lit n'existe pas (27/10). Non bloquant : on EXIGE la ligne, jamais un code de sortie.
+  if env -i $PY "$ROOT/outils/scripts/controle_convention_fiches.py" --corpus >> "$CVF_OUT" 2>&1; then
+    grep '^CONVENTION DES FICHES :' "$CVF_OUT" | tail -1
+    grep '^⚠ CONVENTION DES FICHES' "$CVF_OUT" | head -6
+    if ! grep -q '^CONVENTION DES FICHES : [0-9]\{1,\} fiche' "$CVF_OUT"; then
+      echo "  ✗ LE VERDICT RÉEL N'A PAS IMPRIMÉ SA LIGNE DE DÉCOMPTE — un décompte d'écarts sans"
+      echo "    le décompte de ce qui a été lu ne veut rien dire (règle de ㉜)."
+      CVF_KO=1
+    fi
+  else
+    cat "$CVF_OUT"
+    echo "  ✗ LE VERDICT RÉEL DE LA CONVENTION DES FICHES A REFUSÉ DE LIRE UNE FICHE."
+    CVF_KO=1
+  fi
+  return $CVF_KO
+}
+
 bloc_coffre () {
   local OUT="$CUR/coffre_avertissement.txt" CF_KO=0 LU
   local ATTENDU_CF=23        # le garde lit le DÉNOMINATEUR, jamais le nombre de réussies (26/10)
@@ -464,6 +534,7 @@ if [ "$MODE" = "--integrite" ]; then
   INT_MODE_KO=0
   bloc_integrite || INT_MODE_KO=1
   bloc_coffre    || INT_MODE_KO=1
+  bloc_convention_fiches || INT_MODE_KO=1
   exit $INT_MODE_KO
 fi
 
@@ -1745,6 +1816,7 @@ bloc_publication || exit 1
 
 bloc_integrite || exit 1
 bloc_coffre || exit 1
+bloc_convention_fiches || exit 1
 bloc_categories || exit 1
 
 # ── 0. mode documents : quelques .docx, comparés un à un à la référence
