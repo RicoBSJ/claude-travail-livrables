@@ -9204,3 +9204,35 @@ Frontmatter **`type: fiche-document`** (323) ou **`type: note-dossier`** (6) = *
 🔴 **ET CETTE CORRECTION VALIDE, DANS L'HEURE, LE RETRAIT DE MA BORNE ⑱.** Elle épinglait « les 2 ratures non datées d'AI-Act_dossier sont les SEULS écarts du dépôt » : l'ordre reçu une heure plus tard les a corrigées, donc elle aurait **refusé tous les pushs du dépôt**. Septième occurrence de « un témoin vivant périme tout seul » — et la première où le délai entre la pose du piège et son déclenchement se compte en **minutes**. ⚠️ **Conséquence à dire** : le motif ① passe de « 2 occurrences mesurées » à **ZÉRO**, donc il devient **PRÉVENTIF** comme le ② — il est désormais le détecteur de la **première** rature non datée à venir, et cela ne le rend pas bloquant pour autant (14/10).
 
 ⚠️ **Avocat du diable** : la convention est écrite et son **moule** est gardé, mais rien ne garde qu'on l'**applique** — c'est exactement la limite que la mesure interdit de franchir, et elle est la même que celle du 21/11 sur les lettres de l'article 5. La différence est qu'ici le coût d'un faux refus est connu et chiffré : **17 révisions légitimes** de l'histoire du dépôt.
+
+## 28/11/2026 — Le point 2 du dossier AI Act vérifié : cinq mois et dix jours d'attente, et la vérification a trouvé une consultation fermée que ce dossier n'a jamais reçue
+
+**Ordre** : « corrige le point 2 ». Il vient de ma ligne d'avocat du diable de l'heure précédente : les points 1 et 3 de la section « Ce qu'il faudrait revérifier » venaient d'être datés, le **point 2 restait ouvert depuis le 04/09/2026** — près de trois mois sans re-sondage — et *aucun contrôle du dépôt ne mesure l'âge d'un « à revérifier »*.
+
+### Ce qui est vérifié, et par quel mécanisme
+
+🟢 **Les lignes directrices conjointes RGPD / AI Act ne sont TOUJOURS pas parues au 28/11/2026, et ce n'est pas une absence de résultat : c'est un mécanisme.** Le **registre des lignes directrices et consultations de l'EDPB**, aspiré et lu ce jour (**4 271 caractères utiles**, au-dessus du plancher de 3 000), porte la série **2026 complète et continue — Guidelines 01/2026** (recherche scientifique), **02/2026** (anonymisation), **03/2026** (web scraping IA générative), **04/2026** (amendes administratives) — **et aucune des quatre n'est celle-là**. ⛔ **Et c'est bien le registre où elle paraîtrait** : il liste les *Joint Guidelines on the Interplay between the Digital Markets Act and the General Data Protection Regulation*, elles aussi **conjointes avec la Commission**. Une série numérotée sans trou ne laisse pas de place où se cacher — c'est plus fort qu'un « je n'ai pas trouvé ». **Cinq mois et dix jours** après l'annonce du 18/06, et les deux durées écrites sont **calculées puis assertées** avant d'être posées, jamais estimées.
+
+⚠️ **ET LA PORTÉE DU NÉGATIF S'ARRÊTE À L'EDPB, C'EST ÉCRIT DANS LA FICHE** : la page de cadre réglementaire de la Commission, lue le même jour, ne dit **rien** du sujet — **0 occurrence** de « GDPR », « data protection » et « joint » sur **18 243 caractères utiles**. ⛔ **Ce n'est donc PAS un second négatif** : c'est une page qui n'aborde pas la question, et la lire comme une confirmation aurait été un faux appui. Rien n'est vérifié côté Commission.
+
+### 🆕 Ce que la vérification a trouvé, et le trou est entre deux séries
+
+**L'EDPB a adopté le 08/07/2026 ses lignes directrices 02/2026 (anonymisation) et 03/2026 (web scraping dans le contexte de l'IA générative), en consultation du 08 juillet au 30 octobre 2026 — fenêtre fermée depuis 29 jours.** La seconde touche directement l'articulation RGPD / IA, c'est-à-dire l'objet même du point 2. 🔴 **ET LE DÉPÔT LE SAVAIT DEPUIS LE 11/07/2026, DANS UNE AUTRE SÉRIE** : la veille **rgpd du 11/07** l'écrit mot pour mot — « l'EDPB adopte le 08/07 des lignes directrices sur l'anonymisation et sur le web scraping pour l'IA générative » — mais **son job a été supprimé le 25/07/2026**, et **rien ne reverse une série archivée dans une série vivante**. Les deux dates se corroborent à l'octet : « adopté le 08/07 » côté veille rgpd, « Feedback period 08 July » côté registre lu aujourd'hui, **deux sources indépendantes dont une lue au degré ①**. 📊 Mesuré : **0 occurrence** de « web scraping », « moissonnage », « 03/2026 » et « 04/2026 » dans les **29 fiches de la série ai-act**.
+
+⚠️ **Et c'est une classe d'angle mort que ce fichier n'avait pas nommée** : la suppression d'un job archive ses livrables mais **n'en reverse rien** aux dossiers vivants qui en ont besoin. Douze jobs supprimés à ce jour. 📌 **Non mesuré, non ordonné** : combien de faits des séries `rgpd`, `nocode-ia` et `essms` manquent aux dossiers vivants.
+
+### La convention des fiches, appliquée
+
+🟢 **Aucune rature neuve, et c'est la forme ② qui le commande** : l'affirmation « n'ont toujours pas paru » n'est **pas renversée**, elle est **confirmée et datée** — donc pas de barré, une phrase datée **dans l'item même qu'elle amende**, ce qui est le cœur de la convention écrite ce matin. Le contrôle rend **1 fiche · 2 ratures · 0 écart**, et les **2 ratures sont celles des points 1 et 3**, inchangées : une assertion le vérifie avant écriture.
+
+⛔ **ET LES DEUX REGISTRES SONT NOMMÉS EN PROSE, PAS EN LIEN, SUR MESURE** : ce dossier porte **0 adresse** — `grep -c http` rend **0** sur ses 187 lignes. Y introduire les deux premières URL du fichier changerait son genre, et la règle « une page citée comme source doit être listée » est celle des **veilles `.docx`** gardées par la passe A, pas celle d'une synthèse Obsidian. Décision dite, pas subie.
+
+### Mesures
+
+| | |
+|---|---|
+| Sondes | **3**, strictement **séquentielles** (règle du 12/10), faisceau de certificats, aucun `-k` : registre EDPB **200 · 4 271 car.**, actualités EDPB **200 · 5 966 car.**, cadre réglementaire Commission **200 · 18 243 car.** |
+| Pages en contexte | **aucune** — `aspirer.py` puis `lire_page.py --autour`, conformément au calibrage |
+| `WebSearch` | 2 requêtes, **en amont pour cibler les URL**, et **aucun de leurs résumés n'est versé** : « résumés de recherche, pas de page lue » (fiche du 25/11) |
+| Soustraction | **sha256 identique**, 168 → 187 lignes, +1 709 octets, `**` en nombre pair |
+| Convention | **329 fiches · 8 ratures · 0 écart** sur le corpus |

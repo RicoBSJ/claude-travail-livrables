@@ -91,6 +91,25 @@ source avant de s'appuyer dessus :
    systèmes à haut risque traitant des données personnelles ; le déployeur peut s'appuyer
    sur l'AIPD du fournisseur, art. 26 et 27). Les lignes directrices conjointes annoncées
    le 18/06 n'ont toujours pas paru ;
+   **Vérifié le 28/11/2026 : toujours pas parues, et c'est le MÉCANISME qui le prouve, pas
+   une absence de résultat.** Le registre des lignes directrices et consultations de l'EDPB,
+   lu ce jour (4 271 caractères utiles), porte la série **2026 complète et continue — 01,
+   02, 03 et 04/2026 — et aucune des quatre n'est celle-là** ; et c'est bien le registre où
+   elle paraîtrait, puisqu'il liste les *Joint Guidelines on the Interplay between the
+   Digital Markets Act and the General Data Protection Regulation*, conjointes avec la
+   Commission elles aussi. **Cinq mois et dix jours** après l'annonce du 18/06.
+   ⚠️ **La portée de ce négatif s'arrête à l'EDPB, et il faut le dire** : la page de cadre
+   réglementaire de la Commission, lue le même jour, ne dit **rien** du sujet — **0
+   occurrence** de « GDPR », « data protection » et « joint » sur 18 243 caractères utiles.
+   Rien n'a donc été vérifié côté Commission.
+   🆕 **Et la vérification a trouvé ce que ce dossier n'a jamais reçu.** L'EDPB a adopté le
+   **08/07/2026** ses lignes directrices **02/2026 (anonymisation)** et **03/2026 (web
+   scraping dans le contexte de l'IA générative)**, en consultation du **08 juillet au 30
+   octobre 2026** — fenêtre **fermée depuis 29 jours**, et la seconde touche directement
+   l'articulation RGPD / IA. ⚠️ **Le dépôt le savait, ce dossier non** : la veille **rgpd du
+   11/07/2026** l'écrit (« l'EDPB adopte le 08/07 des lignes directrices sur l'anonymisation
+   et sur le web scraping pour l'IA générative »), mais son job a été supprimé le
+   **25/07/2026** et rien ne reverse une série archivée dans une série vivante ;
 3. ~~l'état de la **transposition française**~~ — **suivi le 04/09/2026** : autorités nationales
    toujours non désignées à cette date, volet numérique du DDADUE en navette
    parlementaire. Cette absence ne suspend aucune obligation.
