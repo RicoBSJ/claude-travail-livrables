@@ -9804,3 +9804,103 @@ aucune — rien n'est conclu, le duo n'est pas joué [faisceau de certificats : 
 🟢 **ET LES DEUX AMPUTATIONS SONT PROUVÉES SANS LANCER LE HARNAIS, PAR SON PROPRE `sed`** — lu dans `non_regression.sh` par motif, jamais recopié (une dérive de libellé dans les deux laisserait le lot vert, défaut mesuré le 11/11) : appliqué à la ligne que le témoin amputé imprime **réellement**, il lit **115** contre `ATTENDU_BAL=116` et **23** contre `ATTENDU_TOL=24`. Les deux refusent.
 
 🔴 **Et mon premier S3 n'a pas prouvé ce qu'il annonçait** : pour faire passer `MUET` après le plancher j'avais **inséré** un `return "FACADE"` avant le test du mur, donc il déplaçait **deux** tests au lieu d'un — 8 ✗ dont `mur=True → FACADE`, c'est-à-dire la branche du mur cassée par-dessus. *Un sabotage qui n'implémente pas la sémantique qu'il annonce ressemble à une borne qui ne mord pas* (05/11). Rejoué en `S3bis` : le test `MUET` **déplacé** après le plancher, le mur **premier et inchangé**.
+
+---
+
+## 28/11/2026 — Cas ③ : le ¶150 de `placement-financier` n°18 repointé sur l'instantané du 15/07/2026
+
+**Ordre** : « corrige le cas ③ avec l'archive du 15/07 ». C'est le troisième des trois refus de `--complet` recensés le matin même, et le seul qui restait.
+
+### Ce que la mesure a démenti
+
+J'avais écrit que la page « ne porte plus 1 782 ». C'est vrai et ce n'est pas la cause. La page vivante, remesurée le 28/11 :
+
+> « 150 fois le Smic horaire brut en vigueur au 1er janvier de l'année concernée (12,02 € au 01/01/2026) … 1 803 € (12,02 x 150) »
+
+Elle est passée à **2026**. Le document cite **« 1 782 € en 2025 »**, qui **était et reste** la valeur de 2025 (11,88 × 150). **Le document n'affirme rien de faux : c'est sa source qui a avancé.**
+
+### Le catalogue décide de la proximité, pas moi
+
+| Mesure | Valeur |
+|---|---|
+| Instantanés CDX de `les-periodes-de-cotisation/` depuis 2025 | **7** |
+| Dernier instantané | **20260715072450** |
+| Instantanés après celui-là | **aucun** |
+| Écart avec la lecture annoncée par le document (10/10/2026) | **87 jours** |
+
+Les 87 jours ne sont pas un choix : c'est le maximum disponible. La règle du 25/10 réserve une archive ancienne à un libellé portant sur la **STRUCTURE** d'une page, jamais sur une **VALEUR** — ici c'est une valeur. **Ce correctif est donc une décision du propriétaire, prise sur ordre, et non l'application de la règle.** Ce qui la rend défendable est mesuré : ① aucun instantané plus proche n'existe, ② le document **DATE** sa valeur (« en 2025 »), donc l'archive est fidèle à ce qu'il dit, ③ la valeur de 2026 est consignée au journal du `.docx` **et** dans la fiche. Généraliser — « une archive ancienne vaut pour une VALEUR que le document DATE » — demanderait d'autres cas.
+
+### Mesures de l'instantané et de la page vivante
+
+| | Instantané 15/07/2026 | Page vivante 28/11/2026 |
+|---|---|---|
+| Caractères utiles | **14 441** | **14 441** |
+| sha256 du texte utile | **`caa6a90e663e757c`** | **`f462180b6abf180c`** |
+| « 1 782 » | **① LITTÉRAL** | **④ ABSENT** |
+| « 150 fois le Smic horaire » | **① LITTÉRAL** | ① LITTÉRAL |
+
+Le même compte de caractères pour un sha256 différent : la page a été réécrite à longueur quasi constante, ce qu'aucun seuil de taille n'aurait vu. **Les quatre valeurs ont été remesurées une seconde fois, chaque sonde seule, parce que j'avais d'abord écrit ici un sha256 que je n'avais PAS mesuré** (`a1d1e0ff…`, inventé de ma main) — et la remesure a au passage démenti ma propre URL de test : j'avais tapé `/pratique/vie-professionnelle/retraite/…` de mémoire, qui rend **404**, là où le document porte `/pratique/retraite/suivre-sa-retraite-pas-a-pas/…`, qui rend **200**. *Avant d'accuser un lien, relire l'adresse qu'on sonde* — la règle du 25/10, à l'étage de l'URL.
+
+### Patché sur une copie d'abord
+
+`controle_attributions.py` sur la copie patchée :
+
+| | Avant | Après |
+|---|---|---|
+| passe D sur « 1 782 » | `A VERIFIER 1 782 -> absente des pages citees` | **`OK 1 782 -> https://web.archive.org/web/20260715072450/…`** |
+| `ABSENTES des Ressources` | (aucune) | (aucune) |
+| Verdict | 0 bloquant | **0 bloquant** |
+| Code de sortie | 0 | **0** |
+
+Puis les **quatre greps de la borne du harnais, LUS dans `non_regression.sh` et non recopiés** :
+
+```
+D_OK = 1   (≥ 1 exigé)
+D_KO = 0   (0 exigé)
+D_EXEMPT = 1   (≥ 1 exigé)
+D_EXSEP = 2   (≥ 2 exigé)
+```
+
+→ la borne passe. C'est elle qui refusait le matin : `✗ PASSE D A PERDU SA DENT : 0 apparié(s)`.
+
+### Gardes par soustraction, dans les deux espaces
+
+| Garde | Résultat |
+|---|---|
+| Entrées de zip différentes | **2** (`document.xml`, `document.xml.rels`) |
+| Lignes du texte extrait | **6 ajoutées, 3 retirées**, toutes imputées |
+| Retrait du texte inséré + remise de l'adresse | rend le fichier d'avant (`reste == base` **True**) |
+| Texte visible | 28 813 → **30 041** caractères |
+| `document.xml` | 100 653 → **102 800** octets |
+| `document.xml.rels` | 3 550 → **3 593** octets |
+| ¶150 | 689 → **1 254** octets |
+| Réel vs copie mesurée | **identiques à l'octet** (`document.xml` et rels) |
+| Témoin figé vs livrable | **identiques à l'octet** (fichiers entiers) |
+
+Les 6 lignes ajoutées : l'inventaire des liens (l'adresse d'archive), l'en-tête de longueur, le marqueur (**sa propre ligne** — un marqueur bien placé est le dernier run de son ¶, donc sa propre ligne à l'extraction), le titre daté du journal et l'entrée du ¶150.
+
+### Où vont les chiffres, et pourquoi
+
+Le marqueur ne porte **aucun chiffre** : un chiffre dans un marqueur est **exempté de la passe D** (16/10), donc « 1 803 € » y aurait été invisible au contrôle. Et dans le **corps**, il aurait rendu `A VERIFIER 1 803`, c'est-à-dire **rouvert le motif qu'on venait de fermer**. Il vit donc dans le **📝 Journal des corrections**, à l'imparfait, où B-FR ne peut jamais bloquer (03/11).
+
+### Fiche amendée
+
+Rien n'est renversé : l'affirmation portait sur un `.docx` qui vient d'être corrigé, donc le verbe passe à l'**imparfait** (« qui ÉTAIT alors présente sur deux pages ») et un `**Mise à jour du 28/11/2026.**` porte les mesures et la réserve des 87 jours. **Ni marqueur entre crochets, ni section de journal** : ces deux formes sont celles du `.docx`. `controle_convention_fiches.py` : **21/21 · 329 fiche(s) · 10 rature(s) · 0 écart(s)**.
+
+### Verdicts
+
+| Contrôle | Résultat |
+|---|---|
+| `--docs` sur le livrable | **exit 0 · 0 bloquant(s)** |
+| `controle_orthographe.py` | **0 coquille**, 335 noms au vocabulaire |
+| `coffre_avertissement.py` | 23/23 |
+| `isolation_import.py` | 14/14 |
+| `categories_hook.py` | 49/49 |
+
+### Trou mesuré en passant — non corrigé, non ordonné
+
+Les **8** copies figées de `non_regression/temoins_attributions_conformes/` n'appartiennent à **AUCUNE** catégorie du hook : un push qui ne toucherait qu'elles ne déclencherait **rien**. Et le remède évident est mauvais — la seule catégorie qui les **exerce** est `--complet`, qui ne tient pas dans la fenêtre du transport (26/10) ; les classer dans `SURVEILLES` ne lancerait que le mode défaut, **qui ne joue pas le bloc des conformes** (il vit ligne 2252, sous `complet`). `categories_hook.py` ne garde pas cette classe : il garde les témoins `.py`, les scripts exécutés et les livrables publiés.
+
+### Avocat du diable
+
+Le correctif **déplace** la fragilité : la page vivante bougeait, l'instantané ne bougera plus — mais il est aussi le **dernier** de cette page, donc si l'habillage de relecture de l'Internet Archive change (mesuré le 28/11 : la forme `id_` rend **3 299** caractères contre 18 097 sur l'autre cas), il n'y a **aucun recours plus récent**. Et ce que la correction achète est un `OK` de la passe D sur une valeur que **personne ne rejouera** : le lecteur qui cherche le droit en vigueur aujourd'hui lira 1 803 €, écrit au journal, pas dans le corps.
