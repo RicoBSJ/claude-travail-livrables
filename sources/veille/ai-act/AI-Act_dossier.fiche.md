@@ -84,16 +84,21 @@ pédagogie autant que de conformité.
 Le dossier s'arrête avant l'échéance principale. Trois points sont à reprendre à la
 source avant de s'appuyer dessus :
 
-1. ~~l'application effective de l'**article 50** depuis le 2 août 2026~~ — **tranché** :
+1. ~~l'application effective de l'**article 50** depuis le 2 août 2026~~ — **tranché le 04/09/2026** :
    en application, sanctions actives, cadrage du périmètre stabilisé (voir ci-dessous) ;
 2. les **lignes directrices conjointes RGPD / AI Act** — partiellement couvert : la mise à
    jour CNIL du **17/08/2026** clarifie l'articulation (application simultanée pour les
    systèmes à haut risque traitant des données personnelles ; le déployeur peut s'appuyer
    sur l'AIPD du fournisseur, art. 26 et 27). Les lignes directrices conjointes annoncées
    le 18/06 n'ont toujours pas paru ;
-3. ~~l'état de la **transposition française**~~ — **suivi** : autorités nationales
-   toujours non désignées au 04/09/2026, volet numérique du DDADUE en navette
+3. ~~l'état de la **transposition française**~~ — **suivi le 04/09/2026** : autorités nationales
+   toujours non désignées à cette date, volet numérique du DDADUE en navette
    parlementaire. Cette absence ne suspend aucune obligation.
+
+**Mise à jour du 28/11/2026.** Les marques des points 1 et 3 ont été écrites sans leur
+date le 04/09/2026 ; elle est rétablie ci-dessus. Elle n'est pas déduite de l'historique
+git : c'est celle que ce dossier porte lui-même, à sa section « Le calendrier vérifié à la
+source — note du 04/09/2026 », qui est l'arbitrage du point 1.
 
 ## Le trou est comblé — note du 29/08/2026
 

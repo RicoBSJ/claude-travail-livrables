@@ -401,10 +401,15 @@ bloc_integrite () {
 #    date vit DANS ce gras pour les 3 conformes. ⚠️ La borne « une date dans les 80 caractères
 #    qui suivent » aurait accepté la 5e — `**suivi**` puis « au 04/09/2026 » à +65 —, c'est-à-dire
 #    précisément une rature NON datée : c'est elle qui a décidé la forme du test.
-# ⛔ NON BLOQUANT, et pas par prudence vague : le motif juge un CONTENU (règle du 14/10) et les
-#    2 écarts du dépôt sont dans une fiche PUBLIÉE (`AI-Act_dossier.fiche.md`, 04/09) — bloquant,
-#    il refuserait tout push qui la touche, ce qui est le reproche consigné le 12/11 sur les
-#    5 attributions bloquantes des notes `controle-livrables`. D'où une EXIGENCE DE LIGNE.
+# ⛔ NON BLOQUANT, et pas par prudence vague : le motif juge un CONTENU (règle du 14/10). À son
+#    écriture, les 2 écarts du dépôt étaient dans une fiche PUBLIÉE (`AI-Act_dossier.fiche.md`,
+#    04/09) — bloquant, il aurait refusé tout push qui la touche, le reproche consigné le 12/11
+#    sur les 5 attributions bloquantes des notes `controle-livrables`. D'où une EXIGENCE DE LIGNE.
+# 🟢 28/11, LE MÊME JOUR : les deux dates sont rétablies, le corpus est à 329 fiches · 8 ratures
+#    · 0 ÉCART. ⚠️ Le motif ① devient donc PRÉVENTIF comme le ②, et il faut le dire : il n'a plus
+#    aucune occurrence à montrer, il est le détecteur de la PREMIÈRE à venir. ⛔ Et cela ne le rend
+#    PAS bloquant : un balayage rétrospectif ne valide pas un motif bloquant (14/10), et il n'a
+#    jamais tourné sur un amendement neuf.
 # ⛔ CE QU'IL NE FAIT PAS, ET LA MESURE QUI L'INTERDIT : il ne dit pas qu'un amendement AURAIT DÛ
 #    être marqué. 50 révisions de fiche suppriment de la prose, dont 31 à J+0 ou J+1 (la fiche est
 #    encore en train d'être écrite — bande vide MESURÉE à J+2 : 22 · 9 · ZÉRO · 1 à J+3) ; des 19
