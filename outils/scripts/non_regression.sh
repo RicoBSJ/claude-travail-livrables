@@ -1481,7 +1481,7 @@ if [ -x "$NR/tolerance_page_morte.py" ]; then
     tail -1 "$TPM_OUT"
     # même garde qu'ATTENDU_LIENS et ATTENDU_MARQ : un lot amputé passerait au vert, et c'est
     # L'EXCUSE qui décide si le refus d'un témoin bloque le push de tout le dépôt.
-    ATTENDU_TOL=18
+    ATTENDU_TOL=24
     LU_TOL=$(sed -n 's/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes de tolerance_page_morte.*/\1/p' "$TPM_OUT")
     if [ "$LU_TOL" != "$ATTENDU_TOL" ]; then
       echo "  ✗ ${LU_TOL:-0} borne(s) de tolérance jouée(s), $ATTENDU_TOL attendue(s) — un lot amputé"
@@ -1528,7 +1528,7 @@ if [ -x "$ROOT/outils/scripts/balayer_adresses.py" ]; then
     # 🆕 20/11/2026, même jour : 90 -> 96 avec le JOURNAL AU FIL DES SONDES. Né de deux morts
     # silencieuses du balayage (200 puis 300 sondes sur 1 378, aucune exception au log) : le .tsv
     # ne s'écrivait QU'À LA FIN, donc 26 min de réseau étaient perdues en entier.
-    ATTENDU_BAL=96
+    ATTENDU_BAL=116
     LU_BAL=$(sed -n 's/.* \([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes de balayer_adresses.*/\2/p' "$BAL_OUT")
     if [ "$LU_BAL" != "$ATTENDU_BAL" ]; then
       echo "  ✗ ${LU_BAL:-0} borne(s) de classification jouée(s), $ATTENDU_BAL attendue(s) — un lot"

@@ -108,6 +108,28 @@ def utiles(brut, ctype, code, rc):
     return len(unicodedata.normalize("NFC", aplati(brut.decode("utf-8", "replace"))))
 
 
+# ── « MUET » : un 2xx qui rend ZÉRO OCTET est MESURÉ, pas « non mesuré » (28/11/2026) ─
+# Piste ouverte le 05/11/2026, bornée dès ce jour-là sur 11 adresses et 2 hôtes :
+# `eur-lex.europa.eu` ×7, `edps.europa.eu` ×3 et `amazon.fr` répondent `202` avec un corps
+# VIDE. La borne ④ d'`utiles()` les sauve d'être dites façades — à 0 caractère, la forme la
+# plus sûre d'elle-même — en les rendant `None`. Et c'est JUSTE pour `utiles()`, qui compte
+# des caractères : il n'y a rien à aplatir.
+#
+# ⛔ MAIS « NON MESURÉE » ET « RIEN REÇU » NE SONT PAS LA MÊME CHOSE, et les confondre coûte
+#    un refus. Un corps vide est un FAIT OBSERVÉ — le serveur a répondu 2xx et n'a rien
+#    envoyé — là où un PDF, un corps non textuel ou un transfert coupé sont l'ABSENCE de
+#    mesure. Mesuré le 28/11/2026 sur `https://eur-lex.europa.eu/` : HTTP 202 · curl 0 ·
+#    `text/html` · 0 octet, et `utiles()` rend None pour les deux raisons à la fois.
+#
+# ⛔ AUCUN APLATISSEMENT ICI, et ce n'est pas un oubli : compter zéro octet n'a pas besoin
+#    d'`aspirer.aplati`. Le verdict reste donc disponible sur une machine où cet import
+#    échoue, là où FACADE y est perdu — on ne fait pas dépendre une OBSERVATION d'une
+#    mesure dont elle n'a pas besoin.
+def corps_vide(brut, code, rc):
+    """-> True quand un 2xx a rendu ZÉRO octet : mesuré, et non « non mesuré »."""
+    return rc == 0 and code[:1] == "2" and not brut
+
+
 # ── « MUR ? » : un gabarit anti-automate masque le CODE de la page (20/11/2026) ───────
 # MESURÉ, PAS SUPPOSÉ : `handicap.gouv.fr/comites-strategiques-serafin-ph` est un 404
 # — « Page non trouvée » dans un navigateur — et rend `HTTP 200` à curl, parce que le mur
@@ -144,10 +166,11 @@ def gabarit_de_mur(brut, ctype, code, rc):
     return any(all(f in t for f in g) for g in MUR_GABARITS)
 
 
-def classe(code, rc=0, car=None, mur=False):
-    """(code HTTP, code de sortie curl, caractères utiles ou None, corps = un mur ?) → un
-    verdict qui ne confond pas ces situations. `car=None` = page non mesurée : jamais une
-    façade, jamais un mur. `mur=False` par défaut, donc tout appel existant est INCHANGÉ."""
+def classe(code, rc=0, car=None, mur=False, vide=False):
+    """(code HTTP, sortie curl, caractères utiles ou None, corps = un mur ?, corps vide ?) →
+    un verdict qui ne confond pas ces situations. `car=None` = page non mesurée : jamais une
+    façade, jamais un mur. `mur=False` et `vide=False` par défaut, donc tout appel existant
+    est INCHANGÉ — la non-régression est par CONSTRUCTION, pas par mesure."""
     if code in ("404", "410"):
         return "MORTE"
     if code in ("", "000"):
@@ -172,6 +195,14 @@ def classe(code, rc=0, car=None, mur=False):
         # redondant sans le dire (leçon du 26/10/2026), donc chaque couche exige la sienne.
         # ⚠️ AVANT le plancher, et c'est voulu : un mur qui servirait 10 000 caractères de
         # son propre gabarit reste un mur, et son code resterait inobservable.
+        # ⚠️ AVANT le mur ET avant le plancher : un corps vide ne peut PAS être un gabarit
+        # (`gabarit_de_mur` le rend None faute de mesure) et n'a aucun caractère à comparer
+        # au plancher. Un appelant qui passerait `vide=True` avec `mur=True` ou un `car` se
+        # contredirait : c'est l'observation la plus primitive qui tranche, et deux bornes
+        # l'épinglent. ⚠️ BORNÉ AU 2xx, même borne et même raison que FACADE et MUR : un 3xx
+        # FINAL au corps vide dit « curl a cessé de suivre », pas « la page ne dit rien ».
+        if vide and code[:1] == "2":
+            return "MUET"         # le serveur a RÉPONDU et n'a rien envoyé : page non lisible
         if mur and car is not None and code[:1] == "2":
             return "MUR"          # le code HTTP ne dit RIEN de la page : à lire, voire morte
         if car is not None and code[:1] == "2" and car < PLANCHER_LISIBLE:
@@ -182,6 +213,10 @@ def classe(code, rc=0, car=None, mur=False):
 
 CONCLUANT = ("VIVANTE", "FACADE", "MUR", "MORTE", "REFUS")   # on ne rejoue que ce qui peut être
 # passager — une façade est un 2xx stable, la rejouer coûterait deux requêtes pour rien
+# ⛔ ET « MUET » N'Y EST PAS, SUR MESURE ET NON PAR PRUDENCE : `https://eur-lex.europa.eu/`
+#    a rendu 998 caractères utiles PUIS 0 octet à vingt minutes d'intervalle le 28/11/2026.
+#    Un corps vide est donc PASSAGER sur l'hôte même qui a motivé le verdict : il se rejoue,
+#    et seul un corps vide STABLE sur les trois essais est dit MUET. Une borne l'épingle.
 
 
 def tuple_tsv(verdict, code, rc, url, docs, car):
@@ -271,7 +306,7 @@ def tourniquet(urls):
 
 
 def sonde(u, ca):
-    """(code, code de sortie curl, caractères utiles ou None, corps = un mur ? ou None).
+    """(code, sortie curl, caractères utiles ou None, mur ? ou None, corps vide ?).
 
     UNE SEULE REQUÊTE, la même qu'avant : `-o /dev/null` téléchargeait déjà le corps
     entier pour le jeter — on change sa DESTINATION, pas le trafic. Le fichier est
@@ -300,7 +335,8 @@ def sonde(u, ca):
     if os.path.exists(tmp):
         os.remove(tmp)
     return (code, r.returncode, utiles(brut, ctype, code, r.returncode),
-            gabarit_de_mur(brut, ctype, code, r.returncode))
+            gabarit_de_mur(brut, ctype, code, r.returncode),
+            corps_vide(brut, code, r.returncode))
 
 
 def balaye(limite=0, essais=3, sortie=None, seulement=None):
@@ -342,8 +378,8 @@ def balaye(limite=0, essais=3, sortie=None, seulement=None):
         ligne d'une adresse gagne — c'est ce que la concordance finale vérifie."""
         if fpart is None:
             return
-        c, rc, car, mr = trio
-        fpart.write(ligne_tsv(tuple_tsv(classe(c, rc, car, mr), c, rc, u, par_doc[u], car)))
+        c, rc, car, mr, vd = trio
+        fpart.write(ligne_tsv(tuple_tsv(classe(c, rc, car, mr, vd), c, rc, u, par_doc[u], car)))
         fpart.flush()
         os.fsync(fpart.fileno())
 
@@ -366,8 +402,8 @@ def balaye(limite=0, essais=3, sortie=None, seulement=None):
             codes[u] = sonde(u, ca)
             journalise(u, codes[u])
             time.sleep(PAUSE)
-    lignes = [tuple_tsv(classe(c, rc, car, mr), c, rc, u, par_doc[u], car)
-              for u, (c, rc, car, mr) in codes.items()]
+    lignes = [tuple_tsv(classe(c, rc, car, mr, vd), c, rc, u, par_doc[u], car)
+              for u, (c, rc, car, mr, vd) in codes.items()]
     if sortie:
         with open(sortie, "w", encoding="utf-8") as f:
             for t in sorted(lignes):
@@ -400,12 +436,12 @@ def balaye(limite=0, essais=3, sortie=None, seulement=None):
     for v, _, _, _, _ in lignes:
         tot[v] += 1
     print("\n── verdict du balayage, %.0f s ──" % (time.time() - t0))
-    for v in ("VIVANTE", "FACADE", "MUR", "REFUS", "PANNE", "DELAI", "TLS", "CONNEXION",
-              "INJOIGNABLE", "DNS", "MORTE", "AUTRE"):
+    for v in ("VIVANTE", "FACADE", "MUR", "MUET", "REFUS", "PANNE", "DELAI", "TLS",
+              "CONNEXION", "INJOIGNABLE", "DNS", "MORTE", "AUTRE"):
         if tot[v]:
             print("  %-12s %4d" % (v, tot[v]))
     for v in ("MORTE", "DNS", "TLS", "DELAI", "CONNEXION", "INJOIGNABLE", "PANNE", "MUR",
-              "FACADE"):
+              "MUET", "FACADE"):
         pour = [(c, u, par_doc[u], car) for vv, c, u, _, car in sorted(lignes) if vv == v]
         if not pour:
             continue
@@ -415,6 +451,12 @@ def balaye(limite=0, essais=3, sortie=None, seulement=None):
                   " Mesuré le 20/11/2026 sur handicap.gouv.fr : un 404 répondait 200 derrière"
                   " ce mur. À LIRE DANS UN NAVIGATEUR — une de ces adresses peut être MORTE."
                   % (v, len(pour)))
+        elif v == "MUET":
+            print("\n%s — %d adresse(s) : un 2xx qui a rendu ZÉRO OCTET, après %d essai(s)."
+                  " Le serveur a répondu et n'a rien envoyé : ce n'est ni une page morte, ni"
+                  " une page qu'on a pu lire. Mesuré le 28/11/2026 sur eur-lex.europa.eu, qui"
+                  " rendait 998 caractères vingt minutes plus tôt. À RELIRE, pas à corriger."
+                  % (v, len(pour), essais))
         elif v == "FACADE":
             print("\n%s ? — %d adresse(s) : un 2xx SOUS %d caractères utiles. Ni morte ni"
                   " vivante : gabarit de parking, mur anti-automate, ou page rendue en"
@@ -549,6 +591,46 @@ def autotest():
             print("  ✗ %s/%d · %r car. · mur=%s → %s, attendu %s"
                   % (code, rc, car, mr, classe(code, rc, car, mr), attendu)); ko += 1
 
+    # ── « MUET » : un 2xx à ZÉRO OCTET est mesuré, pas « non mesuré » (28/11/2026) ────
+    # ⚠️ SIX de ces bornes doivent être ACCEPTÉES : le motif RESSERRE encore VIVANTE, donc
+    # sans elles rien n'empêche de le réélargir demain (convention du dépôt). Et les DEUX
+    # dernières sont FABRIQUÉES, dites telles : `sonde()` ne peut PAS produire un corps vide
+    # porteur de caractères ou d'un gabarit — elles fixent la PRÉCÉDENCE décidée, et chacune
+    # tombe pour un ordre différent, donc leurs contributions sont séparables (12/11).
+    muet_cas = [
+        ("202", 0, None, False, True, "MUET"),      # le cas MESURÉ du 28/11/2026 sur eur-lex
+        ("200", 0, None, False, True, "MUET"),      # un 200 à zéro octet est le même fait
+        ("200", 0, None, False, False, "VIVANTE"),  # ACCEPTÉE : non mesurée ≠ vide (borne ④)
+        ("301", 0, None, False, True, "VIVANTE"),   # ACCEPTÉE : un 3xx FINAL dit « curl a cessé
+                                                    # de suivre », pas « la page ne dit rien »
+        ("404", 0, None, False, True, "MORTE"),     # ACCEPTÉE : un code d'erreur REÇU l'emporte
+        ("403", 0, None, False, True, "REFUS"),     # ACCEPTÉE : un automate écarté n'est pas muet
+        ("000", 6, None, False, True, "DNS"),       # ACCEPTÉE : rien reçu n'est pas un 2xx vide
+        ("500", 0, None, False, True, "PANNE"),     # ACCEPTÉE
+        ("200", 0, 93, False, True, "MUET"),        # FABRIQUÉE : le test est AVANT le plancher
+        ("200", 0, 93, True, True, "MUET"),         # FABRIQUÉE : et AVANT le mur
+    ]
+    for code, rc, car, mr, vd, attendu in muet_cas:
+        if classe(code, rc, car, mr, vd) != attendu:
+            print("  ✗ %s/%d · %r car. · mur=%s · vide=%s → %s, attendu %s"
+                  % (code, rc, car, mr, vd, classe(code, rc, car, mr, vd), attendu)); ko += 1
+
+    # ── corps_vide() exercée POUR DE VRAI : c'est elle qui sépare « rien reçu » de
+    #    « non mesuré », les deux que la borne ④ d'`utiles()` rend indiscernables ────────
+    vide_cas = [
+        (b"", "200", 0, True),          # le fait observé
+        (b"", "202", 0, True),          # le code exact d'eur-lex le 28/11/2026
+        (b"x", "200", 0, False),        # ACCEPTÉE : un corps présent n'est pas vide
+        (b"", "404", 0, False),         # ACCEPTÉE : un 404 est MORTE, pas MUET
+        (b"", "301", 0, False),         # ACCEPTÉE : un 3xx n'est pas un 2xx
+        (b"", "200", 28, False),        # ACCEPTÉE : transfert coupé = AUCUNE mesure (borne ②)
+        (b"", "000", 0, False),         # ACCEPTÉE : injoignable n'est pas un 2xx vide
+    ]
+    for brut, code, rc, attendu in vide_cas:
+        if corps_vide(brut, code, rc) is not attendu:
+            print("  ✗ corps_vide(%d octets, %s/%d) → %r, attendu %r"
+                  % (len(brut), code, rc, corps_vide(brut, code, rc), attendu)); ko += 1
+
     # ── gabarit_de_mur() exercée POUR DE VRAI, sur le corps MESURÉ le 20/11/2026 ──────
     MUR_VRAI = (b'<html><head><script>window["bobcmn"]="101111";</script></head><body>'
                 b'<div>Please enable JavaScript to view the <b>page content</b>. Your '
@@ -653,6 +735,16 @@ def autotest():
             # déjà trié, donc retirer le `sorted()` de l'écrivain final produisait le MÊME
             # fichier et aucun sabotage du tri ne pouvait être exhibé (26/10 : une borne qui
             # ne peut pas échouer n'est pas une borne). REFUS ne condamne pas : rc reste 0.
+            # ⚠️ /muet RÉPOND 202 SANS UN OCTET : c'est le cas mesuré le 28/11/2026 sur
+            # eur-lex.europa.eu, et il ne peut PAS être fabriqué par le dictionnaire CORPS,
+            # qui ferait un 404 d'un corps vide. On exerce ainsi le VRAI chemin, sonde →
+            # corps_vide → classe → impression, sur une vraie réponse à corps vide.
+            if self.path == "/muet":
+                self.send_response(202)
+                self.send_header("Content-Type", "text/html")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
             if self.path == "/refus":
                 self.send_response(403)
                 self.send_header("Content-Type", "text/html")
@@ -704,11 +796,12 @@ def autotest():
     import tempfile as _tf
     _d = _tf.mkdtemp()
     _tsv = os.path.join(_d, "b.tsv")
-    rc_vf, sortie_vf = balaye_sur(["/facade", "/aaa-riche", "/mur", "/refus"], _tsv)
+    rc_vf, sortie_vf = balaye_sur(["/facade", "/aaa-riche", "/mur", "/refus", "/muet"], _tsv)
     rc_m, _ = balaye_sur(["/mort"])
     srv.shutdown()
     lignes_f = [l for l in sortie_vf.splitlines() if "/facade" in l]
     lignes_m = [l for l in sortie_vf.splitlines() if "/mur" in l]
+    lignes_v = [l for l in sortie_vf.splitlines() if "/muet" in l]
     # le récapitulatif s'imprime "  %-12s %4d" : deux jetons par ligne, verdict puis compte
     recap = dict(tuple(l.split()) for l in sortie_vf.splitlines()
                  if len(l.split()) == 2 and l.split()[1].isdigit())
@@ -731,7 +824,15 @@ def autotest():
         # DÉJÀ trié, donc elle ne pouvait pas échouer (26/10). C'est la concordance
         # ci-dessous qui porte le tri, parce qu'elle compare au journal TRIÉ.
         ("le fichier final est écrit, une ligne par adresse sondée",
-         os.path.exists(_tsv) and len(open(_tsv, encoding="utf-8").readlines()) == 4),
+         os.path.exists(_tsv) and len(open(_tsv, encoding="utf-8").readlines()) == 5),
+        # ── « MUET », exercé par le VRAI balaye() sur une VRAIE réponse à corps vide ──
+        ("le récapitulatif COMPTE le 2xx à corps vide, et SÉPARÉMENT de la façade",
+         recap.get("MUET") == "1" and recap.get("FACADE") == "1"),
+        ("le détail NOMME l'adresse muette AVEC SON CODE 202 MESURÉ : le verdict vient de la"
+         " sonde, pas d'un appel fabriqué — et une alerte que personne ne lit n'existe pas"
+         " (27/10). ⚠️ L'ancre est « [202/0] » et non « 202 » : un port éphémère peut porter"
+         " 202 et la borne passerait par hasard (format MESURÉ sur tuple_tsv, pas supposé)",
+         bool(lignes_v) and any("[202/0]" in l for l in lignes_v)),
         ("le journal TRIÉ EST le fichier final relu sur le disque, et le balayage le DIT",
          "le journal TRIÉ est le fichier final : oui" in sortie_vf),
         ("le journal n'est retiré qu'APRÈS cette preuve — et il l'est",
@@ -749,6 +850,9 @@ def autotest():
          "FACADE" in CONCLUANT),
         ("MUR est CONCLUANT pour la même raison — un gabarit est stable",
          "MUR" in CONCLUANT),
+        ("MUET n'est PAS concluant, et c'est MESURÉ : eur-lex a rendu 998 caractères puis"
+         " 0 octet à vingt minutes d'intervalle, donc un corps vide se rejoue",
+         "MUET" not in CONCLUANT),
         ("le gabarit exige DEUX fragments : un seul suffirait à accuser un <noscript>",
          all(len(g) >= 2 for g in MUR_GABARITS)),
     ]
@@ -758,14 +862,16 @@ def autotest():
 
     total = (len(cas) + len(SORTIES_TLS) + 2 + len(rejeux)
              + 2 * len(orphelins_attendus) + 1
-             + len(facade_cas) + len(mur_cas) + len(gabarit_cas)
+             + len(facade_cas) + len(mur_cas) + len(muet_cas) + len(vide_cas)
+             + len(gabarit_cas)
              + len(tsv_cas) + len(utiles_cas) + len(planchers)
              + len(bout) + len(structure))
     if ko:
         print("  ✗ %d/%d borne(s) de balayer_adresses.py en échec" % (ko, total)); return 1
     print("  ✓ %d/%d bornes de balayer_adresses.py — un 403 n'est pas un lien mort, un défaut de"
           " TLS non plus, un rel orphelin n'est pas une adresse cliquable, un 200 muet"
-          " n'est pas une page vivante, et un 200 derrière un mur ne dit RIEN de la page"
+          " n'est pas une page vivante, un 200 derrière un mur ne dit RIEN de la page,"
+          " et un 2xx à ZÉRO OCTET est MESURÉ et non « non mesuré »"
           % (total, total))
     return 0
 

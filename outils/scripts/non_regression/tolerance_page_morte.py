@@ -191,21 +191,69 @@ def chemin_faisceau():
 #    `sys.path` et cet import échouerait EN SILENCE (le défaut du 28/11/2026, corrigé ce jour).
 try:
     sys.path.insert(0, os.path.join(RACINE, "outils", "scripts"))
-    from balayer_adresses import utiles as _utiles, PLANCHER_LISIBLE
+    from balayer_adresses import utiles as _utiles, PLANCHER_LISIBLE, classe as _classe
 except Exception as _e:
     print("⚠️ tolerance_page_morte.py : balayer_adresses non importé (%s) — aucune page ne sera "
           "dite MUETTE" % type(_e).__name__, file=sys.stderr)
-    _utiles, PLANCHER_LISIBLE = None, 3000
+    _utiles, PLANCHER_LISIBLE, _classe = None, 3000, None
+
+
+# ── 28/11/2026 — CE QUI EXCUSE N'EST PAS UN CODE, C'EST UN VERDICT ───────────────────────
+# ⛔ ON NE RECOPIE AUCUNE LISTE DE CODES ICI : la décision est prise par le VERDICT de
+#    `balayer_adresses.classe`, qui porte déjà la classification du dépôt (règle du 15/10 —
+#    un test qui teste une COPIE de la logique ne garde rien). Une seconde liste de codes
+#    dériverait en silence, et le dépôt a déjà payé cette classe cinq fois.
+#
+# Les trois verdicts qui excusent disent tous la MÊME chose — « la page n'a pas donné de
+# texte lisible » — et chacun est un fait vérifiable INDÉPENDAMMENT du document, ce qui est
+# le critère posé le 28/11 au matin :
+#   · FACADE — un 2xx sous le plancher : gabarit de parking, ou page rendue en JavaScript
+#   · MUET   — un 2xx à ZÉRO OCTET : mesuré le 28/11 sur `https://eur-lex.europa.eu/`
+#   · REFUS  — 401 · 403 · 429 : notre client est écarté. Mesuré le 28/11 sur
+#              `https://www.consilium.europa.eu/en/press/press-releases/` → HTTP 403.
+#
+# ⛔ ET CE QUI N'EXCUSE PAS RESTE INCHANGÉ, sur décision bornée et non par oubli : `MORTE`
+#    (404/410) et `PANNE` (5xx) continuent de REFUSER. Un 404 est un lien mort, c'est-à-dire
+#    le seul défaut que `balayer_adresses.py` CONDAMNE de son côté — l'excuser ici ferait
+#    taire la classe même qu'il existe pour dire. Deux bornes ACCEPTÉES l'épinglent.
+#
+# ⚠️ `REFUS` couvre aussi le 429, c'est-à-dire un throttle qui pourrait être CAUSÉ par nos
+#    propres sondes, et c'est dit : la tolérance ne sonde chaque adresse qu'une fois (trois
+#    au plus, et seulement sur un 000), donc elle ne martèle personne. Le séparer du 403
+#    demanderait de tester un code ici, c'est-à-dire exactement la liste recopiée qu'on refuse.
+SANS_TEXTE = ("FACADE", "MUET", "REFUS")
+
+
+def verdict_page(code, car, vide):
+    """-> le verdict de `balayer_adresses.classe` pour cette sonde, ou None sans classeur.
+
+    ⚠️ `rc=0` est passé à dessein : la famille des 000 est traitée AVANT (le `continue` de la
+    condition ④, où vivent les trois essais), donc aucune branche de curl n'est atteinte ici."""
+    return _classe(code, 0, car, False, vide) if _classe else None
+
+
+def page_sans_texte(code, car, vide):
+    """-> True quand la page a répondu SANS donner de texte lisible.
+
+    ⛔ UN SEUL CHEMIN D'APPEL : la décision et le verdict IMPRIMÉ sortent du même
+    `verdict_page`, sinon les deux pourraient se contredire. Et sans classeur importé le
+    verdict est None, qui n'est dans aucun ensemble : on REFUSE — le défaut va toujours
+    vers le refus."""
+    return verdict_page(code, car, vide) in SANS_TEXTE
 
 
 def car_utiles(u, faisceau):
-    """Caractères utiles de la page, ou None quand elle n'a PAS ÉTÉ MESURÉE.
+    """-> (caractères utiles ou None, corps VIDE ?) — les deux issus de LA MÊME sonde.
 
     None et 0 sont deux choses différentes : None dit « on ne sait pas », 0 dirait « page vide ».
     Les confondre ferait excuser une page riche, c'est-à-dire exactement le contraire du but.
-    """
+
+    ⛔ LES DEUX FAITS VIENNENT D'UNE SEULE REQUÊTE, ET C'EST LA RAISON DU COUPLE : une seconde
+    sonde pour savoir si le corps est vide pourrait répondre AUTRE CHOSE que la première —
+    mesuré le 28/11/2026 sur `https://eur-lex.europa.eu/`, qui a rendu 998 caractères puis
+    0 octet à vingt minutes d'intervalle. Deux faits tirés de deux sondes se contrediraient."""
     if _utiles is None:
-        return None
+        return None, False
     cmd = ["curl", "-sL", "--max-time", str(MAX_TIME), "-A", UA,
            "-w", "\n%{http_code}\t%{content_type}"]
     if faisceau and os.path.exists(faisceau):
@@ -213,11 +261,13 @@ def car_utiles(u, faisceau):
     r = subprocess.run(cmd + [u], capture_output=True)
     i = r.stdout.rfind(b"\n")
     if i < 0:
-        return None
+        return None, False
     q = r.stdout[i + 1:].decode("utf-8", "ignore").split("\t")
     code = q[0].strip() or "000"
     ctype = (q[1] if len(q) > 1 else "").strip()
-    return _utiles(r.stdout[:i], ctype, code, r.returncode)
+    brut = r.stdout[:i]
+    vide = r.returncode == 0 and code[:1] == "2" and not brut
+    return _utiles(brut, ctype, code, r.returncode), vide
 
 
 def code_http(u, faisceau):
@@ -290,7 +340,7 @@ def verdict(sortie, docx, faisceau=None, sonde=None, mesure=None):
         for i in sorted(pris):
             urls += [a for a in lignes_adr[i][1] if a not in urls]
 
-    vivantes, muettes = [], []
+    vivantes, illisibles = [], []
     for u in urls:                                    # ④ séquentiel, mesuré ici
         c = sonde(u)
         if c in ("", "000"):
@@ -300,14 +350,24 @@ def verdict(sortie, docx, faisceau=None, sonde=None, mesure=None):
         #    page est une façade ou un mur, donc « la citation n'y est pas » et « personne n'a pu
         #    la lire » rendent le MÊME verdict. Les contrôles disent précisément « pages non lues » ;
         #    l'excuser est donc la MÊME excuse qu'un 000, et non une seconde, plus large.
-        #    ⛔ Et `None` n'est JAMAIS une façade : c'est l'ABSENCE de mesure (PDF, corps vide,
-        #    transfert coupé). Une page non mesurée est traitée comme VIVANTE, donc REFUSÉE — le
-        #    défaut va vers le refus, jamais vers l'excuse.
-        car = mesure(u)
-        if car is not None and car < PLANCHER_LISIBLE:
-            muettes.append((u, c, car))
+        #    ⛔ Et `None` n'est JAMAIS une façade : c'est l'ABSENCE de mesure (PDF, corps non
+        #    textuel, transfert coupé). Une page non mesurée est traitée comme VIVANTE, donc
+        #    REFUSÉE — le défaut va vers le refus, jamais vers l'excuse.
+        #    ⚠️ 28/11/2026 — ET « corps vide » A QUITTÉ CETTE LISTE : il y figurait, et c'était
+        #    faux depuis que `corps_vide()` existe — rien reçu est un FAIT OBSERVÉ, pas une
+        #    absence de mesure, et il a son propre verdict juste en dessous.
+        # ⚠️ 28/11/2026 — ET « MUET » FERME LE DERNIER ÉTAT MESURÉ : un 2xx à ZÉRO OCTET était
+        #    rendu `None` par `utiles()` — « non mesurée » — donc traité comme VIVANT, donc
+        #    REFUSÉ. Or rien reçu est un FAIT OBSERVÉ. Sans lui, l'excuse de ce témoin VARIAIT
+        #    sans que le dépôt change : eur-lex sondé à 998 caractères était excusé, sondé à
+        #    0 octet il refusait. Un verdict qui dépend de l'heure de la sonde n'est pas un
+        #    verdict. Et le 403 de consilium fermait l'autre moitié du même refus.
+        car, vide = mesure(u)
+        v = verdict_page(c, car, vide)
+        if page_sans_texte(c, car, vide):
+            illisibles.append((u, c, car, v))
         else:
-            vivantes.append((u, c))
+            vivantes.append((u, c, v))
     av = ("faisceau de certificats : utilisé" if faisceau and os.path.exists(faisceau)
           else "⚠️ SANS faisceau de certificats — une page tombée par défaut de TLS serait excusée à tort")
     if vivantes:
@@ -315,17 +375,21 @@ def verdict(sortie, docx, faisceau=None, sonde=None, mesure=None):
         #    appellent curl sans --cacert (mesuré sur leur source). Une page que le harnais lit
         #    en 200 et que le contrôle n'a pas lue peut donc être un défaut de PILE TLS du
         #    contrôle, pas du document. On ne tranche pas à sa place : on nomme les deux.
-        return False, ("%s répond (HTTP %s) quand le contrôle ne l'a pas lue — le refus n'est PAS "
-                       "une panne de la page : document, ou pile TLS du contrôle (faisceau, "
-                       "18/10/2026) [%s]" % (vivantes[0][0], vivantes[0][1], av))
-    if muettes:
-        return True, ("page(s) MUETTE(S) mesurée(s) ici — elles répondent et ne disent rien, donc "
-                      "« citation absente » et « page non lue » sont indiscernables (plancher du "
-                      "dépôt : %d caractères utiles) : %s ; injoignable(s) : %s — rien n'est "
-                      "conclu, le duo n'est pas joué [%s]"
+        return False, ("%s a répondu (HTTP %s · verdict %s) quand le contrôle ne l'a pas lue — le "
+                       "refus n'est PAS une panne de la page : document, ou pile TLS du contrôle "
+                       "(faisceau, 18/10/2026) [%s]"
+                       % (vivantes[0][0], vivantes[0][1], vivantes[0][2], av))
+    if illisibles:
+        return True, ("page(s) MUETTE(S) mesurée(s) ici — elles RÉPONDENT SANS DONNER DE TEXTE, "
+                      "donc « citation absente » et « page non lue » sont indiscernables "
+                      "(plancher du dépôt : %d caractères utiles) : %s ; injoignable(s) : %s — "
+                      "rien n'est conclu, le duo n'est pas joué [%s]"
                       % (PLANCHER_LISIBLE,
-                         ", ".join("%s (HTTP %s, %d car.)" % m for m in muettes),
-                         ", ".join(u for u in urls if u not in [m[0] for m in muettes]) or "aucune",
+                         ", ".join("%s (%s, HTTP %s%s)"
+                                   % (u, v, c, "" if car is None else ", %d car." % car)
+                                   for u, c, car, v in illisibles),
+                         ", ".join(u for u in urls
+                                   if u not in [m[0] for m in illisibles]) or "aucune",
                          av))
     return True, ("page(s) injoignable(s) mesurée(s) ici : %s — le témoin n'a pas changé, la page "
                   "si : rien n'est conclu, le duo n'est pas joué [%s]" % (", ".join(urls), av))
@@ -358,8 +422,25 @@ def autotest():
     #    qui répond accuse » — tombait. Elle ne testait donc plus ce qu'elle annonce. `/p` sert
     #    désormais ~6 000 caractères utiles (au-dessus du plancher de 3 000) et `/mur` les deux
     #    octets d'origine, qui exercent la page muette.
+    # ⚠️ 28/11/2026 — QUATRE ROUTES DE PLUS, et aucune n'est fabricable par le corps seul :
+    #    /muet rend un 2xx à ZÉRO OCTET (le cas eur-lex), /refus un 403 (le cas consilium),
+    #    /mort un 404 et /panne un 500 — les deux derniers pour prouver que le verdict NE
+    #    s'est PAS élargi à MORTE ni à PANNE. Aucun tiers : 127.0.0.1, donc ce lot ne peut
+    #    pas périmer sur la panne d'un site (15, 22, 23/10, 04/11 et 22/11).
+    CODES = {"/muet": 202, "/refus": 403, "/mort": 404, "/panne": 500}
+
     class H(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
+            n = CODES.get(self.path.rstrip("0123456789"))
+            if n:
+                corps = b"" if n == 202 else b"<html>no</html>"
+                self.send_response(n)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(corps)))
+                self.end_headers()
+                if corps:
+                    self.wfile.write(corps)
+                return
             corps = b"ok" if self.path.startswith("/mur") else (b"<p>" + b"mot " * 1500 + b"</p>")
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -373,6 +454,10 @@ def autotest():
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     VIVE = "http://127.0.0.1:%d/p" % srv.server_address[1]       # répond ET dit quelque chose
     MUR = "http://127.0.0.1:%d/mur" % srv.server_address[1]      # répond et ne dit rien
+    MUET = "http://127.0.0.1:%d/muet" % srv.server_address[1]    # 202 et ZÉRO octet
+    REFUS = "http://127.0.0.1:%d/refus" % srv.server_address[1]  # 403 : automate écarté
+    MORT = "http://127.0.0.1:%d/mort" % srv.server_address[1]    # 404 : lien mort
+    PANNE = "http://127.0.0.1:%d/panne" % srv.server_address[1]  # 500 : serveur en panne
     tmp = tempfile.mkdtemp(prefix="tolpm.")
     ko = vus = 0
 
@@ -396,7 +481,7 @@ def autotest():
     essai("page-vivante",
           "⑦ PAGE SANS RÉPONSE, NON DÉCLARÉE (%s : code 000 après 3 essais) : ¶19\n"
           "REFUSÉ — 1 motif(s) : page sans réponse …\n" % VIVE,
-          [VIVE], False, "répond (HTTP 200) quand le contrôle ne l'a pas lue")
+          [VIVE], False, "a répondu (HTTP 200 · verdict VIVANTE) quand le contrôle ne l'a pas lue")
     # ③ deux motifs, une seule ligne imputable à une page : l'autre défaut est réel
     essai("deux-motifs-une-page",
           "① LIGATURE PERDUE (¶3) : « Noeud Nord… »\n"
@@ -446,7 +531,7 @@ def autotest():
     essai("non-mesurable-accuse",
           "⑦ PAGE SANS RÉPONSE, NON DÉCLARÉE (%s : code 000 après 3 essais) : ¶19\n"
           "REFUSÉ — 1 motif(s) : page sans réponse …\n" % VIVE,
-          [VIVE], False, "répond (HTTP 200)", lambda u: None)
+          [VIVE], False, "a répondu (HTTP 200 · verdict VIVANTE)", lambda u: (None, False))
     # ⑬ LA FORME DE `controle_attributions.py` — elle n'énumère RIEN, donc profil « lignes
     #    bloquantes ». C'est le cas réel du 22/11 : `capsurvous.com` ne résout plus, et le témoin
     #    conforme d'ennéagramme n°6 bloquait TOUS les pushs du dépôt.
@@ -491,6 +576,60 @@ def autotest():
           "      INTERDIT https://autre-chose.invalid/q - HTTP 000, curl 6 : NE RESOUT PAS (㉞)\n"
           "VERDICT : 1 probleme(s) bloquant(s) (A + A2)\n",
           [MORTE], False, "1 motif(s) bloquant(s) annoncé(s) mais 0 ligne")
+
+    # ── 28/11/2026 — « MUET » : la DERNIÈRE façon mesurée de répondre sans donner de texte ──
+    # ⑲ LE CAS RÉEL, LES DEUX PAGES ENSEMBLE. C'est la sortie EXACTE de `controle_ai_act.py` sur
+    #    le témoin ai-act du 09/10, mesurée le 28/11/2026 : « pages non lues » nomme
+    #    `eur-lex.europa.eu/` (HTTP 202 · 0 octet) et `consilium.europa.eu/…/press-releases/`
+    #    (HTTP 403). Avant ce jour, les DEUX tombaient dans `vivantes` et le témoin refusait
+    #    TOUS les pushs du dépôt. La borne tombe si l'un OU l'autre verdict manque.
+    essai("ai-act-citation-courte-reel",
+          "CITATION COURTE ABSENTE DES PAGES DE LA NOTE : « 05 October 2026 » (¶25) — "
+          "pages non lues : %s, %s\n"
+          "NOTE REFUSÉE — citation courte « 05 October 2026 »\n" % (MUET, REFUS),
+          [MUET, REFUS], True, "MUETTE")
+    # ⑳ MUET SEUL — un 2xx à ZÉRO OCTET, et le verdict est NOMMÉ dans la raison. Contribution
+    #    séparable de celle de ㉑ (règle du 12/11/2026).
+    essai("deux-cents-deux-zero-octet",
+          "CITATION COURTE ABSENTE DES PAGES DE LA NOTE : « x » (¶25) — pages non lues : %s\n"
+          "NOTE REFUSÉE — citation courte « x »\n" % MUET,
+          [MUET], True, "MUET, HTTP 202")
+    # ㉑ REFUS SEUL — notre client est écarté (401 · 403 · 429) : la page n'a pas été lue, et
+    #    c'est un fait vérifiable INDÉPENDAMMENT du document (critère du 28/11 au matin).
+    essai("automate-ecarte",
+          "CITATION COURTE ABSENTE DES PAGES DE LA NOTE : « x » (¶25) — pages non lues : %s\n"
+          "NOTE REFUSÉE — citation courte « x »\n" % REFUS,
+          [REFUS], True, "REFUS, HTTP 403")
+    # ㉒ ACCEPTÉE ET BORNANTE : un 404 REFUSE TOUJOURS. Un lien mort est le seul défaut que
+    #    `balayer_adresses.py` CONDAMNE de son côté — l'excuser ici ferait taire la classe même
+    #    qu'il existe pour dire. Sans cette borne, rien n'empêche d'élargir à MORTE demain.
+    essai("quatre-cent-quatre-refuse",
+          "CITATION COURTE ABSENTE DES PAGES DE LA NOTE : « x » (¶25) — pages non lues : %s\n"
+          "NOTE REFUSÉE — citation courte « x »\n" % MORT,
+          [MORT], False, "verdict MORTE")
+    # ㉓ ACCEPTÉE ET BORNANTE : un 500 REFUSE TOUJOURS. Une panne de serveur est passagère par
+    #    nature (cnsa.fr, 26/10/2026) : l'excuser, c'est excuser un état qui aura disparu demain.
+    essai("cinq-cents-refuse",
+          "CITATION COURTE ABSENTE DES PAGES DE LA NOTE : « x » (¶25) — pages non lues : %s\n"
+          "NOTE REFUSÉE — citation courte « x »\n" % PANNE,
+          [PANNE], False, "verdict PANNE")
+    # ㉔ LA DÉCISION SUIT LE VERDICT DE `balayer_adresses.classe`, PAS UNE LISTE DE CODES
+    #    RECOPIÉE ICI : on remplace le classeur et la décision change AVEC lui. Sans cette
+    #    borne, une seconde implémentation locale dériverait en silence (règle du 15/10), et
+    #    les cinq bornes ci-dessus resteraient vertes sur une copie.
+    vus += 1
+    _vrai = _classe
+    try:
+        globals()["_classe"] = lambda *a, **k: "VIVANTE"
+        a = page_sans_texte("403", None, False)      # le 403 n'excuse plus : le classeur a parlé
+        globals()["_classe"] = lambda *a, **k: "MUET"
+        b = page_sans_texte("200", 99999, False)     # et une page riche excuse, pour la même raison
+    finally:
+        globals()["_classe"] = _vrai
+    if a or not b or _classe is not _vrai:
+        print("  ✗ ㉔ la décision ne suit pas le verdict de balayer_adresses.classe "
+              "(403→%s, riche→%s, classeur rendu : %s) — une liste de codes recopiée ici "
+              "dériverait en silence" % (a, b, _classe is _vrai)); ko += 1
 
     # ⑱ LE HARNAIS APPELLE-T-IL CETTE TOLÉRANCE DANS LE BLOC DES TÉMOINS CONFORMES ? (28/11/2026)
     #    Elle gardait le bloc des étapes 5 bis depuis le 25/10 et le bloc des conformes n'en avait
@@ -555,7 +694,8 @@ def autotest():
         print("  ✗ %d/%d borne(s) de tolerance_page_morte.py en échec" % (ko, vus))
         return 1
     print("  ✓ %d/%d bornes de tolerance_page_morte.py — une page morte excuse, une page vivante"
-          " accuse" % (vus, vus))
+          " accuse, un 2xx à ZÉRO OCTET et un automate écarté excusent, un 404 et un 500"
+          " refusent toujours" % (vus, vus))
     return 0
 
 

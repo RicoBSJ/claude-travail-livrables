@@ -9666,3 +9666,141 @@ Le motif restant est la citation courte « 05 October 2026 », dont les deux pag
 ### La fiche
 
 Amendée selon la convention du 28/11 : **pas de rature**, parce que **rien n'est renversé** — le 18 111 était **juste le jour de la lecture**, c'est la page qui a maigri. Une phrase `**Mise à jour du 28/11/2026.**` en queue du paragraphe des corrections, qui porte les cinq mesures, les quatre verdicts de contrôle et les deux réserves. ⛔ **Ni `[Corrigé le …]` ni section de journal** : ces deux formes sont celles du `.docx`, et 24 fiches les **citent** pour rapporter le journal de leur document.
+
+---
+
+## 28/11/2026 — Le verdict `MUET` : un 2xx à ZÉRO OCTET est mesuré, pas « non mesuré »
+
+**Ordre** : *ferme la classe avec le verdict MUET*. La classe est celle que la fiche du matin nommait en avocat du diable : **un verdict qui varie sans que le dépôt change**.
+
+### L'incident, remesuré avant tout geste
+
+Le témoin conforme `sources/veille/ai-act/2026-10-09_veille_ai-act.docx` refusait sur un motif, et ce motif nomme **DEUX** pages :
+
+```
+CITATION COURTE ABSENTE DES PAGES DE LA NOTE : « 05 October 2026 » (¶25)
+  — pages non lues : https://eur-lex.europa.eu/, https://www.consilium.europa.eu/en/press/press-releases/
+```
+
+| page | sonde du 28/11, seule, faisceau compris |
+|---|---|
+| `https://eur-lex.europa.eu/` | **HTTP 202 · curl 0 · `text/html` · 0 octet** → `utiles()` = `None` |
+| `https://www.consilium.europa.eu/en/press/press-releases/` | **HTTP 403 · curl 0 · 13 330 octets** → `utiles()` = `None` (hors 2xx) |
+
+🔴 **`MUET` SEUL N'AURAIT RIEN FERMÉ, et c'est la mesure qui l'a dit, pas la relecture.** La fiche du matin écrivait « les deux pages sont illisibles » en ne mesurant que la **première**, et imputait le refus au seul corps vide. Le 403 refusait **à lui seul** : le fond était juste, le mécanisme incomplet. *Une excuse qui porte sur N pages doit mesurer les N.*
+
+### ① `balayer_adresses.py` — le verdict `MUET`
+
+`corps_vide(brut, code, rc)` → `rc == 0 and code[:1] == "2" and not brut`, et `classe(code, rc, car, mur, vide)` rend **`MUET`**.
+
+- ⛔ **Pourquoi la borne ④ du 05/11 ne suffisait pas, alors qu'elle est juste** : `utiles()` rend `None` sur un corps vide, ce qui lui a évité **onze fausses façades à 0 caractère** — la forme la plus sûre d'elle-même. Mais `None` veut alors dire **deux** choses : « non mesurée » (PDF, corps non textuel, transfert coupé) et « rien reçu », qui est un **fait observé**.
+- ⛔ **`corps_vide()` n'aplatit rien** : compter zéro octet n'a pas besoin d'`aspirer.aplati`, donc le verdict survit sur une machine où cet import échoue, là où `FACADE` y est perdu.
+- ⛔ **Borné au 2xx**, même borne et même raison que `FACADE` et `MUR` : un 3xx **final** à corps vide dit « curl a cessé de suivre », pas « la page ne dit rien ».
+- ⛔ **`MUET` n'entre PAS dans `CONCLUANT`, sur mesure** : eur-lex a rendu **998 caractères utiles puis 0 octet à vingt minutes d'intervalle**. Un corps vide est donc **passager sur l'hôte même qui a motivé le verdict** : il se rejoue, et seul un corps vide stable sur les trois essais est dit MUET. Coût : deux sondes de plus par adresse concernée.
+- ⛔ **Il ne condamne pas** : seuls `MORTE` et `DNS` font sortir en 1, **inchangé**.
+
+**Non-régression par construction, puis prouvée** — `vide=False` par défaut, donc tout appel existant est inchangé ; et les deux `classe()` jouées côte à côte :
+
+| grille | combinaisons | verdicts changés | transitions |
+|---|---|---|---|
+| **atteignable** (ce que `sonde()` peut produire) | **184** | **4** | **`VIVANTE → MUET`, et rien d'autre** |
+| complète (appels à la main compris) | 3 264 | 384 | `VIVANTE`, `FACADE`, `MUR` → `MUET`, **toutes à `vide=True`, toutes en 2xx** |
+
+À `vide=False` : **zéro** changement, sur les deux grilles.
+
+### ② `tolerance_page_morte.py` — ce qui excuse n'est plus un code, c'est un verdict
+
+`SANS_TEXTE = ("FACADE", "MUET", "REFUS")`, et la décision passe par le **verdict de `balayer_adresses.classe`**, importé.
+
+- ⛔ **Aucune liste de codes recopiée ici** (règle du 15/10) : une seconde liste dériverait en silence. Et **un seul chemin d'appel** (`verdict_page`) sert la décision **et** le verdict imprimé, sinon les deux pourraient se contredire.
+- 🟢 **`car_utiles` rend le couple `(caractères, corps vide ?)`, les deux issus de LA MÊME sonde** : une seconde requête pour savoir si le corps est vide pourrait répondre **autre chose** que la première — eur-lex, 998 puis 0. Deux faits tirés de deux sondes se contrediraient.
+- ⛔ **`MORTE` (404/410) et `PANNE` (5xx) refusent toujours**, sur décision bornée : un lien mort est le seul défaut que `balayer_adresses.py` condamne de son côté, l'excuser ici ferait taire la classe même qu'il existe pour dire ; une panne est passagère par nature (cnsa.fr, 26/10). Deux bornes **ACCEPTÉES** l'épinglent.
+- ⚠️ **`REFUS` couvre le 429**, c'est-à-dire un throttle qui pourrait être **causé par nos propres sondes** : la tolérance ne sonde chaque adresse qu'une fois (trois au plus, et seulement sur un 000). Le séparer du 403 demanderait de tester un **code** ici, c'est-à-dire la liste recopiée qu'on refuse.
+- ⚠️ **Le message de refus NOMME désormais le verdict** (`a répondu (HTTP 404 · verdict MORTE)`) : il disait « répond » pour un 404, littéralement vrai et lisible comme un contresens.
+
+**Non-régression prouvée** : sur les **39 combinaisons atteignables**, **7 décisions changent, toutes dans le sens « n'excusait pas → excuse »**, **zéro** dans l'autre — 4 × `MUET` (200, 202, 204, 206 à corps vide) et 3 × `REFUS` (401, 403, 429).
+
+**Les deux sens sur le cas réel**, depuis la sortie du contrôle telle quelle :
+
+| version | verdict |
+|---|---|
+| avant | `eur-lex.europa.eu/ répond (HTTP 202) quand le contrôle ne l'a pas lue` — **exit 1** |
+| après | `(MUET, HTTP 202)` et `(REFUS, HTTP 403)` nommés, **exit 0** |
+
+### Les bornes
+
+| lot | avant | après |
+|---|---|---|
+| `balayer_adresses.py` (`ATTENDU_BAL`) | 96 | **116** |
+| `tolerance_page_morte.py` (`ATTENDU_TOL`) | 18 | **24** |
+
+`balayer_adresses.py` : **20 bornes neuves, SIX à ACCEPTER** (3xx final à corps vide → `VIVANTE` · 404 → `MORTE` · 403 → `REFUS` · transfert coupé → rien mesuré · non mesurée ≠ vide · 500 → `PANNE`) **et DEUX FABRIQUÉES, dites telles** — un corps vide porteur de caractères ou d'un gabarit est impossible pour `sonde()` : elles fixent la **précédence** décidée, et chacune tombe pour un ordre différent, donc leurs contributions sont séparables (12/11). Plus une route `/muet` au serveur **local** qui répond vraiment 202 sans un octet, et une borne de bout en bout qui exige le code **mesuré** dans le détail.
+
+`tolerance_page_morte.py` : quatre routes neuves — `/muet` 202 sans un octet, `/refus` 403, `/mort` 404, `/panne` 500. La première borne rejoue **le cas réel avec ses deux pages** et tombe si l'un **ou** l'autre verdict manque ; deux l'**isolent** l'une de l'autre ; deux **ACCEPTÉES** bornent le non-élargissement ; la dernière **remplace le classeur** pour prouver que la décision le **suit** — sans elle, une seconde implémentation locale laisserait les cinq autres vertes.
+
+### Mes défauts
+
+🔴 **Ma borne de bout en bout a accusé un code juste** : son ancre était `[202]` quand `tuple_tsv` écrit `[202/0]`. *Avant d'accuser un outil, relire son invocation* (25/10) — le format a été **mesuré sur la vraie fonction** au lieu d'être supposé. L'ancre porte les crochets **et** la barre, parce qu'un port éphémère peut contenir « 202 » et la borne passerait alors **par hasard**, c'est-à-dire de façon non déterministe : exactement le défaut qu'on ferme.
+
+🔴 **Mon premier jet de la décision appelait une fonction inexistante** (`code_ou`), reste d'une première forme où le verdict et la décision avaient **deux** chemins d'appel. Remplacé par `verdict_page`, un seul chemin.
+
+🔴 **Ma borne ⑫ a fait PLANTER le témoin** au changement de contrat (`lambda u: None` dépaqueté en couple) : exit 1 avec **zéro `✗`**, donc rien ne se voyait mordre. *Un sabotage — ou un changement de contrat — qui fait planter la cible masque le garde qu'il teste* (12/11). Corrigée en `(None, False)`, et elle garde exactement son sens : **non mesurée ≠ vide**.
+
+### Ce qui n'est pas fermé
+
+⚠️ **La portée s'arrête au refus d'un CONTRÔLE.** Le témoin `placement-financier` n°14 fait échouer une **exigence de ligne du harnais** (« passe D a perdu sa dent ») parce que `lafinancepourtous.com` ne porte plus « 1 782 » : le contrôle, lui, sort en **0** (la passe D n'est pas bloquante). La tolérance n'a **rien à excuser** là — c'est le harnais qui affirme qu'un motif a encore ses dents, et un tiers qui a bougé le rend édenté. L'excuser serait **circulaire**, exactement comme les cas ② et ③ du matin.
+
+📌 **Non fait, non ordonné** : ③, `lafinancepourtous.com` — son archive du 15/07 est à **87 jours** de la date du témoin, et la règle du 25/10 interdit une archive ancienne pour une **VALEUR**.
+
+⚠️ **Et le `.tsv` du balayage ne permet pas de recompter les MUET du corpus** : sa colonne de caractères est vide pour **les deux** sens de `None`. Le compte de **11 adresses / 2 hôtes** du 05/11 n'est pas re-dérivable d'un fichier — il avait été mesuré en direct ce jour-là. **Aucun balayage complet n'a été relancé le 28/11** : 26 min de réseau, non ordonné.
+
+### La preuve de bout en bout — `--complet` sur le dépôt réel
+
+| bloc | avant | après |
+|---|---|---|
+| témoins conformes | `✗` enneagramme n°6 (capsurvous) | **`✓ 11/11` · `⟳ 1 NON JOUÉ`**, zéro ✗ |
+| étapes 5 bis | **4 `✗`** `controle_ai_act.py` (alerte · citation · typo · taille) | **4 `⟳ NON JOUÉ`**, `⚠️ 4 duo(s) sur 7` |
+
+La ligne que le harnais imprime désormais, pour les quatre :
+
+```
+⟳ controle_ai_act.py : duo « citation » NON JOUÉ — page(s) MUETTE(S) mesurée(s) ici — elles
+RÉPONDENT SANS DONNER DE TEXTE … : https://eur-lex.europa.eu/ (MUET, HTTP 202),
+https://www.consilium.europa.eu/en/press/press-releases/ (REFUS, HTTP 403) ; injoignable(s) :
+aucune — rien n'est conclu, le duo n'est pas joué [faisceau de certificats : utilisé]
+```
+
+⚠️ **Le coût est dit et chiffré** : **4 duos sur 7** et **1 témoin conforme sur 11** ne sont plus gardés **du tout** tant que ces tiers ne répondent pas. Les deux compteurs l'impriment (`CB_SKIP`, `CONF_SAUTE`) — ce n'est pas un `✓`.
+
+⛔ **Et un `REFUS` est STABLE** (il est dans `CONCLUANT`), là où un 000 est passager : un témoin dont le motif nomme une des **90 adresses « refus d'automate »** du balayage du 05/11 serait excusé **durablement**. C'est le prix de ne pas bloquer le dépôt sur le gabarit anti-automate d'un tiers.
+
+### Durées mesurées (trois passages chacune)
+
+| lot | durée |
+|---|---|
+| `balayer_adresses.py --autotest` | **2,3 s** (2.34 · 2.30 · 2.29) |
+| `tolerance_page_morte.py --autotest` | **19,5 s** (19.51 · 19.52 · 19.51) |
+
+### Les sabotages
+
+**13 scénarios, 11 refus, et les deux amputations se comportent comme prévu** (exit 0 à l'auto-test seul, le garde de compte étant au harnais). Chacun prouve d'abord qu'il a modifié le fichier (sha256 avant → après) et chaque fichier est restauré au **sha256 identique**.
+
+| sabotage | ce qui tombe |
+|---|---|
+| S1 `corps_vide` toujours `False` | les 2 bornes de `corps_vide` + 2 de bout en bout |
+| S2 `MUET` **après** le mur | la borne FABRIQUÉE `mur=True · vide=True` — **seule** (1/116) |
+| S3bis `MUET` **après** le plancher (mur inchangé) | **les DEUX** bornes FABRIQUÉES (`car=93 · vide=True → FACADE` et `mur=True · vide=True → MUR`), 2/116 |
+| S4 borne 2xx retirée du `MUET` | l'ACCEPTÉE `301 → VIVANTE` — **seule** |
+| S5 `MUET` rendu `CONCLUANT` | la borne de structure — **seule** |
+| S6 `sonde()` ne rapporte plus le corps vide | 3 bornes de bout en bout |
+| S7 lot amputé (`muet_cas`) | auto-test **exit 0 en lisant 115/115** → `ATTENDU_BAL` |
+| S8 `SANS_TEXTE` sans `MUET` | ⑲ (cas réel) + ⑳ + ㉔ ; **㉑ survit** |
+| S9 `SANS_TEXTE` sans `REFUS` | ⑲ + ㉑ ; **⑳ survit** → ⑳ et ㉑ **séparables** |
+| S10 `SANS_TEXTE` élargi à `MORTE` | ㉒ — **seule** |
+| S11 `SANS_TEXTE` élargi à `PANNE` | ㉓ — **seule** |
+| S12 décision réimplémentée par une liste de codes | ㉔ — **seule** |
+| S13 lot amputé de la tolérance | auto-test **exit 0 en lisant 23/23** → `ATTENDU_TOL` |
+
+🟢 **ET LES DEUX AMPUTATIONS SONT PROUVÉES SANS LANCER LE HARNAIS, PAR SON PROPRE `sed`** — lu dans `non_regression.sh` par motif, jamais recopié (une dérive de libellé dans les deux laisserait le lot vert, défaut mesuré le 11/11) : appliqué à la ligne que le témoin amputé imprime **réellement**, il lit **115** contre `ATTENDU_BAL=116` et **23** contre `ATTENDU_TOL=24`. Les deux refusent.
+
+🔴 **Et mon premier S3 n'a pas prouvé ce qu'il annonçait** : pour faire passer `MUET` après le plancher j'avais **inséré** un `return "FACADE"` avant le test du mur, donc il déplaçait **deux** tests au lieu d'un — 8 ✗ dont `mur=True → FACADE`, c'est-à-dire la branche du mur cassée par-dessus. *Un sabotage qui n'implémente pas la sémantique qu'il annonce ressemble à une borne qui ne mord pas* (05/11). Rejoué en `S3bis` : le test `MUET` **déplacé** après le plancher, le mur **premier et inchangé**.
