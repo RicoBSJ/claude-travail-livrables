@@ -468,14 +468,14 @@ bloc_convention_fiches () {
 bloc_isolation_import () {
   local ISO_KO=0 ISO_OUT
   [ -f "$ROOT/outils/scripts/non_regression/isolation_import.py" ] || return 0
-  echo "▶ Isolation des imports — aspirer.py sonde-t-il AVEC le faisceau sous -I ? (aucun réseau, 0,7 s)"   # 0,70 · 0,65 · 0,65 s MESURÉS
+  echo "▶ Isolation des imports — les CINQ scripts sondent-ils AVEC le faisceau sous -I ? (aucun réseau, 0,8 s)"   # 0,79 · 0,75 · 0,80 s MESURÉS
   ISO_OUT="$CUR/isolation_import.txt"
   # LE TÉMOIN. Ses bornes ③ ④ ⑤ ⑥ lancent de VRAIS sous-processus, avec -I et sans, sur la tête
   # d'aspirer.py EXTRAITE du fichier — jamais une copie de sa logique (15/10). Le garde de compte
   # lit le DÉNOMINATEUR (bornes JOUÉES) — règle du 26/10.
   if env -i $PY "$ROOT/outils/scripts/non_regression/isolation_import.py" --autotest > "$ISO_OUT" 2>&1; then
     tail -2 "$ISO_OUT"
-    ATTENDU_ISO=9
+    ATTENDU_ISO=14
     # ⚠️ ANCRE ROBUSTE À LA COLONNE ET SANS ACCENT : la dérive d'un libellé accentué a fait refuser
     #    TOUS les pushs le 04/11.
     LU_ISO=$(sed -n "s/^[[:space:]]*\([0-9]\{1,\}\)\/\([0-9]\{1,\}\) bornes de l'isolation des imports.*/\2/p" "$ISO_OUT")
@@ -486,13 +486,17 @@ bloc_isolation_import () {
     fi
   else
     grep '✗' "$ISO_OUT" | head -9
-    echo "  ✗ LE TÉMOIN DE L'ISOLATION DES IMPORTS NE TIENT PLUS. Ce qu'il garde : qu'aspirer.py"
-    echo "    répare sys.path ET le fasse AVANT son import ca_bundle (l'ORDRE est la moitié de la"
-    echo "    règle, comme le désarmement git du 27/10), que la tête extraite rende un CA NON VIDE"
-    echo "    sous un VRAI -I, que le repli à [] SE DISE sur stderr — c'est le SILENCE qui était le"
+    echo "  ✗ LE TÉMOIN DE L'ISOLATION DES IMPORTS NE TIENT PLUS. Ce qu'il garde : un PRÉDICAT"
+    echo "    STRUCTUREL — tout .py de outils/scripts/ qui importe un VOISIN répare sys.path, et"
+    echo "    AVANT ce premier import (l'ORDRE est la moitié de la règle, comme le désarmement git"
+    echo "    du 27/10) —, une borne FABRIQUÉE qui prouve que ce prédicat n'est pas inerte, la tête"
+    echo "    d'aspirer.py EXTRAITE et jouée dans de vrais sous-processus avec -I et sans, le fait"
+    echo "    que le repli à [] SE DISE sur stderr dans les CINQ — c'est le SILENCE qui était le"
     echo "    défaut, pas le repli —, la borne ACCEPTÉE qui prouve que args_curl() NE LÈVE PAS et"
-    echo "    donc que cet except n'attrape QUE l'import, et qu'aucun .py de outils/scripts/ ne"
-    echo "    masque un module standard, qui est le risque que l'insert en position 0 CRÉE."
+    echo "    donc que cet except n'attrape QUE l'import, qu'aucun .py ne masque un module standard"
+    echo "    (le risque que l'insert en position 0 CRÉE), et que les TROIS sites du harnais qui"
+    echo "    exécutent la tranche de controle_attributions.py fournissent son __file__ — sans lui"
+    echo "    la réparation lève NameError et le gate QUI ALIMENTE LA RÉFÉRENCE meurt."
     ISO_KO=1
   fi
   return $ISO_KO
@@ -1885,9 +1889,10 @@ if [ "$MODE" = "--docs" ]; then
   env -i $PY - "$ROOT/outils/scripts/controle_attributions.py" "$@" > "$CUR/docs_A.tsv" <<'PYH'
 import sys, io, contextlib
 src = open(sys.argv[1], encoding="utf-8").read()
+CTRL = sys.argv[1]   # 28/11/2026 : capturé AVANT la boucle, qui réécrit sys.argv
 code = src[src.index("import sys, re, html, subprocess"):src.index("# ── aspiration des pages")]
 for f in sys.argv[2:]:
-    sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__"}
+    sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__", "__file__": CTRL}
     ko = None
     with contextlib.redirect_stdout(out):
         try: exec(code, g)
@@ -2032,9 +2037,10 @@ find "$ROOT/livrables/lecons" "$ROOT/sources/veille" -name "*.docx" | sort > "$C
 env -i $PY - "$ROOT/outils/scripts/controle_attributions.py" $(cat "$CUR/corpus.txt") > "$CUR/passe_A.tsv" <<'PYH'
 import sys, io, contextlib
 src = open(sys.argv[1], encoding="utf-8").read()
+CTRL = sys.argv[1]   # 28/11/2026 : capturé AVANT la boucle, qui réécrit sys.argv
 code = src[src.index("import sys, re, html, subprocess"):src.index("# ── aspiration des pages")]
 for f in sys.argv[2:]:
-    sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__"}
+    sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__", "__file__": CTRL}
     ko = None
     with contextlib.redirect_stdout(out):
         try: exec(code, g)
@@ -2091,9 +2097,10 @@ MQ="$CUR/passe_A_marqueurs.tsv"
 env -i $PY - "$ROOT/outils/scripts/controle_attributions.py" "$NR"/temoins_passe_A_marqueurs/*.docx(N) > "$MQ" <<'PYH'
 import sys, io, contextlib
 src = open(sys.argv[1], encoding="utf-8").read()
+CTRL = sys.argv[1]   # 28/11/2026 : capturé AVANT la boucle, qui réécrit sys.argv
 code = src[src.index("import sys, re, html, subprocess"):src.index("# ── aspiration des pages")]
 for f in sys.argv[2:]:
-    sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__"}
+    sys.argv = ["x", f]; out = io.StringIO(); g = {"__name__": "__main__", "__file__": CTRL}
     ko = None
     with contextlib.redirect_stdout(out):
         try: exec(code, g)

@@ -43,11 +43,25 @@ d'un nom d'acte tombe entre 0,002 et 0,289 de la longueur du texte, et le défau
 Usage : controle_ai_act.py <chemin du .docx>    (exit 0 = conforme, 1 = refusée)
 Témoin de non-régression : section 5 ter de outils/scripts/non_regression.sh.
 """
-import zipfile, re, sys, html, json, subprocess
+import zipfile, re, sys, html, json, subprocess, os
+# ⚠️ 28/11/2026 — SANS CETTE LIGNE, `python3 -I` SONDE SANS FAISCEAU, EN SILENCE.
+#    `-I` implique `-P` : le dossier du script quitte sys.path, `import ca_bundle` lève
+#    ModuleNotFoundError, l'except ci-dessous l'avale, et curl part SANS --cacert — donc un
+#    `curl 60` sur une page qui répond 200, c'est-à-dire un FAUX verdict TLS et une source
+#    valide écartée en silence. Mesuré de bout en bout sur aspirer.py : HTTP 000 · curl 60
+#    avant, HTTP 200 · 7 253 car. après. Forme reprise de balayer_adresses.py:91 — pas une
+#    seconde. Gardé par non_regression/isolation_import.py, qui couvre les CINQ scripts.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
     import ca_bundle
     CA = ca_bundle.args_curl()      # ⚠️ 26/10/2026, voir ca/README.md : chaîne complète, rien n'est désactivé
-except Exception:
+except Exception as _e:
+    # ⛔ ET LE REPLI SE DIT, PARCE QU'IL ÉTAIT INDISCERNABLE D'UN ÉTAT CASSÉ. `args_curl()` NE
+    #    LÈVE PAS — `chemin()` rattrape OSError et rend None, d'où [] —, donc cet except
+    #    n'attrape QUE l'import : un ca_bundle absent du disque ou un sys.path perdu. Muet, il
+    #    rendait ces deux états indiscernables du repli légitime d'une machine sans brew.
+    print("⚠️ controle_ai_act.py : ca_bundle non importé (%s) — sondes SANS faisceau de certificats"
+          % type(_e).__name__, file=sys.stderr)
     CA = []
 p = sys.argv[1]
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"

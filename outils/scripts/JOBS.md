@@ -9394,3 +9394,131 @@ Les **quatre** autres scripts qui importent un voisin sans réparer `sys.path` :
 porte les pushs** — et `controle_psychopathologie.py`. Le témoin les **recense et les imprime**,
 non bloquant. Les corriger demanderait de reprendre l'extraction de `faisceau_5bis.py`, ancrée
 sur `try:\n    import ca_bundle`.
+
+---
+
+## 28/11/2026 — le portage du correctif `-I` aux quatre autres scripts, et les trois choses qu'il a cassées
+
+**L'ordre** : « corrige les quatre autres scripts », après que le témoin du matin les avait
+recensés et imprimés comme non réparés.
+
+### Les quatre
+
+`controle_ai_act.py`, `controle_astrologie_karmique.py`, `controle_attributions.py` et
+`controle_psychopathologie.py` portaient le même défaut qu'`aspirer.py` : pas de réparation de
+`sys.path`, et un `except Exception: CA = []` muet. Les trois 5 bis n'importaient même pas `os`
+(0 occurrence de `os.`), il a fallu l'ajouter à leur ligne d'import.
+
+⛔ **Et il faut redire ce que le correctif NE change pas** : lancés comme scripts, les cinq
+avaient déjà leur dossier en `sys.path[0]`, donc l'insert y est un **doublon inoffensif** et le
+`print` ne part **jamais**. Le correctif ne mord que sous `-I` — `0` occurrence au dépôt — et
+dans la **tranche** que le harnais exécute. **Zéro changement de comportement en production.**
+
+🟢 **Garde par soustraction** sur les quatre : retirer exactement le texte inséré rend chaque
+fichier d'avant au **sha256 identique**. +1 254 à +1 267 octets chacun.
+
+### Trois cassures, les trois mesurées avant d'être corrigées, aucune trouvée par la relecture
+
+**① `faisceau_5bis._exec` plantait.** Il exécute la tranche `try:` … `CA = []` **extraite** des
+trois 5 bis avec `g = {}`. Or la tranche commence à `try:` : elle n'emporte pas la ligne
+`import … sys …` du module, dont le repli parlant a besoin (`file=sys.stderr`). Mesuré :
+`NameError: name 'sys' is not defined`, **exit 1 avec ZÉRO `✗`** — donc ni ④ ni ⑤ ne se
+voyaient mordre. 🟢 `sys` est fourni : *on donne au fragment le contexte qu'il attend, plutôt
+que de contorsionner le code de production pour arranger un test.*
+
+**② Les TROIS sites du harnais qui exécutent la tranche de `controle_attributions.py`**
+(lignes 1888, 2035, 2094 — octet pour octet identiques, 26/10) passaient
+`g = {"__name__": "__main__"}`, **sans `__file__`**. La réparation levait donc `NameError`,
+**non rattrapé** (seul `SystemExit` l'est), et **le gate qui ALIMENTE LA RÉFÉRENCE mourait**.
+Mesuré en reproduisant la tranche à l'identique. 🟢 `CTRL = sys.argv[1]` est capturé **avant**
+la boucle, qui réécrit `sys.argv`, et la borne ⑭ exige que les trois le fournissent — une
+dérive d'un seul suffit, ce que les sabotages S5 et S6 prouvent.
+
+**③ La borne ④ de `corps_tronque.py` refusait un contrôle conforme — donc tous les pushs.**
+Elle exige que la garde du corps tronqué précède le **premier `print(`** du contrôle. Mon
+avertissement sur stderr est devenu ce premier print, **en tête par nécessité** :
+`garde @17067 · premier print @8415`, `--docs` **exit 1**.
+
+🟢 **Corrigée à la source, pas contournée.** `print(` était une **approximation** de « un
+verdict » ; elle lit désormais par **`ast`** le premier print **non dirigé vers stderr**, et
+**imprime le nombre d'écartés** (une exemption muette est une exemption qui dérive).
+⛔ Le contournement était à portée — écrire `sys.stderr.write` — et aurait laissé **le même
+piège armé** pour le prochain diagnostic légitime. 🧪 Sabotage : un `print("verdict premature")`
+avant la garde → **④ mord**, `29/30`, `premier verdict @6737 · 1 print vers stderr écarté`.
+
+### Le témoin — `non_regression/isolation_import.py`, 9 → 14 bornes
+
+**0,8 s mesurées** (0,79 · 0,75 · 0,80). `ATTENDU_ISO` **9 → 14**.
+
+⛔ **Le prédicat de ③ ④ est STRUCTUREL, jamais une liste** : « tout `.py` de `outils/scripts/`
+qui importe un **voisin** répare `sys.path`, et **avant** ce premier import ». **7** scripts
+aujourd'hui (les cinq, plus `balayer_adresses.py` et `controle_noms_propres.py`), **0** sans
+réparation, **0** après l'import. Une liste de cinq noms se périmerait au prochain script
+écrit — défaut déjà payé trois fois ici. **Bloquantes dès le premier jour** : à 0 orphelin, les
+laisser non bloquantes garantissait qu'elles repourrissent (règle du 11/11).
+
+🧪 **La borne ⑤ est FABRIQUÉE et c'est la décisive, mesurée et non argumentée** : le sabotage
+S4 retire le test d'ordre et **④ ne bouge pas**, le corpus réel n'ayant aucun cas « réparé trop
+tard ». ④ est donc verte sur rien, et **seule ⑤ attrape la perte**.
+
+⚠️ **⑩ est textuelle, et sa limite est dite** : seul `aspirer.py` a une tête **exécutable hors
+contexte** — les trois 5 bis sortent sur un `sys.exit` d'usage, `controle_attributions.py` pèse
+1 626 lignes. Pour les quatre autres **on exige le littéral**.
+
+**Dix sabotages, dix refus**, chacun nommant **sa** borne et prouvant d'abord qu'il a modifié
+le fichier (sha256 avant → après) :
+
+| sabotage | borne qui mord |
+|---|---|
+| S1 réparation retirée de `controle_attributions.py` | ③, qui le **nomme** |
+| S2 réparation déplacée après l'import dans `controle_ai_act.py` | ④, qui le **nomme** |
+| S3 repli redevenu muet dans `controle_psychopathologie.py` | ⑩, qui le **nomme** |
+| S4 le test d'ordre retiré de `recense()` | **⑤ seule** — ④ ne bouge pas |
+| S5 `__file__` retiré d'**un seul** des trois sites | ⑭ (`3 site(s), 2 __file__`) |
+| S6 `CTRL` retiré d'un seul site | ⑭ (`3 CTRL → 2`) |
+| S7 `sys` retiré des globals de `faisceau_5bis` | **refus par PLANTAGE, 0 `✗`** |
+| S8 lot amputé | `ATTENDU_ISO` — auto-test seul **exit 0** en lisant « 13/13 » |
+| S9 apostrophe typographique dans l'ancre | `ATTENDU_ISO`, `0 borne(s) jouée(s)` |
+| S10 un `wave.py` planté | ⑫, qui le **nomme** |
+
+⚠️ **S7 ne refuse que par plantage** — *un sabotage qui fait planter la cible masque le garde
+qu'il teste* (12/11) : c'est précisément pourquoi le correctif appartient à `_exec`.
+
+### Deux erreurs d'invocation à moi, dans la même séance
+
+- Mon heredoc était attaché à l'`echo` et non à l'`env` : le python attendait son entrée
+  standard indéfiniment, et la tâche est partie en arrière-plan sans rien mesurer.
+- `$D` non quoté en **zsh** n'est pas découpé sur l'IFS (règle du 26/10, refaite) : les deux
+  chemins ont fait **un seul argument**, et le contrôle a répondu « EXTRACTION IMPOSSIBLE » en
+  nommant une concaténation.
+- Et une assertion à moi exigeait `== 1` sur une chaîne présente **2 fois** dans le harnais :
+  l'écriture n'a pas eu lieu, ce qui est le bon sens d'échec, mais j'ai d'abord cru le fichier
+  en faute. *Avant d'accuser un fichier, relire l'invocation qui le mesure* (25/10).
+
+### La publication, et la décision qui l'accompagne
+
+🔴 **Le push de ce geste déclenche `--complet`** — `controle_attributions.py` est dans
+`ASPIRATION`, les trois 5 bis dans `CINQBIS` —, donc deux obstacles cumulés : **~25 min**, qui
+ne tiennent pas dans la fenêtre SSH (26/10), et un **exit 1** sur **six `✗`**.
+
+📊 **Les six sont les DEUX pourritures tierces déjà au registre du 22/11, aux mêmes chiffres** :
+la page d'article ai-act rétrécie **de 18 111 à 16 369 caractères** (−9,6 % pour 2 % de
+tolérance), et `capsurvous.com` qui **ne résout plus**, ce que la fiche du 22/11 accompagne
+déjà de « **la version d'AVANT le portage rend le même bloquant** ».
+
+⚠️ **Et ma première tentative de le re-prouver était fausse** : j'ai lancé la version d'avant
+**depuis le scratchpad**, où son `RACINE` résout à côté — `ca_bundle` n'y trouve plus son `ca/`,
+`CA` retombe à `[]`, et le verdict change pour une **autre** raison (`¶65 hérité sans source`).
+**Le bug de `RACINE` du dépôt, dans ma propre mesure, sixième occurrence.** Une version d'avant
+ne se mesure qu'**en place**.
+
+🟢 **Ce qui a été vérifié, et c'est ce sur quoi la décision repose** : mode **défaut exit 0,
+zéro `✗`** (38 scripts réellement lancés, 0 orphelin) · **`--docs` exit 0, zéro `✗`** — c'est le
+gate qui aurait montré la cassure du `__file__` · **`--consignes` exit 0, zéro coquille**.
+
+⛔ **Décision du propriétaire, sur mesures : push en `SKIP_NR=1`**, comme le 22/11. Ce n'est
+**pas** un échec de transport, c'est un refus exact du harnais lu pour ce qu'il n'est pas — la
+régression de ce dépôt. 📌 **Et la piste qui fermerait la classe reste ouverte, non faite** :
+étendre `tolerance_page_morte.py` aux `temoins_attributions_conformes` (propriété volatile :
+l'**existence d'un domaine**) et au motif ⑩ (la **taille d'une page d'article**). Tant qu'elle
+n'est pas faite, **toute** modification d'un contrôle à aspiration demandera la même décision.

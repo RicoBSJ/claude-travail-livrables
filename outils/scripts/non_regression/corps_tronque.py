@@ -105,10 +105,42 @@ borne("③ la garde teste spans_de(corps_plein), PAS SPANS ni dans_marqueur (cal
       "spans_de(corps_plein)" in m_cond.group(1)
       and "SPANS" not in m_cond.group(1) and "dans_marqueur" not in m_cond.group(1),
       m_cond.group(1)[:90])
+def premier_print_verdict(src):
+    """L'index du premier print QUI EMET UN VERDICT, et le nombre de prints ecartes.
+
+    🔴 28/11/2026 — `SRC.find("print(")` ETAIT UNE APPROXIMATION, ET ELLE EST DEVENUE FAUSSE.
+    Depuis que le repli du faisceau PARLE (`print(..., file=sys.stderr)` dans le bloc d'import),
+    le premier `print(` du fichier est un AVERTISSEMENT sur stderr, en tete PAR NECESSITE — et
+    la borne ④ refusait un controle conforme, donc TOUS les pushs. Ce que ④ garde est qu'aucun
+    VERDICT ne sorte avant la garde ; un print dirige vers stderr n'en est pas un. On corrige
+    l'approximation au lieu de la contourner : la laisser planterait sciemment le meme piege au
+    prochain diagnostic legitime. Lecture par `ast`, donc exacte — pas un decoupage de chaine.
+    ⛔ BORNEE : seul `file=sys.stderr` exempte. Un print sans `file=` reste un verdict, et le
+    sabotage le prouve en ajoutant un `print("x")` avant la garde.
+    """
+    arbre = ast.parse(src)
+    debuts, n = [0], 0
+    for l in src.splitlines(keepends=True):
+        debuts.append(debuts[-1] + len(l))
+    meilleur = None
+    for noeud in ast.walk(arbre):
+        if not (isinstance(noeud, ast.Call) and isinstance(noeud.func, ast.Name)
+                and noeud.func.id == "print"):
+            continue
+        if any(k.arg == "file" and ast.unparse(k.value) == "sys.stderr" for k in noeud.keywords):
+            n += 1
+            continue
+        i = debuts[noeud.lineno - 1] + noeud.col_offset
+        if meilleur is None or i < meilleur:
+            meilleur = i
+    return (meilleur if meilleur is not None else -1), n
+
+
 i_garde = SRC.find("sys.exit(\"" + SENTINELLE)
-i_print = SRC.find("print(")
-borne("④ la garde precede le PREMIER print du controle : aucun verdict sur un corps tronque",
-      0 < i_garde < i_print, "garde @%d · premier print @%d" % (i_garde, i_print))
+i_print, n_err = premier_print_verdict(SRC)
+borne("④ la garde precede le premier print de VERDICT : aucun verdict sur un corps tronque",
+      0 < i_garde < i_print, "garde @%d · premier verdict @%d · %d print(s) vers stderr ecarte(s)"
+      % (i_garde, i_print, n_err))
 borne("⑤ le message porte la sentinelle, et dit les deux longueurs", i_garde > 0
       and "caracteres sur" in SRC[i_garde:i_garde + 700], "sentinelle @%d" % i_garde)
 

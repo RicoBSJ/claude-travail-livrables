@@ -61,7 +61,13 @@ def bloc_import(src):
 
 
 def _exec(bloc, bloquer):
-    g = {}
+    # ⚠️ 28/11/2026 — `sys` EST FOURNI, et ce n'est pas une complaisance. La tranche extraite
+    #    commence à `try:` : elle n'emporte donc PAS la ligne `import … sys …` du module, dont
+    #    son `except` dépend depuis que le repli PARLE (`file=sys.stderr`). Sans ce nom, l'exec
+    #    levait NameError et le témoin PLANTAIT — un plantage n'imprime aucun ✗, donc ni ④ ni ⑤
+    #    ne se voyaient mordre. On fournit le contexte que le fragment attend, plutôt que de
+    #    contorsionner le code de production pour arranger un test.
+    g = {"sys": sys}
     sauve_modules = sys.modules.pop("ca_bundle", None)
     sauve_path = list(sys.path)
     try:
