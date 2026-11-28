@@ -1481,7 +1481,7 @@ if [ -x "$NR/tolerance_page_morte.py" ]; then
     tail -1 "$TPM_OUT"
     # même garde qu'ATTENDU_LIENS et ATTENDU_MARQ : un lot amputé passerait au vert, et c'est
     # L'EXCUSE qui décide si le refus d'un témoin bloque le push de tout le dépôt.
-    ATTENDU_TOL=10
+    ATTENDU_TOL=18
     LU_TOL=$(sed -n 's/.* [0-9]\{1,\}\/\([0-9]\{1,\}\) bornes de tolerance_page_morte.*/\1/p' "$TPM_OUT")
     if [ "$LU_TOL" != "$ATTENDU_TOL" ]; then
       echo "  ✗ ${LU_TOL:-0} borne(s) de tolérance jouée(s), $ATTENDU_TOL attendue(s) — un lot amputé"
@@ -2259,13 +2259,43 @@ if [ "$MODE" = "--complet" ]; then
   #     exacts. Un témoin qui sort en 1 = le contrôle a poussé une dent de trop.
   echo "▶ Contrôle d'attributions complet (avec aspiration) sur les témoins conformes (doivent sortir en 0)…"
   CONF_N=0
+  CONF_SAUTE=0
   for f in "$ROOT"/livrables/lecons/**/*stoicisme_14*.docx(N) "$ROOT"/livrables/lecons/**/*appli-ia_07*.docx(N) "$ROOT"/livrables/lecons/**/*placement-financier_14*.docx(N) "$ROOT"/outils/scripts/non_regression/temoins_attributions_conformes/*.docx(N); do
     [ -e "$f" ] || continue
     CONF_N=$((CONF_N+1))
     controle_complet "$f" "$CUR/$(basename "$f" .docx).txt"; rc=$?
-    case $rc in 0) l="✓ exit 0";; 3) l="⟳ exit 3 après $ESSAIS essais — pages non lues, rien prouvé sur B : relancer --complet";; *) l="✗ exit $rc — un témoin conforme bloque : faux positif du contrôle"; STATUT=1;; esac
+    # ⚠️ 28/11/2026 — LA TOLÉRANCE EST ENFIN CONSULTÉE ICI, ET CE BLOC N'EN AVAIT AUCUNE. Elle
+    #    gardait le bloc des étapes 5 bis depuis le 25/10 ; ce bloc-ci concluait à un « faux
+    #    positif du contrôle » sans jamais demander si la PAGE n'avait pas simplement disparu.
+    #    Le 22/11, `capsurvous.com` a cessé de résoudre et le témoin conforme d'ennéagramme n°6
+    #    a refusé TOUS les pushs du dépôt — cinquième occurrence de cette classe, et la décision
+    #    du jour a été un SKIP_NR=1 hors de son cas prévu, faute de cet appel.
+    #    ⛔ Les quatre conditions de la tolérance restent entières : c'est le harnais qui MESURE
+    #    que la page ne répond pas, et une page qui répond fait toujours refuser.
+    SAUTE=0
+    TOLC=""
+    if [ "$rc" != "0" ] && [ "$rc" != "3" ]; then
+      if TOLC=$(env -i $PY "$NR/tolerance_page_morte.py" "$CUR/$(basename "$f" .docx).txt" "$f" 2>&1); then
+        SAUTE=1
+        CONF_SAUTE=$((CONF_SAUTE+1))
+      fi
+    fi
+    case $rc in
+      0) l="✓ exit 0";;
+      3) l="⟳ exit 3 après $ESSAIS essais — pages non lues, rien prouvé sur B : relancer --complet";;
+      *) if [ "$SAUTE" = "1" ]; then
+           l="⟳ NON JOUÉ — une page du témoin ne répond plus : le refus du contrôle est EXACT, mais ce n'est pas une régression du dépôt"
+         else
+           l="✗ exit $rc — un témoin conforme bloque : faux positif du contrôle"; STATUT=1
+         fi;;
+    esac
     [ "$ESSAIS" = "2" ] && [ "$rc" != "3" ] && l="$l (au 2e essai)"
     echo "  $l  $(basename "$f")  ($(grep -m1 '^VERDICT' "$CUR/$(basename "$f" .docx).txt" | cut -c1-80))"
+    [ -n "$TOLC" ] && echo "        ↳ tolérance : $TOLC"
+    # ⛔ UN TÉMOIN NON JOUÉ NE PEUT PAS PROUVER SES LIGNES : le contrôle a refusé, donc les lignes
+    #    que les exigences ci-dessous cherchent sont absentes. On saute, et le COMPTE des sautés
+    #    est imprimé après la boucle — ce que l'excuse coûte est dit, jamais tu.
+    [ "$SAUTE" = "1" ] && continue
     # ⚠️ LA PASSE D N'EST PAS DANS LA RÉFÉRENCE (10/10/2026). passe_A.tsv ne stocke que le NOMBRE de
     #    problèmes bloquants des passes A/A2/A3/A4 : une passe non bloquante est invisible au diff —
     #    même piège que ㉜ le 09/10 et que le motif ② d'ai-act, inerte trois semaines. On exige donc
@@ -2364,6 +2394,11 @@ if [ "$MODE" = "--complet" ]; then
     STATUT=1
   else
     echo "  ✓ $CONF_N/$ATTENDU_CONFORMES témoin(s) conforme(s) contrôlé(s)"
+  fi
+  if [ "$CONF_SAUTE" != "0" ]; then
+    echo "  ⟳ $CONF_SAUTE témoin(s) conforme(s) NON JOUÉ(S) — leurs passes ne sont plus gardées du"
+    echo "    tout pendant la panne du tiers. C'est assumé (un faux refus coûte un livrable non"
+    echo "    publié ; un vrai manqué coûte une relecture), mais ce n'est pas un ✓ : relis-les."
   fi
   # témoins d'AVANT correction pour le contrôle complet : ils doivent sortir en 1 (une citation prêtée à la
   # mauvaise page, ㉓ — veille iMac du 13/09/2026). Un témoin qui sort en 0 = le contrôle a perdu une dent.

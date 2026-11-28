@@ -9522,3 +9522,87 @@ régression de ce dépôt. 📌 **Et la piste qui fermerait la classe reste ouve
 étendre `tolerance_page_morte.py` aux `temoins_attributions_conformes` (propriété volatile :
 l'**existence d'un domaine**) et au motif ⑩ (la **taille d'une page d'article**). Tant qu'elle
 n'est pas faite, **toute** modification d'un contrôle à aspiration demandera la même décision.
+
+---
+
+## 28/11/2026 — La tolérance garde enfin le bloc des témoins conformes, et son comptage accusait une exemption
+
+**L'ordre** : *« ferme la classe avec tolerance_page_morte.py »*, après le `SKIP_NR=1` du 22/11.
+
+### Ce que `--complet` refusait, et c'était TROIS natures, pas une
+
+| témoin | ce que le contrôle dit | la page, mesurée ici |
+|---|---|---|
+| `temoins_attributions_conformes/2026-07-08_lecon-enneagramme_06_declaree.docx` | `INTERDIT https://capsurvous.com/… - HTTP 000, curl 6 : LE NOM DE DOMAINE NE RESOUT PAS` · `VERDICT : 1 probleme(s) bloquant(s)` | **morte** — 000, `curl` exit 6 |
+| `sources/veille/ai-act/2026-10-09_veille_ai-act.docx` (×4 duos) | `NOTE REFUSÉE — citation courte « 05 October 2026 » ; taille 18111 vs 16369` | **vivante** — `faq` répond 200 pour **16 369** car. |
+| `temoins_attributions_conformes/2026-10-10_lecon-placement-financier_18_passeD.docx` | sort en **0** ; c'est l'**exigence de ligne** du harnais qui tombe : `✗ PASSE D A PERDU SA DENT : 0 apparié(s) (1 au minimum), 1 donné(s) pour absent(s) — « 1 782 » est sur sa page` | **vivante** — 200, 14 441 car. |
+
+🔴 **Et le bloc des témoins conformes n'avait AUCUNE tolérance.** Elle gardait le bloc des 5 bis depuis le 25/10 ; celui-ci concluait *« faux positif du contrôle »* sans jamais demander si la page n'avait pas disparu. C'est pour cela que le 22/11 s'est terminé par un `SKIP_NR=1` **hors de son cas prévu** : la vérification avait bien eu lieu, elle n'avait personne à qui le dire.
+
+### Ce qui est fait
+
+🟢 **① `SYNTH_V` — la troisième forme de synthèse.** `controle_attributions.py` écrit `VERDICT : N probleme(s) bloquant(s) (A + A2 + …)` : elle donne le **compte** et **n'énumère rien**, donc le profil d'appariement ne peut pas s'y appliquer et on compte les **lignes bloquantes**. Les trois marqueurs sont **relevés sur ses `print`** (`grep -oE` sur la source) : `INTERDIT`, `ABSENTE`, `MAL ATTRIBUEE`. ⛔ **Borne dite** : son `pb` additionne **DIX** catégories (orphelines, sites non listés, sans adresse, mal formés, source sans adresse, sans cible, liens morts, B, B-NOM, C2) — les trois marqueurs ne les couvrent pas toutes, et c'est **sans danger** parce que le sens d'échec du comptage est le **REFUS**.
+
+🔴 **② L'APPARIEMENT REMPLACE LE COMPTAGE — et c'est un défaut MESURÉ de la condition ②, qui refusait une excuse légitime.** Les contrôles 5 bis impriment aussi des lignes d'**exemption**, qui nomment une page sans accuser personne :
+
+```
+TAILLE NON COMPARÉE (¶81) : https://iapp.org/news/ est une page d'index — sa taille change
+à chaque publication, elle n'est pas une propriété du document (⑩, exempté le 15/10/2026)
+```
+
+Cette ligne portait le compte à **3** pour une synthèse annonçant **2** motifs, et l'excuse était refusée au motif que le refus *« n'est pas ENTIÈREMENT imputable à des pages »* — **alors qu'il l'était**. Chaque motif **énuméré** doit maintenant avoir **SA** ligne : appariement **injectif**, glouton par nombre de jetons partagés (casse et accents pliés). C'est le glouton qui sépare les deux lignes de taille — `TAILLE NON COMPARÉE` ne partage que « taille » avec la synthèse, `TAILLE ANNONCÉE FAUSSE` partage « taille », « 18111 » **et** « 16369 ». ⚠️ **Et seules les URL des lignes APPARIÉES sont sondées** : sans cela `iapp.org/news/`, qui répond, ferait refuser l'excuse par la condition ④ — **le comptage et le sondage doivent porter sur le MÊME ensemble de lignes.**
+
+🟢 **③ La page MUETTE.** Une page qui répond et ne dit rien est **indiscernable** d'une page non lue — règle du 12/10, plancher de **3 000** caractères utiles —, et les contrôles écrivent précisément « pages non lues ». C'est donc la **même** excuse qu'un 000, pas une seconde, plus large. ⛔ **Et `None` n'est JAMAIS une façade** : c'est l'**absence** de mesure (PDF, corps vide, transfert coupé). Une page non mesurée est traitée comme **VIVANTE, donc REFUSÉE** — le défaut va vers le refus, jamais vers l'excuse. ⚠️ **La mesure est IMPORTÉE de `balayer_adresses.py`** (`utiles`, qui réutilise lui-même `aspirer.aplati`), jamais recopiée : une seconde implémentation dériverait en silence, et le dépôt porte déjà une borne de concordance de ce plancher sur **cinq** fichiers. Et le `sys.path.insert` qui rend cet import possible est celui du 28/11 au matin — sous `python3 -I` il échouerait **en silence**.
+
+🔌 **Câblage** : le bloc des conformes appelle la tolérance avant de conclure, imprime `⟳ NON JOUÉ` avec la raison, **saute les exigences de ligne** de ce document (le contrôle a refusé, ses lignes sont absentes) et **compte** les témoins non joués en le disant — *ce que l'excuse coûte est dit, jamais tu*.
+
+### Mesures
+
+📊 **Les deux sens sur le cas RÉEL**, contrôle rejoué seul, sans parallélisme :
+
+| | sortie de la tolérance | exit |
+|---|---|---|
+| version d'**avant** | `la sortie ne porte aucune synthèse de refus connue — on ne compte pas ce qu'on ne sait pas lire` | **1** |
+| version **corrigée** | `page(s) injoignable(s) mesurée(s) ici : https://capsurvous.com/enneagramme-type-4-le-romantique/ … [faisceau de certificats : utilisé]` | **0** |
+
+🧪 **18 bornes (10 → 18), serveur HTTP local, AUCUN tiers, aucun réseau sortant** — ce lot **ne peut donc pas périmer sur la panne d'un site**, contrairement aux témoins qui ont bloqué tous les pushs les 15, 22, 23/10, le 04/11 et le 22/11. `ATTENDU_TOL` **10 → 18**, lu sur le **dénominateur**.
+
+**Cinq bornes doivent être ACCEPTÉES** : ⑫ (`None` n'est pas une façade), ⑮ (une exemption n'est pas un motif), ⑯ (une exemption n'est pas sondée), plus les deux anciennes.
+
+**Neuf sabotages, neuf refus**, chacun prouvant d'abord qu'il a modifié le fichier (sha256 avant → après) et restauré au **sha256 identique** :
+
+| sabotage | bornes tombées |
+|---|---|
+| `SYNTH_V` retiré | ⑬ ⑭ ⑰ |
+| `BLOQUANTS` vidé | **⑬ seule** |
+| règle d'avant (`porteuses != n`) | ③ ⑮ ⑯ |
+| sondage sur **toutes** les lignes | **⑯ seule** |
+| test de page muette retiré | **⑪ seule** |
+| `None` traité comme 0 | **⑫ seule** |
+| page locale ramenée à 2 octets | **② seule** |
+| câblage du bloc conformes retiré | **⑱ seule** |
+| lot amputé | auto-test seul **exit 0** en lisant « 17/17 », harnais **exit 1** sur `ATTENDU_TOL` |
+
+**Six tombent seules**, donc aucune n'est redondante (règle du 12/11).
+
+### 🔴 Trois de mes neuf sabotages n'ont rien prouvé au premier jet
+
+① **Mon sabotage de l'appariement n'implémentait pas la sémantique qu'il annonçait.** Il réappariait « les N premières entrées aux N premières lignes » — qui, dans mes témoins, **sont les bonnes**, la ligne d'exemption étant la troisième. Lot **vert à 18/18**, et j'ai failli consigner que ⑮ et ⑯ étaient décoratives. Refait à la **vraie** règle d'avant, il fait tomber ③ ⑮ ⑯. *Règle du 05/11, repayée.*
+
+② **Mon sabotage « `None` traité comme façade » faisait PLANTER le témoin** sur le `%d` du message : **exit 1 avec ZÉRO `✗`**, donc ⑫ ne se voyait **pas** mordre. Refait sans plantage, elle mord seule. *Règle du 12/11, repayée.*
+
+③ **Et ma borne ⑱ cherchait sa fenêtre depuis l'octet 0** alors que `ATTENDU_CONFORMES` est aussi défini **en tête** du harnais : fenêtre **vide**, et elle accusait un câblage **juste**, c'est-à-dire qu'elle aurait refusé tous les pushs. Elle l'a **DIT** (« 0 octets ») au lieu de passer en silence — seul des trois défauts à s'être dénoncé lui-même. Corrigée en cherchant la borne de fin **après** le début.
+
+### ⚠️ Ce qui N'EST PAS fermé, et pourquoi c'est une limite de principe
+
+⛔ **Excuser « la page a bougé » serait CIRCULAIRE.** « La page ne dit plus X » est **exactement** le défaut que le motif ⑩ et la passe D existent pour attraper : les excuser les neutraliserait à demeure.
+
+⛔ **Et le second point de vue qui lèverait la circularité — l'archive à la date du témoin — est inacceptable DANS le harnais** : il ferait dépendre le verdict d'un **second tiers vivant** (`web.archive.org`) dont le défaut est le **refus**. Une panne de l'Archive refuserait alors **tous les pushs** : la classe qu'on ferme, déplacée d'un étage. **Une excuse ne doit jamais ajouter une dépendance dont la panne refuse.**
+
+🟢 **Ce que l'archive autorise hors du harnais, et c'est un autre geste** : elle **prouve** la dérive. Instantané du **13/10/2026** de `ai-act-service-desk.ec.europa.eu/en/faq` : **18 113** caractères utiles contre **18 111** annoncés — **2 caractères d'écart, trois jours avant** la date du témoin. Pour `lafinancepourtous.com`, le CDX ne porte que `20260122`, `20260413` et `20260715`, soit **87 jours** avant la date du témoin : la règle du 25/10 interdit une archive ancienne pour une **VALEUR**.
+
+📌 **Donc deux pistes bornées, mesurées, NON FAITES et NON ORDONNÉES** :
+- **②** repointer le ¶80 sur l'instantané du 13/10 — mais le témoin ai-act est un **livrable PUBLIÉ** (`sources/veille/ai-act/2026-10-09`), donc le corriger change ce que le lecteur voit, et le **figer** ne figerait pas ses pages ;
+- **③** la seule archive disponible est trop éloignée pour une valeur ; il faudrait soit un instantané plus proche, soit renoncer à cette dent.
+
+⚠️ **Et la leçon de cadrage est dans le nom de l'outil** : `tolerance_page_morte.py` dit *page morte*, et c'est exactement sa portée. Lire son nom comme « tolérance des tiers » était mon erreur, et elle aurait produit une excuse qui **silence**.
