@@ -9606,3 +9606,63 @@ Cette ligne portait le compte à **3** pour une synthèse annonçant **2** motif
 - **③** la seule archive disponible est trop éloignée pour une valeur ; il faudrait soit un instantané plus proche, soit renoncer à cette dent.
 
 ⚠️ **Et la leçon de cadrage est dans le nom de l'outil** : `tolerance_page_morte.py` dit *page morte*, et c'est exactement sa portée. Lire son nom comme « tolérance des tiers » était mon erreur, et elle aurait produit une excuse qui **silence**.
+
+### 28/11/2026, même jour — le ¶80 de la veille ai-act du 09/10 est repointé sur l'instantané du 13/10
+
+**L'ordre** : *« repointe le ¶80 sur l'instantané du 13/10 »* — la piste ② consignée une heure plus tôt comme non faite.
+
+🟢 **Le repointage retire un motif et n'en ouvre aucun.** `rIdfaq0910corr`, qui ne sert **qu'au ¶80** (mesuré sur les relations : 1 rId vise la FAQ, 1 paragraphe l'utilise), pointe désormais sur `web.archive.org/web/20261013053531/…/en/faq`.
+
+| mesure | valeur |
+|---|---|
+| annoncé par le ¶80 | **18 111** car. |
+| page **vivante** le 28/11 | **16 369** car. → **−9,6 %** pour 2 % de tolérance |
+| instantané, par `aspirer.py` | **18 113** car. utiles (64 576 o bruts) → **2** caractères d'écart |
+| instantané, par la fonction `page()` **du contrôle** | **18 097** car. → **14** caractères d'écart, ⑩ **OK** |
+| « Digital Omnibus » sur l'instantané | **5 occurrences, degré ① LITTÉRAL** |
+| date de l'instantané | **13/10/2026**, soit **4 jours après** la lecture annoncée (09/10) |
+
+Les deux règles du 25/10 sont donc satisfaites, et pas par argument : la **proximité** (4 jours, dans la bande du cas normal) et la **corroboration** par le compte annoncé, à deux caractères.
+
+⚠️ **Et la mesure a été faite avec la fonction `page()` EXTRAITE du contrôle**, jamais recopiée (règle du 15/10) : `aspirer.aplati` et `page()` ne comptent pas la même chose — 18 113 contre 18 097 —, et c'est la seconde qui décide.
+
+### 🔴 La forme `id_` aurait tout cassé : 3 299 caractères contre 18 097
+
+Les **octets archivés bruts** (`…20261013053531id_/…`) ne rendent que **3 299** caractères : la page est rendue en **JavaScript**, donc ce que l'Archive a capturé est une coquille. Ce qui porte le texte est la forme de **relecture**. ⚠️ **Conséquence à dire** : son habillage n'est **pas figé**, donc l'ancrage est **plus stable que la page vivante, pas immuable** — et si l'Archive change sa barre, c'est ⑩ qui le dira.
+
+### Le geste, et ses gardes
+
+Patché **sur une COPIE d'abord**, mesuré, puis appliqué au livrable — le réel est ensuite **identique à l'octet** à la copie mesurée (`word/document.xml` et les rels au même sha256, aucune entrée du zip différente).
+
+- **Sauvegarde avant** : `e3612467873ce597676246d1` → après `51faf7bdd39e785100cf44e3`.
+- **Marqueur gris italique daté**, **dernier run du ¶80**, **hors de l'hyperlien**, **rien après lui** dans son ¶ — mesuré sur le XML, pas sur le texte extrait (règle du 23/11).
+- ⛔ **Aucun chiffre suivi de « car. » dans le marqueur** : le ¶80 **porte un lien**, et ⑩ exige **une seule** taille annoncée par paragraphe — une seconde l'aurait rendu **inerte**, c'est-à-dire un durcissement silencieusement annulé (règle du 31/10, et une assertion du script l'interdit).
+- ⛔ **Le marqueur ne nomme pas le « Journal des corrections »** (règle du 04/11) — il dit « conservés en fin de document ». Assertion au script.
+- ⛔ **NFC, et le verbe est « Corrigé »** : le `t_of()` de `controle_ai_act.py` n'écarte **que** `[Corrigé le JJ/MM/AAAA : …]` — un « Précisé », ou un `é` décomposé, **ne serait pas écarté**.
+- **Section datée unique** : assertion `"Corrections du 28/11/2026" not in x` avant toute écriture (règle du 25/10).
+- **Garde par SOUSTRACTION dans l'espace du XML** (règle du 01/11) : retirer exactement le marqueur et la section rend `document.xml` **d'avant à l'octet**, et rendre l'adresse rend les rels **d'avant à l'octet**.
+- **Et dans l'espace du TEXTE VISIBLE** : le diff ne porte que **4** lignes changées — la cible dans l'inventaire des liens (×2, intentionnel), l'en-tête de comptage d'`extract_docx.py` lui-même, et **3 lignes ajoutées** (marqueur + les deux du journal). Rien d'autre n'a bougé.
+
+### Mesures après coup
+
+| contrôle | avant | après |
+|---|---|---|
+| `controle_ai_act.py` | `NOTE REFUSÉE — citation courte « 05 October 2026 » ; taille 18111 vs 16369` | `NOTE REFUSÉE — citation courte « 05 October 2026 »` — **2 motifs → 1** |
+| `controle_attributions.py` | exit 0 · 0 bloquant | **exit 0 · 0 bloquant** |
+| `controle_decompte.py` | — | **COHÉRENT** (8 · 2 · 2 · 12) |
+| `controle_edition_precedente.py` | — | **OK sur ses trois axes** |
+| `controle_convention_fiches.py` | — | **0 rature · 0 écart** |
+
+🟢 **Et le risque que j'avais nommé ne s'est PAS matérialisé** : je redoutais que la nouvelle adresse devienne **ORPHELINE** en passe A (l'incident du 23/10). Mesuré : l'inventaire des liens d'`extract_docx.py` suit la **relation**, donc l'adresse est listée d'elle-même — `pages citees dans le corps et ABSENTES des Ressources : (aucune)` avant **comme** après.
+
+### ⚠️ Le témoin refuse toujours, sur l'AUTRE motif — et l'excuse est NON DÉTERMINISTE
+
+Le motif restant est la citation courte « 05 October 2026 », dont les deux pages sont **illisibles** : `eur-lex.europa.eu/` a rendu **998** caractères utiles puis **0** à vingt minutes d'intervalle, les deux **sous le plancher de 3 000**, et le contrôle l'écrit lui-même — `NON LUE, rien ne sera conclu sur elle (⑰, ㉑)`.
+
+🔴 **La tolérance ne l'excuse pas, et pour une raison précise** : un corps **vide** fait rendre `None` à `utiles()`, et `None` n'est **jamais** une façade — c'est la borne ⑫, posée ce matin, qui le veut. ⚠️ **Donc l'excuse de ce témoin dépend de l'état du serveur à l'instant de la sonde** : à 998 caractères il serait dit **MUET** et excusé ; à 0, il est refusé. **C'est un détecteur dont le verdict varie sans que le dépôt change**, ce qui est la classe même qu'on ferme depuis le 25/10.
+
+📌 **Ce qui fermerait cette classe est la piste du 05/11** — un verdict `MUET` pour les 2xx à corps vide, borné sur 11 adresses et 2 hôtes —, **non faite, non ordonnée**. 📌 **Et ③ reste entier** : pour `lafinancepourtous.com`, l'archive du 15/07 est à **87 jours** de la date du témoin, et la règle du 25/10 interdit une archive ancienne pour une **VALEUR**.
+
+### La fiche
+
+Amendée selon la convention du 28/11 : **pas de rature**, parce que **rien n'est renversé** — le 18 111 était **juste le jour de la lecture**, c'est la page qui a maigri. Une phrase `**Mise à jour du 28/11/2026.**` en queue du paragraphe des corrections, qui porte les cinq mesures, les quatre verdicts de contrôle et les deux réserves. ⛔ **Ni `[Corrigé le …]` ni section de journal** : ces deux formes sont celles du `.docx`, et 24 fiches les **citent** pour rapporter le journal de leur document.
