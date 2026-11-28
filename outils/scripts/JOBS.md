@@ -9236,3 +9236,39 @@ Frontmatter **`type: fiche-document`** (323) ou **`type: note-dossier`** (6) = *
 | `WebSearch` | 2 requêtes, **en amont pour cibler les URL**, et **aucun de leurs résumés n'est versé** : « résumés de recherche, pas de page lue » (fiche du 25/11) |
 | Soustraction | **sha256 identique**, 168 → 187 lignes, +1 709 octets, `**` en nombre pair |
 | Convention | **329 fiches · 8 ratures · 0 écart** sur le corpus |
+
+## 28/11/2026 — Les deux échéances passées et le titre iMac corrigés, et un défaut LATENT de `aspirer.py` trouvé en chemin : `python3 -I` lui retire son faisceau de certificats
+
+**Ordre** : « corrige les deux échéances passées et le titre iMac », suite directe de la mesure de l'âge des « à revérifier ».
+
+### 🔴 Le défaut trouvé en chemin, et il est de la pire classe : un FAUX diagnostic TLS
+
+En voulant sonder la HAS, `aspirer.py` a rendu **`HTTP 000 · curl 60`** — la signature exacte de l'incident du 18/10 que le faisceau de certificats a été écrit pour clore. 🟢 **Mais la même commande `curl --cacert <faisceau>` rend `200`** : avant d'accuser le serveur, relire l'invocation (règle du 25/10), et c'est l'invocation qui était en cause. **`python3 -I` (mode isolé) retire le dossier du script de `sys.path`** — il implique `-P` —, donc `import ca_bundle` lève `ModuleNotFoundError`, le `try/except` de la ligne 28 **l'avale en silence**, `CA = []`, et la sonde part **sans faisceau**. ⛔ **La direction d'erreur est la plus coûteuse** : non pas un refus, mais un **verdict TLS faux sur une page joignable** — « NON LUE : rien ne sera conclu d'elle » sur une page qui répond. 🟢 **Et la portée est MESURÉE, pas supposée : la production est intacte** — **0 occurrence** de `python3 -I` dans les 6 prompts contre **50** de `python3` nu, donc aucun créneau n'a jamais perdu son faisceau. ⚠️ **C'est moi qui ai déclenché le défaut**, en appliquant la consigne d'isolation de ma session à du code du dépôt. 🔴 **Et le fond du problème n'est pas le repli, c'est qu'il est INDISCERNABLE** : `non_regression/faisceau_5bis.py` teste ce repli **comme une fonctionnalité** (borne ④ : `ca_bundle` rendu inimportable doit faire retomber `CA` à `[]`, pour une machine sans brew) — rien ne distingue « pas de brew » de « `sys.path` a perdu le voisin ». **Un garde satisfait par un état cassé**, le défaut qui revient le plus ici. 📌 **Remède à portée, NON FAIT, NON ORDONNÉ** : `sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))` avant l'import rendrait `-I` inoffensif et laisserait au `except` son sens voulu. À mesurer sur les **autres** scripts qui importent un voisin.
+
+### Ce qui est corrigé, et ce qui est déclaré NON VÉRIFIABLE
+
+🟢 **`HAS-actualite_dossier` — l'appel à candidatures protection de l'enfance.** « Clôture le 4 septembre 2026 » est **échue depuis 85 jours** (calculé puis asserté avant écriture). Rature datée, et la raison est **interne au document** : la deuxième ligne de son propre tableau dit « groupe de travail, 8 sessions, nov. 2026 → oct. 2027 » — le groupe est constitué, il n'y a rien à candidater.
+
+⛔ **ET L'ÉTAT « appel à candidatures ouvert » DU VOLET 3 HABITAT RESTE TEL QUEL, PARCE QU'IL N'EST PAS VÉRIFIABLE** : les **deux** pages d'appel de la HAS rendent **HTTP 403** à une lecture automatique — le portail `r_1482317` et la page `p_4159151` —, alors que **la racine du site rend 200 · 7 253 caractères utiles**. Ce n'est donc ni notre chaîne de certificats ni une panne : c'est une **protection de page**, et il faut un navigateur. **Deux sondes pour le dire, pas une** : un seul code n'est pas un diagnostic (25/10).
+
+🟢 **`HAS-actualite_dossier` — `## Une échéance manquée`.** Les demandes au programme de travail 2027 se closaient le **8 juillet 2026**, soit **143 jours**. ⛔ **Aucune rature** : l'affirmation n'est pas renversée, elle est **exacte** — ce qui est périmé est son conseil, « à anticiper pour le programme 2028 », qui n'est plus une anticipation. Forme ② de la convention, phrase datée. ⚠️ Et la date d'ouverture de la fenêtre 2028 **n'est pas affirmée** : même 403.
+
+🟢 **`iMac_dossier` — le titre annonçait DEUX limites pour QUATRE.** La troisième est apparue le 23/08, la quatrième le 30/08, et le titre n'a pas suivi ses propres ajouts. Rature datée **dans le corps** et non dans le titre.
+
+### 🆕 Le premier cas où la convention rencontre un TITRE, et la décision est dite
+
+⛔ **Une rature ne se pose pas dans un titre** : elle casserait le plan Obsidian et l'ancre du titre. L'intitulé d'origine est donc **conservé barré et daté dans le corps de la section qu'il titre** — « là où elle est amendée » reste satisfait, la section étant l'objet du titre. 🟢 **Et l'ancre a été mesurée avant le geste** : `grep` sur `Deux limites` et `iMac_dossier.fiche#` rend **0 lien** hors du dossier lui-même, donc rien ne pointait sur l'ancien intitulé ; `audit_vault.py` confirme **1 507 liens wiki résolus** après coup. 📌 **Portée dite** : si un lien avait existé, le renommage aurait demandé de le réécrire dans le même geste.
+
+### Mesures
+
+| | |
+|---|---|
+| Sondes | **4**, strictement **séquentielles**, faisceau, aucun `-k` : portail appels **403**, page appel 3-11 ans **403**, racine HAS **200 · 7 253 car.**, plus la sonde de diagnostic `curl --cacert` |
+| Durées | **85** et **143 jours**, calculées puis **assertées** avant d'être écrites |
+| Soustraction | **sha256 identique** sur les deux fiches · HAS 89 → 104 lignes, +1 158 o · iMac 120 → 125 lignes, +355 o |
+| Convention | **329 fiches · 10 ratures · 0 écart** |
+| Gates | `--integrite` exit 0 — 1 507 liens wiki résolus, 23/23 bornes du coffre, 21/21 de la convention |
+
+🔴 **Un défaut à moi, trouvé en relisant** : ma première rédaction disait « ce que la ligne juste au-dessus de ce tableau dit déjà », alors que la cellule du groupe de travail est **dans** le tableau, lui-même au-dessus de la ligne barrée. Une description fausse de la mise en page du document qu'on corrige, dans la phrase qui justifie la correction.
+
+⚠️ **Avocat du diable** : des trois corrections, **une seule** est vérifiée au degré ① contre une source — et c'est la plus faible, le titre iMac, dont la preuve est le document lui-même. Les deux échéances ne sont corrigées que par **arithmétique de calendrier** ; leurs états successeurs — l'appel Habitat volet 3, la fenêtre 2028 — restent **inconnus**, et le dossier le dit maintenant au lieu de les présenter comme vivants. **C'est un progrès d'honnêteté, pas un progrès d'information.**

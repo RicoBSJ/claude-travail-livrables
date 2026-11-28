@@ -64,7 +64,12 @@ que la dalle Retina 4,5K.
 | HP OmniStudio X 27 | 4K, Core Ultra 7, 32 Go, 1 To | 1 192 € à 1 899 € selon relevé |
 | Acer C27 | FHD uniquement | dès 1 099 € |
 
-## Deux limites de cette veille, à connaître avant de s'y fier
+## Quatre limites de cette veille, à connaître avant de s'y fier
+
+~~**Deux** limites de cette veille~~ → **QUATRE, corrigé le 28/11/2026** : ce titre
+annonçait deux limites quand son corps en porte **quatre** — la troisième est apparue le
+**23/08**, la quatrième le **30/08**, et le titre n'a pas suivi ses propres ajouts.
+Aucun lien du coffre ne pointait sur l'ancien intitulé : mesuré avant de le changer.
 
 **Les prix Apple ne sont pas lus directement.** Les pages Apple délivrent leurs tarifs
 en JavaScript, invisible à une récupération automatique. La veille du **19/07** a

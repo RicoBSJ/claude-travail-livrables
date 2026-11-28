@@ -29,7 +29,17 @@ documentent ce qui se prépare.
 | **Prévention spécialisée — accompagner les jeunes sur leurs territoires** | constitution du groupe | — |
 | **Diagnostic et évaluation des troubles schizophréniques** | note de cadrage adoptée 08/04/2026 | **fin 2027** |
 
-Appel à candidatures protection de l'enfance : **clôture le 4 septembre 2026**.
+~~Appel à candidatures protection de l'enfance : **clôture le 4 septembre 2026**.~~ →
+**ÉCHUE le 28/11/2026, depuis 85 jours** : et le groupe est constitué, ce que la
+deuxième ligne du tableau ci-dessus dit déjà — « groupe de travail, 8 sessions, nov. 2026 →
+oct. 2027 ». Rien n'est à candidater ici.
+⚠️ **En revanche l'état « appel à candidatures ouvert » du volet 3 Habitat n'est PAS
+vérifiable aujourd'hui, et il reste donc tel quel** : les deux pages d'appel à
+candidatures de la HAS rendent **HTTP 403** à une lecture automatique — mesuré le
+28/11/2026 sur le portail des appels et sur la page de l'appel protection de l'enfance —
+alors que la racine du site rend **HTTP 200 · 7 253 caractères utiles**. Ce n'est donc ni
+notre chaîne de certificats ni une panne : c'est une protection de page. **Il faut un
+navigateur pour trancher.**
 
 ## Ce qui concerne directement un foyer d'hébergement
 
@@ -76,6 +86,11 @@ Les **demandes d'inscription au programme de travail HAS 2027** se clôturaient 
 **8 juillet 2026**. La note du 06/07 la signale à deux jours de l'échéance. Les
 organismes du champ médico-social peuvent y soumettre des sujets — à anticiper pour le
 programme 2028.
+
+**Mise à jour du 28/11/2026.** L'échéance a **143 jours**, et « à anticiper pour le
+programme 2028 » n'est plus une anticipation : c'est maintenant la fenêtre à surveiller.
+⚠️ **Sa date d'ouverture n'est pas lisible aujourd'hui** — le portail des appels de la HAS
+rend HTTP 403 à un automate —, donc rien n'est affirmé ici sur le calendrier 2028.
 
 ## Les 9 notes
 
